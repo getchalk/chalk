@@ -616,6 +616,49 @@ class TestChalkMultimodalSynthesis(unittest.TestCase):
         self.assertNotIn(mock_file, pipeline._tracked_files)
 
 
+class TestChalkHudKaTeXRendering(unittest.TestCase):
+    def test_latex_to_katex_html_conversions(self):
+        from src.ui.hud_window import latex_to_katex_html
+
+        # Test Greek symbols and subscripts
+        capm = r"E(R_i) = R_f + \beta_i [E(R_m) - R_f]"
+        html_capm = latex_to_katex_html(capm)
+        self.assertIn("&beta;", html_capm)
+        self.assertIn("<sub>i</sub>", html_capm)
+        self.assertNotIn(r"\beta", html_capm)
+
+        # Test fraction conversion to centered table
+        bayes = r"P(A|B) = \frac{P(B|A)P(A)}{P(B)}"
+        html_bayes = latex_to_katex_html(bayes)
+        self.assertIn("<table", html_bayes)
+        self.assertIn("P(B|A)P(A)", html_bayes)
+        self.assertIn("P(B)", html_bayes)
+
+        # Test square root and summation
+        variance = r"\sigma = \sqrt{\frac{1}{N} \sum_{i=1}^N (x_i - \mu)^2}"
+        html_var = latex_to_katex_html(variance)
+        self.assertIn("&radic;", html_var)
+        self.assertIn("&sum;", html_var)
+        self.assertIn("&mu;", html_var)
+
+    def test_render_markdown_with_katex(self):
+        from src.ui.hud_window import render_markdown_with_katex
+
+        md = (
+            "# Lecture: Financial Theory\n\n"
+            "> [!theorem] CAPM Security Market Line\n"
+            "$$E(R_i) = R_f + \\beta_i [E(R_m) - R_f]$$\n"
+            "Here is an inline symbol $\\alpha > 0$ and link [00:14:15](chalk-audio://00:14:15). ∎"
+        )
+        html = render_markdown_with_katex(md)
+        self.assertIn("chalk-audio://00:14:15", html)
+        self.assertIn("THEOREM", html)
+        self.assertIn("&beta;", html)
+        self.assertIn("&alpha;", html)
+        self.assertIn("&#8718;", html)  # Q.E.D. mark
+        self.assertIn("#1A1C23", html)  # Dark titanium math card
+
+
 if __name__ == "__main__":
     unittest.main()
 

@@ -243,7 +243,7 @@
     </p>
 
     <!-- CTAs -->
-    <div class="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16">
+    <div class="flex flex-col sm:flex-row items-center justify-center gap-4 mb-10">
       <a href="#download" class="w-full sm:w-auto px-7 py-3.5 rounded-xl font-semibold transition shadow-md flex items-center justify-center gap-2 text-sm" style="background-color: var(--chalk-white); color: var(--bg-obsidian);">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
         <span data-i18n="hero_cta_mac">Download for macOS (Apple Silicon)</span>
@@ -251,6 +251,11 @@
       <a href="#download" class="w-full sm:w-auto px-6 py-3.5 rounded-xl border font-medium transition flex items-center justify-center gap-2 text-sm" style="background-color: var(--surface-graphite); border-color: var(--chalk-border); color: var(--chalk-white);">
         <span data-i18n="hero_cta_win">Download for Windows (x64)</span>
       </a>
+    </div>
+
+    <!-- Desk Atmosphere Visual Accent -->
+    <div class="max-w-4xl mx-auto mb-10 overflow-hidden rounded-2xl border shadow-xl relative" style="background-color: var(--surface-terminal); border-color: var(--chalk-border);">
+      <img src="assets/img/hero_desk_atmosphere.webp" alt="Quiet Cognitive Presence" class="w-full h-auto object-cover max-h-56 opacity-95 hover:opacity-100 transition duration-300" loading="lazy">
     </div>
 
     <!-- 3D Perspective Card Showcase -->
@@ -412,8 +417,11 @@ ight]$$
           <p class="text-sm leading-relaxed mb-4" style="color: var(--chalk-slate);" data-i18n="step3_desc">
             When finished, you receive clean, structured Markdown notes with key points, LaTeX formulas, and slide snapshots. Ready for Obsidian or your editor of choice.
           </p>
+          <div class="rounded-xl border border-white/10 overflow-hidden shadow-lg mt-4" style="background-color: var(--surface-terminal);">
+            <img src="assets/img/obsidian_preview.webp" alt="Obsidian Note Preview" class="rounded-xl border border-white/10 w-full h-auto object-cover shadow-lg" loading="lazy">
+          </div>
         </div>
-        <div class="pt-4 border-t text-xs flex justify-between" style="border-color: var(--chalk-border); color: var(--chalk-muted);">
+        <div class="pt-4 border-t text-xs flex justify-between mt-4" style="border-color: var(--chalk-border); color: var(--chalk-muted);">
           <span data-i18n="step3_tag1">Format: LaTeX Markdown</span>
           <span data-i18n="step3_tag2">1-Click Obsidian export</span>
         </div>
@@ -435,6 +443,7 @@ ight]$$
       <!-- Case 1: University Lectures -->
       <div class="rounded-2xl border p-7 transition flex flex-col justify-between shadow-sm" style="background-color: var(--surface-graphite); border-color: var(--chalk-border);">
         <div>
+          <img src="assets/img/usecase_lecture.webp" alt="University Lectures & Academic Seminars" class="w-full object-cover h-32 rounded-lg border border-white/5 mb-4 shadow-sm" loading="lazy">
           <div class="w-9 h-9 rounded-lg border flex items-center justify-center font-mono text-xs mb-4" style="background-color: var(--surface-elevated); border-color: var(--chalk-border); color: var(--chalk-white);">
             01
           </div>
@@ -452,6 +461,7 @@ ight]$$
       <!-- Case 2: Technical Seminars & Architecture Reviews -->
       <div class="rounded-2xl border p-7 transition flex flex-col justify-between shadow-sm" style="background-color: var(--surface-graphite); border-color: var(--chalk-border);">
         <div>
+          <img src="assets/img/usecase_architecture.webp" alt="Technical Reviews & Architecture Walkthroughs" class="w-full object-cover h-32 rounded-lg border border-white/5 mb-4 shadow-sm" loading="lazy">
           <div class="w-9 h-9 rounded-lg border flex items-center justify-center font-mono text-xs mb-4" style="background-color: var(--surface-elevated); border-color: var(--chalk-border); color: var(--chalk-white);">
             02
           </div>
@@ -469,6 +479,7 @@ ight]$$
       <!-- Case 3: Executive Strategy & Board Calls -->
       <div class="rounded-2xl border p-7 transition flex flex-col justify-between shadow-sm" style="background-color: var(--surface-graphite); border-color: var(--chalk-border);">
         <div>
+          <img src="assets/img/usecase_boardroom.webp" alt="Executive Strategy & Board Meetings" class="w-full object-cover h-32 rounded-lg border border-white/5 mb-4 shadow-sm" loading="lazy">
           <div class="w-9 h-9 rounded-lg border flex items-center justify-center font-mono text-xs mb-4" style="background-color: var(--surface-elevated); border-color: var(--chalk-border); color: var(--chalk-white);">
             03
           </div>
@@ -486,6 +497,7 @@ ight]$$
       <!-- Case 4: Webinars & Remote Conferences -->
       <div class="rounded-2xl border p-7 transition flex flex-col justify-between shadow-sm" style="background-color: var(--surface-graphite); border-color: var(--chalk-border);">
         <div>
+          <img src="assets/img/usecase_webinar.webp" alt="Webinars & Virtual Conferences" class="w-full object-cover h-32 rounded-lg border border-white/5 mb-4 shadow-sm" loading="lazy">
           <div class="w-9 h-9 rounded-lg border flex items-center justify-center font-mono text-xs mb-4" style="background-color: var(--surface-elevated); border-color: var(--chalk-border); color: var(--chalk-white);">
             04
           </div>

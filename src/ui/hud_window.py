@@ -14,6 +14,7 @@ import sys
 import time
 import subprocess
 import logging
+import re
 from typing import Optional
 from PIL import Image
 
@@ -35,6 +36,7 @@ from PyQt6.QtWidgets import (
     QSplitter,
     QGraphicsDropShadowEffect,
     QSlider,
+    QStackedWidget,
 )
 
 from src.ui.snip_overlay import SnipOverlayWidget
@@ -44,7 +46,7 @@ logger = logging.getLogger("chalk.ui.hud")
 
 HUD_STYLESHEET = """
 QWidget#hudRoot {
-    background-color: rgba(10, 11, 16, 0.96);
+    background-color: rgba(18, 19, 23, 0.96);
     border: 1px solid rgba(255, 255, 255, 0.12);
     border-radius: 16px;
     color: #F8FAFC;
@@ -54,7 +56,7 @@ QLabel {
     color: #E2E8F0;
 }
 QPushButton {
-    background-color: rgba(22, 24, 32, 0.85);
+    background-color: rgba(26, 28, 35, 0.85);
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 8px;
     color: #CBD5E1;
@@ -63,7 +65,7 @@ QPushButton {
     font-weight: 500;
 }
 QPushButton:hover {
-    background-color: rgba(35, 38, 50, 0.95);
+    background-color: rgba(38, 41, 52, 0.95);
     color: #FFFFFF;
     border-color: rgba(255, 255, 255, 0.25);
 }
@@ -78,7 +80,7 @@ QPushButton#primaryAction:hover {
     color: #000000;
 }
 QTextEdit, QTextBrowser, QLineEdit {
-    background-color: rgba(18, 20, 28, 0.95);
+    background-color: rgba(21, 22, 27, 0.95);
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 8px;
     color: #F8FAFC;
@@ -89,7 +91,7 @@ QTextEdit:focus, QTextBrowser:focus, QLineEdit:focus {
     border: 1px solid rgba(255, 255, 255, 0.4);
 }
 QFrame#playerBar {
-    background-color: rgba(18, 20, 28, 0.8);
+    background-color: rgba(26, 28, 35, 0.9);
     border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 10px;
     padding: 4px 10px;
@@ -155,6 +157,212 @@ def find_local_obsidian_vault() -> Optional[str]:
         except Exception:
             pass
     return None
+
+
+def _extract_braced_arg(s: str, idx: int):
+    """Extracts balanced {content} starting at idx."""
+    if idx >= len(s) or s[idx] != "{":
+        return None, idx
+    depth = 0
+    start = idx + 1
+    for i in range(idx, len(s)):
+        if s[i] == "{":
+            depth += 1
+        elif s[i] == "}":
+            depth -= 1
+            if depth == 0:
+                return s[start:i], i + 1
+    return s[start:], len(s)
+
+
+def latex_to_katex_html(formula: str) -> str:
+    """
+    Converts raw LaTeX mathematical expressions into lightweight KaTeX-styled HTML
+    compatible with Qt's QTextBrowser engine (roots, fractions, Greek symbols, superscripts).
+    """
+    # 1. Square roots first with balanced braces (supports nested fractions)
+    while True:
+        pos = formula.find(r"\sqrt{")
+        if pos == -1:
+            break
+        inner, next_pos = _extract_braced_arg(formula, pos + len(r"\sqrt"))
+        if inner is None:
+            break
+        inner_html = latex_to_katex_html(inner)
+        sqrt_html = f'&radic;<span style="border-top:1px solid #F8FAFC; padding-top:1px; margin-left:1px;">{inner_html}</span>'
+        formula = formula[:pos] + sqrt_html + formula[next_pos:]
+
+    # 2. Fractions with balanced braces (supports nested numerators/denominators)
+    for cmd in [r"\frac", r"\dfrac", r"\tfrac", r"\cfrac"]:
+        while True:
+            pos = formula.find(cmd + "{")
+            if pos == -1:
+                break
+            num, next_pos = _extract_braced_arg(formula, pos + len(cmd))
+            if num is None:
+                break
+            while next_pos < len(formula) and formula[next_pos].isspace():
+                next_pos += 1
+            if next_pos < len(formula) and formula[next_pos] == "{":
+                den, end_pos = _extract_braced_arg(formula, next_pos)
+            else:
+                den, end_pos = "", next_pos
+            num_html = latex_to_katex_html(num)
+            den_html = latex_to_katex_html(den)
+            tbl = (
+                f'<table style="display:inline-table; vertical-align:middle; text-align:center; border-collapse:collapse; margin:0 3px; font-size:0.92em;">'
+                f'<tr><td style="border-bottom:1px solid #F8FAFC; padding:0 3px; line-height:1.15;">{num_html}</td></tr>'
+                f'<tr><td style="padding:0 3px; line-height:1.15;">{den_html}</td></tr>'
+                f'</table>'
+            )
+            formula = formula[:pos] + tbl + formula[end_pos:]
+
+    # 3. Greek letters (replace backslash Greek with HTML entities)
+    greek = {
+        "alpha": "&alpha;", "beta": "&beta;", "gamma": "&gamma;", "delta": "&delta;",
+        "epsilon": "&epsilon;", "varepsilon": "&epsilon;", "zeta": "&zeta;", "eta": "&eta;",
+        "theta": "&theta;", "vartheta": "&theta;", "iota": "&iota;", "kappa": "&kappa;",
+        "lambda": "&lambda;", "mu": "&mu;", "nu": "&nu;", "xi": "&xi;", "pi": "&pi;",
+        "rho": "&rho;", "sigma": "&sigma;", "tau": "&tau;", "upsilon": "&upsilon;",
+        "phi": "&phi;", "varphi": "&phi;", "chi": "&chi;", "psi": "&psi;", "omega": "&omega;",
+        "Gamma": "&Gamma;", "Delta": "&Delta;", "Theta": "&Theta;", "Lambda": "&Lambda;",
+        "Xi": "&Xi;", "Pi": "&Pi;", "Sigma": "&Sigma;", "Upsilon": "&Upsilon;",
+        "Phi": "&Phi;", "Psi": "&Psi;", "Omega": "&Omega;"
+    }
+    for g, entity in greek.items():
+        pattern = r"\\" + g + r"(?![a-zA-Z])"
+        formula = re.sub(pattern, entity, formula)
+
+    # 4. Operators & math symbols
+    symbols = {
+        "sum": '<span style="font-size:1.3em; line-height:1;">&sum;</span>',
+        "prod": '<span style="font-size:1.3em; line-height:1;">&prod;</span>',
+        "int": '<span style="font-size:1.3em; line-height:1;">&int;</span>',
+        "oint": '<span style="font-size:1.3em; line-height:1;">&#8750;</span>',
+        "infty": "&infin;", "approx": "&asymp;", "equiv": "&equiv;",
+        "leq": "&le;", "le": "&le;", "geq": "&ge;", "ge": "&ge;",
+        "neq": "&ne;", "ne": "&ne;", "times": "&times;", "cdot": "&middot;",
+        "pm": "&plusmn;", "mp": "&#8723;", "in": "&isin;", "notin": "&#8713;",
+        "subset": "&sub;", "subseteq": "&#8838;", "cup": "&cup;", "cap": "&cap;",
+        "forall": "&forall;", "exists": "&exist;", "partial": "&part;", "nabla": "&nabla;",
+        "to": "&rarr;", "rightarrow": "&rarr;", "Rightarrow": "&rArr;",
+        "leftarrow": "&larr;", "Leftarrow": "&lArr;", "leftrightarrow": "&harr;",
+        "quad": "&nbsp;&nbsp;", "qquad": "&nbsp;&nbsp;&nbsp;&nbsp;",
+        "mathbb{R}": "&#x211D;", "mathbb{N}": "&#x2115;", "mathbb{Z}": "&#x2124;",
+        "mathbb{C}": "&#x2102;", "mathbb{Q}": "&#x211A;", "dots": "&hellip;",
+        "cdots": "&hellip;", "ldots": "&hellip;",
+    }
+    for s, entity in symbols.items():
+        formula = formula.replace(f"\\{s}", entity)
+
+    # 5. Superscripts and Subscripts
+    formula = re.sub(r"\^\{([^{}]+)\}", r"<sup>\1</sup>", formula)
+    formula = re.sub(r"\^([a-zA-Z0-9])", r"<sup>\1</sup>", formula)
+    formula = re.sub(r"_\{([^{}]+)\}", r"<sub>\1</sub>", formula)
+    formula = re.sub(r"_([a-zA-Z0-9])", r"<sub>\1</sub>", formula)
+
+    # 6. Delimiters
+    formula = formula.replace(r"\left(", "(").replace(r"\right)", ")")
+    formula = formula.replace(r"\left[", "[").replace(r"\right]", "]")
+    formula = formula.replace(r"\left\{", "{").replace(r"\right\}", "}")
+    formula = formula.replace(r"\left|", "|").replace(r"\right|", "|")
+
+    # 7. Font styles
+    formula = re.sub(r"\\(?:text|mathbf|mathrm)\{([^{}]+)\}", r"<b>\1</b>", formula)
+    formula = re.sub(r"\\(?:mathit)\{([^{}]+)\}", r"<i>\1</i>", formula)
+
+    return formula
+
+
+def render_markdown_with_katex(md_text: str) -> str:
+    """
+    Renders Markdown notes containing display ($$...$$) and inline ($...$) LaTeX formulas,
+    Obsidian callouts (> [!type]), audio scrubbing links (chalk-audio://), and Q.E.D. marks
+    into beautiful KaTeX-styled HTML formatted for QTextBrowser on a Dark Titanium background.
+    """
+    if not md_text or not md_text.strip():
+        return ""
+
+    # Protect display formulas $$...$$
+    blocks = []
+    def repl_display(m):
+        raw = m.group(1).strip()
+        rendered = latex_to_katex_html(raw)
+        idx = len(blocks)
+        card = (
+            f'<div style="background:#1A1C23; border:1px solid rgba(255,255,255,0.14); '
+            f'border-radius:8px; padding:10px 14px; margin:8px 0; text-align:center; '
+            f'font-family:\'Cambria Math\',\'KaTeX_Main\',\'Times New Roman\',serif; '
+            f'font-size:15px; color:#F8FAFC;">{rendered}</div>'
+        )
+        blocks.append(card)
+        return f"__CHALK_MATH_BLOCK_{idx}__"
+
+    text = re.sub(r"\$\$(.*?)\$\$", repl_display, md_text, flags=re.DOTALL)
+
+    # Protect inline formulas $...$
+    inlines = []
+    def repl_inline(m):
+        raw = m.group(1).strip()
+        rendered = latex_to_katex_html(raw)
+        idx = len(inlines)
+        span = (
+            f'<span style="font-family:\'Cambria Math\',\'KaTeX_Math\',\'Times New Roman\',serif; '
+            f'font-style:italic; color:#F8FAFC; padding:0 2px;">{rendered}</span>'
+        )
+        inlines.append(span)
+        return f"__CHALK_MATH_INLINE_{idx}__"
+
+    text = re.sub(r"(?<!\\)\$(.+?)(?<!\\)\$", repl_inline, text)
+
+    # Convert audio timestamp links [HH:MM:SS](chalk-audio://HH:MM:SS)
+    text = re.sub(
+        r"\[([0-9:]+)\]\(chalk-audio://([0-9:]+)\)",
+        r'<a href="chalk-audio://\2" style="color:#60A5FA; text-decoration:none; '
+        r'font-weight:600; font-family:monospace; background:rgba(255,255,255,0.08); '
+        r'padding:1px 5px; border-radius:4px;">⏱️ [\1]</a>',
+        text
+    )
+
+    # Convert headers
+    text = re.sub(r"^###\s+(.*)$", r'<h3 style="color:#F8FAFC; font-size:14px; margin:8px 0 4px;">\1</h3>', text, flags=re.MULTILINE)
+    text = re.sub(r"^##\s+(.*)$", r'<h2 style="color:#F8FAFC; font-size:16px; margin:12px 0 6px;">\1</h2>', text, flags=re.MULTILINE)
+    text = re.sub(r"^#\s+(.*)$", r'<h1 style="color:#F8FAFC; font-size:18px; margin:14px 0 8px;">\1</h1>', text, flags=re.MULTILINE)
+
+    # Bold & Italic
+    text = re.sub(r"\*\*(.+?)\*\*", r"<b>\1</b>", text)
+    text = re.sub(r"\*(.+?)\*", r"<i>\1</i>", text)
+
+    # Obsidian callouts > [!type] Title
+    callout_colors = {
+        "theorem": ("#60A5FA", "THEOREM"),
+        "definition": ("#34D399", "DEFINITION"),
+        "proof": ("#A78BFA", "BEWEIS / PROOF"),
+        "remark": ("#FBBF24", "HINWEIS / REMARK"),
+        "example": ("#38BDF8", "BEISPIEL / EXAMPLE"),
+    }
+    for ctype, (color, label) in callout_colors.items():
+        pat = re.compile(rf"^>\s*\[!{ctype}\]\s*(.*?)$", flags=re.MULTILINE | re.IGNORECASE)
+        text = pat.sub(
+            rf'<div style="background:#1A1C23; border:1px solid rgba(255,255,255,0.12); '
+            rf'border-left:4px solid {color}; border-radius:6px; padding:8px 12px; margin:8px 0;">'
+            rf'<div style="font-weight:700; color:{color}; font-size:11px; margin-bottom:4px; font-family:sans-serif;">{label}: \1</div>',
+            text
+        )
+
+    text = text.replace("\n> ", "\n<br>")
+    text = text.replace("∎", '<span style="float:right; color:#94A3B8; font-size:14px;">&#8718;</span><div style="clear:both;"></div>')
+
+    # Convert newlines to breaks
+    text = text.replace("\n\n", "<p style='margin:6px 0;'>").replace("\n", "<br>")
+
+    # Restore inlines & blocks
+    for i, b in enumerate(inlines):
+        text = text.replace(f"__CHALK_MATH_INLINE_{i}__", b)
+    for i, b in enumerate(blocks):
+        text = text.replace(f"__CHALK_MATH_BLOCK_{i}__", b)
+
+    return f'<div style="color:#CBD5E1; font-family:-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif; font-size:13px; line-height:1.5;">{text}</div>'
 
 
 class CopilotWorker(QThread):
@@ -380,9 +588,25 @@ class FloatingHUDWindow(QWidget):
         right_layout.setContentsMargins(6, 0, 0, 0)
         right_layout.setSpacing(6)
 
-        copilot_label = QLabel("💬 Chalk Copilot & Audio-Scrubbing:")
-        copilot_label.setStyleSheet("font-size: 11px; font-weight: 600; color: #94A3B8;")
-        right_layout.addWidget(copilot_label)
+        # Right Column Header Switcher: [💬 Copilot & Verlauf] [📐 Live KaTeX Notizen]
+        switcher_row = QHBoxLayout()
+        switcher_row.setSpacing(6)
+
+        self.btn_view_chat = QPushButton("💬 Copilot & Verlauf")
+        self.btn_view_chat.setStyleSheet("background-color: rgba(255, 255, 255, 0.16); color: #FFFFFF; font-weight: 600; padding: 4px 10px; font-size: 11px;")
+        self.btn_view_chat.clicked.connect(self._show_chat_view)
+        switcher_row.addWidget(self.btn_view_chat)
+
+        self.btn_view_notes = QPushButton("📐 Live KaTeX Notizen")
+        self.btn_view_notes.setStyleSheet("background-color: rgba(26, 28, 35, 0.85); color: #94A3B8; font-weight: 500; padding: 4px 10px; font-size: 11px;")
+        self.btn_view_notes.clicked.connect(self._show_notes_view)
+        switcher_row.addWidget(self.btn_view_notes)
+
+        switcher_row.addStretch()
+        right_layout.addLayout(switcher_row)
+
+        # Stacked viewer: 0 = Chat & Scrubber, 1 = Live KaTeX Notes
+        self.right_stack = QStackedWidget()
 
         self.chat_history = QTextBrowser()
         self.chat_history.setReadOnly(True)
@@ -390,7 +614,17 @@ class FloatingHUDWindow(QWidget):
         self.chat_history.setOpenLinks(False)
         self.chat_history.anchorClicked.connect(self._on_anchor_clicked)
         self.chat_history.setPlaceholderText("Antworten, Rewind-Transkripte und klickbare Zeitstempel [HH:MM:SS] erscheinen hier...")
-        right_layout.addWidget(self.chat_history)
+        self.right_stack.addWidget(self.chat_history)
+
+        self.notes_browser = QTextBrowser()
+        self.notes_browser.setReadOnly(True)
+        self.notes_browser.setOpenExternalLinks(False)
+        self.notes_browser.setOpenLinks(False)
+        self.notes_browser.anchorClicked.connect(self._on_anchor_clicked)
+        self.notes_browser.setPlaceholderText("Live KaTeX gerenderte Notizen mit echten mathematischen Formeln erscheinen hier...")
+        self.right_stack.addWidget(self.notes_browser)
+
+        right_layout.addWidget(self.right_stack)
 
         prompt_row = QHBoxLayout()
         prompt_row.setSpacing(8)
@@ -660,7 +894,9 @@ class FloatingHUDWindow(QWidget):
         self.rewind_worker.start()
 
     def _on_rewind_finished(self, transcript: str):
-        self.chat_history.append(f"<b>[Rewind 90s Transkript]:</b>\n{transcript}\n")
+        rendered_html = render_markdown_with_katex(transcript)
+        self.chat_history.append(f"<b>[Rewind 90s Transkript]:</b><div style='margin-top:4px;'>{rendered_html}</div><br>")
+        self.refresh_live_notes_view()
 
     def _send_copilot_prompt(self):
         prompt = self.prompt_input.text().strip()
@@ -682,7 +918,55 @@ class FloatingHUDWindow(QWidget):
 
     def _on_copilot_finished(self, response: str):
         self.send_btn.setEnabled(True)
-        self.chat_history.append(f"<b>Chalk:</b>\n{response}\n")
+        rendered_html = render_markdown_with_katex(response)
+        self.chat_history.append(f"<b>Chalk:</b><div style='margin-top:4px;'>{rendered_html}</div><br>")
+        self.refresh_live_notes_view()
+
+    def _show_chat_view(self):
+        """Switches right pane to Copilot & Audio-Scrubbing history."""
+        self.right_stack.setCurrentIndex(0)
+        self.btn_view_chat.setStyleSheet("background-color: rgba(255, 255, 255, 0.16); color: #FFFFFF; font-weight: 600; padding: 4px 10px; font-size: 11px;")
+        self.btn_view_notes.setStyleSheet("background-color: rgba(26, 28, 35, 0.85); color: #94A3B8; font-weight: 500; padding: 4px 10px; font-size: 11px;")
+
+    def _show_notes_view(self):
+        """Switches right pane to Live KaTeX mathematical notes browser."""
+        self.right_stack.setCurrentIndex(1)
+        self.btn_view_notes.setStyleSheet("background-color: rgba(255, 255, 255, 0.16); color: #FFFFFF; font-weight: 600; padding: 4px 10px; font-size: 11px;")
+        self.btn_view_chat.setStyleSheet("background-color: rgba(26, 28, 35, 0.85); color: #94A3B8; font-weight: 500; padding: 4px 10px; font-size: 11px;")
+        self.refresh_live_notes_view()
+
+    def refresh_live_notes_view(self):
+        """Loads and live-renders active lecture notes with KaTeX equations."""
+        notes_path = self._get_active_notes_path()
+        content = ""
+        if notes_path and os.path.exists(notes_path):
+            try:
+                with open(notes_path, "r", encoding="utf-8") as f:
+                    content = f.read()
+            except Exception:
+                pass
+
+        if not content.strip():
+            scratchpad = self.get_scratchpad_content().strip()
+            if scratchpad:
+                content = f"# Aktueller Notizen-Entwurf\n\n{scratchpad}"
+            else:
+                content = (
+                    "# Chalk Live Notizen\n\n"
+                    "> [!theorem] KaTeX Mathematical Live-Rendering Aktiv\n"
+                    "> Mathematische Formeln wie $$E(R_i) = R_f + \\beta_i [E(R_m) - R_f]$$ "
+                    "oder $$P(A|B) = \\frac{P(B|A)P(A)}{P(B)}$$ werden live mit echten "
+                    "Wurzeln, Brüchen und Summenzeichen gerendert. ∎\n\n"
+                    "Sobald der Dozent spricht oder Folien wechseln, wachsen deine Notizen hier synchron mit."
+                )
+
+        rendered_html = render_markdown_with_katex(content)
+        self.notes_browser.setHtml(rendered_html)
+
+    def display_live_notes(self, markdown_notes: str):
+        """Explicitly sets and updates the live KaTeX rendered notes."""
+        rendered_html = render_markdown_with_katex(markdown_notes)
+        self.notes_browser.setHtml(rendered_html)
 
     # Audio Scrubbing & Playback
     def _on_anchor_clicked(self, url: QUrl):

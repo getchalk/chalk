@@ -1,6 +1,6 @@
 ================================================================================
 CHALK — AMBIENT COGNITIVE PRESENCE ENGINE & WEB PORTAL
-STATUS-REPORT, ARCHITEKTUR-ÜBERSICHT UND ANMERKUNGEN (PHASEN 1–9)
+STATUS-REPORT, ARCHITEKTUR-ÜBERSICHT UND ANMERKUNGEN (PHASEN 1–10)
 ================================================================================
 Stand: 2026-10-06
 Projektpfad (Desktop): /Users/user/Desktop/chalk/
@@ -20,8 +20,9 @@ Phase 6: Consumer-Grade Polish, De-Hackerization & Kontrast-Reparatur [ABGESCHLO
 Phase 7: De-Hackerization, Slop Elimination & Consumer Refinement [ABGESCHLOSSEN]
 Phase 8: Radikales Web De-Slopping, Deep App Enhancements & Standalone Re-Build [ABGESCHLOSSEN]
 Phase 9: Multi-Agent Swarm Production Hardening, i18n & Re-Build [ABGESCHLOSSEN]
+Phase 10: Desktop HUD KaTeX Live-Rendering & Web Image Integration [ABGESCHLOSSEN]
 
-- Unit- & Integrationstest-Suite: 25/25 TESTS BESTANDEN (2.38s).
+- Unit- & Integrationstest-Suite: 27/27 TESTS BESTANDEN (2.82s).
 - Web-Integritätsprüfung: 0 VERBOTENE TOKEN / 0 EMOJIS / TITANIUM PALETTE (deploy_web.sh PASS).
 - End-to-End Dry-Run Simulation: 5/5 STAGES ERFOLGREICH (Notes/Lecture_Simulation.md verifiziert).
 - Pre-Flight Hardware-Diagnostik: ALLE RECHTE AKTIV (Mikrofon, Bildschirmaufnahme, Barrierefreiheit).
@@ -31,6 +32,8 @@ Phase 9: Multi-Agent Swarm Production Hardening, i18n & Re-Build [ABGESCHLOSSEN]
 - Native Zero-Permission Hotkeys: Carbon RegisterEventHotKey (macOS) / user32 (Windows) -> Cmd+Shift+Space.
 - In-Person Vorlesungsmodus: PDF Pre-Import per Drag & Drop auf HUD zur Folien-Audio-Zuordnung.
 - Typisierte LaTeX-Synthese: Pydantic Structured Outputs, Anti-Halluzination ([Lücke]), KaTeX-Validator & ∎.
+- Desktop HUD KaTeX Live-Rendering: Balanced-Brace HTML-Formel-Engine, Obsidian-Callouts & Notizen-Umschaltung.
+- Web Editorial Bild-Container: 6 WebP-Grafiken für Obsidian-Vorschau, Bento-Szenarien & Desk-Atmosphäre.
 - Google Files API Lifecycle: Automatische, sofortige Löschung (client.files.delete) in finally-Block.
 - Web i18n & Titanium Theme: 5 Sprachen (EN, DE, FR, ES, ZH), Dark Titanium (#121317), Konferenz-Hinweiskopie.
 - Standalone Kompilierung: dist/Chalk.app frisch gebaut (144 MB arm64, PyInstaller Exit 0).
@@ -235,7 +238,7 @@ D. SUBAGENT 4: FRONTEND, I18N & HUMAN DESIGN ENGINEER
       - Präzise Formulierung: "Local-First • Direct BYOK • No Chalk Servers".
       - "Hinweistext kopieren"-Button im Footer und im § 120 StGB Modal zur unkomplizierten Einbettung in Zoom/Einladungen.
 
-E. QA-VERIFIKATION & RELEASE-PIPELINE
+E. QA-VERIFIKATION & RELEASE-PIPELINE (PHASE 9)
   [✓] Umfassende Test-Suite:
       - `python -m unittest tests/test_chalk_pipeline.py`: **25/25 Tests bestanden** (2.38s).
       - `tests/test_live_simulation.py`: **5/5 Stages erfolgreich bestanden**.
@@ -245,14 +248,64 @@ E. QA-VERIFIKATION & RELEASE-PIPELINE
       - `scripts/generate_checksums.py` ausgeführt -> `dist/Chalk-macOS.zip` (143.24 MB).
 
 
-6. ARTEFAKT- & PRÜFSUMMEN-ÜBERSICHT (dist/SHA256SUMS.txt)
+6. PHASE 10 DURCHGEFÜHRTE MASSNAHMEN (HUD KATEX LIVE-RENDERING & WEB IMAGE INTEGRATION)
+--------------------------------------------------------------------------------
+
+A. TASK 1: DESKTOP HUD KATEX LIVE-RENDERING (`src/ui/hud_window.py`)
+  [✓] Robuste Mathematische HTML/KaTeX-Engine:
+      - `latex_to_katex_html()` implementiert mit rekursiver `_extract_braced_arg()` Klammer-Balance-Logik.
+      - Unterstützt beliebig tief geschachtelte Ausdrücke wie `\sigma = \sqrt{\frac{1}{N} \sum_{i=1}^N (x_i - \mu)^2}` ohne Regex-Bruch.
+      - Konvertiert Brüche `\frac{A}{B}` in typografisch saubere HTML-Tabellen mit horizontaler Trennlinie.
+      - Rendert Wurzeln `\sqrt{...}` mit `&radic;` und oberer Auszugslinie (`border-top`).
+      - Volle Unterstützung für griechische Buchstaben (`\alpha`, `\beta`, `\sigma`, `\mu`, etc.), Indizes `_i` (`<sub>`), Exponenten `^2` (`<sup>`), mathematische Operatoren (`\sum`, `\int`, `\times`, `\pm`, `\approx`, etc.) und Delimiter (`\left(`, `\right)`).
+  [✓] Umfassendes Markdown-Rendering (`render_markdown_with_katex()`):
+      - Display-Math `$$...$$` wird in zentrierten Dark Titanium Karten (`background: #1A1C23; border: 1px solid #282C37`) dargestellt.
+      - Inline-Math `$math$` wird nahtlos im Fließtext formatiert.
+      - Obsidian-Callouts (`> [!theorem]`, `> [!definition]`, `> [!proof]`) mit Titanium-Farbkodierung.
+      - Audio-Scrubbing-Links (`chalk-audio://HH:MM:SS`) und formale Beweisabschlüsse (`∎` / `&#8718;`).
+  [✓] Interaktive Ansichten-Umschaltung im Floating HUD:
+      - `QStackedWidget` in der rechten Spalte integriert mit schnellem Segmented Control Toggle:
+        `[💬 Copilot & Verlauf]` vs. `[📐 Live KaTeX Notizen]`.
+      - Neues `notes_browser = QTextBrowser()` zeigt formatierte Vorlesungs- und Sitzungsnotizen mit Live-Formeln an.
+      - Copilot- und Rewind-Ergebnisse rendern mathematische Formeln und Theoreme ab sofort in Echtzeit mit KaTeX-Layout.
+      - Beibehaltung der Dark Titanium Palette (`#121317` / `#1A1C23`), des Obsidian-Export-Buttons und aller Systemsteuerungen.
+
+B. TASK 2: WEB IMAGE CONTAINERS & EDITORIAL ASSET SLOTS (`web/index.html`)
+  [✓] Bild-Generierung & Assets (`scripts/generate_web_assets.py` & `web/assets/img/`):
+      - 6 hochauflösende, extrem schlanke WebP-Grafiken im Titanium-Stil generiert:
+        * `obsidian_preview.webp` (800x480, 25.5 KB) — Exakte Obsidian-Notiz-Vorschau mit Formeln, Callouts & Audio-Links.
+        * `usecase_lecture.webp` (640x360, 11.0 KB) — Hörsaal/Audimax-Szenario mit Folienprojektion und Tafel-Herleitung.
+        * `usecase_architecture.webp` (640x360, 15.6 KB) — Technisches System- & Architektur-Review mit Diagrammen.
+        * `usecase_boardroom.webp` (640x360, 17.7 KB) — Exekutives Strategie- und Boardroom-Meeting mit KPIs.
+        * `usecase_webinar.webp` (640x360, 14.2 KB) — Remote-Webinar & Bildschirm-Audio-Erfassung.
+        * `hero_desk_atmosphere.webp` (960x420, 24.2 KB) — Minimalistischer, ruhiger Arbeitsplatz mit Chalk im Hintergrund.
+  [✓] Nahtlose Web-Integration in `web/index.html`:
+      - Schritt 3 ("Strukturierte Notizen in Obsidian"): Eleganter Bild-Container mit dezentem Titanium-Rahmen (`border-slate-800/80`) und Glow-Effekt.
+      - Bento-Grid (4 Kernszenarien): Jede Karte mit spezifischem Editorial Visual (`aspect-video`, abgerundete Ecken, Hover-Zoom).
+      - Hero-Sektion: Großflächiger Desk-Atmosphäre-Container unterhalb der Kernaktion.
+  [✓] Konformität & Integrität:
+      - 0 verbotene Farben (kein Lila/Indigo/Violett/Neongrün).
+      - 0 Emojis (strikte Nutzung von SVG-Icons).
+      - `./scripts/deploy_web.sh test` besteht fehlerfrei.
+
+C. QA-VERIFIKATION (PHASE 10)
+  [✓] Erweiterte Test-Suite (`tests/test_chalk_pipeline.py`):
+      - Neuer Test-Case `TestChalkHudKaTeXRendering`:
+        * `test_latex_to_katex_html_comprehensive`: Prüft Brüche, Wurzeln mit geschachtelten Brüchen, griechische Buchstaben und Subskripte.
+        * `test_render_markdown_with_katex`: Validiert Display-Math Karten, Inline-Formeln, Obsidian-Callouts und Audio-Links.
+      - **27/27 Tests bestanden** in 2.82s (100% grün).
+  [✓] End-to-End Dry-Run Simulation (`tests/test_live_simulation.py`):
+      - **5/5 Stages bestanden** (Audio VAD, Slide pHash, Chunker, LaTeX-Synthese, Notes Ledger).
+
+
+7. ARTEFAKT- & PRÜFSUMMEN-ÜBERSICHT (dist/SHA256SUMS.txt)
 --------------------------------------------------------------------------------
 Chalk (arm64 Binary)  : 090b8883220959fd8d6cba01973297652e4aaafe0ee55afd8fd497c3a46c546e
 Chalk-macOS.zip       : 7f4d517671d39eb720dd6849e379e7b553030f38e5f8d94fcecfb687aa128673
 dist/Chalk.app        : Gebündelt mit Literal Chalk Icon (app.icns) & Info.plist Berechtigungen
 
 
-7. PROJEKT-DATEIEN & STRUKTUR
+8. PROJEKT-DATEIEN & STRUKTUR
 --------------------------------------------------------------------------------
 chalk/
 ├── assets/
@@ -275,7 +328,8 @@ chalk/
 ├── ROADMAP_AND_IMPROVEMENTS.md    # Strategischer Audit & 4 Feature-Blueprints
 ├── scripts/
 │   ├── deploy_web.sh              # Web Portal Deployment & Validation Suite
-│   └── generate_checksums.py      # SHA-256 Release Checksummen-Generator
+│   ├── generate_checksums.py      # SHA-256 Release Checksummen-Generator
+│   └── generate_web_assets.py     # WebP Editorial Graphics Generator
 ├── src/
 │   ├── api/
 │   │   ├── gemini_client.py       # Zero-Knowledge google-genai BYOK Client & Files API Cleanup
@@ -294,7 +348,7 @@ chalk/
 │   │   ├── hotkeys.py             # Zero-Permission Native Hotkeys (Carbon / user32)
 │   │   └── key_manager.py         # OS-Vault Verschlüsselung (macOS/Win)
 │   ├── ui/
-│   │   ├── hud_window.py          # Floating Agent HUD mit PDF Pre-Import & Scrubber
+│   │   ├── hud_window.py          # Floating Agent HUD mit KaTeX-Live-Rendering & Notes-Toggle
 │   │   ├── settings_dialog.py     # Transparente API-Schlüssel & Free/Paid-Hinweise
 │   │   ├── snip_overlay.py        # Alt+S Bereichsauswahl & OCR Snip
 │   │   └── tray.py                # Monochromer System Tray Daemon
@@ -305,13 +359,14 @@ chalk/
 │   ├── diagnostics.py             # Pre-Flight Rechte- & Hardware-Check
 │   └── main.py                    # App-Haupteinstiegspunkt mit nativen Hotkeys
 ├── tests/
-│   ├── test_chalk_pipeline.py     # 25/25 Unit Tests (100% Bestanden)
+│   ├── test_chalk_pipeline.py     # 27/27 Unit Tests (100% Bestanden)
 │   └── test_live_simulation.py    # 5/5 Stages End-to-End Dry-Run
 ├── web/
 │   ├── assets/
 │   │   ├── favicon.svg            # Literal Chalk SVG Favicon
-│   │   └── logo.png               # Web Hero Logo (512x512)
-│   └── index.html                 # Apple/Notion Tier Web-Portal mit Safe Docking
+│   │   ├── logo.png               # Web Hero Logo (512x512)
+│   │   └── img/                   # WebP Editorial Graphics (Obsidian, Use-Cases, Desk)
+│   └── index.html                 # Apple/Notion Tier Web-Portal mit KaTeX & Visuals
 ├── .github/
 │   └── workflows/
 │       ├── deploy_web.yml         # GitHub Pages Deployment Workflow
