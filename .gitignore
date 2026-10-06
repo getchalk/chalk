@@ -1,0 +1,20 @@
+# Python virtual environment
+.venv/
+venv/
+env/
+__pycache__/
+*.py[cod]
+*$py.class
+
+# PyInstaller build artifacts
+build/
+*.spec.bak
+
+# OS specific
+.DS_Store
+Thumbs.db
+
+# User config & local caches
+.pytest_cache/
+.coverage
+htmlcov/
