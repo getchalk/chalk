@@ -139,7 +139,7 @@ class SettingsDialog(QDialog):
         super().__init__(parent)
         self.is_initial_setup = is_initial_setup
         self.setWindowTitle("Chalk — Settings & BYOK Security")
-        self.setFixedSize(560, 560)
+        self.setFixedSize(560, 640)
         self.setStyleSheet(MONOCHROME_STYLESHEET)
         self.setWindowFlags(self.windowFlags() | Qt.WindowType.WindowStaysOnTopHint)
 
@@ -209,6 +209,21 @@ class SettingsDialog(QDialog):
         link_btn.setCursor(Qt.CursorShape.PointingHandCursor)
         link_btn.clicked.connect(self._open_ai_studio)
         card_layout.addWidget(link_btn)
+
+        # Transparent Onboarding Note on Free-Tier vs Paid-Tier
+        tier_notice = QLabel(
+            "<b>Transparenz & Datenschutz:</b><br>"
+            "Google AI Studio Free-Tier: Google behält sich vor, Prompts zur Modellverbesserung zu nutzen. "
+            "Für 100% vertrauliche Sitzungen empfehlen wir einen Paid-Tier (Pay-as-you-go) Schlüssel von "
+            "Google AI Studio oder Anthropic/OpenAI, bei dem keine Daten für das Training verwendet werden."
+        )
+        tier_notice.setWordWrap(True)
+        tier_notice.setStyleSheet(
+            "color: #94A3B8; font-size: 11px; line-height: 1.45; "
+            "padding: 8px 10px; background-color: rgba(255, 255, 255, 0.03); "
+            "border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 6px;"
+        )
+        card_layout.addWidget(tier_notice)
 
         layout.addWidget(card)
 

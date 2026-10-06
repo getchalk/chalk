@@ -212,10 +212,12 @@ class FloatingHUDWindow(QWidget):
         self.quota_manager = quota_manager
         self.notes_manager = notes_manager
 
-        # Attachments
+        # Attachments & In-Person Lecture Slides
         self.attached_document_text: Optional[str] = None
         self.attached_document_name: Optional[str] = None
         self.attached_snip_image: Optional[Image.Image] = None
+        self.imported_pdf_slides = []  # List of dicts: {"page": int, "text": str}
+        self.imported_pdf_name: Optional[str] = None
 
         # State
         self.session_start_time = time.time()
@@ -290,7 +292,8 @@ class FloatingHUDWindow(QWidget):
         # Minimize / Hide button
         hide_btn = QPushButton("✕")
         hide_btn.setFixedSize(28, 28)
-        hide_btn.setToolTip("HUD ausblenden (Alt+Space zum Einblenden)")
+        hud_shortcut = "Cmd+Shift+Space" if sys.platform == "darwin" else "Ctrl+Shift+Space"
+        hide_btn.setToolTip(f"HUD ausblenden ({hud_shortcut} zum Einblenden)")
         hide_btn.clicked.connect(self.hide)
         header.addWidget(hide_btn)
 
@@ -305,8 +308,9 @@ class FloatingHUDWindow(QWidget):
         self.attach_doc_btn.clicked.connect(self._open_document_dialog)
         actions_bar.addWidget(self.attach_doc_btn)
 
-        self.snip_btn = QPushButton("✂️ Snip (Alt+S)")
-        self.snip_btn.setToolTip("Bildschirmbereich zuschneiden und an Prompt anhängen")
+        snip_shortcut = "Cmd+Shift+S" if sys.platform == "darwin" else "Ctrl+Shift+S"
+        self.snip_btn = QPushButton(f"✂️ Snip ({snip_shortcut})")
+        self.snip_btn.setToolTip(f"Bildschirmbereich zuschneiden ({snip_shortcut} / Alt+S)")
         self.snip_btn.clicked.connect(self.trigger_screen_snip)
         actions_bar.addWidget(self.snip_btn)
 
@@ -507,20 +511,138 @@ class FloatingHUDWindow(QWidget):
             self.load_reference_document(path)
 
     def load_reference_document(self, path: str):
-        text = read_local_file(path)
-        self.attached_document_text = text
-        self.attached_document_name = os.path.basename(path)
+        clean_path = os.path.expanduser(os.path.expandvars(path.strip()))
+        if not os.path.exists(clean_path):
+            logger.warning("Referenced file does not exist: %s", clean_path)
+            return
+
+        lower = clean_path.lower()
+        if lower.endswith(".pdf"):
+            try:
+                import pypdf
+                reader = pypdf.PdfReader(clean_path)
+                slides = []
+                for idx, page in enumerate(reader.pages):
+                    try:
+                        p_text = page.extract_text() or ""
+                    except Exception:
+                        p_text = ""
+                    slides.append({
+                        "page": idx + 1,
+                        "text": p_text.strip(),
+                    })
+                self.imported_pdf_slides = slides
+                self.imported_pdf_name = os.path.basename(clean_path)
+                self.attached_document_name = self.imported_pdf_name
+
+                # Build full structured slide deck markdown with page markers
+                deck_sections = []
+                for s in self.imported_pdf_slides:
+                    p_num = s["page"]
+                    p_txt = s["text"]
+                    if p_txt:
+                        deck_sections.append(f"--- [Folie / Page {p_num}] ---\n{p_txt}")
+                    else:
+                        deck_sections.append(f"--- [Folie / Page {p_num}] ---\n[Abbildung / Folieninhalt]")
+
+                total_pages = len(self.imported_pdf_slides)
+                self.attached_document_text = (
+                    f"IN-PERSON LECTURE SLIDE DECK: {self.imported_pdf_name} ({total_pages} Folien/Seiten)\n"
+                    f"HINWEIS FÜR DIE SYNTHESE: Der Dozent präsentiert diese Folien im Hörsaal. Mappe gesprochenes "
+                    f"Audio und studentische Fragen direkt auf die entsprechende Foliennummer (z. B. '[Folie X]').\n\n"
+                    + "\n\n".join(deck_sections)
+                )
+
+                self.chat_history.append(
+                    f"<b>📚 Folien bereit: {total_pages} Seiten ({self.imported_pdf_name})</b><br>"
+                    "<i>In-Person Vorlesungsmodus: Gesprochene Inhalte werden automatisch den Folienseiten zugeordnet.</i>\n"
+                )
+                logger.info("Pre-imported %d PDF slide pages from '%s'", total_pages, clean_path)
+            except Exception as e:
+                logger.error("pypdf extraction failed for '%s': %s", clean_path, e)
+                self.imported_pdf_slides = []
+                self.imported_pdf_name = None
+                self.attached_document_text = read_local_file(clean_path)
+                self.attached_document_name = os.path.basename(clean_path)
+        else:
+            self.imported_pdf_slides = []
+            self.imported_pdf_name = None
+            self.attached_document_text = read_local_file(clean_path)
+            self.attached_document_name = os.path.basename(clean_path)
+
         self._update_attachment_banner()
+
+    def get_relevant_reference_text(self, query_hint: str = "", max_chars: int = 40000) -> Optional[str]:
+        """
+        Returns relevant reference text for live chunk synthesis.
+        If PDF slides are imported, formats the relevant slide pages (or all if under max_chars)
+        so that live audio maps directly to the correct PDF slide page during in-person lectures.
+        """
+        if not self.attached_document_text and not self.imported_pdf_slides:
+            return None
+
+        if not self.imported_pdf_slides:
+            return self.attached_document_text
+
+        # If total text fits within max_chars, return full attached_document_text
+        if len(self.attached_document_text) <= max_chars:
+            return self.attached_document_text
+
+        # For large slide decks (>max_chars): prioritize matching pages
+        tokens = set(t.lower() for t in query_hint.split() if len(t) >= 4)
+        scored_pages = []
+        for s in self.imported_pdf_slides:
+            score = 0
+            text_lower = s["text"].lower()
+            for token in tokens:
+                if token in text_lower:
+                    score += 1
+            scored_pages.append((score, s["page"], s["text"]))
+
+        # Sort by score descending, preserving page order for ties
+        scored_pages.sort(key=lambda x: (x[0], -x[1]), reverse=True)
+
+        selected_pages = {}
+        # Pick top scoring pages (or first pages if score == 0)
+        for _, p_num, p_text in scored_pages[:25]:
+            selected_pages[p_num] = p_text
+
+        # Format selected pages in ascending page order
+        total_pages = len(self.imported_pdf_slides)
+        sections = [
+            f"IN-PERSON LECTURE SLIDE DECK (RELEVANT EXTRACT): {self.imported_pdf_name} ({total_pages} Seiten)\n"
+            f"HINWEIS: Ausgewählte Folienseiten passend zum aktuellen Vorlesungsabschnitt. Mappe gesprochene "
+            f"Erklärungen direkt auf diese Foliennummern (z. B. '[Folie X]').\n"
+        ]
+        for p_num in sorted(selected_pages.keys()):
+            p_text = selected_pages[p_num]
+            if p_text:
+                sections.append(f"--- [Folie / Page {p_num}] ---\n{p_text}")
+            else:
+                sections.append(f"--- [Folie / Page {p_num}] ---\n[Abbildung]")
+
+        result = "\n\n".join(sections)
+        return result[:max_chars]
 
     def _update_attachment_banner(self):
         tags = []
-        if self.attached_document_name:
+        if self.imported_pdf_slides:
+            total_pages = len(self.imported_pdf_slides)
+            deck_name = self.imported_pdf_name or "Vorlesungsskript"
+            tags.append(f"📚 Folien bereit: {total_pages} Seiten ({deck_name})")
+        elif self.attached_document_name:
             tags.append(f"📄 {self.attached_document_name}")
         if self.attached_snip_image:
             tags.append(f"✂️ Screen Snip ({self.attached_snip_image.width}x{self.attached_snip_image.height})")
 
         if tags:
-            self.attachment_label.setText("Angehängt: " + " | ".join(tags))
+            self.attachment_label.setText(" | ".join(tags))
+            self.attachment_label.setStyleSheet(
+                "background-color: rgba(255, 255, 255, 0.08); "
+                "border: 1px solid rgba(255, 255, 255, 0.2); "
+                "color: #F8FAFC; font-size: 11px; padding: 4px 10px; "
+                "border-radius: 8px; font-weight: 600;"
+            )
             self.attachment_label.show()
         else:
             self.attachment_label.hide()
@@ -727,14 +849,27 @@ class FloatingHUDWindow(QWidget):
     # Drag and Drop support for slide decks (.pdf, .pptx)
     def dragEnterEvent(self, event):
         if event.mimeData().hasUrls():
-            event.acceptProposedAction()
+            for url in event.mimeData().urls():
+                if url.isLocalFile():
+                    fp = url.toLocalFile().lower()
+                    if fp.endswith((".pdf", ".pptx", ".ppt", ".txt", ".md")):
+                        event.acceptProposedAction()
+                        return
+        super().dragEnterEvent(event)
 
     def dropEvent(self, event):
+        handled = False
         for url in event.mimeData().urls():
-            file_path = url.toLocalFile()
-            if file_path.lower().endswith((".pdf", ".pptx", ".ppt", ".txt", ".md")):
-                self.load_reference_document(file_path)
-                break
+            if url.isLocalFile():
+                file_path = url.toLocalFile()
+                if file_path.lower().endswith((".pdf", ".pptx", ".ppt", ".txt", ".md")):
+                    self.load_reference_document(file_path)
+                    handled = True
+                    break
+        if handled:
+            event.acceptProposedAction()
+        else:
+            super().dropEvent(event)
 
     # Window drag handling
     def mousePressEvent(self, event):

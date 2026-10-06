@@ -42,6 +42,7 @@ def generate_synthetic_audio(duration_sec: float = 30.0, sample_rate: int = 1600
     - Right Channel (Loopback):
         Quiet computer ambient sound + presentation slide chime at 15s.
     """
+    np.random.seed(42)
     total_samples = int(duration_sec * sample_rate)
     t = np.linspace(0, duration_sec, total_samples, endpoint=False)
 

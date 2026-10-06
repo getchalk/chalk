@@ -74,6 +74,7 @@ hidden_imports = [
     'PIL',
     'torch',
     'torchaudio',
+    'src.security.hotkeys',
 ]
 
 a = Analysis(
@@ -117,7 +118,7 @@ exe = EXE(
     icon=icon_path,
 )
 
-# macOS Application Bundle with Info.plist Permissions Manifest
+# macOS Application Bundle with Info.plist Permissions Manifest (No Input Monitoring)
 if sys.platform == 'darwin':
     app = BUNDLE(
         exe,
@@ -133,7 +134,7 @@ if sys.platform == 'darwin':
             'NSHighResolutionCapable': True,
             'NSScreenCaptureUsageDescription': 'Chalk requires screen recording permission to synchronize slide transitions and support the screen snip tool during lectures.',
             'NSMicrophoneUsageDescription': 'Chalk requires microphone access to record professor lectures, in-room discussions, and student questions.',
-            'NSAppleEventsUsageDescription': 'Chalk requires accessibility permissions for global hotkeys (Alt+Space, Alt+S, F9, F10) and zero-token presentation text extraction.',
+            'NSAppleEventsUsageDescription': 'Chalk requires accessibility permissions for zero-token presentation text extraction from slide decks.',
         }},
     )
 """

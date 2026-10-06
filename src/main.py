@@ -6,8 +6,8 @@ Wires together:
 - Event-Gated Screen Grabber & pHash Slide Deduplication
 - Adaptive Rate Controller Quota Manager & Elastic Chunker
 - Hybrid Gemini Flash / Pro Pipeline with Local Tool Calling
-- Floating Agent HUD (Alt+Space), Snip Marquee (Alt+S), and pystray System Tray
-- Global Hotkeys (Alt+Space, Alt+S, F9, F10)
+- Floating Agent HUD (Cmd+Shift+Space / Ctrl+Shift+Space), Snip Marquee (Cmd+Shift+S / Alt+S), and pystray System Tray
+- Native Zero-Permission Hotkeys (Cmd/Ctrl+Shift+Space, Cmd/Ctrl+Shift+S, F9, F10)
 - Autonomous Break Detection (>180s) and HTTP 429 Recovery
 """
 
@@ -21,10 +21,10 @@ from typing import Optional
 
 from PyQt6.QtCore import Qt, QTimer, QThread, pyqtSignal, QObject
 from PyQt6.QtWidgets import QApplication, QMessageBox
-from pynput import keyboard
 
 # Module Imports
 from src.security.key_manager import has_api_key, get_api_key
+from src.security.hotkeys import NativeHotkeyManager
 from src.ui.settings_dialog import SettingsDialog, ensure_api_key_configured
 from src.audio.vad_detector import SileroVADDetector
 from src.audio.recorder import DualChannelAudioRecorder
@@ -227,20 +227,35 @@ class ChalkCoordinator(QObject):
         send_desktop_notification("Chalk Lecture Engine", "🟢 Recording active: Mic + System Loopback + Slides.")
 
     def _init_global_hotkeys(self):
-        """Registers system-wide hotkeys."""
+        """
+        Registers system-wide hotkeys using native OS APIs (Zero Permissions).
+        macOS: Carbon RegisterEventHotKey (Cmd+Shift+Space, Cmd+Shift+S, F9, F10)
+        Windows: user32.RegisterHotKey (Ctrl+Shift+Space, Ctrl+Shift+S, F9, F10)
+        """
         try:
-            hotkeys = {
-                "<alt>+<space>": lambda: self.sig_toggle_hud.emit(),
-                "<alt>+s": lambda: self.sig_snip_screen.emit(),
-                "<f9>": lambda: self.sig_toggle_recording.emit(),
-                "<f10>": lambda: self.sig_force_flush.emit(),
-            }
-            self.hotkey_listener = keyboard.GlobalHotKeys(hotkeys)
-            self.hotkey_listener.daemon = True
-            self.hotkey_listener.start()
-            logger.info("Global hotkeys registered: Alt+Space (HUD), Alt+S (Snip), F9 (Toggle), F10 (Flush)")
+            self.hotkey_manager = NativeHotkeyManager()
+            if sys.platform == "darwin":
+                self.hotkey_manager.register("Cmd+Shift+Space", lambda: self.sig_toggle_hud.emit())
+                self.hotkey_manager.register("Cmd+Shift+S", lambda: self.sig_snip_screen.emit())
+                self.hotkey_manager.register("Alt+S", lambda: self.sig_snip_screen.emit())
+            else:
+                self.hotkey_manager.register("Ctrl+Shift+Space", lambda: self.sig_toggle_hud.emit())
+                self.hotkey_manager.register("Ctrl+Shift+S", lambda: self.sig_snip_screen.emit())
+                self.hotkey_manager.register("Alt+S", lambda: self.sig_snip_screen.emit())
+
+            self.hotkey_manager.register("F9", lambda: self.sig_toggle_recording.emit())
+            self.hotkey_manager.register("F10", lambda: self.sig_force_flush.emit())
+            self.hotkey_manager.start()
+
+            hud_key = "Cmd+Shift+Space" if sys.platform == "darwin" else "Ctrl+Shift+Space"
+            snip_key = "Cmd+Shift+S" if sys.platform == "darwin" else "Ctrl+Shift+S"
+            logger.info(
+                "Native zero-permission hotkeys registered: HUD (%s), Snip (%s / Alt+S), F9 (Toggle), F10 (Flush)",
+                hud_key,
+                snip_key,
+            )
         except Exception as e:
-            logger.warning("Could not register some global hotkeys: %s", e)
+            logger.warning("Could not register native global hotkeys: %s", e)
 
     def _on_slide_advanced(self, keyframe):
         """Notified by screen grabber when a new slide keyframe is found."""
@@ -290,7 +305,10 @@ class ChalkCoordinator(QObject):
         self.hud.set_daemon_status("processing")
 
         scratchpad = self.hud.get_scratchpad_content()
-        doc_text = self.hud.attached_document_text
+        if hasattr(self.hud, "get_relevant_reference_text"):
+            doc_text = self.hud.get_relevant_reference_text(query_hint=scratchpad)
+        else:
+            doc_text = self.hud.attached_document_text
         prev_state = self.notes_manager.last_state
 
         self._active_chunk_worker = ChunkSynthesisWorker(
@@ -448,6 +466,11 @@ class ChalkCoordinator(QObject):
 
     def exit_application(self):
         logger.info("Shutting down Chalk daemon...")
+        if hasattr(self, "hotkey_manager") and self.hotkey_manager:
+            try:
+                self.hotkey_manager.stop()
+            except Exception as e:
+                logger.debug("Error stopping hotkey manager: %s", e)
         self.recorder.stop()
         self.screen_grabber.stop()
         self.tray.stop()
