@@ -1,11 +1,12 @@
 ================================================================================
-CHALK — AUTONOMOUS DESKTOP LECTURE ENGINE & WEB PORTAL
-STATUS-REPORT, MODUL-ÜBERSICHT UND TECHNISCHE ANMERKUNGEN (PHASEN 1–4)
+CHALK — AMBIENT COGNITIVE PRESENCE ENGINE & WEB PORTAL
+STATUS-REPORT, ARCHITEKTUR-ÜBERSICHT UND ANMERKUNGEN (PHASEN 1–5)
 ================================================================================
 Stand: 2026-10-06
 Projektpfad (Desktop): /Users/user/Desktop/chalk/
 Projektpfad (Scratch): /Users/user/.gemini/antigravity/scratch/chalk/
 Slogan: "Let them talk. Chalk does the work."
+Positioning: "Stop scrambling to type. Be fully present in the lecture, meeting, or technical talk while Chalk silently captures the nuance, slides, and derivations."
 ================================================================================
 
 1. GESAMTSTATUS & PIPELINE-VERIFIKATION
@@ -13,89 +14,87 @@ Slogan: "Let them talk. Chalk does the work."
 Phase 1: Kernarchitektur (Audio/Vision, Gemini 2.5 Flash Engine, Floating HUD, Web) [ABGESCHLOSSEN]
 Phase 2: Runtime Hardening, Hardware-Diagnostik, Minimalistisches Icon [ABGESCHLOSSEN]
 Phase 3: End-to-End Simulation, Standalone-Kompilierung & Release-Pipeline [ABGESCHLOSSEN]
-Phase 4: Multi-Agent Swarm Orchestration: Monochrom-Rebrand, Crazy Web, Roadmap & Release [ABGESCHLOSSEN]
+Phase 4: Multi-Agent Swarm Orchestration (Brand, Animated Web, Roadmap) [ABGESCHLOSSEN]
+Phase 5: Queen Bee Orchestration & Universelle Positionierung [ABGESCHLOSSEN]
 
-- Unit- & Integrationstest-Suite: 9/9 TESTS BESTANDEN (OK in 1.6s).
+- Unit- & Integrationstest-Suite: 9/9 TESTS BESTANDEN (1.48s).
 - End-to-End Dry-Run Simulation: 5/5 STAGES ERFOLGREICH (Notes/Lecture_Simulation.md verifiziert).
 - Pre-Flight Hardware-Diagnostik: ALLE RECHTE AKTIV (Mikrofon, Bildschirmaufnahme, Barrierefreiheit).
-- Brand-Identität & Logo: 100% Mathematische Calcit-Kristall-Symmetrie (120° Triskelion), Reines Monochrom.
-- Web Experience: Reines Obsidian/Chalk-Monochrom (0% Violett/Indigo), Torchlight Cursor, 3D Card Tilt,
-  3 Pop-Up Chips, Real-Time Audio Canvas, OS Switcher, DSGVO/Impressum/§ 120 StGB Modale.
-- Standalone Kompilierung: dist/Chalk.app (144.2 MB arm64) mit neuem app.icns re-kompiliert.
+- Brand-Identität: Authentischer zylindrischer Kreidestift auf Schiefertafel mit Kreidestrich.
+- Web Experience: Jitter-freie LERP-Physik (requestAnimationFrame), Dual-Theme (Dark Slate / Pure Chalk),
+  reine Vektor-Icons (0% Emojis), sichere Chip-Positionierung ohne Textüberlagerung.
+- Standalone Kompilierung: dist/Chalk.app (143 MB arm64) mit neuem app.icns re-kompiliert.
 - Release-Integrität: scripts/generate_checksums.py -> dist/SHA256SUMS.txt verifiziert.
 
 
-2. PHASE 4 DURCHGEFÜHRTE MASSNAHMEN (MULTI-AGENT SWARM)
+2. PHASE 5 DURCHGEFÜHRTE MASSNAHMEN (QUEEN BEE ORCHESTRATION)
 --------------------------------------------------------------------------------
 
-A. AGENT ALPHA: BRAND-IDENTITÄT & MONOCHROMES CALCIT-EMBLEM
-  [✓] Mathematische Neukonstruktion des Logos (assets/brand/logo.svg):
-      - 3-fache (120°) Rotationssymmetrie, inspiriert von trigonalen Calcit-Spaltkristallen (CaCO3).
-      - Reines Monochrom: #F8FAFC (Chalk White) auf #07080B (Obsidian Void).
-      - Vollständige Eliminierung des alten Hotdog-/Webcam-Symbols.
-  [✓] Vektor- und Raster-Assets regeneriert:
-      - web/assets/favicon.svg: Leichtgewichtiges SVG-Favicon für Browser.
-      - web/assets/logo.png: 512x512 hochauflösendes Web-Asset.
-      - assets/generate_icon.py: Überarbeitet mit 4x Super-Sampling (2048x2048 -> 512x512 Lanczos).
-      - assets/app.png (512x512 px)
-      - assets/app.ico (Multi-Resolution: 16, 32, 48, 64, 128, 256 px)
-      - assets/app.icns (macOS Retina Bundle Icon, 231 KB)
-  [✓] System Tray & Floating HUD Integration:
-      - src/ui/tray.py: Rendert das neue Calcit-Emblem dynamisch mit Status-Pips (Grün/Gelb/Grau).
-      - src/ui/hud_window.py: Eingebettetes Calcit-Icon in der Titelleiste, Bereinigung aller
-        violetten CSS-Farbverläufe auf reines Monochrom (#0A0B10, #161820, #F8FAFC).
+A. WORKER BEE 1: LITERAL CHALK ON SLATE BRAND-IDENTITÄT
+  [✓] Vektor-Emblem (assets/brand/logo.svg & web/assets/favicon.svg):
+      - Ersetzt das abstrakte Kristallgitter durch einen unverkennbaren Kreidestift:
+        * 45°-geneigter Zylinder mit gefaster Schreibspitze (chamfered tip).
+        * Subtile zylindrische Matt-Schattierung (#FFFFFF bis #CBD5E1).
+        * Taktiler Kreidestaubstrich direkt auf dem tiefen Obsidian-Schieferbett (#07080B).
+  [✓] Asset-Kompilierung (assets/generate_icon.py):
+      - 2048x2048 Master mit 4x Supersampling und Lanczos-Downsampling auf 512x512.
+      - assets/app.png (512x512 Master)
+      - web/assets/logo.png (512x512 Web-Asset)
+      - web/assets/favicon.svg (Leichtgewichtiges SVG-Favicon)
+      - assets/app.ico (Multi-Resolution 16, 24, 32, 48, 64, 128, 256 px)
+      - assets/app.icns (macOS Retina Bundle-Icon)
+  [✓] System-Tray Synchronisation (src/ui/tray.py):
+      - Saubere 16x16 / 24x24 Menüleisten-Darstellung mit Status-Pips.
 
-B. AGENT BETA: ANIMIERTE WEB-SHOWCASE & PRODUCTION DEPLOYMENT
-  [✓] Vollständiges Rewrite von web/index.html:
-      - Farbpalette: Ausschließlich #050508 (Obsidian Void), #0E0F16 (Graphit), #F8FAFC (Chalk).
-        Audit-Prüfung: 0 Vorkommen von Purple/Indigo/Violett (#4f46e5, #7c3aed etc. eliminiert).
-      - Interaktiver Cursor-Spotlight (#torchlight): Folgt der Maus flüssig über 24px Micro-Dot Grid.
-      - 3D-Karten-Perspektive (hero-card): Dynamischer Neigungswinkel (perspective 1000px, rotateX/Y)
-        mit nachgeführtem radialen Glare-Spiegeleffekt bei Mausbewegung.
-      - 3 animierte Pop-Up Action Chips mit Spring-Physics & Staggered Delay:
-        * [14:02] LATEX PROOF SYNCED: ∇ × E = -∂B/∂t
-        * [14:15] SILERO VAD SLEEP: Pause erkannt • 0 Token Quota-Verbrauch
-        * [14:30] OCR SLIDE HASH EVENT: Folie 42 (CAPM Derivation)
-      - Echtzeit-Audio-Visualizer: Canvas-basierte Sinuswellen-Simulation (16kHz Dual-Stream).
-      - OS Switcher: Segmentierter Toggle zwischen macOS (.dmg/.zip) und Windows (.exe)
-        mit kopierbaren Einzeilern (brew, curl, winget, powershell) und "✓ Copied" Feedback.
-      - Rechtliche Konformität (Österreich & DSGVO):
-        * Impressum & Offenlegung gem. § 25 MedienG / § 5 ECG
-        * Zero-Knowledge Datenschutzerklärung gem. DSGVO
-        * Rechtlicher Warnhinweis zu Tonaufnahmen in Hochschulen gem. § 120 StGB
-        * Zero-Cookies & Zero-Telemetry Badge
-  [✓] Deployment-Automatisierung:
-      - .github/workflows/deploy_web.yml: Automatisches Deployment von web/ auf GitHub Pages.
-      - scripts/deploy_web.sh: Validierungsskript & Preview-Server (unterstützt Cloudflare Pages,
-        GitHub Pages und lokalen Python-Server). Teststatus: PASS.
+B. WORKER BEE 2: JITTER-FREIE LERP-PHYSIK, CHIP-LAYOUT & EXPANDIERTE POSITIONIERUNG
+  [✓] Entkoppelte 3D-Karten LERP-Physik (web/index.html):
+      - mousemove entkoppelt via requestAnimationFrame-Schleife:
+        currentX += (targetX - currentX) * 0.08; currentY += (targetY - currentY) * 0.08;
+      - Vollkommen jitter-freie, trägheitsbasierte Kartenneigung (max. 8°).
+  [✓] Kollisionsfreie Exterior-Safe-Margins für Action Chips:
+      - pointer-events: none auf .glare-overlay und alle .floating-chip Elemente.
+      - Chip 1 (LaTeX Proof Sync): top: -36px; left: -24px;
+      - Chip 2 (Silero Break Sleep): top: 40%; right: -32px;
+      - Chip 3 (OCR Event): bottom: -32px; left: 15%;
+      - Keine Überdeckung von Titeln, Formularen oder Notizpuffern mehr möglich.
+  [✓] Vollständige Bereinigung von AI-Slop & Emojis:
+      - Kaffeetasse (☕), Blitz (⚡), Schild (🛡️), Befehl (⌘) eliminiert.
+      - Ersetzt durch monochrome 1.5px Vektor-SVGs und Monospace-Tags ([SYNC], [BREAK], [OCR], [CMD]).
+  [✓] 4-teiliges Use-Case Bento-Grid (Beyond the Classroom):
+      - 01: Universitäts-Vorlesungen & Mathematische Beweise (LaTeX / KaTeX)
+      - 02: Technische Seminare & Architektur-Reviews (ADR / Code Snippets)
+      - 03: Vorstandssitzungen & Strategie-Calls (Action Items / Decision Logs)
+      - 04: Webinars & Remote-Konferenzen (Loopback Audio / Slide Archive)
 
-C. AGENT GAMMA: STRATEGISCHER BENCHMARK & ARCHITEKTUR-ROADMAP (ROADMAP_AND_IMPROVEMENTS.md)
-  [✓] Umfassender Markt- und Technologie-Audit:
-      - Vergleichsmatrix vs. Granola, Screenpipe, Whisper.cpp, Otter.ai.
-      - Kernvorteile Chalk: True Zero-Knowledge BYOK, 1M Token Context, synchrone 2-Kanal-Hardware,
-        pHash-Folien-Deduplizierung, mathematische LaTeX-Synthese, lokaler Keyring.
-  [✓] 4 Technische Blueprints für zukünftige Versionen:
-      - Blueprint 1: Lokales MLX / Whisper.cpp Offline Hybrid Fallback (State-Machine für Wi-Fi Drops).
-      - Blueprint 2: Obsidian Vault Bi-Direktionale Verlinkung ([[Wikilinks]]) & Mermaid.js Diagramme.
-      - Blueprint 3: chalk-audio:// Deep-Linking Audio-Scrubbing Protokoll (macOS CFBundleURLTypes).
-      - Blueprint 4: AnkiConnect HTTP Auto-Sync (JSON-RPC 2.0 an localhost:8765 für Prüfungs-Lernkarten).
+C. WORKER BEE 3: DUAL THEME ENGINE & MULTI-MODEL ROADMAP
+  [✓] Dual Theme Switcher (Dark Slate / Pure Chalk):
+      - Toggle-Schalter in der Navigationsleiste mit Persistenz in localStorage ('chalk-theme').
+      - Dark Mode: #050508 Obsidian, #0E0F16 Schiefer, #F8FAFC Kreideweiß.
+      - Light Mode: #F8FAFC Reines Papier, #FFFFFF Kartenbasis, #0F172A Graphit-Tinte, #E2E8F0 Haarlinie.
+  [✓] Pluggable Model Runtime (BYOK) Callout:
+      - Spezifikations-Karte hervorhebend: Start auf Google AI Studio (Gemini 2.5 Flash / Pro, 1M Context).
+      - Kern-Abstraktion bereit für Anthropic Claude 3.7, OpenAI GPT-4o und lokale Ollama/MLX Runtimes in v1.1.
 
-D. AGENT DELTA: RELEASE ENGINEERING & RE-KOMPILIERUNG
-  [✓] Standalone Binary Re-Kompilierung (build_standalone.py):
-      - dist/Chalk (144.2 MB Mach-O 64-bit arm64 Executable).
-      - dist/Chalk.app (macOS Application Bundle mit eingebetteten Berechtigungsmanifesten und neuem app.icns).
-  [✓] Checksummen-Generierung (scripts/generate_checksums.py):
-      - Erzeugt dist/Chalk-macOS.zip (143.39 MB).
-      - Generiert dist/SHA256SUMS.txt mit kryptografischen Prüfsummen.
-  [✓] CI/CD Release Pipeline (.github/workflows/release.yml):
-      - Integriert SHA256SUMS.txt Erstellung und automatischen Release-Upload.
+D. WORKER BEE 4: AUSTRIAN & EU LEGAL COMPLIANCE & RELEASE
+  [✓] Rechtliche Transparenz-Modale (web/index.html):
+      - Impressum & Offenlegung gem. österreichischem § 25 Abs. 5 MedienG & § 5 ECG.
+      - Datenschutzerklärung gem. DSGVO & expliziter Hinweis auf § 165 Abs. 3 TKG 2021
+        (Keine Tracking-Cookies = Kein Cookie-Banner erforderlich).
+      - Strafrechtlicher Warnhinweis gem. § 120 StGB (Tonaufnahmen) mit Unterscheidung zwischen
+        Hochschul-Lehrveranstaltungen und geschäftlichen Konferenzschaltungen (Two-Party Consent).
+  [✓] Standalone Binary Re-Kompilierung:
+      - dist/Chalk (144.2 MB Mach-O arm64 Executable).
+      - dist/Chalk.app (gebündelt mit neuem literal chalk app.icns und macOS Berechtigungsmanifesten).
+  [✓] Release Checksummen-Aktualisierung (dist/SHA256SUMS.txt):
+      - dist/Chalk-macOS.zip (143.20 MB) erzeugt.
+      - Prüfsummen generiert und verifiziert.
 
 
 3. ARTEFAKT- & PRÜFSUMMEN-ÜBERSICHT (dist/SHA256SUMS.txt)
 --------------------------------------------------------------------------------
-Chalk (arm64 Binary)  : 473e9e90d4f670e403635e979ce9c905b9ca49454f43ada0f6f81adec5fd8a5f
-Chalk-macOS.zip       : 4c4707bced0327173f5d99b34e33e71e7253f5285d48bcdca1428b486c58f290
-dist/Chalk.app        : Gebündelt mit Calcit-Icon (app.icns, 231 KB)
+Chalk (arm64 Binary)  : c19907a323d737f6c6dd13a7aac0f90710c2b9815a306c2855986634fd2f77ee
+Chalk-macOS.zip       : 57f046528a4caaae215582940bf562f940a27e818ce17981c9e82c8c0da89b24
+dist/Chalk.app        : Gebündelt mit Literal Chalk Icon (app.icns)
 
 
 4. PROJEKT-DATEIEN & STRUKTUR
@@ -103,17 +102,17 @@ dist/Chalk.app        : Gebündelt mit Calcit-Icon (app.icns, 231 KB)
 chalk/
 ├── assets/
 │   ├── app.ico                    # Multi-Resolution Windows Icon (16-256px)
-│   ├── app.icns                   # macOS Retina Bundle Icon (231 KB)
-│   ├── app.png                    # 512x512 Master Emblem (Calcit-Triskelion)
-│   ├── generate_icon.py           # Mathematischer Vektor-/Rastergenerator
+│   ├── app.icns                   # macOS Retina Bundle Icon (Literal Chalk)
+│   ├── app.png                    # 512x512 Master Emblem (Literal Chalk Stick)
+│   ├── generate_icon.py           # 2048x2048 Supersampled Icon Compiler
 │   └── brand/
-│       └── logo.svg               # Mathematisch exaktes 120° Calcit-SVG
-├── build_standalone.py            # PyInstaller Standalone Compiler
+│       └── logo.svg               # Mathematisch exaktes Literal Chalk SVG
+├── build_standalone.py            # PyInstaller Standalone Compiler (--noconfirm)
 ├── Chalk.spec                     # Auto-generierte Spec mit Info.plist Permissions
 ├── dist/
 │   ├── Chalk                      # Standalone Executable (144 MB)
 │   ├── Chalk.app                  # macOS Application Bundle (144 MB)
-│   ├── Chalk-macOS.zip            # Release-Archiv (143.39 MB)
+│   ├── Chalk-macOS.zip            # Release-Archiv (143.20 MB)
 │   └── SHA256SUMS.txt             # Offizielle Release-Prüfsummen
 ├── Notes/
 │   └── Lecture_Simulation.md      # Synthetisierte LaTeX-Vorlesungsnotiz
@@ -146,25 +145,13 @@ chalk/
 │   └── test_live_simulation.py    # 5/5 Stages End-to-End Dry-Run
 ├── web/
 │   ├── assets/
-│   │   ├── favicon.svg            # Calcit SVG Favicon
+│   │   ├── favicon.svg            # Literal Chalk SVG Favicon
 │   │   └── logo.png               # Web Hero Logo (512x512)
-│   └── index.html                 # Reines Monochrom Web-Portal mit 3D Tilt
+│   └── index.html                 # Dual-Theme Web-Portal mit LERP-Physik
 ├── .github/
 │   └── workflows/
 │       ├── deploy_web.yml         # GitHub Pages Deployment Workflow
 │       └── release.yml            # Multi-OS CI/CD Release Pipeline
+├── .gitignore                     # Git-Ignore für Venv & Build-Caches
 └── STATUS_UND_ANMERKUNGEN.txt     # Diese Dokumentationsdatei
-
-
-5. ANMERKUNGEN & WEITERE SCHRITTE
---------------------------------------------------------------------------------
-1. Der gesamte Code und alle Build-Artefakte sind 1:1 zwischen dem Scratch-Ordner
-   und dem Zielordner auf dem Desktop synchronisiert (/Users/user/Desktop/chalk/).
-2. Beim ersten Start von Chalk auf macOS wird das System die Berechtigungen für
-   Mikrofon und Bildschirmaufnahme über die hinterlegten Info.plist-Texte abfragen.
-3. Zur Verifikation der Hardware und optionalen Treiber-Installation steht der Befehl:
-   `python src/diagnostics.py --install-loopback`
-   zur Verfügung.
-4. Das Webportal kann lokal via `./scripts/deploy_web.sh serve` im Browser geöffnet
-   oder direkt über GitHub Pages bzw. Cloudflare Pages gehostet werden.
-================================================================================
+===============================================================================

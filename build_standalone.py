@@ -153,12 +153,13 @@ def build_binary():
 
     generate_spec_file()
 
-    # Build using spec
+    # Build using spec non-interactively
     cmd = [
         sys.executable,
         "-m",
         "PyInstaller",
         "--clean",
+        "--noconfirm",
         SPEC_PATH,
     ]
 

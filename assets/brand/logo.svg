@@ -1,55 +1,77 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
   <defs>
-    <!-- Background Gradient (Deep Obsidian / Graphite) -->
-    <radialGradient id="bgGrad" cx="50%" cy="50%" r="60%">
+    <!-- Obsidian Slate Background Gradient -->
+    <radialGradient id="slateGrad" cx="50%" cy="40%" r="65%">
       <stop offset="0%" stop-color="#0E1017"/>
       <stop offset="100%" stop-color="#050608"/>
     </radialGradient>
 
-    <!-- Trigonal Calcite Crystal Facets (Monochrome Shading) -->
-    <linearGradient id="facetHighlight" x1="0%" y1="0%" x2="100%" y2="100%">
+    <!-- Chalk Cylinder Cylindrical Lighting -->
+    <linearGradient id="chalkBody" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF"/>
+      <stop offset="35%" stop-color="#F8FAFC"/>
+      <stop offset="70%" stop-color="#E2E8F0"/>
+      <stop offset="100%" stop-color="#CBD5E1"/>
+    </linearGradient>
+
+    <!-- Chamfered Writing Tip Bevel (High-Spec White) -->
+    <linearGradient id="chalkTip" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" stop-color="#FFFFFF"/>
       <stop offset="100%" stop-color="#E2E8F0"/>
     </linearGradient>
 
-    <linearGradient id="facetMid" x1="0%" y1="100%" x2="100%" y2="0%">
-      <stop offset="0%" stop-color="#94A3B8"/>
-      <stop offset="100%" stop-color="#CBD5E1"/>
+    <!-- Cylinder Flat Back Top -->
+    <linearGradient id="chalkBack" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#E2E8F0"/>
+      <stop offset="100%" stop-color="#94A3B8"/>
     </linearGradient>
 
-    <linearGradient id="facetDeep" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" stop-color="#334155"/>
-      <stop offset="100%" stop-color="#475569"/>
+    <!-- Chalk Stroke Dust Glow -->
+    <linearGradient id="chalkStrokeGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.95"/>
+      <stop offset="60%" stop-color="#F8FAFC" stop-opacity="0.75"/>
+      <stop offset="100%" stop-color="#E2E8F0" stop-opacity="0.0"/>
     </linearGradient>
 
-    <!-- Master Branch: Trigonal Calcite Prism Facet -->
-    <g id="calciteFacet">
-      <!-- Facet 1: Primary Upper Chalk Blade -->
-      <polygon points="256,80 300,156 256,180 212,156" fill="url(#facetHighlight)" />
-      <!-- Facet 2: Chamfered Outer Bevel Arm -->
-      <polygon points="300,156 368,274 324,298 256,180" fill="url(#facetMid)" />
-      <!-- Facet 3: Inner Calcite Cleavage Edge (Penrose Interlock) -->
-      <polygon points="256,180 324,298 280,322 232,238" fill="url(#facetDeep)" />
-      <!-- Facet 4: Terminal Chamfer Wedge -->
-      <polygon points="256,80 268,60 288,70 300,156" fill="#F1F5F9" opacity="0.9" />
-    </g>
+    <!-- Chalk Drop Shadow on Slate -->
+    <filter id="chalkShadow" x="-20%" y="-20%" width="150%" height="150%">
+      <feDropShadow dx="-10" dy="16" stdDeviation="14" flood-color="#000000" flood-opacity="0.75"/>
+    </filter>
   </defs>
 
-  <!-- Squircle Canvas (Subtle Matte Border) -->
-  <rect x="24" y="24" width="464" height="464" rx="116" ry="116" fill="url(#bgGrad)" stroke="#1E2330" stroke-width="3"/>
-  <rect x="28" y="28" width="456" height="456" rx="112" ry="112" fill="none" stroke="rgba(255, 255, 255, 0.05)" stroke-width="1.5"/>
+  <!-- Deep Obsidian Slate Bed Squircle -->
+  <rect x="24" y="24" width="464" height="464" rx="116" ry="116" fill="url(#slateGrad)" stroke="#1E2330" stroke-width="3"/>
+  <rect x="28" y="28" width="456" height="456" rx="112" ry="112" fill="none" stroke="rgba(255, 255, 255, 0.08)" stroke-width="1.5"/>
 
-  <!-- Triskelion Center Group (120-Degree Rotational Calcite Lattice) -->
-  <g id="triskelion" transform="translate(0, 10)">
-    <!-- Branch 0 (Top) -->
-    <use href="#calciteFacet" />
-    <!-- Branch 1 (Bottom Right: 120 deg) -->
-    <use href="#calciteFacet" transform="rotate(120, 256, 256)" />
-    <!-- Branch 2 (Bottom Left: 240 deg) -->
-    <use href="#calciteFacet" transform="rotate(240, 256, 256)" />
+  <!-- Tactile Chalk Dust Stroke Drawn on Slate Bed -->
+  <path d="M 148 356 C 210 354, 275 358, 388 354" fill="none" stroke="url(#chalkStrokeGrad)" stroke-width="14" stroke-linecap="round"/>
+  <path d="M 160 365 C 220 364, 270 367, 340 365" fill="none" stroke="url(#chalkStrokeGrad)" stroke-width="4" stroke-linecap="round" opacity="0.4"/>
 
-    <!-- Central Micro-Negative Aperture Accent Core -->
-    <polygon points="256,228 280,270 232,270" fill="#050608" stroke="#334155" stroke-width="1.5" />
-    <circle cx="256" cy="256" r="3" fill="#F8FAFC" opacity="0.8" />
+  <!-- 45-Degree Angled Chalk Stick with Shadow -->
+  <g filter="url(#chalkShadow)">
+    <!-- Back End-Cap Ellipse (Top Right) -->
+    <g transform="translate(328, 152) rotate(45)">
+      <ellipse cx="0" cy="0" rx="26" ry="13" fill="url(#chalkBack)" stroke="#94A3B8" stroke-width="1"/>
+    </g>
+
+    <!-- Cylindrical Chalk Shaft -->
+    <!-- Transformed to 45 deg angle centered in slate -->
+    <g transform="translate(242, 238) rotate(45)">
+      <!-- Main Cylindrical Body -->
+      <rect x="-26" y="-120" width="52" height="210" fill="url(#chalkBody)"/>
+
+      <!-- Chamfered Writing Tip Cone / Bevel -->
+      <!-- Left Chamfer Facet -->
+      <path d="M -26 90 L 0 135 L 0 90 Z" fill="#E2E8F0"/>
+      <!-- Right Chamfer Facet (Chiseled Writing Face) -->
+      <path d="M 0 90 L 0 135 L 26 90 Z" fill="url(#chalkTip)"/>
+      <!-- Crisp Chisel Writing Apex -->
+      <polygon points="-6,132 0,138 6,132 0,126" fill="#FFFFFF"/>
+    </g>
+  </g>
+
+  <!-- Crisp Highlight Rim on Chalk Stick (Upper Specular Reflection) -->
+  <g transform="translate(242, 238) rotate(45)">
+    <line x1="-25" y1="-120" x2="-25" y2="90" stroke="#FFFFFF" stroke-width="2.5" opacity="0.9" stroke-linecap="round"/>
   </g>
 </svg>

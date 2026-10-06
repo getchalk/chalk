@@ -22,10 +22,10 @@ logger = logging.getLogger("chalk.ui.tray")
 
 def create_tray_status_icon(color: str = "green", size: int = 64) -> Image.Image:
     """
-    Generates the crisp monochrome calcite crystal emblem with dynamic status dot:
-    🟢 Green: Actively recording (Mic + System Loopback + Slides)
-    🟡 Yellow: Paused / Standby (Break detected via Silero VAD or manual standby)
-    🔵 Blue: Processing chunk / Master synthesis via Gemini
+    Generates the literal chalk stick on slate emblem with dynamic status pip:
+    - Green: Actively recording (Mic + System Loopback + Slides)
+    - Yellow: Paused / Standby (Break detected via Silero VAD or manual standby)
+    - Blue: Processing chunk / Master synthesis via Gemini
     """
     try:
         from assets.generate_icon import render_tray_icon_base
