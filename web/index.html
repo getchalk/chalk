@@ -285,8 +285,8 @@
       <div class="floating-chip chip-delay-1 absolute -top-4 sm:-top-6 left-2 sm:left-6 z-20 pointer-events-none hidden sm:flex items-center gap-3 px-4 py-2.5 rounded-xl backdrop-blur-xl border text-left text-xs shadow-lg" style="background-color: var(--chip-bg); border-color: var(--chip-border);">
         <div class="w-2 h-2 rounded-full bg-emerald-400"></div>
         <div>
-          <div class="text-[10px] font-mono uppercase tracking-widest" style="color: var(--chalk-muted);">[14:02] [SYNC] LATEX PROOF</div>
-          <div class="font-semibold tracking-wide" style="color: var(--chip-text-title);">∇ × E = -∂B/∂t (Faraday's Law)</div>
+          <div class="text-[10px] font-mono uppercase tracking-widest" style="color: var(--chalk-muted);">[14:02] [SYNC] LATEX FORMULA</div>
+          <div class="font-semibold tracking-wide" style="color: var(--chip-text-title);">E(R_i) = R_f + β_i[E(R_m) - R_f]</div>
         </div>
       </div>
 
@@ -295,7 +295,7 @@
         <svg class="w-4 h-4 text-emerald-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
         <div>
           <div class="text-[10px] font-mono uppercase tracking-widest" style="color: var(--chalk-muted);">[14:15] [BREAK] SILENCE DETECTED</div>
-          <div class="font-medium" style="color: var(--chip-text-desc);">Session Pause • Quota Conserved</div>
+          <div class="font-medium" style="color: var(--chip-text-desc);">Session Paused • Quota Conserved</div>
         </div>
       </div>
 
@@ -303,8 +303,8 @@
       <div class="floating-chip chip-delay-3 absolute -bottom-4 sm:-bottom-6 left-1/2 -translate-x-1/2 z-20 pointer-events-none hidden sm:flex items-center gap-3 px-4 py-2.5 rounded-xl backdrop-blur-xl border text-left text-xs shadow-lg" style="background-color: var(--chip-bg); border-color: var(--chip-border);">
         <div class="w-6 h-6 rounded flex items-center justify-center text-[10px] font-bold font-mono border" style="background-color: var(--surface-elevated); border-color: var(--chalk-border); color: var(--chip-text-title);">14</div>
         <div>
-          <div class="text-[10px] font-mono uppercase tracking-widest" style="color: var(--chalk-muted);">[14:30] [OCR] SLIDE TRANSITION</div>
-          <div class="font-medium" style="color: var(--chip-text-title);">Strategic Decision Frameworks & Value Creation</div>
+          <div class="text-[10px] font-mono uppercase tracking-widest" style="color: var(--chalk-muted);">[14:30] [SLIDE] TRANSITION DETECTED</div>
+          <div class="font-medium" style="color: var(--chip-text-title);">Modern Portfolio Theory & Factor Exposure</div>
         </div>
       </div>
 
@@ -321,19 +321,10 @@
             <span class="text-xs font-sans font-medium ml-3" style="color: var(--chalk-slate);">Chalk Assistant — Alt+Space</span>
           </div>
 
-          <!-- Dynamic Audio Canvas & Status Pill -->
-          <div class="flex items-center gap-4">
-            <!-- Sine Wave Visualizer Canvas -->
-            <div class="hidden sm:flex items-center gap-2 px-3 py-1 rounded border mono-terminal">
-              <span class="text-[10px] font-mono" style="color: var(--chalk-muted);">DUAL-STREAM</span>
-              <canvas id="audio-visualizer" width="90" height="16" class="opacity-80"></canvas>
-            </div>
-
-            <!-- Active Status Pill -->
-            <div class="flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/25 text-emerald-500 text-xs font-sans font-medium">
-              <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-              <span>LIVE CAPTURE (01:42:18)</span>
-            </div>
+          <!-- Calm Status Badge -->
+          <div class="flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/25 text-emerald-500 text-xs font-sans font-medium">
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span>Recording (01:42)</span>
           </div>
         </div>
 
@@ -346,13 +337,13 @@
             <div class="rounded-xl border p-4 relative overflow-hidden shadow-sm" style="background-color: var(--hud-card-bg); border-color: var(--chalk-border);">
               <div class="flex items-center justify-between text-xs font-sans font-medium mb-2.5" style="color: var(--chalk-slate);">
                 <span>PRESENTATION SYNC</span>
-                <span class="text-[11px] font-mono px-1.5 py-0.5 rounded border" style="background-color: var(--surface-elevated); border-color: var(--chalk-border); color: var(--chalk-muted);">Active Slide 14</span>
+                <span class="text-[11px] font-mono px-1.5 py-0.5 rounded border" style="background-color: var(--surface-elevated); border-color: var(--chalk-border); color: var(--chalk-muted);">Slide 14</span>
               </div>
               <div class="aspect-video rounded-lg border flex flex-col items-center justify-center p-4 text-center relative overflow-hidden" style="background-color: var(--surface-elevated); border-color: var(--chalk-border);">
-                <div class="text-[11px] font-medium mb-1" style="color: var(--chalk-muted);">Strategy & Decision Science</div>
-                <div class="text-sm font-semibold mb-2.5" style="color: var(--chalk-white);">Strategic Decision Frameworks & Value Creation</div>
+                <div class="text-[11px] font-medium mb-1" style="color: var(--chalk-muted);">Asset Pricing & Market Risk</div>
+                <div class="text-sm font-semibold mb-2.5" style="color: var(--chalk-white);">Modern Portfolio Theory & Factor Exposure</div>
                 <div class="text-xs font-mono px-3 py-1 rounded border shadow-sm" style="background-color: var(--surface-terminal); border-color: var(--chalk-border); color: var(--terminal-text);">
-                  $$\text{ROI}_{\text{net}} = \frac{\text{Net Benefit} - \text{Capital Outlay}}{\text{Cost of Risk}}$$
+                  $$E(R_i) = R_f + \beta_i [E(R_m) - R_f]$$
                 </div>
               </div>
               <div class="mt-3 flex items-center justify-between text-xs font-sans" style="color: var(--chalk-muted);">
@@ -369,11 +360,11 @@
               <div class="text-xs font-sans font-medium mb-2" style="color: var(--chalk-slate);">INTELLIGENT RECALL (Alt+Space)</div>
               <div class="flex items-center gap-2 rounded-lg border px-3 py-2.5 text-xs font-sans" style="background-color: var(--surface-terminal); border-color: var(--chalk-border);">
                 <span class="font-mono text-emerald-500">></span>
-                <span style="color: var(--terminal-text);">Explain how the risk adjustment factor affects the Q3 expansion timeline...</span>
+                <span style="color: var(--terminal-text);">How did the speaker reconcile beta estimation with high volatility regimes?</span>
               </div>
               <div class="mt-2 text-[11px] font-sans flex justify-between" style="color: var(--chalk-muted);">
                 <span>Direct BYOK Client</span>
-                <span>Full Session Memory</span>
+                <span>Zero Telemetry</span>
               </div>
             </div>
           </div>
@@ -384,32 +375,35 @@
               <div class="flex items-center justify-between pb-3 border-b" style="border-color: var(--chalk-border);">
                 <div class="flex items-center gap-2 font-sans">
                   <span class="font-semibold text-xs" style="color: var(--chalk-white);">STRUCTURED NOTES</span>
-                  <span class="text-[11px]" style="color: var(--chalk-muted);">strategic_review.md</span>
+                  <span class="text-[11px]" style="color: var(--chalk-muted);">portfolio_theory.md</span>
                 </div>
-                <span class="text-[10px] font-mono text-emerald-500 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded font-medium">LIVE SYNTHESIS</span>
+                <button onclick="copyMarkdownNotes(this)" class="text-[11px] font-sans px-2.5 py-1 rounded border transition font-medium flex items-center gap-1.5 hover:opacity-90" style="background-color: var(--surface-elevated); border-color: var(--chalk-border); color: var(--chalk-white);">
+                  <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/></svg>
+                  <span>Copy Markdown</span>
+                </button>
               </div>
 
               <!-- Synthesized Content Snippet -->
               <div class="space-y-2.5 leading-relaxed font-sans text-[13px]" style="color: var(--chalk-slate);">
-                <p class="text-xs font-semibold" style="color: var(--chalk-muted);"># Executive Summary & Risk Allocation</p>
+                <p class="text-xs font-semibold" style="color: var(--chalk-muted);"># Capital Asset Pricing & Systematic Risk</p>
                 <p>
-                  The discussion established that allocating capital to low-variance expansion requires decoupling the operational baseline from project risk adjustments:
+                  The expected excess return of any asset is strictly determined by its covariance with the broader market portfolio:
                 </p>
                 <div class="p-3 rounded-xl border font-mono text-xs overflow-x-auto shadow-sm" style="background-color: var(--surface-terminal); border-color: var(--chalk-border); color: var(--terminal-text);">
-                  $$\text{ROI}_{\text{net}} = \frac{\text{Net Benefit} - \text{Capital Outlay}}{\text{Cost of Risk}}$$
+                  $$E(R_i) = R_f + \beta_i \left[E(R_m) - R_f\right]$$
                 </div>
                 <ul class="space-y-1.5 text-xs">
-                  <li><strong style="color: var(--chalk-white);">Capital Efficiency:</strong> Retain liquid reserve thresholds across all quarters.</li>
-                  <li><strong style="color: var(--chalk-white);">Risk Hedging:</strong> Stress-test sensitivity against volatility spikes.</li>
-                  <li><span class="text-emerald-500 font-medium">[Oral Takeaway @ 00:48:19]:</span> Executive team ratified milestone deliverables for Q3 review.</li>
+                  <li><strong style="color: var(--chalk-white);">Beta Sensitivity ($\beta_i$):</strong> Measures asset volatility relative to systematic market benchmark.</li>
+                  <li><strong style="color: var(--chalk-white);">Risk-Free Rate ($R_f$):</strong> Sovereign treasury baseline underpinning hurdle rate.</li>
+                  <li><span class="text-emerald-500 font-medium">[Oral Clarification @ 01:14:20]:</span> Idiosyncratic variance is eliminated through cross-asset diversification.</li>
                 </ul>
               </div>
             </div>
 
             <!-- Footer Stats -->
             <div class="pt-4 mt-4 border-t flex items-center justify-between text-xs font-sans" style="border-color: var(--chalk-border); color: var(--chalk-muted);">
-              <span>Session Context: 14% used</span>
-              <span class="text-emerald-500 font-medium">Status: Direct BYOK Connected</span>
+              <span>Active Session: 1h 42m</span>
+              <span class="text-emerald-500 font-medium">Status: Hardware Vault Encrypted</span>
             </div>
           </div>
 
@@ -509,54 +503,54 @@
 
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
 
-      <!-- Spec 1: Dual Audio -->
+      <!-- Spec 1: Speaker Separation -->
       <div class="rounded-2xl border p-7 transition flex flex-col justify-between shadow-sm" style="background-color: var(--surface-graphite); border-color: var(--chalk-border);">
         <div>
           <div class="w-10 h-10 rounded-xl border flex items-center justify-center mb-5 font-mono text-sm" style="background-color: var(--surface-elevated); border-color: var(--chalk-border); color: var(--chalk-white);">
             01
           </div>
-          <h3 class="text-lg font-semibold mb-2" style="color: var(--chalk-white);">Dual-Channel Diarization</h3>
+          <h3 class="text-lg font-semibold mb-2" style="color: var(--chalk-white);">Crystal-Clear Speaker Separation</h3>
           <p class="text-sm leading-relaxed mb-4" style="color: var(--chalk-slate);">
-            Synchronously streams physical microphone audio alongside loopback system audio into isolated 16kHz WAV streams, ensuring flawless separation of speakers and presenters.
+            Isolates the presenter's voice from computer audio and room questions automatically. Zero setup or virtual audio cables required.
           </p>
         </div>
         <div class="pt-4 border-t text-xs font-sans flex justify-between" style="border-color: var(--chalk-border); color: var(--chalk-muted);">
-          <span>Engine: SoundCard & PyAudio</span>
-          <span>Sampling: 16,000 Hz</span>
+          <span>Audio: Autonomous Separation</span>
+          <span>Zero Virtual Cables</span>
         </div>
       </div>
 
-      <!-- Spec 2: Silero VAD & pHash -->
+      <!-- Spec 2: Pause & Silence Detection -->
       <div class="rounded-2xl border p-7 transition flex flex-col justify-between shadow-sm" style="background-color: var(--surface-graphite); border-color: var(--chalk-border);">
         <div>
           <div class="w-10 h-10 rounded-xl border flex items-center justify-center mb-5 font-mono text-sm" style="background-color: var(--surface-elevated); border-color: var(--chalk-border); color: var(--chalk-white);">
             02
           </div>
-          <h3 class="text-lg font-semibold mb-2" style="color: var(--chalk-white);">Neural VAD & pHash Deduplication</h3>
+          <h3 class="text-lg font-semibold mb-2" style="color: var(--chalk-white);">Respects Breaks & Silences</h3>
           <p class="text-sm leading-relaxed mb-4" style="color: var(--chalk-slate);">
-            Local Silero neural VAD halts transcription during breaks. Screen analysis computes perceptual image hashes (pHash) with Hamming thresholding to record only genuine visual changes.
+            Chalk automatically goes to sleep when lectures pause or meetings break, saving battery and conserving your quota.
           </p>
         </div>
         <div class="pt-4 border-t text-xs font-sans flex justify-between" style="border-color: var(--chalk-border); color: var(--chalk-muted);">
-          <span>VAD: Silero v4 Torch</span>
-          <span>Hamming: Δ > 10</span>
+          <span>State: Autonomous Standby</span>
+          <span>Battery & Quota Efficient</span>
         </div>
       </div>
 
-      <!-- Spec 3: Multi-Model Roadmap Callout -->
+      <!-- Spec 3: Slide-Aware Synthesis -->
       <div class="rounded-2xl border p-7 transition flex flex-col justify-between shadow-sm" style="background-color: var(--surface-graphite); border-color: var(--chalk-border);">
         <div>
           <div class="w-10 h-10 rounded-xl border flex items-center justify-center mb-5 font-mono text-sm" style="background-color: var(--surface-elevated); border-color: var(--chalk-border); color: var(--chalk-white);">
             03
           </div>
-          <h3 class="text-lg font-semibold mb-2" style="color: var(--chalk-white);">Pluggable Model Runtime (BYOK)</h3>
+          <h3 class="text-lg font-semibold mb-2" style="color: var(--chalk-white);">Slide-Aware Synthesis</h3>
           <p class="text-sm leading-relaxed mb-4" style="color: var(--chalk-slate);">
-            Initial release is tuned for Google AI Studio (gemini-2.5-flash / gemini-2.5-pro) with 1,000,000 token context. Core interface abstraction natively supports Anthropic Claude 3.7, OpenAI GPT-4o, and local Ollama/MLX runtimes in v1.1.
+            Watches your screen in the background. When a slide changes or a diagram appears, Chalk extracts the visual context and aligns it with spoken derivations.
           </p>
         </div>
         <div class="pt-4 border-t text-xs font-sans flex justify-between" style="border-color: var(--chalk-border); color: var(--chalk-muted);">
-          <span>Provider: Google AI Studio</span>
-          <span class="text-emerald-500 font-medium">Roadmap: Claude / Ollama</span>
+          <span>Visual Context: Real-Time Sync</span>
+          <span class="text-emerald-500 font-medium">Direct BYOK Client</span>
         </div>
       </div>
 
@@ -568,7 +562,7 @@
     <div class="rounded-3xl border p-8 sm:p-12 relative overflow-hidden shadow-sm" style="background-color: var(--surface-graphite); border-color: var(--chalk-border);">
       <div class="max-w-2xl">
         <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full border text-xs font-mono mb-6" style="background-color: var(--surface-elevated); border-color: var(--chalk-border); color: var(--chalk-slate);">
-          <span>KEYRING SECURITY PROTOCOL</span>
+          <span>HARDWARE VAULT SECURITY</span>
         </div>
         <h2 class="text-3xl sm:text-4xl font-bold tracking-tight mb-4" style="color: var(--chalk-white);">
           True Zero-Knowledge.<br>No Proxies. No Telemetry.
@@ -579,12 +573,12 @@
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs font-sans">
           <div class="p-4 rounded-xl border mono-terminal shadow-sm">
-            <div class="font-semibold mb-1" style="color: var(--terminal-text);">Native OS Vault</div>
-            <div style="color: var(--chalk-muted);">Target: macOS Keychain / Windows DPAPI<br>Service: "Chalk-Engine"</div>
+            <div class="font-semibold mb-1" style="color: var(--terminal-text);">Encrypted Hardware Vault</div>
+            <div style="color: var(--chalk-muted);">Stored directly in macOS Keychain or Windows DPAPI. Zero plaintext storage.</div>
           </div>
           <div class="p-4 rounded-xl border mono-terminal shadow-sm">
             <div class="font-semibold mb-1" style="color: var(--terminal-text);">Zero Telemetry</div>
-            <div style="color: var(--chalk-muted);">Analytics: Disabled<br>Crash Reporting: Local Logs Only</div>
+            <div style="color: var(--chalk-muted);">No cloud relays, zero tracking cookies, and local diagnostic logs only.</div>
           </div>
         </div>
       </div>
@@ -623,7 +617,7 @@
             </div>
             <h3 class="text-xl font-bold mb-2" style="color: var(--chalk-white);">Chalk for macOS (.app / .zip)</h3>
             <p class="text-xs leading-relaxed mb-6" style="color: var(--chalk-slate);">
-              Includes pre-bundled PyTorch, Silero VAD, SoundCard loopback driver, and PyQt6 frameless HUD.
+              Standalone desktop application with zero configuration. Runs silently in your menu bar and activates on demand with Alt+Space.
             </p>
           </div>
           <div>
@@ -679,7 +673,7 @@
             </div>
             <h3 class="text-xl font-bold mb-2" style="color: var(--chalk-white);">Chalk for Windows (.exe)</h3>
             <p class="text-xs leading-relaxed mb-6" style="color: var(--chalk-slate);">
-              Packaged with native Windows WASAPI loopback capture, Windows Credential Vault, and system tray integration.
+              Standalone desktop installer with native loopback audio capture and hardware vault encryption.
             </p>
           </div>
           <div>
@@ -950,7 +944,18 @@
       }
     }
 
-    // 6. Copy Command Feedback
+    // 6. Copy Markdown Notes & Command Feedback
+    function copyMarkdownNotes(btn) {
+      const markdown = `# Capital Asset Pricing & Systematic Risk\n\nThe expected excess return of any asset is strictly determined by its covariance with the broader market portfolio:\n\n$$E(R_i) = R_f + \\beta_i [E(R_m) - R_f]$$\n\n- **Beta Sensitivity (\\beta_i):** Measures asset volatility relative to systematic market benchmark.\n- **Risk-Free Rate (R_f):** Sovereign treasury baseline underpinning hurdle rate.\n- **[Oral Clarification @ 01:14:20](chalk-audio://01:14:20):** Idiosyncratic variance is eliminated through cross-asset diversification.`;
+      navigator.clipboard.writeText(markdown).then(() => {
+        const originalHtml = btn.innerHTML;
+        btn.innerHTML = '<span>✓ Copied</span>';
+        setTimeout(() => {
+          btn.innerHTML = originalHtml;
+        }, 2000);
+      });
+    }
+
     function copyCommand(btn, text) {
       navigator.clipboard.writeText(text).then(() => {
         const originalText = btn.textContent;

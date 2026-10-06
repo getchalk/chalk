@@ -175,6 +175,7 @@ class ChalkCoordinator(QObject):
             recorder=self.recorder,
             pipeline=self.pipeline,
             quota_manager=self.quota_manager,
+            notes_manager=self.notes_manager,
         )
         self.hud.request_toggle_recording.connect(self.toggle_recording)
         self.hud.request_force_flush.connect(self.force_chunk_flush)

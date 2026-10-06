@@ -11,9 +11,10 @@ import time
 from typing import Optional
 from PIL import Image
 
-from PyQt6.QtCore import Qt, QThread, pyqtSignal, QTimer, QPoint
-from PyQt6.QtGui import QFont, QIcon, QColor, QPainter, QBrush, QPen, QPixmap
+from PyQt6.QtCore import Qt, QThread, pyqtSignal, QTimer, QPoint, QUrl
+from PyQt6.QtGui import QFont, QIcon, QColor, QPainter, QBrush, QPen, QPixmap, QDesktopServices
 from PyQt6.QtWidgets import (
+    QApplication,
     QWidget,
     QVBoxLayout,
     QHBoxLayout,
@@ -133,11 +134,12 @@ class FloatingHUDWindow(QWidget):
     request_force_flush = pyqtSignal()
     request_master_synthesis = pyqtSignal()
 
-    def __init__(self, recorder=None, pipeline=None, quota_manager=None, parent=None):
+    def __init__(self, recorder=None, pipeline=None, quota_manager=None, notes_manager=None, parent=None):
         super().__init__(parent)
         self.recorder = recorder
         self.pipeline = pipeline
         self.quota_manager = quota_manager
+        self.notes_manager = notes_manager
 
         # Attachments
         self.attached_document_text: Optional[str] = None
@@ -169,7 +171,7 @@ class FloatingHUDWindow(QWidget):
         )
         self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground, True)
         self.setAcceptDrops(True)
-        self.resize(720, 520)
+        self.resize(760, 520)
         self.setStyleSheet(HUD_STYLESHEET)
 
         # Center on upper part of primary screen
@@ -211,14 +213,6 @@ class FloatingHUDWindow(QWidget):
         )
         header.addWidget(self.status_pill)
 
-        # RPD Budget Pill (Pure Slate Monochrome)
-        self.quota_pill = QLabel("Quota: 50 RPD")
-        self.quota_pill.setStyleSheet(
-            "background-color: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.12);"
-            "color: #94A3B8; font-size: 11px; font-weight: 500; padding: 4px 10px; border-radius: 12px;"
-        )
-        header.addWidget(self.quota_pill)
-
         header.addStretch()
 
         # Minimize / Hide button
@@ -234,8 +228,8 @@ class FloatingHUDWindow(QWidget):
         actions_bar = QHBoxLayout()
         actions_bar.setSpacing(8)
 
-        self.attach_doc_btn = QPushButton("📎 Attach Document")
-        self.attach_doc_btn.setToolTip("Ground session with lecture slides (.pdf, .pptx)")
+        self.attach_doc_btn = QPushButton("📎 Attach Slides")
+        self.attach_doc_btn.setToolTip("Ground session with lecture slides or syllabus (.pdf, .pptx)")
         self.attach_doc_btn.clicked.connect(self._open_document_dialog)
         actions_bar.addWidget(self.attach_doc_btn)
 
@@ -249,16 +243,26 @@ class FloatingHUDWindow(QWidget):
         self.rewind_btn.clicked.connect(self._trigger_audio_rewind)
         actions_bar.addWidget(self.rewind_btn)
 
-        self.flush_btn = QPushButton("⏳ Flush Chunk (F10)")
-        self.flush_btn.setToolTip("Force active chunk to synthesize immediately")
-        self.flush_btn.clicked.connect(lambda: self.request_force_flush.emit())
-        actions_bar.addWidget(self.flush_btn)
+        self.copy_notes_btn = QPushButton("📋 Copy Notes")
+        self.copy_notes_btn.setToolTip("Copy synthesized notes and outline to clipboard")
+        self.copy_notes_btn.clicked.connect(self._copy_notes_to_clipboard)
+        actions_bar.addWidget(self.copy_notes_btn)
+
+        self.obsidian_btn = QPushButton("📓 Obsidian")
+        self.obsidian_btn.setToolTip("Open notes directly inside Obsidian")
+        self.obsidian_btn.clicked.connect(self._open_in_obsidian)
+        actions_bar.addWidget(self.obsidian_btn)
+
+        self.editor_btn = QPushButton("↗️ Editor")
+        self.editor_btn.setToolTip("Open notes in system default markdown editor")
+        self.editor_btn.clicked.connect(self._open_in_default_editor)
+        actions_bar.addWidget(self.editor_btn)
 
         actions_bar.addStretch()
 
-        self.synth_btn = QPushButton("🎓 End & Synthesize (F9)")
+        self.synth_btn = QPushButton("Finish (F9)")
         self.synth_btn.setObjectName("primaryAction")
-        self.synth_btn.setToolTip("Finish lecture and run Gemini Pro Master Synthesis")
+        self.synth_btn.setToolTip("Finish session and synthesize final notes")
         self.synth_btn.clicked.connect(lambda: self.request_master_synthesis.emit())
         actions_bar.addWidget(self.synth_btn)
 
@@ -280,15 +284,16 @@ class FloatingHUDWindow(QWidget):
         left_layout.setContentsMargins(0, 0, 6, 0)
         left_layout.setSpacing(6)
 
-        scratchpad_label = QLabel("📝 Student Scratchpad (Primary Outline Anchor):")
+        scratchpad_label = QLabel("📝 User Scratchpad (Shorthand & Outline Anchor):")
         scratchpad_label.setStyleSheet("font-size: 11px; font-weight: 600; color: #9ca3af;")
         left_layout.addWidget(scratchpad_label)
 
         self.scratchpad_text = QTextEdit()
         self.scratchpad_text.setPlaceholderText(
-            "- Jot shorthand formulas or topics here...\n"
-            "- Anchors section hierarchy in live chunks\n"
-            "- Drag & drop .pdf or .pptx slides onto HUD"
+            "- Jot shorthand bullets or quick thoughts here...\n"
+            "- Chalk weaves your bullets into the structured synthesis\n"
+            "- Scrubbable audio timestamp links created automatically\n"
+            "- Drag & drop slides (.pdf, .pptx) anywhere onto HUD"
         )
         left_layout.addWidget(self.scratchpad_text)
         splitter.addWidget(left_widget)
@@ -371,11 +376,6 @@ class FloatingHUDWindow(QWidget):
 
     def _update_hud_status(self):
         """Periodic status update."""
-        if self.quota_manager:
-            rpd = self.quota_manager.safe_remaining_rpd
-            tokens = self.quota_manager.total_tokens_today
-            self.quota_pill.setText(f"Budget: {rpd} RPD ({tokens // 1000}k tok)")
-
         if self.recorder and self.recorder.is_recording:
             if self.recorder.is_paused:
                 self.set_daemon_status("paused")
@@ -457,6 +457,86 @@ class FloatingHUDWindow(QWidget):
     def _on_copilot_finished(self, response: str):
         self.send_btn.setEnabled(True)
         self.chat_history.append(f"<b>Chalk Copilot:</b>\n{response}\n")
+
+    def _get_active_notes_path(self) -> Optional[str]:
+        """Resolves the active session notes markdown path."""
+        if self.notes_manager and hasattr(self.notes_manager, "session_file"):
+            if os.path.exists(self.notes_manager.session_file):
+                return self.notes_manager.session_file
+
+        notes_dir = os.path.abspath("Notes")
+        if os.path.exists(notes_dir):
+            md_files = [
+                os.path.join(notes_dir, f)
+                for f in os.listdir(notes_dir)
+                if f.endswith(".md")
+            ]
+            if md_files:
+                md_files.sort(key=os.path.getmtime, reverse=True)
+                return md_files[0]
+        return None
+
+    def _copy_notes_to_clipboard(self):
+        """Copies session notes (or scratchpad shorthand) to system clipboard."""
+        notes_path = self._get_active_notes_path()
+        content = ""
+        if notes_path and os.path.exists(notes_path):
+            try:
+                with open(notes_path, "r", encoding="utf-8") as f:
+                    content = f.read()
+            except Exception:
+                content = ""
+
+        if not content.strip():
+            scratchpad = self.get_scratchpad_content().strip()
+            content = scratchpad if scratchpad else "# Chalk Lecture Notes\n\n*(Session in progress)*\n"
+
+        clipboard = QApplication.clipboard()
+        if clipboard:
+            clipboard.setText(content)
+            orig_text = self.copy_notes_btn.text()
+            self.copy_notes_btn.setText("✓ Copied!")
+            QTimer.singleShot(2000, lambda: self.copy_notes_btn.setText(orig_text))
+
+    def _open_in_obsidian(self):
+        """Opens active session notes inside Obsidian via obsidian:// URI scheme."""
+        notes_path = self._get_active_notes_path()
+        if not notes_path:
+            notes_dir = os.path.abspath("Notes")
+            os.makedirs(notes_dir, exist_ok=True)
+            today_str = time.strftime("%Y-%m-%d")
+            notes_path = os.path.join(notes_dir, f"Lecture_{today_str}.md")
+            if not os.path.exists(notes_path):
+                try:
+                    with open(notes_path, "w", encoding="utf-8") as f:
+                        f.write(f"# Chalk Lecture Notes — {today_str}\n\n")
+                except Exception:
+                    pass
+
+        if notes_path and os.path.exists(notes_path):
+            encoded_path = QUrl.toPercentEncoding(notes_path).data().decode("utf-8")
+            obsidian_uri = f"obsidian://open?path={encoded_path}"
+            opened = QDesktopServices.openUrl(QUrl(obsidian_uri))
+            if not opened:
+                self._open_in_default_editor()
+
+    def _open_in_default_editor(self):
+        """Opens active notes markdown file in the system default editor."""
+        notes_path = self._get_active_notes_path()
+        if not notes_path:
+            notes_dir = os.path.abspath("Notes")
+            os.makedirs(notes_dir, exist_ok=True)
+            today_str = time.strftime("%Y-%m-%d")
+            notes_path = os.path.join(notes_dir, f"Lecture_{today_str}.md")
+            if not os.path.exists(notes_path):
+                try:
+                    with open(notes_path, "w", encoding="utf-8") as f:
+                        f.write(f"# Chalk Lecture Notes — {today_str}\n\n")
+                except Exception:
+                    pass
+
+        if notes_path and os.path.exists(notes_path):
+            QDesktopServices.openUrl(QUrl.fromLocalFile(notes_path))
 
     # Drag and Drop support for slide decks (.pdf, .pptx)
     def dragEnterEvent(self, event):

@@ -1,6 +1,6 @@
 ================================================================================
 CHALK — AMBIENT COGNITIVE PRESENCE ENGINE & WEB PORTAL
-STATUS-REPORT, ARCHITEKTUR-ÜBERSICHT UND ANMERKUNGEN (PHASEN 1–6)
+STATUS-REPORT, ARCHITEKTUR-ÜBERSICHT UND ANMERKUNGEN (PHASEN 1–7)
 ================================================================================
 Stand: 2026-10-06
 Projektpfad (Desktop): /Users/user/Desktop/chalk/
@@ -17,14 +17,16 @@ Phase 3: End-to-End Simulation, Standalone-Kompilierung & Release-Pipeline [ABGE
 Phase 4: Multi-Agent Swarm Orchestration (Brand, Animated Web, Roadmap) [ABGESCHLOSSEN]
 Phase 5: Queen Bee Orchestration & Universelle Positionierung [ABGESCHLOSSEN]
 Phase 6: Consumer-Grade Polish, De-Hackerization & Kontrast-Reparatur [ABGESCHLOSSEN]
+Phase 7: De-Hackerization, Slop Elimination & Consumer Refinement [ABGESCHLOSSEN]
 
-- Unit- & Integrationstest-Suite: 9/9 TESTS BESTANDEN (1.48s).
+- Unit- & Integrationstest-Suite: 9/9 TESTS BESTANDEN (1.22s).
 - End-to-End Dry-Run Simulation: 5/5 STAGES ERFOLGREICH (Notes/Lecture_Simulation.md verifiziert).
 - Pre-Flight Hardware-Diagnostik: ALLE RECHTE AKTIV (Mikrofon, Bildschirmaufnahme, Barrierefreiheit).
 - Brand-Identität: Authentischer Kreidestift auf Schiefertafel mit Kreidestrich (assets/brand/logo.svg).
-- UI/UX & Ästhetik: Notion/Apple-Niveau; Befreit von Hacker-Jargon; Warme, lesbare Typografie.
+- UI/UX & Ästhetik: Notion/Apple-Niveau; Vollständig befreit von technischer Prahlerei und Hacker-Jargon.
 - Chip-Docking: Permanente Exterior-Docking-Positionierung (-top-6 / -bottom-6); 0% Text-Überdeckung.
 - Dual-Theme Kontrast: Heller Modus mit perfekter Lesbarkeit (Hellgraue Terminal-Boxen mit tiefdunkler Schrift).
+- Floating HUD: Quoten-freier Raycast/Spotlight-Look mit Granola-Style Shorthand und 6 Schnellaktionen.
 - Standalone Kompilierung: dist/Chalk.app (143 MB arm64) mit verifizierten Berechtigungen & Icons.
 - Release-Integrität: scripts/generate_checksums.py -> dist/SHA256SUMS.txt verifiziert.
 
@@ -81,14 +83,56 @@ D. WORKER BEE 4: QA-VERIFIKATION & DESKTOP-SYNCHRONISATION
       - SHA-256 Checksummen in dist/SHA256SUMS.txt intakt.
 
 
-3. ARTEFAKT- & PRÜFSUMMEN-ÜBERSICHT (dist/SHA256SUMS.txt)
+3. PHASE 7 DURCHGEFÜHRTE MASSNAHMEN (DE-HACKERIZATION, SLOP ELIMINATION & CONSUMER REFINEMENT)
+--------------------------------------------------------------------------------
+
+A. WORKER BEE 1: WEB COPYWRITING & HERO DE-HACKERIZATION
+  [✓] Vollständige Beseitigung von interner Bibliotheks-Prahlerei:
+      - Ersetzt "Dual-Channel Diarization / SoundCard & PyAudio" durch "Crystal-Clear Speaker Separation" (Autonome Trennung von Sprecher und Raumaudio ohne Konfiguration).
+      - Ersetzt "Neural VAD & pHash Deduplication / Silero v4 Torch / Hamming Δ>10" durch "Respects Breaks & Silences" (Autonomer Standby bei Pausen schont Batterie und Kontingent).
+      - Ersetzt "Pluggable Model Runtime (BYOK)" durch "Slide-Aware Synthesis" (Hintergrund-Folienerkennung synchronisiert visuelle Diagramme mit gesprochenen Herleitungen).
+      - Ersetzt "KEYRING SECURITY PROTOCOL" durch "HARDWARE VAULT SECURITY".
+      - Download-Beschreibungen bereinigt (Fokus auf lautlose Menüleisten-Integration statt interner Audio-Treiber).
+  [✓] Hero Mockup Veredelung:
+      - Titelleiste: Beruhigtes `Recording (01:42)` Status-Badge; Verbannung des `DUAL-STREAM` Debug-Labels.
+      - Foliensynchronisation: *"Modern Portfolio Theory & Factor Exposure"* mit $E(R_i) = R_f + \beta_i[E(R_m) - R_f]$.
+      - Synthetisierte Notizen: `portfolio_theory.md` mit formeller CAPM-Derivation und klarer `Copy Markdown` Schaltfläche inkl. Zwischenablagen-Feedback.
+      - 0 Emojis, 0 verbotene Lila/Indigo-Token, strikte Schwarz-Weiss/Schiefer-Palette.
+
+B. WORKER BEE 2 & 3: SPOTLIGHT/RAYCAST HUD & GRANOLA-STYLE SHORTHAND
+  [✓] Beseitigung von Quoten-Stress aus dem primären Sichtfeld:
+      - `self.quota_pill` ("Quota: 50 RPD") aus der HUD-Kopfzeile entfernt für einen ruhigen, ablenkungsfreien Arbeitsbereich.
+  [✓] Granola-Style Shorthand Priority (`src/api/gemini_client.py`):
+      - User Scratchpad im Zentrum: Stichpunktartige Notizen des Nutzers dienen als autoritativer Gliederungsanker.
+      - Die Gemini-Pipeline reichert Nutzer-Notizen mit umgebenden Audio- und Folientexten an.
+      - Zeitstempel-Verlinkung: Generiert interaktive Audio-Scrubbing-Links im Format `[HH:MM:SS](chalk-audio://HH:MM:SS)`.
+  [✓] Umfassende Schnellaktionsleiste (`src/ui/hud_window.py`):
+      - `📎 Attach Slides`: Folien und Dokumente per Dialog oder Drag-and-Drop verknüpfen.
+      - `✂️ Snip Screen (Alt+S)`: Bildschirmbereich markieren und an den Prompt anhängen.
+      - `⏮️ Rewind 90s`: Letzte 90 Sekunden Audio abrufen und transkribieren.
+      - `📋 Copy Notes`: Synthetisierte Notizen / Scratchpad direkt in die Zwischenablage kopieren (`_copy_notes_to_clipboard()`).
+      - `📓 Obsidian`: Notizen direkt über das `obsidian://open?path=...` Protokoll in Obsidian öffnen (`_open_in_obsidian()`).
+      - `↗️ Editor`: Notizen im systemweiten Standard-Markdown-Editor öffnen (`_open_in_default_editor()`).
+      - `Finish (F9)`: Vorlesung beenden und Master-Synthese starten.
+
+C. WORKER BEE 4: QA-VERIFIKATION & DESKTOP-SYNCHRONISATION
+  [✓] Pipeline-Tests:
+      - `./scripts/deploy_web.sh test` -> PASS (0 Fehler, 0 verbotene Token).
+      - Python Unit-Tests: 9/9 Tests bestanden (1.22s).
+      - Emoji-Scan web/index.html -> 0 gefundene Emojis.
+      - PyQt6 HUD Instanziierungstest -> Erfolgreich verifiziert mit allen 8 Buttons.
+  [✓] Synchronisation:
+      - Vollständige Spiegelung nach `/Users/user/Desktop/chalk/`.
+
+
+4. ARTEFAKT- & PRÜFSUMMEN-ÜBERSICHT (dist/SHA256SUMS.txt)
 --------------------------------------------------------------------------------
 Chalk (arm64 Binary)  : c19907a323d737f6c6dd13a7aac0f90710c2b9815a306c2855986634fd2f77ee
 Chalk-macOS.zip       : 57f046528a4caaae215582940bf562f940a27e818ce17981c9e82c8c0da89b24
 dist/Chalk.app        : Gebündelt mit Literal Chalk Icon (app.icns)
 
 
-4. PROJEKT-DATEIEN & STRUKTUR
+5. PROJEKT-DATEIEN & STRUKTUR
 --------------------------------------------------------------------------------
 chalk/
 ├── assets/
