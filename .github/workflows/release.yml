@@ -1,0 +1,128 @@
+name: Chalk Release Pipeline
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build Binary on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-latest
+            artifact_name: Chalk-macOS.zip
+            asset_path: dist/Chalk-macOS.zip
+          - os: windows-latest
+            artifact_name: Chalk-Windows.exe
+            asset_path: dist/Chalk-Windows.exe
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install Build & Application Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pyinstaller
+
+      - name: Execute Test Suite
+        run: |
+          python -m unittest tests/test_chalk_pipeline.py
+
+      - name: Run End-to-End Simulation
+        run: |
+          python tests/test_live_simulation.py
+
+      - name: Compile Standalone Executable via PyInstaller
+        run: |
+          python build_standalone.py
+
+      # macOS Packaging: Zip the .app bundle
+      - name: Package macOS App Bundle
+        if: runner.os == 'macOS'
+        run: |
+          cd dist
+          if [ -d "Chalk.app" ]; then
+            zip -r -y Chalk-macOS.zip Chalk.app
+          else
+            zip -y Chalk-macOS.zip Chalk
+          fi
+
+      # Windows Packaging: Rename dist binary
+      - name: Package Windows Binary
+        if: runner.os == 'Windows'
+        shell: bash
+        run: |
+          cd dist
+          cp Chalk.exe Chalk-Windows.exe
+
+      - name: Upload Build Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact_name }}
+          path: ${{ matrix.asset_path }}
+          if-no-files-found: error
+
+  publish:
+    name: Publish GitHub Release
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Download macOS Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: Chalk-macOS.zip
+          path: release-assets
+
+      - name: Download Windows Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: Chalk-Windows.exe
+          path: release-assets
+
+      - name: Generate Cryptographic SHA-256 Checksums
+        run: |
+          cd release-assets
+          sha256sum * > SHA256SUMS.txt
+          cat SHA256SUMS.txt
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            release-assets/Chalk-macOS.zip
+            release-assets/Chalk-Windows.exe
+            release-assets/SHA256SUMS.txt
+          name: Chalk ${{ github.ref_name }} — Autonomous Desktop Lecture Engine
+          draft: false
+          prerelease: false
+          generate_release_notes: true
+          body: |
+            ## Chalk — "Let them talk. Chalk does the work."
+
+            Autonomous desktop lecture engine with True Zero-Knowledge BYOK architecture, dual-channel hardware diarization, Silero VAD, perceptual slide deduplication, and hybrid Gemini Flash/Pro synthesis.
+
+            ### Downloads:
+            - **macOS (Apple Silicon & Intel):** `Chalk-macOS.zip` (Contains standalone `Chalk.app` bundle)
+            - **Windows (x64):** `Chalk-Windows.exe` (Single-file standalone executable)
+            - **Checksums:** `SHA256SUMS.txt`
+
+            All binaries operate 100% locally and connect directly to Google AI Studio via `from google import genai` with zero cloud telemetry.

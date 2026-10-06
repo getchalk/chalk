@@ -1,0 +1,14 @@
+google-genai
+sounddevice
+soundcard
+mss
+Pillow
+imagehash
+pynput
+pystray
+PyQt6
+torch
+torchaudio
+keyring
+pypdf
+python-pptx

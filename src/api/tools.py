@@ -1,0 +1,186 @@
+"""
+src/api/tools.py - Local Desktop Tools for Gemini Agent Function Calling.
+Exposes local executable tools to Gemini:
+- read_local_file(path): Ingests text, PDF (pypdf), PPTX (python-pptx), or source code.
+- capture_active_screen(): Takes an instant screen snapshot.
+- rewind_audio_transcript(seconds): Fetches trailing audio buffer for instant transcription.
+- append_to_notes(heading, markdown_content): Writes directly to the active session notes.
+"""
+
+import os
+import time
+import logging
+from typing import Optional, Callable
+from PIL import Image
+
+logger = logging.getLogger("chalk.api.tools")
+
+# Context references registered at runtime by main / engine
+_RECORDER_REF = None
+_SCREEN_GRABBER_REF = None
+_NOTES_MANAGER_REF = None
+_GEMINI_CLIENT_REF = None
+
+
+def register_tool_context(
+    recorder=None,
+    screen_grabber=None,
+    notes_manager=None,
+    gemini_client=None,
+):
+    """Registers application subsystem instances for tool execution."""
+    global _RECORDER_REF, _SCREEN_GRABBER_REF, _NOTES_MANAGER_REF, _GEMINI_CLIENT_REF
+    if recorder is not None:
+        _RECORDER_REF = recorder
+    if screen_grabber is not None:
+        _SCREEN_GRABBER_REF = screen_grabber
+    if notes_manager is not None:
+        _NOTES_MANAGER_REF = notes_manager
+    if gemini_client is not None:
+        _GEMINI_CLIENT_REF = gemini_client
+    logger.info("Chalk desktop tools context registered.")
+
+
+def read_local_file(path: str) -> str:
+    """
+    Reads and extracts text from a local file on the user's machine.
+    Supports PDF documents (.pdf), PowerPoint slides (.pptx), Markdown (.md),
+    plain text (.txt), and source code files.
+
+    Args:
+        path: Absolute or relative file path to read.
+    """
+    clean_path = os.path.expanduser(os.path.expandvars(path.strip()))
+    if not os.path.exists(clean_path):
+        return f"Error: File not found at '{clean_path}'."
+
+    try:
+        lower = clean_path.lower()
+
+        # PDF extraction via pypdf
+        if lower.endswith(".pdf"):
+            import pypdf
+
+            reader = pypdf.PdfReader(clean_path)
+            total_pages = len(reader.pages)
+            extracted = []
+            for idx, page in enumerate(reader.pages[:40]):  # cap at 40 pages
+                text = page.extract_text()
+                if text:
+                    extracted.append(f"--- Page {idx + 1} ---\n{text.strip()}")
+            return f"PDF Document: {os.path.basename(clean_path)} ({total_pages} pages)\n" + "\n\n".join(extracted)
+
+        # PPTX extraction via python-pptx
+        elif lower.endswith((".pptx", ".ppt")):
+            from pptx import Presentation
+
+            prs = Presentation(clean_path)
+            slide_texts = []
+            for idx, slide in enumerate(prs.slides[:60]):
+                slide_content = []
+                for shape in slide.shapes:
+                    if hasattr(shape, "text") and shape.text.strip():
+                        slide_content.append(shape.text.strip())
+                if slide_content:
+                    slide_texts.append(f"--- Slide {idx + 1} ---\n" + "\n".join(slide_content))
+            return f"PowerPoint Presentation: {os.path.basename(clean_path)}\n" + "\n\n".join(slide_texts)
+
+        # Plain text / Markdown / Source files
+        else:
+            with open(clean_path, "r", encoding="utf-8", errors="replace") as f:
+                content = f.read(150_000)  # Read up to 150k characters
+                return f"File: {os.path.basename(clean_path)}\n{content}"
+
+    except Exception as e:
+        logger.error("Failed reading file '%s': %s", clean_path, e)
+        return f"Error reading file '{clean_path}': {str(e)}"
+
+
+def capture_active_screen() -> str:
+    """
+    Takes an instant screenshot of the user's active presentation display
+    and saves it to the Chalk temporary cache.
+    """
+    try:
+        cache_dir = os.path.expanduser("~/.chalk/cache")
+        os.makedirs(cache_dir, exist_ok=True)
+        img_path = os.path.join(cache_dir, f"screen_{int(time.time())}.jpg")
+
+        if _SCREEN_GRABBER_REF is not None:
+            img = _SCREEN_GRABBER_REF.capture_screenshot()
+        else:
+            import mss
+
+            with mss.mss() as sct:
+                monitor = sct.monitors[1] if len(sct.monitors) > 1 else sct.monitors[0]
+                sct_img = sct.grab(monitor)
+                img = Image.frombytes("RGB", sct_img.size, sct_img.bgra, "raw", "BGRX")
+
+        rgb_img = img.convert("RGB")
+        rgb_img.save(img_path, "JPEG", quality=85)
+        return f"Successfully captured active screen snapshot saved to {img_path} (Dimensions: {img.size[0]}x{img.size[1]})."
+    except Exception as e:
+        logger.error("Screen capture tool error: %s", e)
+        return f"Error capturing screen: {str(e)}"
+
+
+def rewind_audio_transcript(seconds: int = 90) -> str:
+    """
+    Fetches the trailing audio buffer (default: 90 seconds) from the dual-channel
+    recorder and generates a fast speech transcription.
+
+    Args:
+        seconds: Duration in seconds to rewind (between 10 and 120 seconds).
+    """
+    if _RECORDER_REF is None:
+        return "Audio recorder is not currently active."
+
+    try:
+        sec = max(10, min(120, int(seconds)))
+        audio_data = _RECORDER_REF.get_rewind_audio(seconds=sec)
+        if len(audio_data) == 0:
+            return f"No audio in the trailing {sec}-second buffer."
+
+        # If Gemini client reference is registered, transcribe via fast flash model
+        if _GEMINI_CLIENT_REF is not None:
+            return _GEMINI_CLIENT_REF.transcribe_audio_buffer(audio_data, duration_sec=sec)
+        else:
+            return f"Extracted {len(audio_data)} audio samples ({sec}s trailing buffer). Transcriber ready."
+
+    except Exception as e:
+        logger.error("Rewind audio tool error: %s", e)
+        return f"Error retrieving audio rewind: {str(e)}"
+
+
+def append_to_notes(heading: str, markdown_content: str) -> str:
+    """
+    Appends a new formatted section or student question directly into the active
+    lecture markdown notes file.
+
+    Args:
+        heading: Section header (e.g. 'Student Query: Convex Optimization')
+        markdown_content: Formatted LaTeX markdown content to append.
+    """
+    if _NOTES_MANAGER_REF is None:
+        return "No active session notes manager initialized."
+
+    try:
+        timestamp_str = time.strftime("[%H:%M:%S]")
+        entry = f"#### {heading} {timestamp_str}\n\n{markdown_content.strip()}\n\n"
+
+        with open(_NOTES_MANAGER_REF.session_file, "a", encoding="utf-8") as f:
+            f.write(entry)
+
+        return f"Successfully appended '{heading}' to session notes ({os.path.basename(_NOTES_MANAGER_REF.session_file)})."
+    except Exception as e:
+        logger.error("Append to notes tool error: %s", e)
+        return f"Error writing to notes: {str(e)}"
+
+
+# Export list of callable tool functions for Gemini function calling
+CHALK_DESKTOP_TOOLS = [
+    read_local_file,
+    capture_active_screen,
+    rewind_audio_transcript,
+    append_to_notes,
+]
