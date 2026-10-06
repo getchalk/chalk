@@ -1,68 +1,64 @@
 <!DOCTYPE html>
-<html lang="en" class="scroll-smooth">
+<html lang="de" class="scroll-smooth">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Chalk — Let them talk. Chalk does the work.</title>
-  <meta name="description" content="Ambient cognitive presence engine for lectures, technical architecture reviews, and executive strategy meetings. Synchronizes dual-channel audio and slide transitions into structured LaTeX Markdown notes with zero-knowledge BYOK privacy.">
+  <title>Chalk — Nie wieder hektisch mitschreiben</title>
+  <meta name="description" content="Chalk hört zu, sieht die Folien und schreibt deine Notizen. Autonome Desktop-App für Vorlesungen, Meetings und Gespräche mit 100% lokaler Privatsphäre.">
   <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
   <link rel="icon" type="image/png" href="assets/logo.png">
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     :root {
-      --bg-obsidian: #050508;
-      --surface-graphite: #0E0F16;
-      --surface-elevated: #141622;
-      --surface-terminal: #07080B;
-      --chalk-white: #F8FAFC;
+      --bg-obsidian: #0A0A0C;
+      --surface-graphite: #121318;
+      --surface-elevated: #181920;
+      --surface-terminal: #0E0F14;
+      --chalk-white: #FFFFFF;
       --chalk-slate: #94A3B8;
       --chalk-muted: #64748B;
       --chalk-border: rgba(255, 255, 255, 0.08);
-      --chalk-border-hover: rgba(255, 255, 255, 0.18);
-      --dot-color: rgba(255, 255, 255, 0.09);
-      --torchlight-color: rgba(255, 255, 255, 0.04);
-      --card-glare: rgba(255, 255, 255, 0.08);
-      --terminal-bg: #07080B;
+      --chalk-border-hover: rgba(255, 255, 255, 0.16);
+      --dot-color: rgba(255, 255, 255, 0.04);
+      --card-glare: rgba(255, 255, 255, 0.05);
+      --terminal-bg: #121318;
       --terminal-text: #F8FAFC;
       --terminal-border: rgba(255, 255, 255, 0.1);
       --terminal-btn-bg: rgba(255, 255, 255, 0.06);
       --terminal-btn-text: #CBD5E1;
       --terminal-btn-border: rgba(255, 255, 255, 0.12);
-      --chip-bg: rgba(14, 15, 22, 0.96);
-      --chip-border: rgba(255, 255, 255, 0.12);
-      --chip-text-title: #FFFFFF;
-      --chip-text-desc: #CBD5E1;
       --hud-header-bg: rgba(255, 255, 255, 0.02);
-      --hud-body-bg: #07080B;
-      --hud-card-bg: #0E0F16;
+      --hud-body-bg: #0A0A0C;
+      --hud-card-bg: #121318;
+      --pill-bg: rgba(255, 255, 255, 0.06);
+      --pill-border: rgba(255, 255, 255, 0.14);
+      --pill-text: #F8FAFC;
     }
 
     html.theme-light {
-      --bg-obsidian: #F8F9FA;
+      --bg-obsidian: #FBFBFD;
       --surface-graphite: #FFFFFF;
-      --surface-elevated: #F1F3F5;
-      --surface-terminal: #F1F5F9;
-      --chalk-white: #0F172A;
+      --surface-elevated: #F4F4F6;
+      --surface-terminal: #EFEFF3;
+      --chalk-white: #0A0A0C;
       --chalk-slate: #475569;
       --chalk-muted: #64748B;
       --chalk-border: #E2E8F0;
       --chalk-border-hover: #CBD5E1;
-      --dot-color: rgba(15, 23, 42, 0.06);
-      --torchlight-color: rgba(15, 23, 42, 0.025);
-      --card-glare: rgba(15, 23, 42, 0.03);
-      --terminal-bg: #F1F5F9;
+      --dot-color: rgba(15, 23, 42, 0.04);
+      --card-glare: rgba(15, 23, 42, 0.02);
+      --terminal-bg: #F4F4F6;
       --terminal-text: #0F172A;
       --terminal-border: #CBD5E1;
       --terminal-btn-bg: #E2E8F0;
       --terminal-btn-text: #334155;
       --terminal-btn-border: #CBD5E1;
-      --chip-bg: rgba(255, 255, 255, 0.98);
-      --chip-border: #CBD5E1;
-      --chip-text-title: #0F172A;
-      --chip-text-desc: #475569;
       --hud-header-bg: #F8FAFC;
-      --hud-body-bg: #F1F5F9;
+      --hud-body-bg: #F4F4F6;
       --hud-card-bg: #FFFFFF;
+      --pill-bg: rgba(0, 0, 0, 0.05);
+      --pill-border: rgba(0, 0, 0, 0.1);
+      --pill-text: #0A0A0C;
     }
 
     body {
@@ -76,19 +72,6 @@
     ::selection {
       background: rgba(248, 250, 252, 0.15);
       color: var(--chalk-white);
-    }
-
-    /* Ambient Torchlight Cursor Track */
-    #torchlight {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      pointer-events: none;
-      z-index: 1;
-      background: radial-gradient(750px circle at var(--mouse-x, 50vw) var(--mouse-y, 40vh), var(--torchlight-color), transparent 80%);
-      transition: background 0.05s ease-out;
     }
 
     /* Micro-Dot Architectural Grid */
@@ -123,42 +106,6 @@
     .tilt-card:hover .glare-overlay {
       opacity: 1;
     }
-
-    /* Floating Action Notification Chips */
-    @keyframes chipEntrance {
-      0% {
-        opacity: 0;
-        transform: translateY(14px) scale(0.94);
-      }
-      60% {
-        opacity: 1;
-        transform: translateY(-2px) scale(1.01);
-      }
-      100% {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-      }
-    }
-
-    @keyframes chipFloat {
-      0%, 100% {
-        transform: translateY(0px);
-      }
-      50% {
-        transform: translateY(-4px);
-      }
-    }
-
-    .floating-chip {
-      pointer-events: none !important;
-      animation: chipEntrance 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards, chipFloat 5s ease-in-out infinite 0.6s;
-      box-shadow: 0 12px 28px -6px rgba(0, 0, 0, 0.25), 0 0 0 1px var(--chip-border);
-      transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
-    }
-
-    .chip-delay-1 { animation-delay: 0.2s, 0.8s; }
-    .chip-delay-2 { animation-delay: 0.4s, 1.0s; }
-    .chip-delay-3 { animation-delay: 0.6s, 1.2s; }
 
     /* Code Block & Terminal Syntax */
     .mono-terminal {
@@ -198,13 +145,10 @@
 </head>
 <body class="relative min-h-screen">
 
-  <!-- Interactive Torchlight Effect -->
-  <div id="torchlight"></div>
-
   <!-- Navigation Bar -->
   <nav class="sticky top-0 z-40 backdrop-blur-xl border-b px-6 py-4 transition-colors" style="background-color: rgba(var(--bg-obsidian), 0.85); border-color: var(--chalk-border);">
     <div class="max-w-6xl mx-auto flex items-center justify-between">
-      <!-- Literal Chalk on Slate Brand Mark -->
+      <!-- Literal Chalk Brand Mark -->
       <a href="#" class="flex items-center gap-3 group">
         <div class="w-8 h-8 rounded-lg border flex items-center justify-center p-1 transition" style="background-color: var(--surface-graphite); border-color: var(--chalk-border);">
           <svg viewBox="0 0 128 128" class="w-full h-full" fill="none">
@@ -219,26 +163,25 @@
         </div>
         <div class="flex flex-col">
           <span class="font-bold tracking-wider text-base font-mono" style="color: var(--chalk-white);">CHALK</span>
-          <span class="text-[9px] uppercase tracking-widest -mt-1 font-mono" style="color: var(--chalk-muted);">PRESENCE v1.0</span>
+          <span class="text-[9px] uppercase tracking-widest -mt-1 font-mono" style="color: var(--chalk-muted);">DESKTOP</span>
         </div>
       </a>
 
       <!-- Navigation & Controls -->
-      <div class="flex items-center gap-5 text-xs font-mono">
-        <a href="#features" class="hidden sm:inline-block transition hover:opacity-100" style="color: var(--chalk-slate);">SPECIFICATION</a>
-        <a href="#use-cases" class="hidden sm:inline-block transition hover:opacity-100" style="color: var(--chalk-slate);">APPLICATIONS</a>
-        <a href="#architecture" class="hidden sm:inline-block transition hover:opacity-100" style="color: var(--chalk-slate);">ZERO-KNOWLEDGE</a>
+      <div class="flex items-center gap-5 text-xs">
+        <a href="#how-it-works" class="hidden sm:inline-block transition hover:opacity-100" style="color: var(--chalk-slate);">Funktionsweise</a>
+        <a href="#use-cases" class="hidden sm:inline-block transition hover:opacity-100" style="color: var(--chalk-slate);">Einsatzbereiche</a>
+        <a href="#privacy" class="hidden sm:inline-block transition hover:opacity-100" style="color: var(--chalk-slate);">Privatsphäre</a>
 
-        <!-- Dual Theme Toggle (Dark Slate / Pure Chalk) -->
-        <button id="theme-toggle" onclick="toggleTheme()" class="px-3 py-1.5 rounded-lg border font-medium transition flex items-center gap-1.5" style="background-color: var(--surface-graphite); border-color: var(--chalk-border); color: var(--chalk-white);" title="Toggle Dark / Light Theme">
+        <!-- Dual Theme Toggle -->
+        <button id="theme-toggle" onclick="toggleTheme()" class="px-3 py-1.5 rounded-lg border font-medium transition flex items-center gap-1.5" style="background-color: var(--surface-graphite); border-color: var(--chalk-border); color: var(--chalk-white);" title="Thema wechseln">
           <svg id="theme-icon-dark" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
           <svg id="theme-icon-light" class="w-3.5 h-3.5 hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
-          <span id="theme-label" class="hidden md:inline text-[11px]">Dark Slate</span>
+          <span id="theme-label" class="hidden md:inline text-[11px]">Dunkel</span>
         </button>
 
         <a href="#download" class="px-4 py-2 rounded-lg font-medium transition flex items-center gap-2" style="background-color: var(--surface-graphite); border: 1px solid var(--chalk-border); color: var(--chalk-white);">
-          <span>GET CHALK</span>
-          <span class="text-[10px] font-mono px-1 rounded" style="background-color: var(--surface-elevated); color: var(--chalk-muted);">[CMD]</span>
+          <span>App herunterladen</span>
         </a>
       </div>
     </div>
@@ -246,69 +189,40 @@
 
   <!-- Hero Section -->
   <header class="max-w-6xl mx-auto px-6 pt-20 pb-16 text-center relative bg-dot-grid z-10">
-    <!-- Status Badge -->
-    <div class="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full border text-xs font-mono mb-8 shadow-inner" style="background-color: var(--surface-graphite); border-color: var(--chalk-border); color: var(--chalk-slate);">
-      <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-      <span class="font-medium" style="color: var(--chalk-white);">TRUE ZERO-KNOWLEDGE BYOK</span>
+    <!-- Calm Trust Badge -->
+    <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border text-xs font-mono mb-8 shadow-sm" style="background-color: var(--pill-bg); border-color: var(--pill-border); color: var(--pill-text);">
+      <span>100 % LOKAL & PRIVAT</span>
       <span style="color: var(--chalk-muted);">•</span>
-      <span>AMBIENT COGNITIVE RECALL</span>
+      <span>KEINE MITTELSMÄNNER</span>
     </div>
 
-    <!-- Core Universal Positioning Headline -->
-    <h1 class="text-4xl sm:text-6xl md:text-7xl font-extrabold tracking-tight max-w-4xl mx-auto leading-[1.08] mb-6" style="color: var(--chalk-white);">
-      Let them talk.<br>
-      <span class="opacity-90">
-        Chalk does the work.
+    <!-- Core Headline -->
+    <h1 class="text-4xl sm:text-6xl md:text-7xl font-bold tracking-tight max-w-4xl mx-auto leading-[1.1] mb-6" style="color: var(--chalk-white);">
+      Nie wieder hektisch mitschreiben.<br>
+      <span class="opacity-80 font-normal">
+        Chalk hört zu, sieht die Folien und schreibt deine Notizen.
       </span>
     </h1>
 
     <p class="text-base sm:text-lg max-w-2xl mx-auto mb-10 leading-relaxed font-normal" style="color: var(--chalk-slate);">
-      Stop scrambling to type. Be fully present in the lecture, meeting, or technical talk while Chalk silently captures the nuance, slides, and derivations into structured LaTeX Markdown.
+      Ob in der Vorlesung, im Team-Meeting oder im Online-Call: Du musst nicht mehr tippen. Höre einfach zu und sei voll im Gespräch – Chalk fasst alles strukturiert zusammen.
     </p>
 
     <!-- CTAs -->
     <div class="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16">
-      <a href="#download" class="w-full sm:w-auto px-7 py-3.5 rounded-xl font-semibold transition shadow-xl flex items-center justify-center gap-2 text-sm" style="background-color: var(--chalk-white); color: var(--bg-obsidian);">
+      <a href="#download" class="w-full sm:w-auto px-7 py-3.5 rounded-xl font-semibold transition shadow-md flex items-center justify-center gap-2 text-sm" style="background-color: var(--chalk-white); color: var(--bg-obsidian);">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
-        <span>Download Desktop Engine</span>
+        <span>Für Mac herunterladen (.dmg / .zip)</span>
       </a>
-      <a href="#use-cases" class="w-full sm:w-auto px-6 py-3.5 rounded-xl border font-medium transition flex items-center justify-center gap-2 text-sm" style="background-color: var(--surface-graphite); border-color: var(--chalk-border); color: var(--chalk-white);">
-        <span>Explore Applications</span>
-        <span class="font-mono" style="color: var(--chalk-muted);">→</span>
+      <a href="#download" class="w-full sm:w-auto px-6 py-3.5 rounded-xl border font-medium transition flex items-center justify-center gap-2 text-sm" style="background-color: var(--surface-graphite); border-color: var(--chalk-border); color: var(--chalk-white);">
+        <span>Für Windows herunterladen (.exe)</span>
       </a>
     </div>
 
-    <!-- 3D Perspective Card Showcase with Exterior Safe-Docking Chips -->
-    <div class="tilt-container max-w-5xl mx-auto relative pt-12 pb-14">
+    <!-- 3D Perspective Card Showcase (Notion / Apple Notes Purism) -->
+    <div class="tilt-container max-w-5xl mx-auto relative pt-4 pb-10">
 
-      <!-- FLOATING CHIP 1: LaTeX Synced (Exterior top-left safe dock) -->
-      <div class="floating-chip chip-delay-1 absolute -top-4 sm:-top-6 left-2 sm:left-6 z-20 pointer-events-none hidden sm:flex items-center gap-3 px-4 py-2.5 rounded-xl backdrop-blur-xl border text-left text-xs shadow-lg" style="background-color: var(--chip-bg); border-color: var(--chip-border);">
-        <div class="w-2 h-2 rounded-full bg-emerald-400"></div>
-        <div>
-          <div class="text-[10px] font-mono uppercase tracking-widest" style="color: var(--chalk-muted);">[14:02] [SYNC] LATEX FORMULA</div>
-          <div class="font-semibold tracking-wide" style="color: var(--chip-text-title);">E(R_i) = R_f + β_i[E(R_m) - R_f]</div>
-        </div>
-      </div>
-
-      <!-- FLOATING CHIP 2: Silence Detected / Break (Exterior top-right safe dock) -->
-      <div class="floating-chip chip-delay-2 absolute -top-4 sm:-top-6 right-2 sm:right-6 z-20 pointer-events-none hidden sm:flex items-center gap-3 px-4 py-2.5 rounded-xl backdrop-blur-xl border text-left text-xs shadow-lg" style="background-color: var(--chip-bg); border-color: var(--chip-border);">
-        <svg class="w-4 h-4 text-emerald-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-        <div>
-          <div class="text-[10px] font-mono uppercase tracking-widest" style="color: var(--chalk-muted);">[14:15] [BREAK] SILENCE DETECTED</div>
-          <div class="font-medium" style="color: var(--chip-text-desc);">Session Paused • Quota Conserved</div>
-        </div>
-      </div>
-
-      <!-- FLOATING CHIP 3: Slide Event (Exterior bottom-center safe dock) -->
-      <div class="floating-chip chip-delay-3 absolute -bottom-4 sm:-bottom-6 left-1/2 -translate-x-1/2 z-20 pointer-events-none hidden sm:flex items-center gap-3 px-4 py-2.5 rounded-xl backdrop-blur-xl border text-left text-xs shadow-lg" style="background-color: var(--chip-bg); border-color: var(--chip-border);">
-        <div class="w-6 h-6 rounded flex items-center justify-center text-[10px] font-bold font-mono border" style="background-color: var(--surface-elevated); border-color: var(--chalk-border); color: var(--chip-text-title);">14</div>
-        <div>
-          <div class="text-[10px] font-mono uppercase tracking-widest" style="color: var(--chalk-muted);">[14:30] [SLIDE] TRANSITION DETECTED</div>
-          <div class="font-medium" style="color: var(--chip-text-title);">Modern Portfolio Theory & Factor Exposure</div>
-        </div>
-      </div>
-
-      <!-- Core Interactive Mockup Card (Apple/Notion Elegance) -->
+      <!-- Core Interactive Mockup Card -->
       <div id="hero-card" class="tilt-card relative rounded-2xl border shadow-2xl overflow-hidden text-left backdrop-blur-xl" style="background-color: var(--surface-graphite); border-color: var(--chalk-border);">
         <div class="glare-overlay"></div>
 
@@ -318,13 +232,13 @@
             <div class="w-3 h-3 rounded-full bg-slate-400/30"></div>
             <div class="w-3 h-3 rounded-full bg-slate-400/30"></div>
             <div class="w-3 h-3 rounded-full bg-slate-400/30"></div>
-            <span class="text-xs font-sans font-medium ml-3" style="color: var(--chalk-slate);">Chalk Assistant — Alt+Space</span>
+            <span class="text-xs font-medium ml-3" style="color: var(--chalk-slate);">Vorlesung: Finanzmärkte & Risiko — Chalk</span>
           </div>
 
           <!-- Calm Status Badge -->
-          <div class="flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/25 text-emerald-500 text-xs font-sans font-medium">
-            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-            <span>Recording (01:42)</span>
+          <div class="flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium" style="background-color: var(--pill-bg); border: 1px solid var(--pill-border); color: var(--chalk-white);">
+            <span class="w-1.5 h-1.5 rounded-full bg-slate-300"></span>
+            <span>Aufnahme aktiv (01:42)</span>
           </div>
         </div>
 
@@ -335,36 +249,33 @@
           <div class="md:col-span-5 space-y-4">
             <!-- Slide Capture Card -->
             <div class="rounded-xl border p-4 relative overflow-hidden shadow-sm" style="background-color: var(--hud-card-bg); border-color: var(--chalk-border);">
-              <div class="flex items-center justify-between text-xs font-sans font-medium mb-2.5" style="color: var(--chalk-slate);">
-                <span>PRESENTATION SYNC</span>
-                <span class="text-[11px] font-mono px-1.5 py-0.5 rounded border" style="background-color: var(--surface-elevated); border-color: var(--chalk-border); color: var(--chalk-muted);">Slide 14</span>
+              <div class="flex items-center justify-between text-xs font-medium mb-2.5" style="color: var(--chalk-slate);">
+                <span>FOLIENVORSCHAU</span>
+                <span class="text-[11px] font-mono px-1.5 py-0.5 rounded border" style="background-color: var(--surface-elevated); border-color: var(--chalk-border); color: var(--chalk-muted);">Folie 14</span>
               </div>
               <div class="aspect-video rounded-lg border flex flex-col items-center justify-center p-4 text-center relative overflow-hidden" style="background-color: var(--surface-elevated); border-color: var(--chalk-border);">
-                <div class="text-[11px] font-medium mb-1" style="color: var(--chalk-muted);">Asset Pricing & Market Risk</div>
-                <div class="text-sm font-semibold mb-2.5" style="color: var(--chalk-white);">Modern Portfolio Theory & Factor Exposure</div>
+                <div class="text-[11px] font-medium mb-1" style="color: var(--chalk-muted);">Asset Pricing & Risikomodellierung</div>
+                <div class="text-sm font-semibold mb-2.5" style="color: var(--chalk-white);">Moderne Portfoliotheorie — Folie 14</div>
                 <div class="text-xs font-mono px-3 py-1 rounded border shadow-sm" style="background-color: var(--surface-terminal); border-color: var(--chalk-border); color: var(--terminal-text);">
                   $$E(R_i) = R_f + \beta_i [E(R_m) - R_f]$$
                 </div>
               </div>
-              <div class="mt-3 flex items-center justify-between text-xs font-sans" style="color: var(--chalk-muted);">
-                <span>Automatic Slide Recognition</span>
-                <span class="text-emerald-500 font-medium flex items-center gap-1">
-                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-                  In Sync
-                </span>
+              <div class="mt-3 flex items-center justify-between text-xs" style="color: var(--chalk-muted);">
+                <span>Automatisch synchronisiert</span>
+                <span class="font-medium" style="color: var(--chalk-white);">Lokale Erkennung</span>
               </div>
             </div>
 
             <!-- Intelligent Recall Query Card -->
             <div class="rounded-xl border p-4 shadow-sm" style="background-color: var(--hud-card-bg); border-color: var(--chalk-border);">
-              <div class="text-xs font-sans font-medium mb-2" style="color: var(--chalk-slate);">INTELLIGENT RECALL (Alt+Space)</div>
-              <div class="flex items-center gap-2 rounded-lg border px-3 py-2.5 text-xs font-sans" style="background-color: var(--surface-terminal); border-color: var(--chalk-border);">
-                <span class="font-mono text-emerald-500">></span>
-                <span style="color: var(--terminal-text);">How did the speaker reconcile beta estimation with high volatility regimes?</span>
+              <div class="text-xs font-medium mb-2" style="color: var(--chalk-slate);">INTELLIGENTE RÜCKFRAGE (Alt+Space)</div>
+              <div class="flex items-center gap-2 rounded-lg border px-3 py-2.5 text-xs" style="background-color: var(--surface-terminal); border-color: var(--chalk-border);">
+                <span class="font-mono" style="color: var(--chalk-muted);">></span>
+                <span style="color: var(--terminal-text);">Wie verhält sich das Beta bei Marktvolatilität?</span>
               </div>
-              <div class="mt-2 text-[11px] font-sans flex justify-between" style="color: var(--chalk-muted);">
-                <span>Direct BYOK Client</span>
-                <span>Zero Telemetry</span>
+              <div class="mt-2 text-[11px] flex justify-between" style="color: var(--chalk-muted);">
+                <span>Direkte KI-Verbindung</span>
+                <span>100 % Privat</span>
               </div>
             </div>
           </div>
@@ -373,37 +284,37 @@
           <div class="md:col-span-7 rounded-xl border p-5 text-xs flex flex-col justify-between shadow-sm" style="background-color: var(--hud-card-bg); border-color: var(--chalk-border);">
             <div class="space-y-3">
               <div class="flex items-center justify-between pb-3 border-b" style="border-color: var(--chalk-border);">
-                <div class="flex items-center gap-2 font-sans">
-                  <span class="font-semibold text-xs" style="color: var(--chalk-white);">STRUCTURED NOTES</span>
-                  <span class="text-[11px]" style="color: var(--chalk-muted);">portfolio_theory.md</span>
+                <div class="flex items-center gap-2">
+                  <span class="font-semibold text-xs" style="color: var(--chalk-white);">VORLESUNGSNOTIZEN</span>
+                  <span class="text-[11px]" style="color: var(--chalk-muted);">finanzmaerkte_kapitel3.md</span>
                 </div>
-                <button onclick="copyMarkdownNotes(this)" class="text-[11px] font-sans px-2.5 py-1 rounded border transition font-medium flex items-center gap-1.5 hover:opacity-90" style="background-color: var(--surface-elevated); border-color: var(--chalk-border); color: var(--chalk-white);">
+                <button onclick="copyMarkdownNotes(this)" class="text-[11px] px-2.5 py-1 rounded border transition font-medium flex items-center gap-1.5 hover:opacity-90" style="background-color: var(--surface-elevated); border-color: var(--chalk-border); color: var(--chalk-white);">
                   <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/></svg>
-                  <span>Copy Markdown</span>
+                  <span>Notizen kopieren</span>
                 </button>
               </div>
 
               <!-- Synthesized Content Snippet -->
-              <div class="space-y-2.5 leading-relaxed font-sans text-[13px]" style="color: var(--chalk-slate);">
-                <p class="text-xs font-semibold" style="color: var(--chalk-muted);"># Capital Asset Pricing & Systematic Risk</p>
+              <div class="space-y-2.5 leading-relaxed text-[13px]" style="color: var(--chalk-slate);">
+                <p class="text-xs font-semibold" style="color: var(--chalk-muted);"># Kapitalmarktlinie & Systematisches Risiko</p>
                 <p>
-                  The expected excess return of any asset is strictly determined by its covariance with the broader market portfolio:
+                  Die erwartete Rendite eines Wertpapiers setzt sich aus dem risikofreien Zins und der marktweiten Risikoprämie zusammen. Das unsystematische Einzelrisiko wird durch Portfolio-Diversifikation eliminiert.
                 </p>
                 <div class="p-3 rounded-xl border font-mono text-xs overflow-x-auto shadow-sm" style="background-color: var(--surface-terminal); border-color: var(--chalk-border); color: var(--terminal-text);">
                   $$E(R_i) = R_f + \beta_i \left[E(R_m) - R_f\right]$$
                 </div>
                 <ul class="space-y-1.5 text-xs">
-                  <li><strong style="color: var(--chalk-white);">Beta Sensitivity ($\beta_i$):</strong> Measures asset volatility relative to systematic market benchmark.</li>
-                  <li><strong style="color: var(--chalk-white);">Risk-Free Rate ($R_f$):</strong> Sovereign treasury baseline underpinning hurdle rate.</li>
-                  <li><span class="text-emerald-500 font-medium">[Oral Clarification @ 01:14:20]:</span> Idiosyncratic variance is eliminated through cross-asset diversification.</li>
+                  <li><strong style="color: var(--chalk-white);">Beta-Faktor ($\beta_i$):</strong> Sensitivität der Rendite gegenüber Schwankungen des Gesamtmarktes.</li>
+                  <li><strong style="color: var(--chalk-white);">Risikofreier Zins ($R_f$):</strong> Rendite erstklassiger Staatsanleihen als Mindesthürde.</li>
+                  <li><span style="color: var(--chalk-white); font-weight: 500;">[Kernaussage Dozent @ 01:14:20]:</span> Nur systematisches Risiko wird vom Markt mit einer Prämie vergütet.</li>
                 </ul>
               </div>
             </div>
 
             <!-- Footer Stats -->
-            <div class="pt-4 mt-4 border-t flex items-center justify-between text-xs font-sans" style="border-color: var(--chalk-border); color: var(--chalk-muted);">
-              <span>Active Session: 1h 42m</span>
-              <span class="text-emerald-500 font-medium">Status: Hardware Vault Encrypted</span>
+            <div class="pt-4 mt-4 border-t flex items-center justify-between text-xs" style="border-color: var(--chalk-border); color: var(--chalk-muted);">
+              <span>Dauer: 1 Std. 42 Min.</span>
+              <span style="color: var(--chalk-white); font-weight: 500;">100 % lokal verarbeitet</span>
             </div>
           </div>
 
@@ -412,12 +323,76 @@
     </div>
   </header>
 
-  <!-- Universal Use Cases Bento Grid (Beyond the Classroom) -->
+  <!-- 3-Schritte-Prinzip Section -->
+  <section id="how-it-works" class="max-w-6xl mx-auto px-6 py-24 border-t z-10 relative" style="border-color: var(--chalk-border);">
+    <div class="text-center max-w-2xl mx-auto mb-16">
+      <div class="text-xs font-mono uppercase tracking-widest mb-3" style="color: var(--chalk-muted);">SO EINFACH FUNKTIONIERT ES</div>
+      <h2 class="text-3xl sm:text-4xl font-bold tracking-tight" style="color: var(--chalk-white);">Das 3-Schritte-Prinzip</h2>
+      <p class="text-sm mt-3" style="color: var(--chalk-slate);">Kein Stress, kein Tippen. Vollste Konzentration auf den Vortragenden.</p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+      <!-- Step 1 -->
+      <div class="rounded-2xl border p-7 transition flex flex-col justify-between shadow-sm" style="background-color: var(--surface-graphite); border-color: var(--chalk-border);">
+        <div>
+          <div class="w-10 h-10 rounded-xl border flex items-center justify-center mb-5 font-mono text-sm font-bold" style="background-color: var(--surface-elevated); border-color: var(--chalk-border); color: var(--chalk-white);">
+            01
+          </div>
+          <h3 class="text-lg font-semibold mb-2" style="color: var(--chalk-white);">Einfach starten</h3>
+          <p class="text-sm leading-relaxed mb-4" style="color: var(--chalk-slate);">
+            Chalk läuft leise im Hintergrund deines Laptops. Ein Klick oder Druck auf Alt+Space genügt – ohne komplizierte Einrichtung oder Audiokabel.
+          </p>
+        </div>
+        <div class="pt-4 border-t text-xs flex justify-between" style="border-color: var(--chalk-border); color: var(--chalk-muted);">
+          <span>Setup: Sofort startklar</span>
+          <span>Lautlos im Hintergrund</span>
+        </div>
+      </div>
+
+      <!-- Step 2 -->
+      <div class="rounded-2xl border p-7 transition flex flex-col justify-between shadow-sm" style="background-color: var(--surface-graphite); border-color: var(--chalk-border);">
+        <div>
+          <div class="w-10 h-10 rounded-xl border flex items-center justify-center mb-5 font-mono text-sm font-bold" style="background-color: var(--surface-elevated); border-color: var(--chalk-border); color: var(--chalk-white);">
+            02
+          </div>
+          <h3 class="text-lg font-semibold mb-2" style="color: var(--chalk-white);">Zuhören & Verstehen</h3>
+          <p class="text-sm leading-relaxed mb-4" style="color: var(--chalk-slate);">
+            Du tippst kein einziges Wort mit, sondern konzentrierst dich voll auf das Gespräch. Chalk erfasst die Stimme, Folienwechsel und Whiteboard-Formeln autonom.
+          </p>
+        </div>
+        <div class="pt-4 border-t text-xs flex justify-between" style="border-color: var(--chalk-border); color: var(--chalk-muted);">
+          <span>Fokus: 100 % Präsenz</span>
+          <span>Sprechpausen geschont</span>
+        </div>
+      </div>
+
+      <!-- Step 3 -->
+      <div class="rounded-2xl border p-7 transition flex flex-col justify-between shadow-sm" style="background-color: var(--surface-graphite); border-color: var(--chalk-border);">
+        <div>
+          <div class="w-10 h-10 rounded-xl border flex items-center justify-center mb-5 font-mono text-sm font-bold" style="background-color: var(--surface-elevated); border-color: var(--chalk-border); color: var(--chalk-white);">
+            03
+          </div>
+          <h3 class="text-lg font-semibold mb-2" style="color: var(--chalk-white);">Fertige Notizen erhalten</h3>
+          <p class="text-sm leading-relaxed mb-4" style="color: var(--chalk-slate);">
+            Am Ende erhältst du ein sauberes, strukturiertes Markdown-Dokument mit Kernaussagen, Formeln und Folienausschnitten. Bereit für Obsidian oder deinen Editor.
+          </p>
+        </div>
+        <div class="pt-4 border-t text-xs flex justify-between" style="border-color: var(--chalk-border); color: var(--chalk-muted);">
+          <span>Format: LaTeX Markdown</span>
+          <span>1-Klick Obsidian Export</span>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Universal Use Cases Bento Grid -->
   <section id="use-cases" class="max-w-6xl mx-auto px-6 py-24 border-t z-10 relative" style="border-color: var(--chalk-border);">
     <div class="text-center max-w-2xl mx-auto mb-16">
-      <div class="text-xs font-mono uppercase tracking-widest mb-3" style="color: var(--chalk-muted);">UNIVERSAL APPLICATION MATRIX</div>
-      <h2 class="text-3xl sm:text-4xl font-bold tracking-tight" style="color: var(--chalk-white);">Total Recall for High-Density Discourse</h2>
-      <p class="text-sm mt-3" style="color: var(--chalk-slate);">Engineered for professionals and academics who refuse to let typing dilute comprehension.</p>
+      <div class="text-xs font-mono uppercase tracking-widest mb-3" style="color: var(--chalk-muted);">EINSATZBEREICHE</div>
+      <h2 class="text-3xl sm:text-4xl font-bold tracking-tight" style="color: var(--chalk-white);">Für jedes anspruchsvolle Gespräch</h2>
+      <p class="text-sm mt-3" style="color: var(--chalk-slate);">Entwickelt für Studierende, Ingenieure und Führungskräfte, die tief mitdenken wollen.</p>
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -428,14 +403,14 @@
           <div class="w-9 h-9 rounded-lg border flex items-center justify-center font-mono text-xs mb-4" style="background-color: var(--surface-elevated); border-color: var(--chalk-border); color: var(--chalk-white);">
             01
           </div>
-          <h3 class="text-lg font-bold mb-2" style="color: var(--chalk-white);">University Lectures & Mathematical Derivations</h3>
+          <h3 class="text-lg font-bold mb-2" style="color: var(--chalk-white);">Vorlesungen & Wissenschaftliche Seminare</h3>
           <p class="text-sm leading-relaxed mb-4" style="color: var(--chalk-slate);">
-            Captures every whiteboard proof, spoken aside, and slide build in 3.5h to 7h marathons. Synthesizes publication-grade LaTeX formulas and structured KaTeX blocks without missed steps.
+            Hält jede Whiteboard-Herleitung, Zwischenbemerkung und Folie in mehrstündigen Vorlesungen lückenlos fest. Liefert saubere LaTeX-Formeln ohne Auslassungen.
           </p>
         </div>
-        <div class="pt-4 border-t text-xs font-sans flex justify-between" style="border-color: var(--chalk-border); color: var(--chalk-muted);">
-          <span>Target: Students & STEM Researchers</span>
-          <span>Output: LaTeX Markdown</span>
+        <div class="pt-4 border-t text-xs flex justify-between" style="border-color: var(--chalk-border); color: var(--chalk-muted);">
+          <span>Zielgruppe: Studierende & Forschende</span>
+          <span>Ausgabe: LaTeX Markdown</span>
         </div>
       </div>
 
@@ -445,14 +420,14 @@
           <div class="w-9 h-9 rounded-lg border flex items-center justify-center font-mono text-xs mb-4" style="background-color: var(--surface-elevated); border-color: var(--chalk-border); color: var(--chalk-white);">
             02
           </div>
-          <h3 class="text-lg font-bold mb-2" style="color: var(--chalk-white);">Technical Seminars & Code Walkthroughs</h3>
+          <h3 class="text-lg font-bold mb-2" style="color: var(--chalk-white);">Technische Reviews & Code-Walkthroughs</h3>
           <p class="text-sm leading-relaxed mb-4" style="color: var(--chalk-slate);">
-            Participate actively in deep-dive architectural design reviews. Chalk tracks code snippets, schema diagrams, and engineering trade-offs directly from screen shares without frantic note-taking.
+            Aktiv in Architekturentscheidungen mitdiskutieren. Chalk erfasst Code-Snippets, Datenmodelle und technische Abwägungen direkt aus geteilten Bildschirmen.
           </p>
         </div>
-        <div class="pt-4 border-t text-xs font-sans flex justify-between" style="border-color: var(--chalk-border); color: var(--chalk-muted);">
-          <span>Target: Staff Engineers & Architects</span>
-          <span>Output: Architecture Decisions (ADR)</span>
+        <div class="pt-4 border-t text-xs flex justify-between" style="border-color: var(--chalk-border); color: var(--chalk-muted);">
+          <span>Zielgruppe: Entwickler & Architekten</span>
+          <span>Ausgabe: Entscheidungsdokumente</span>
         </div>
       </div>
 
@@ -462,14 +437,14 @@
           <div class="w-9 h-9 rounded-lg border flex items-center justify-center font-mono text-xs mb-4" style="background-color: var(--surface-elevated); border-color: var(--chalk-border); color: var(--chalk-white);">
             03
           </div>
-          <h3 class="text-lg font-bold mb-2" style="color: var(--chalk-white);">Executive Strategy & Board Meetings</h3>
+          <h3 class="text-lg font-bold mb-2" style="color: var(--chalk-white);">Strategiemeetings & Vorstandssitzungen</h3>
           <p class="text-sm leading-relaxed mb-4" style="color: var(--chalk-slate);">
-            Maintain 100% eye contact and executive presence in high-stakes negotiations. Chalk captures rapid verbal commitments, financial metrics from pitch decks, and produces prioritized action items.
+            Voller Augenkontakt und Präsenz in wichtigen Verhandlungen. Chalk protokolliert Zusagen, Kennzahlen aus Folien und erstellt priorisierte Maßnahmenpläne.
           </p>
         </div>
-        <div class="pt-4 border-t text-xs font-sans flex justify-between" style="border-color: var(--chalk-border); color: var(--chalk-muted);">
-          <span>Target: C-Suite, Partners & Directors</span>
-          <span>Output: Executive Action Logs</span>
+        <div class="pt-4 border-t text-xs flex justify-between" style="border-color: var(--chalk-border); color: var(--chalk-muted);">
+          <span>Zielgruppe: Führungskräfte & Berater</span>
+          <span>Ausgabe: Protokoll & Action Items</span>
         </div>
       </div>
 
@@ -479,239 +454,119 @@
           <div class="w-9 h-9 rounded-lg border flex items-center justify-center font-mono text-xs mb-4" style="background-color: var(--surface-elevated); border-color: var(--chalk-border); color: var(--chalk-white);">
             04
           </div>
-          <h3 class="text-lg font-bold mb-2" style="color: var(--chalk-white);">Webinars & Remote Industry Conferences</h3>
+          <h3 class="text-lg font-bold mb-2" style="color: var(--chalk-white);">Webinare & Online-Konferenzen</h3>
           <p class="text-sm leading-relaxed mb-4" style="color: var(--chalk-slate);">
-            Captures Zoom, Teams, and YouTube keynote presentations through high-fidelity system loopback audio and perceptual slide detection, creating searchable reference archives automatically.
+            Erfasst Zoom-, Teams- und YouTube-Keynotes über direkte Audioschnittstellen und Bildwechsel, sodass automatisiert durchsuchbare Wissensarchive entstehen.
           </p>
         </div>
-        <div class="pt-4 border-t text-xs font-sans flex justify-between" style="border-color: var(--chalk-border); color: var(--chalk-muted);">
-          <span>Target: Knowledge Workers & Analysts</span>
-          <span>Output: Searchable Vault Notes</span>
+        <div class="pt-4 border-t text-xs flex justify-between" style="border-color: var(--chalk-border); color: var(--chalk-muted);">
+          <span>Zielgruppe: Wissensarbeiter & Analysten</span>
+          <span>Ausgabe: Wissensdatenbank-Notizen</span>
         </div>
       </div>
 
     </div>
   </section>
 
-  <!-- Core Specification Grid & Multi-Model Roadmap Callout -->
-  <section id="features" class="max-w-6xl mx-auto px-6 py-20 border-t z-10 relative" style="border-color: var(--chalk-border);">
-    <div class="text-center max-w-2xl mx-auto mb-16">
-      <div class="text-xs font-mono uppercase tracking-widest mb-3" style="color: var(--chalk-muted);">ENGINE ARCHITECTURE</div>
-      <h2 class="text-3xl sm:text-4xl font-bold tracking-tight" style="color: var(--chalk-white);">Built for Mathematical Precision</h2>
-      <p class="text-sm mt-3" style="color: var(--chalk-slate);">Zero intermediaries. Zero vendor lock-in. Powered by state-of-the-art multimodal AI.</p>
-    </div>
-
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-
-      <!-- Spec 1: Speaker Separation -->
-      <div class="rounded-2xl border p-7 transition flex flex-col justify-between shadow-sm" style="background-color: var(--surface-graphite); border-color: var(--chalk-border);">
-        <div>
-          <div class="w-10 h-10 rounded-xl border flex items-center justify-center mb-5 font-mono text-sm" style="background-color: var(--surface-elevated); border-color: var(--chalk-border); color: var(--chalk-white);">
-            01
-          </div>
-          <h3 class="text-lg font-semibold mb-2" style="color: var(--chalk-white);">Crystal-Clear Speaker Separation</h3>
-          <p class="text-sm leading-relaxed mb-4" style="color: var(--chalk-slate);">
-            Isolates the presenter's voice from computer audio and room questions automatically. Zero setup or virtual audio cables required.
-          </p>
-        </div>
-        <div class="pt-4 border-t text-xs font-sans flex justify-between" style="border-color: var(--chalk-border); color: var(--chalk-muted);">
-          <span>Audio: Autonomous Separation</span>
-          <span>Zero Virtual Cables</span>
-        </div>
-      </div>
-
-      <!-- Spec 2: Pause & Silence Detection -->
-      <div class="rounded-2xl border p-7 transition flex flex-col justify-between shadow-sm" style="background-color: var(--surface-graphite); border-color: var(--chalk-border);">
-        <div>
-          <div class="w-10 h-10 rounded-xl border flex items-center justify-center mb-5 font-mono text-sm" style="background-color: var(--surface-elevated); border-color: var(--chalk-border); color: var(--chalk-white);">
-            02
-          </div>
-          <h3 class="text-lg font-semibold mb-2" style="color: var(--chalk-white);">Respects Breaks & Silences</h3>
-          <p class="text-sm leading-relaxed mb-4" style="color: var(--chalk-slate);">
-            Chalk automatically goes to sleep when lectures pause or meetings break, saving battery and conserving your quota.
-          </p>
-        </div>
-        <div class="pt-4 border-t text-xs font-sans flex justify-between" style="border-color: var(--chalk-border); color: var(--chalk-muted);">
-          <span>State: Autonomous Standby</span>
-          <span>Battery & Quota Efficient</span>
-        </div>
-      </div>
-
-      <!-- Spec 3: Slide-Aware Synthesis -->
-      <div class="rounded-2xl border p-7 transition flex flex-col justify-between shadow-sm" style="background-color: var(--surface-graphite); border-color: var(--chalk-border);">
-        <div>
-          <div class="w-10 h-10 rounded-xl border flex items-center justify-center mb-5 font-mono text-sm" style="background-color: var(--surface-elevated); border-color: var(--chalk-border); color: var(--chalk-white);">
-            03
-          </div>
-          <h3 class="text-lg font-semibold mb-2" style="color: var(--chalk-white);">Slide-Aware Synthesis</h3>
-          <p class="text-sm leading-relaxed mb-4" style="color: var(--chalk-slate);">
-            Watches your screen in the background. When a slide changes or a diagram appears, Chalk extracts the visual context and aligns it with spoken derivations.
-          </p>
-        </div>
-        <div class="pt-4 border-t text-xs font-sans flex justify-between" style="border-color: var(--chalk-border); color: var(--chalk-muted);">
-          <span>Visual Context: Real-Time Sync</span>
-          <span class="text-emerald-500 font-medium">Direct BYOK Client</span>
-        </div>
-      </div>
-
-    </div>
-  </section>
-
-  <!-- Zero-Knowledge Architecture Section -->
-  <section id="architecture" class="max-w-6xl mx-auto px-6 py-20 border-t z-10 relative" style="border-color: var(--chalk-border);">
+  <!-- Privacy & Zero-Knowledge Architecture Section -->
+  <section id="privacy" class="max-w-6xl mx-auto px-6 py-20 border-t z-10 relative" style="border-color: var(--chalk-border);">
     <div class="rounded-3xl border p-8 sm:p-12 relative overflow-hidden shadow-sm" style="background-color: var(--surface-graphite); border-color: var(--chalk-border);">
-      <div class="max-w-2xl">
+      <div class="max-w-3xl">
         <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full border text-xs font-mono mb-6" style="background-color: var(--surface-elevated); border-color: var(--chalk-border); color: var(--chalk-slate);">
-          <span>HARDWARE VAULT SECURITY</span>
+          <span>100 % LOKALE PRIVATSPHÄRE</span>
         </div>
         <h2 class="text-3xl sm:text-4xl font-bold tracking-tight mb-4" style="color: var(--chalk-white);">
-          True Zero-Knowledge.<br>No Proxies. No Telemetry.
+          Deine Daten gehören dir.<br>Keine Mittelsmänner. Keine Server.
         </h2>
-        <p class="text-sm sm:text-base leading-relaxed mb-8" style="color: var(--chalk-slate);">
-          Unlike proprietary SaaS note-taking apps that pipe private audio and confidential slides through centralized servers, Chalk operates under an unyielding BYOK model. Your API key is encrypted directly inside macOS Keychain or Windows DPAPI. All communication travels exclusively from localhost to Google AI Studio via TLS 1.3.
+        <p class="text-sm sm:text-base leading-relaxed mb-6" style="color: var(--chalk-slate);">
+          Im Gegensatz zu Cloud-Diensten, die deine privaten Gespräche und vertraulichen Folien über fremde Server leiten, arbeitet Chalk unter einem kompromisslosen Zero-Knowledge-Prinzip.
+        </p>
+        <p class="text-sm sm:text-base font-semibold leading-relaxed mb-8" style="color: var(--chalk-white);">
+          100 % privat: Deine Aufnahmen verbleiben auf deinem Laptop und werden auf keinen fremden Relay-Server übertragen.
         </p>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs font-sans">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
           <div class="p-4 rounded-xl border mono-terminal shadow-sm">
-            <div class="font-semibold mb-1" style="color: var(--terminal-text);">Encrypted Hardware Vault</div>
-            <div style="color: var(--chalk-muted);">Stored directly in macOS Keychain or Windows DPAPI. Zero plaintext storage.</div>
+            <div class="font-semibold mb-1" style="color: var(--terminal-text);">Nativer Betriebssystem-Tresor</div>
+            <div style="color: var(--chalk-muted);">API-Schlüssel liegen verschlüsselt im macOS Schlüsselbund oder Windows DPAPI.</div>
           </div>
           <div class="p-4 rounded-xl border mono-terminal shadow-sm">
-            <div class="font-semibold mb-1" style="color: var(--terminal-text);">Zero Telemetry</div>
-            <div style="color: var(--chalk-muted);">No cloud relays, zero tracking cookies, and local diagnostic logs only.</div>
+            <div class="font-semibold mb-1" style="color: var(--terminal-text);">Direkte TLS 1.3 Verbindung</div>
+            <div style="color: var(--chalk-muted);">Synthese erfolgt ausschließlich direkt zwischen deinem Rechner und deinem API-Konto.</div>
           </div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- Download & Installation Switcher Section -->
+  <!-- Download & Installation Section -->
   <section id="download" class="max-w-5xl mx-auto px-6 py-24 border-t z-10 relative" style="border-color: var(--chalk-border);">
     <div class="text-center max-w-2xl mx-auto mb-12">
-      <div class="text-xs font-mono uppercase tracking-widest mb-3" style="color: var(--chalk-muted);">DEPLOYMENT CHANNELS</div>
-      <h2 class="text-3xl sm:text-4xl font-bold tracking-tight" style="color: var(--chalk-white);">Install Chalk for Desktop</h2>
-      <p class="text-sm mt-3" style="color: var(--chalk-slate);">Standalone application packages and automated terminal install commands.</p>
+      <div class="text-xs font-mono uppercase tracking-widest mb-3" style="color: var(--chalk-muted);">DOWNLOAD</div>
+      <h2 class="text-3xl sm:text-4xl font-bold tracking-tight" style="color: var(--chalk-white);">Chalk für deinen Desktop</h2>
+      <p class="text-sm mt-3" style="color: var(--chalk-slate);">Wähle dein Betriebssystem und starte in wenigen Sekunden.</p>
     </div>
 
-    <!-- OS Switcher Segmented Control -->
-    <div class="flex justify-center mb-8">
-      <div class="inline-flex p-1.5 rounded-xl border font-mono text-xs shadow-sm" style="background-color: var(--surface-graphite); border-color: var(--chalk-border);">
-        <button id="tab-mac" onclick="switchOS('mac')" class="px-6 py-2.5 rounded-lg os-tab-active transition-all">
-          macOS (Apple Silicon & Intel)
-        </button>
-        <button id="tab-win" onclick="switchOS('win')" class="px-6 py-2.5 rounded-lg os-tab-inactive transition-all">
-          Windows 11 / 10 (x64)
-        </button>
-      </div>
-    </div>
-
-    <!-- macOS Panel -->
-    <div id="panel-mac" class="space-y-6">
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <!-- Direct DMG Download Card -->
-        <div class="rounded-2xl border p-7 flex flex-col justify-between shadow-sm" style="background-color: var(--surface-graphite); border-color: var(--chalk-border);">
-          <div>
-            <div class="flex items-center justify-between mb-4">
-              <span class="text-xs font-mono" style="color: var(--chalk-slate);">STANDALONE BUNDLE</span>
-              <span class="text-[10px] font-mono border px-2 py-0.5 rounded" style="border-color: var(--chalk-border); color: var(--chalk-muted);">143.4 MB</span>
-            </div>
-            <h3 class="text-xl font-bold mb-2" style="color: var(--chalk-white);">Chalk for macOS (.app / .zip)</h3>
-            <p class="text-xs leading-relaxed mb-6" style="color: var(--chalk-slate);">
-              Standalone desktop application with zero configuration. Runs silently in your menu bar and activates on demand with Alt+Space.
-            </p>
+    <!-- Main OS Download Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
+      <!-- Mac Card -->
+      <div class="rounded-2xl border p-8 flex flex-col justify-between shadow-sm" style="background-color: var(--surface-graphite); border-color: var(--chalk-border);">
+        <div>
+          <div class="flex items-center justify-between mb-4">
+            <span class="text-xs font-mono" style="color: var(--chalk-slate);">MACOS BUNDLE</span>
+            <span class="text-[10px] font-mono border px-2 py-0.5 rounded" style="border-color: var(--chalk-border); color: var(--chalk-muted);">Apple Silicon & Intel</span>
           </div>
-          <div>
-            <a href="https://github.com/chalk-notes/chalk/releases/latest/download/Chalk-macOS.zip" class="w-full py-3.5 px-4 rounded-xl font-semibold text-center transition flex items-center justify-center gap-2 text-xs shadow-md" style="background-color: var(--chalk-white); color: var(--bg-obsidian);">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
-              <span>Download Chalk-macOS.zip</span>
-            </a>
-            <div class="text-[10px] font-mono text-center mt-3" style="color: var(--chalk-muted);">Requires macOS 13+ (Ventura or newer)</div>
-          </div>
+          <h3 class="text-2xl font-bold mb-2" style="color: var(--chalk-white);">Chalk für Mac</h3>
+          <p class="text-xs leading-relaxed mb-8" style="color: var(--chalk-slate);">
+            Eigenständige App ohne Konfigurationsaufwand. Läuft leise in der Menüleiste und öffnet sich auf Knopfdruck mit Alt+Space.
+          </p>
         </div>
+        <div>
+          <a href="https://github.com/chalk-notes/chalk/releases/latest/download/Chalk-macOS.zip" class="w-full py-4 px-5 rounded-xl font-semibold text-center transition flex items-center justify-center gap-2 text-sm shadow-md" style="background-color: var(--chalk-white); color: var(--bg-obsidian);">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+            <span>Für Mac herunterladen (.dmg / .zip)</span>
+          </a>
+          <div class="text-[11px] font-mono text-center mt-3" style="color: var(--chalk-muted);">macOS 13+ (Ventura, Sonoma, Sequoia)</div>
+        </div>
+      </div>
 
-        <!-- Terminal Install Option -->
-        <div class="rounded-2xl border p-7 flex flex-col justify-between shadow-sm" style="background-color: var(--surface-graphite); border-color: var(--chalk-border);">
-          <div>
-            <div class="flex items-center justify-between mb-4">
-              <span class="text-xs font-mono" style="color: var(--chalk-slate);">HOMEBREW / CURL</span>
-              <span class="text-[10px] font-mono text-emerald-500 font-medium">VERIFIED</span>
-            </div>
-            <h3 class="text-xl font-bold mb-2" style="color: var(--chalk-white);">Terminal Quick-Install</h3>
-            <p class="text-xs leading-relaxed mb-4" style="color: var(--chalk-slate);">
-              Install via one line in Terminal.app. Automatically configures permissions:
-            </p>
+      <!-- Windows Card -->
+      <div class="rounded-2xl border p-8 flex flex-col justify-between shadow-sm" style="background-color: var(--surface-graphite); border-color: var(--chalk-border);">
+        <div>
+          <div class="flex items-center justify-between mb-4">
+            <span class="text-xs font-mono" style="color: var(--chalk-slate);">WINDOWS SETUP</span>
+            <span class="text-[10px] font-mono border px-2 py-0.5 rounded" style="border-color: var(--chalk-border); color: var(--chalk-muted);">64-Bit Installer</span>
           </div>
-
-          <div class="space-y-3">
-            <div class="mono-terminal rounded-xl p-3.5 flex items-center justify-between group shadow-sm">
-              <code class="text-xs font-mono select-all" style="color: var(--terminal-text);">brew install chalk-notes/tap/chalk</code>
-              <button onclick="copyCommand(this, 'brew install chalk-notes/tap/chalk')" class="transition text-xs font-mono px-2.5 py-1 rounded border font-medium" style="background-color: var(--terminal-btn-bg); border-color: var(--terminal-btn-border); color: var(--terminal-btn-text);">
-                Copy
-              </button>
-            </div>
-
-            <div class="mono-terminal rounded-xl p-3.5 flex items-center justify-between group shadow-sm">
-              <code class="text-xs font-mono select-all" style="color: var(--terminal-text);">curl -fsSL https://chalk.run/install.sh | bash</code>
-              <button onclick="copyCommand(this, 'curl -fsSL https://chalk.run/install.sh | bash')" class="transition text-xs font-mono px-2.5 py-1 rounded border font-medium" style="background-color: var(--terminal-btn-bg); border-color: var(--terminal-btn-border); color: var(--terminal-btn-text);">
-                Copy
-              </button>
-            </div>
-          </div>
+          <h3 class="text-2xl font-bold mb-2" style="color: var(--chalk-white);">Chalk für Windows</h3>
+          <p class="text-xs leading-relaxed mb-8" style="color: var(--chalk-slate);">
+            Komplett integriert in den Windows System-Tray mit nativer Audio-Loopback-Unterstützung und Windows DPAPI Schlüsseltresor.
+          </p>
+        </div>
+        <div>
+          <a href="https://github.com/chalk-notes/chalk/releases/latest/download/Chalk-Setup.exe" class="w-full py-4 px-5 rounded-xl font-semibold text-center transition flex items-center justify-center gap-2 text-sm shadow-md" style="background-color: var(--chalk-white); color: var(--bg-obsidian);">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+            <span>Für Windows herunterladen (.exe)</span>
+          </a>
+          <div class="text-[11px] font-mono text-center mt-3" style="color: var(--chalk-muted);">Windows 10 / 11 64-Bit</div>
         </div>
       </div>
     </div>
 
-    <!-- Windows Panel -->
-    <div id="panel-win" class="hidden space-y-6">
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <!-- Direct EXE Download Card -->
-        <div class="rounded-2xl border p-7 flex flex-col justify-between shadow-sm" style="background-color: var(--surface-graphite); border-color: var(--chalk-border);">
-          <div>
-            <div class="flex items-center justify-between mb-4">
-              <span class="text-xs font-mono" style="color: var(--chalk-slate);">STANDALONE SETUP</span>
-              <span class="text-[10px] font-mono border px-2 py-0.5 rounded" style="border-color: var(--chalk-border); color: var(--chalk-muted);">EXE INSTALLER</span>
-            </div>
-            <h3 class="text-xl font-bold mb-2" style="color: var(--chalk-white);">Chalk for Windows (.exe)</h3>
-            <p class="text-xs leading-relaxed mb-6" style="color: var(--chalk-slate);">
-              Standalone desktop installer with native loopback audio capture and hardware vault encryption.
-            </p>
-          </div>
-          <div>
-            <a href="https://github.com/chalk-notes/chalk/releases/latest/download/Chalk-Setup.exe" class="w-full py-3.5 px-4 rounded-xl font-semibold text-center transition flex items-center justify-center gap-2 text-xs shadow-md" style="background-color: var(--chalk-white); color: var(--bg-obsidian);">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
-              <span>Download Chalk-Setup.exe</span>
-            </a>
-            <div class="text-[10px] font-mono text-center mt-3" style="color: var(--chalk-muted);">Windows 10 / 11 64-bit</div>
-          </div>
+    <!-- Optional Terminal Commands for Power Users -->
+    <div class="rounded-2xl border p-6 text-left" style="background-color: var(--surface-graphite); border-color: var(--chalk-border);">
+      <div class="text-xs font-semibold mb-3" style="color: var(--chalk-slate);">Optional für Entwickler (Terminal Quick-Install):</div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+        <div class="mono-terminal rounded-xl p-3 flex items-center justify-between shadow-sm">
+          <code class="select-all" style="color: var(--terminal-text);">brew install chalk-notes/tap/chalk</code>
+          <button onclick="copyCommand(this, 'brew install chalk-notes/tap/chalk')" class="text-xs px-2 py-1 rounded border font-medium transition" style="background-color: var(--terminal-btn-bg); border-color: var(--terminal-btn-border); color: var(--terminal-btn-text);">
+            Kopieren
+          </button>
         </div>
-
-        <!-- Windows Package Manager Option -->
-        <div class="rounded-2xl border p-7 flex flex-col justify-between shadow-sm" style="background-color: var(--surface-graphite); border-color: var(--chalk-border);">
-          <div>
-            <div class="flex items-center justify-between mb-4">
-              <span class="text-xs font-mono" style="color: var(--chalk-slate);">WINGET / POWERSHELL</span>
-              <span class="text-[10px] font-mono text-emerald-500 font-medium">VERIFIED</span>
-            </div>
-            <h3 class="text-xl font-bold mb-2" style="color: var(--chalk-white);">PowerShell Quick-Install</h3>
-            <p class="text-xs leading-relaxed mb-4" style="color: var(--chalk-slate);">
-              Execute within Windows Terminal or PowerShell as administrator:
-            </p>
-          </div>
-
-          <div class="space-y-3">
-            <div class="mono-terminal rounded-xl p-3.5 flex items-center justify-between group shadow-sm">
-              <code class="text-xs font-mono select-all" style="color: var(--terminal-text);">winget install Chalk.Notes</code>
-              <button onclick="copyCommand(this, 'winget install Chalk.Notes')" class="transition text-xs font-mono px-2.5 py-1 rounded border font-medium" style="background-color: var(--terminal-btn-bg); border-color: var(--terminal-btn-border); color: var(--terminal-btn-text);">
-                Copy
-              </button>
-            </div>
-            <div class="mono-terminal rounded-xl p-3.5 flex items-center justify-between group shadow-sm">
-              <code class="text-xs font-mono select-all" style="color: var(--terminal-text);">irm https://chalk.run/install.ps1 | iex</code>
-              <button onclick="copyCommand(this, 'irm https://chalk.run/install.ps1 | iex')" class="transition text-xs font-mono px-2.5 py-1 rounded border font-medium" style="background-color: var(--terminal-btn-bg); border-color: var(--terminal-btn-border); color: var(--terminal-btn-text);">
-                Copy
-              </button>
-            </div>
-          </div>
+        <div class="mono-terminal rounded-xl p-3 flex items-center justify-between shadow-sm">
+          <code class="select-all" style="color: var(--terminal-text);">winget install Chalk.Notes</code>
+          <button onclick="copyCommand(this, 'winget install Chalk.Notes')" class="text-xs px-2 py-1 rounded border font-medium transition" style="background-color: var(--terminal-btn-bg); border-color: var(--terminal-btn-border); color: var(--terminal-btn-text);">
+            Kopieren
+          </button>
         </div>
       </div>
     </div>
@@ -722,32 +577,31 @@
   <footer class="border-t py-14 px-6 text-xs z-10 relative transition-colors" style="border-color: var(--chalk-border); background-color: var(--surface-graphite);">
     <div class="max-w-6xl mx-auto flex flex-col md:flex-row items-start md:items-center justify-between gap-8">
       
-      <!-- Left: Identity & Disclaimer -->
+      <!-- Left: Identity & Privacy Pledge -->
       <div class="space-y-2 max-w-md">
         <div class="flex items-center gap-2">
           <span class="font-bold tracking-widest font-mono text-sm" style="color: var(--chalk-white);">CHALK</span>
           <span style="color: var(--chalk-muted);">•</span>
-          <span class="font-mono text-[11px]" style="color: var(--chalk-slate);">AMBIENT COGNITIVE PRESENCE ENGINE</span>
+          <span class="text-[11px]" style="color: var(--chalk-slate);">LOKALE VORLESUNGS- UND MEETING-SYNTHESE</span>
         </div>
         <p class="leading-relaxed text-[11px]" style="color: var(--chalk-muted);">
-          Chalk is an open-source, client-side utility engineered for university lectures, technical seminars, and executive strategy discourse. It executes completely on your workstation and communicates solely with your personal Google AI Studio account.
+          100 % privat: Deine Aufnahmen verbleiben auf deinem Laptop und werden auf keinen fremden Relay-Server übertragen. Chalk kommuniziert ausschließlich direkt mit deinem eigenen KI-Konto.
         </p>
         <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full border text-[10px] font-mono shadow-sm" style="background-color: var(--surface-elevated); border-color: var(--chalk-border); color: var(--chalk-slate);">
-          <svg class="w-3 h-3 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-          <span>ZERO COOKIES (§ 165 TKG) • ZERO TELEMETRY • NO THIRD-PARTY PROXY</span>
+          <span>KEINE COOKIES (§ 165 TKG) • ZERO TELEMETRIE • KEINE PROXY-SERVER</span>
         </div>
       </div>
 
       <!-- Right: Legal Modals Nav -->
-      <div class="flex flex-wrap items-center gap-6 font-mono text-xs" style="color: var(--chalk-slate);">
+      <div class="flex flex-wrap items-center gap-6 text-xs" style="color: var(--chalk-slate);">
         <button onclick="openModal('modal-impressum')" class="hover:underline transition underline-offset-4" style="color: var(--chalk-white);">
-          Impressum (§ 25 Abs. 5 MedienG / § 5 ECG)
+          Impressum (§ 25 Abs. 5 MedienG & § 5 ECG)
         </button>
         <button onclick="openModal('modal-dsgvo')" class="hover:underline transition underline-offset-4" style="color: var(--chalk-white);">
-          Datenschutz (DSGVO / § 165 TKG)
+          Datenschutz (DSGVO & § 165 TKG)
         </button>
         <button onclick="openModal('modal-recording')" class="hover:underline transition underline-offset-4" style="color: var(--chalk-white);">
-          Rechtlicher Hinweis (§ 120 StGB)
+          Rechtlicher Hinweis (§ 120 StGB Österreich)
         </button>
       </div>
 
@@ -783,9 +637,9 @@
         <button onclick="closeModal('modal-dsgvo')" class="text-slate-400 hover:text-white text-base">✕</button>
       </div>
       <div class="text-xs space-y-2 leading-relaxed max-h-[60vh] overflow-y-auto pr-2" style="color: var(--chalk-slate);">
-        <p><strong>1. Grundsatz der Datenvermeidung (§ 165 Abs. 3 TKG 2021):</strong> Diese Website speichert keinerlei Tracking-Cookies und verwendet keine Drittanbieter-Analysetools (weder Google Analytics noch Werbenetzwerke). Daher ist gem. § 165 Abs. 3 TKG 2021 kein störendes Cookie-Banner erforderlich.</p>
+        <p><strong>1. Grundsatz der Datenvermeidung (§ 165 Abs. 3 TKG 2021):</strong> Diese Website speichert keinerlei Tracking-Cookies und verwendet keine Drittanbieter-Analysetools. Daher ist kein störendes Cookie-Banner erforderlich.</p>
         <p><strong>2. Client-Seitiges Zero-Knowledge Prinzip:</strong> Die Desktop-Anwendung Chalk überträgt Tonaufnahmen, Bildschirminhalte oder generierte Notizen niemals an Server der Projektbetreiber. Es existiert keine zentrale Relayinfrastruktur.</p>
-        <p><strong>3. Direkte BYOK-Kommunikation:</strong> Sämtliche Syntheseanfragen werden direkt von Ihrem Rechner über TLS 1.3 an die API-Endpunkte von Google AI Studio übermittelt. Ihr API-Schlüssel verbleibt in der verschlüsselten OS-Schlüsselverwaltung (macOS Keychain bzw. Windows DPAPI).</p>
+        <p><strong>3. Direkte BYOK-Kommunikation:</strong> Sämtliche Syntheseanfragen werden direkt von Ihrem Rechner über TLS 1.3 an die API-Endpunkte Ihres gewählten Anbieters übermittelt. Ihr API-Schlüssel verbleibt in der verschlüsselten OS-Schlüsselverwaltung (macOS Keychain bzw. Windows DPAPI).</p>
       </div>
       <button onclick="closeModal('modal-dsgvo')" class="w-full py-2.5 rounded-lg border font-mono text-xs transition" style="background-color: var(--surface-elevated); border-color: var(--chalk-border); color: var(--chalk-white);">
         Schließen
@@ -801,14 +655,9 @@
         <button onclick="closeModal('modal-recording')" class="text-slate-400 hover:text-white text-base">✕</button>
       </div>
       <div class="text-xs space-y-2 leading-relaxed max-h-[60vh] overflow-y-auto pr-2" style="color: var(--chalk-slate);">
-        <p><strong>Hinweis für Nutzer in Österreich (Wissenschaft & Wirtschaft):</strong></p>
-        <p>Gemäß <strong>§ 120 StGB (Missbrauch von Tonaufnahme- oder Abhörgeräten)</strong> ist die nicht-öffentliche Aufnahme des nicht öffentlich gesprochenen Wortes eines anderen ohne dessen Einwilligung gerichtlich strafbar.</p>
-        <p><strong>Anwendungsbereiche:</strong></p>
-        <ul class="list-disc pl-4 space-y-1">
-          <li><strong>Lehrveranstaltungen:</strong> Holen Sie vor Beginn der Aufzeichnung das Einverständnis der Vortragenden ein oder beachten Sie die Hausordnung Ihrer Universität.</li>
-          <li><strong>Unternehmensmeetings & Calls:</strong> Informieren Sie alle Teilnehmer vorab über die Mitschriftserstellung und stellen Sie das Einverständnis sicher (Two-Party Consent).</li>
-        </ul>
-        <p>Chalk fungiert rein als persönliche Lern- und Gedächtnisstütze.</p>
+        <p><strong>Einverständnis bei Tonaufnahmen (§ 120 StGB Österreich):</strong></p>
+        <p>Gemäß § 120 Abs. 1 Strafgesetzbuch (StGB) ist die unbefugte Tonaufnahme des nicht-öffentlichen Wortes einer anderen Person strafbar.</p>
+        <p>Stellen Sie sicher, dass Vortragende, Dozenten und Gesprächsteilnehmer vor Beginn der Aufzeichnung über den Einsatz von Chalk informiert sind und zugestimmt haben.</p>
       </div>
       <button onclick="closeModal('modal-recording')" class="w-full py-2.5 rounded-lg border font-mono text-xs transition" style="background-color: var(--surface-elevated); border-color: var(--chalk-border); color: var(--chalk-white);">
         Verstanden
@@ -816,29 +665,27 @@
     </div>
   </div>
 
-  <!-- Client JavaScript -->
+  <!-- Client-Side JavaScript -->
   <script>
-    // 1. Mouse Spotlight Torchlight Tracker
-    window.addEventListener('mousemove', (e) => {
-      document.documentElement.style.setProperty('--mouse-x', `${e.clientX}px`);
-      document.documentElement.style.setProperty('--mouse-y', `${e.clientY}px`);
-    });
-
-    // 2. Jitter-Free 3D Card LERP Physics Loop (Decoupled from mousemove)
-    let currentX = 0, currentY = 0, targetX = 0, targetY = 0;
-    let glareX = 50, glareY = 50, targetGlareX = 50, targetGlareY = 50;
-
+    // 1. 3D Card Hover Perspective
     const heroCard = document.getElementById('hero-card');
-
     if (heroCard) {
+      let currentX = 0, currentY = 0;
+      let targetX = 0, targetY = 0;
+      let glareX = 50, glareY = 50;
+      let targetGlareX = 50, targetGlareY = 50;
+
       heroCard.addEventListener('mousemove', (e) => {
         const rect = heroCard.getBoundingClientRect();
-        const x = (e.clientX - rect.left) / rect.width - 0.5;
-        const y = (e.clientY - rect.top) / rect.height - 0.5;
-        targetY = x * 8;   // Max 8deg tilt
-        targetX = -y * 8;
-        targetGlareX = ((e.clientX - rect.left) / rect.width) * 100;
-        targetGlareY = ((e.clientY - rect.top) / rect.height) * 100;
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        const centerX = rect.width / 2;
+        const centerY = rect.height / 2;
+
+        targetX = ((y - centerY) / centerY) * -5;
+        targetY = ((x - centerX) / centerX) * 5;
+        targetGlareX = (x / rect.width) * 100;
+        targetGlareY = (y / rect.height) * 100;
       });
 
       heroCard.addEventListener('mouseleave', () => {
@@ -860,37 +707,7 @@
       animateTilt();
     }
 
-    // 3. Audio Visualizer Sine Canvas Simulation
-    const canvas = document.getElementById('audio-visualizer');
-    if (canvas) {
-      const ctx = canvas.getContext('2d');
-      let step = 0;
-
-      function renderWave() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.beginPath();
-        ctx.lineWidth = 1.5;
-        ctx.strokeStyle = '#10B981'; // Emerald stream line
-
-        const height = canvas.height;
-        const width = canvas.width;
-
-        for (let x = 0; x < width; x++) {
-          const y = height / 2 + Math.sin((x * 0.12) + step) * 4 * Math.sin(x * 0.04 + (step * 0.5));
-          if (x === 0) {
-            ctx.moveTo(x, y);
-          } else {
-            ctx.lineTo(x, y);
-          }
-        }
-        ctx.stroke();
-        step += 0.08;
-        requestAnimationFrame(renderWave);
-      }
-      renderWave();
-    }
-
-    // 4. Dual Theme Toggle (Dark Slate vs. Pure Chalk)
+    // 2. Dual Theme Toggle (Dunkel vs. Hell)
     function applyTheme(theme) {
       const html = document.documentElement;
       const darkIcon = document.getElementById('theme-icon-dark');
@@ -901,12 +718,12 @@
         html.classList.add('theme-light');
         if (darkIcon) darkIcon.classList.add('hidden');
         if (lightIcon) lightIcon.classList.remove('hidden');
-        if (label) label.textContent = 'Pure Chalk';
+        if (label) label.textContent = 'Hell';
       } else {
         html.classList.remove('theme-light');
         if (darkIcon) darkIcon.classList.remove('hidden');
         if (lightIcon) lightIcon.classList.add('hidden');
-        if (label) label.textContent = 'Dark Slate';
+        if (label) label.textContent = 'Dunkel';
       }
       localStorage.setItem('chalk-theme', theme);
     }
@@ -916,7 +733,6 @@
       applyTheme(isLight ? 'dark' : 'light');
     }
 
-    // Initialize Theme from localStorage or default dark
     const savedTheme = localStorage.getItem('chalk-theme');
     if (savedTheme) {
       applyTheme(savedTheme);
@@ -924,32 +740,12 @@
       applyTheme('dark');
     }
 
-    // 5. OS Switcher (Zero-Stutter Class Switching)
-    function switchOS(os) {
-      const tabMac = document.getElementById('tab-mac');
-      const tabWin = document.getElementById('tab-win');
-      const panelMac = document.getElementById('panel-mac');
-      const panelWin = document.getElementById('panel-win');
-
-      if (os === 'mac') {
-        tabMac.className = 'px-6 py-2.5 rounded-lg os-tab-active transition-all';
-        tabWin.className = 'px-6 py-2.5 rounded-lg os-tab-inactive transition-all';
-        panelMac.classList.remove('hidden');
-        panelWin.classList.add('hidden');
-      } else {
-        tabWin.className = 'px-6 py-2.5 rounded-lg os-tab-active transition-all';
-        tabMac.className = 'px-6 py-2.5 rounded-lg os-tab-inactive transition-all';
-        panelWin.classList.remove('hidden');
-        panelMac.classList.add('hidden');
-      }
-    }
-
-    // 6. Copy Markdown Notes & Command Feedback
+    // 3. Copy Markdown Notes & Command Feedback
     function copyMarkdownNotes(btn) {
-      const markdown = `# Capital Asset Pricing & Systematic Risk\n\nThe expected excess return of any asset is strictly determined by its covariance with the broader market portfolio:\n\n$$E(R_i) = R_f + \\beta_i [E(R_m) - R_f]$$\n\n- **Beta Sensitivity (\\beta_i):** Measures asset volatility relative to systematic market benchmark.\n- **Risk-Free Rate (R_f):** Sovereign treasury baseline underpinning hurdle rate.\n- **[Oral Clarification @ 01:14:20](chalk-audio://01:14:20):** Idiosyncratic variance is eliminated through cross-asset diversification.`;
+      const markdown = `# Kapitalmarktlinie & Systematisches Risiko\n\nDie erwartete Rendite eines Wertpapiers setzt sich aus dem risikofreien Zins und der marktweiten Risikoprämie zusammen. Das unsystematische Einzelrisiko wird durch Portfolio-Diversifikation eliminiert.\n\n$$E(R_i) = R_f + \\beta_i [E(R_m) - R_f]$$\n\n- **Beta-Faktor (\\beta_i):** Sensitivität der Rendite gegenüber Schwankungen des Gesamtmarktes.\n- **Risikofreier Zins (R_f):** Rendite erstklassiger Staatsanleihen als Mindesthürde.\n- **[Kernaussage Dozent @ 01:14:20](chalk-audio://01:14:20):** Nur systematisches Risiko wird vom Markt mit einer Prämie vergütet.`;
       navigator.clipboard.writeText(markdown).then(() => {
         const originalHtml = btn.innerHTML;
-        btn.innerHTML = '<span>✓ Copied</span>';
+        btn.innerHTML = '<span>✓ Kopiert</span>';
         setTimeout(() => {
           btn.innerHTML = originalHtml;
         }, 2000);
@@ -959,16 +755,14 @@
     function copyCommand(btn, text) {
       navigator.clipboard.writeText(text).then(() => {
         const originalText = btn.textContent;
-        btn.textContent = '✓ Copied';
-        btn.classList.add('text-emerald-500');
+        btn.textContent = '✓ Kopiert';
         setTimeout(() => {
           btn.textContent = originalText;
-          btn.classList.remove('text-emerald-500');
         }, 2000);
       });
     }
 
-    // 7. Modals Controller
+    // 4. Modals Controller
     function openModal(id) {
       const modal = document.getElementById(id);
       if (modal) {

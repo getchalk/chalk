@@ -186,6 +186,8 @@ class ChalkCoordinator(QObject):
             on_force_flush=lambda: self.sig_force_flush.emit(),
             on_toggle_hud=lambda: self.sig_toggle_hud.emit(),
             on_open_notes=self.open_notes_folder,
+            on_open_obsidian=self.hud._open_in_obsidian,
+            on_open_default_editor=self.hud._open_in_default_editor,
             on_open_settings=self.open_settings_dialog,
             on_exit=self.exit_application,
         )

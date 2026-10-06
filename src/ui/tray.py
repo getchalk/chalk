@@ -5,7 +5,7 @@ Uses pystray to run a background system tray icon with colored status dots:
 🟡 Yellow: Paused (Break detected via Silero VAD or manual pause)
 🔵 Blue: Processing chunk via Gemini API worker
 Context menu: Toggle Recording (F9), Force Chunk Flush (F10), Show HUD (Alt+Space),
-Open Notes Folder, Settings, Exit.
+In Obsidian öffnen, Im Standard-Editor öffnen, Notizen-Ordner öffnen, Einstellungen, Beenden.
 """
 
 import os
@@ -59,6 +59,8 @@ class ChalkSystemTray:
         on_force_flush: Optional[Callable[[], None]] = None,
         on_toggle_hud: Optional[Callable[[], None]] = None,
         on_open_notes: Optional[Callable[[], None]] = None,
+        on_open_obsidian: Optional[Callable[[], None]] = None,
+        on_open_default_editor: Optional[Callable[[], None]] = None,
         on_open_settings: Optional[Callable[[], None]] = None,
         on_exit: Optional[Callable[[], None]] = None,
     ):
@@ -66,6 +68,8 @@ class ChalkSystemTray:
         self.on_force_flush = on_force_flush
         self.on_toggle_hud = on_toggle_hud
         self.on_open_notes = on_open_notes
+        self.on_open_obsidian = on_open_obsidian
+        self.on_open_default_editor = on_open_default_editor
         self.on_open_settings = on_open_settings
         self.on_exit = on_exit
 
@@ -75,14 +79,16 @@ class ChalkSystemTray:
     def start(self):
         """Builds and launches the system tray icon detached."""
         menu = pystray.Menu(
-            pystray.MenuItem("Toggle Recording (F9)", self._action_toggle_recording),
-            pystray.MenuItem("Force Chunk Flush (F10)", self._action_force_flush),
-            pystray.MenuItem("Show / Hide HUD (Alt+Space)", self._action_toggle_hud),
+            pystray.MenuItem("Aufnahme umschalten (F9)", self._action_toggle_recording),
+            pystray.MenuItem("Abschnitt synchronisieren (F10)", self._action_force_flush),
+            pystray.MenuItem("HUD ein-/ausblenden (Alt+Space)", self._action_toggle_hud),
             pystray.Menu.SEPARATOR,
-            pystray.MenuItem("Open Notes Folder", self._action_open_notes),
-            pystray.MenuItem("Settings (API Key)", self._action_open_settings),
+            pystray.MenuItem("In Obsidian öffnen", self._action_open_obsidian),
+            pystray.MenuItem("Im Standard-Editor öffnen", self._action_open_default_editor),
+            pystray.MenuItem("Notizen-Ordner öffnen", self._action_open_notes),
+            pystray.MenuItem("Einstellungen (Modelle & Keys)", self._action_open_settings),
             pystray.Menu.SEPARATOR,
-            pystray.MenuItem("Exit Chalk", self._action_exit),
+            pystray.MenuItem("Chalk beenden", self._action_exit),
         )
 
         initial_img = create_tray_status_icon(self.current_state)
@@ -119,11 +125,11 @@ class ChalkSystemTray:
         if self._icon:
             self._icon.icon = create_tray_status_icon(color)
             if color == "green":
-                self._icon.title = "Chalk: Recording (Mic + Loopback + Slides)"
+                self._icon.title = "Chalk: Aufnahme aktiv (Mic + System)"
             elif color == "yellow":
-                self._icon.title = "Chalk: Standby / Paused"
+                self._icon.title = "Chalk: Standby / Pausiert"
             elif color == "blue":
-                self._icon.title = "Chalk: Processing chunk via Gemini"
+                self._icon.title = "Chalk: Verarbeite Notizen..."
 
     def stop(self):
         """Stops the tray icon."""
@@ -143,6 +149,14 @@ class ChalkSystemTray:
     def _action_toggle_hud(self, icon, item):
         if self.on_toggle_hud:
             self.on_toggle_hud()
+
+    def _action_open_obsidian(self, icon, item):
+        if self.on_open_obsidian:
+            self.on_open_obsidian()
+
+    def _action_open_default_editor(self, icon, item):
+        if self.on_open_default_editor:
+            self.on_open_default_editor()
 
     def _action_open_notes(self, icon, item):
         if self.on_open_notes:

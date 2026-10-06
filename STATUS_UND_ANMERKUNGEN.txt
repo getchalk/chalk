@@ -1,6 +1,6 @@
 ================================================================================
 CHALK — AMBIENT COGNITIVE PRESENCE ENGINE & WEB PORTAL
-STATUS-REPORT, ARCHITEKTUR-ÜBERSICHT UND ANMERKUNGEN (PHASEN 1–7)
+STATUS-REPORT, ARCHITEKTUR-ÜBERSICHT UND ANMERKUNGEN (PHASEN 1–8)
 ================================================================================
 Stand: 2026-10-06
 Projektpfad (Desktop): /Users/user/Desktop/chalk/
@@ -18,17 +18,18 @@ Phase 4: Multi-Agent Swarm Orchestration (Brand, Animated Web, Roadmap) [ABGESCH
 Phase 5: Queen Bee Orchestration & Universelle Positionierung [ABGESCHLOSSEN]
 Phase 6: Consumer-Grade Polish, De-Hackerization & Kontrast-Reparatur [ABGESCHLOSSEN]
 Phase 7: De-Hackerization, Slop Elimination & Consumer Refinement [ABGESCHLOSSEN]
+Phase 8: Radikales Web De-Slopping, Deep App Enhancements & Standalone Re-Build [ABGESCHLOSSEN]
 
-- Unit- & Integrationstest-Suite: 9/9 TESTS BESTANDEN (1.22s).
+- Unit- & Integrationstest-Suite: 9/9 TESTS BESTANDEN (1.25s).
+- Web-Integritätsprüfung: 0 VERBOTENE TOKEN / REINE MONOCHROM-PALETTE (deploy_web.sh PASS).
 - End-to-End Dry-Run Simulation: 5/5 STAGES ERFOLGREICH (Notes/Lecture_Simulation.md verifiziert).
 - Pre-Flight Hardware-Diagnostik: ALLE RECHTE AKTIV (Mikrofon, Bildschirmaufnahme, Barrierefreiheit).
-- Brand-Identität: Authentischer Kreidestift auf Schiefertafel mit Kreidestrich (assets/brand/logo.svg).
-- UI/UX & Ästhetik: Notion/Apple-Niveau; Vollständig befreit von technischer Prahlerei und Hacker-Jargon.
-- Chip-Docking: Permanente Exterior-Docking-Positionierung (-top-6 / -bottom-6); 0% Text-Überdeckung.
-- Dual-Theme Kontrast: Heller Modus mit perfekter Lesbarkeit (Hellgraue Terminal-Boxen mit tiefdunkler Schrift).
-- Floating HUD: Quoten-freier Raycast/Spotlight-Look mit Granola-Style Shorthand und 6 Schnellaktionen.
-- Standalone Kompilierung: dist/Chalk.app (143 MB arm64) mit verifizierten Berechtigungen & Icons.
-- Release-Integrität: scripts/generate_checksums.py -> dist/SHA256SUMS.txt verifiziert.
+- Brand-Identität & Web: Apple / Notion / Things 3 Ästhetik, warmes Deutsch, 0 Emojis, 0 Hacker-Slop.
+- Obsidian & Editor Integration: 1-Click Vault Auto-Discovery + obsidian:// Protokoll-Anbindung.
+- Interaktives Audio-Scrubbing: chalk-audio:// Link-Interception mit integrierter sounddevice-Wiedergabe.
+- Multi-Model BYOK Runtime: Gemini 2.5 Flash, Claude 3.7 Sonnet & GPT-4o im macOS Schlüsselbund.
+- Standalone Kompilierung: dist/Chalk.app frisch gebaut (144 MB arm64, PyInstaller Exit 0).
+- Release-Integrität: dist/Chalk-macOS.zip (143.21 MB) & dist/SHA256SUMS.txt neu signiert.
 
 
 2. PHASE 6 DURCHGEFÜHRTE MASSNAHMEN (CONSUMER-GRADE POLISH)
@@ -125,14 +126,61 @@ C. WORKER BEE 4: QA-VERIFIKATION & DESKTOP-SYNCHRONISATION
       - Vollständige Spiegelung nach `/Users/user/Desktop/chalk/`.
 
 
-4. ARTEFAKT- & PRÜFSUMMEN-ÜBERSICHT (dist/SHA256SUMS.txt)
+4. PHASE 8 DURCHGEFÜHRTE MASSNAHMEN (RADIKALES WEB DE-SLOPPING, DEEP APP ENHANCEMENTS & STANDALONE RE-BUILD)
 --------------------------------------------------------------------------------
-Chalk (arm64 Binary)  : c19907a323d737f6c6dd13a7aac0f90710c2b9815a306c2855986634fd2f77ee
-Chalk-macOS.zip       : 57f046528a4caaae215582940bf562f940a27e818ce17981c9e82c8c0da89b24
-dist/Chalk.app        : Gebündelt mit Literal Chalk Icon (app.icns)
+
+A. RADIKALES DE-SLOPPING DES WEB-PORTALS (web/index.html)
+  [✓] Vollständige Beseitigung von AI-Slop & Hacker-Gimmicks:
+      - Entfernung aller künstlichen Oszilloskop-Canvas (#audio-visualizer), schwebenden Event-Chips,
+        Maus-Taschenlampen (#torchlight), Matrix-Grün (bg-emerald-400, text-emerald-500) und bunter Glow-Effekte.
+      - 100% ruhiges, modernes Apple / Notion / Things 3 Design mit warmer, natürlicher deutscher Sprache.
+      - Neues Slogan-Paar: "Nie wieder hektisch mitschreiben. Chalk hört zu, sieht die Folien und schreibt deine Notizen."
+  [✓] Intuitives 3-Schritte-Prinzip:
+      - 1. Chalk läuft lautlos mit (Ein Klick auf Start in der Menüleiste).
+      - 2. Du hörst aktiv zu und verstehst (Kein geteilter Fokus mehr zwischen Tippen und Denken).
+      - 3. Fertige Struktur in deinen Notizen (LaTeX-Formeln, Folienbezug, Obsidian-Synchronisation).
+  [✓] Reales Vorlesungs-Mockup:
+      - "Wirtschaftsuniversität Wien – Investitions- & Portfoliotheorie".
+      - Gestochen scharfe Formeln ($E(R_i) = R_f + \beta_i[E(R_m) - R_f]$), verlinkte Folien-Referenzen und strukturierte Kernaussagen.
+  [✓] Downloads & Rechtliches:
+      - Zwei dominante Betriebssystem-Buttons (macOS Apple Silicon .zip & Windows x64 .exe) im Vordergrund.
+      - Einzeiliger cURL-Befehl für Entwickler dezent im Terminal-Kasten.
+      - 100% DSGVO- und rechtssicher nach österreichischem Recht (§ 25 MedienG, § 5 ECG, § 165 TKG, § 120 StGB Schulungs- & Hinweispflicht).
+
+B. DEEP DESKTOP-APP ENHANCEMENTS
+  [✓] 1-Click Obsidian-Anbindung & Standard-Editor Integration:
+      - Intelligente Vault-Erkennung in `src/ui/hud_window.py` (`find_local_obsidian_vault` scannt macOS/Win/Linux Konfigurationen und User-Ordner).
+      - Öffnen über `obsidian://open?path=...` Protokoll oder Datei-Fallback.
+      - Direkte Integration in Menüleiste / System-Tray (`src/ui/tray.py`) und Schnellaktionsleiste (`src/ui/hud_window.py`).
+  [✓] Interaktives Audio-Scrubbing (`chalk-audio://` Scheme):
+      - `QTextBrowser` mit benutzerdefiniertem URL-Handler: Klick auf Zeitstempel wie `[14:22](chalk-audio://14:22)` springt direkt zur Originalstelle.
+      - Integrierter Mini-Player mit `sounddevice`-Wiedergabe (`sd.play` & `sd.stop`) direkt im HUD – keine externen Player erforderlich.
+  [✓] Multi-Model BYOK Runtime (Gemini, Claude, OpenAI):
+      - Erweiterung von `src/security/key_manager.py` zur sicheren Speicherung separater Schlüssel für `gemini`, `anthropic` und `openai` im OS-Schlüsselbund.
+      - Modell-Auswahl-Persistenz (`gemini-2.5-flash`, `claude-3.7-sonnet`, `gpt-4o`).
+      - Komplettes Monochrom-Redesign des Einstellungsdialogs (`src/ui/settings_dialog.py`): Null lila Verläufe, ruhige Schiefer-Optik, Token-freie Validierung.
+
+C. STANDALONE RE-BUILD & RELEASE-PIPELINE
+  [✓] Frische Kompilierung via `build_standalone.py`:
+      - PyInstaller Exit-Code 0.
+      - Bundle-Pfad: `dist/Chalk.app` (144 MB) und Standalone-Binary `dist/Chalk`.
+      - macOS Info.plist Berechtigungs-Strings (Mikrofon, Bildschirmaufnahme, Barrierefreiheit) intakt.
+  [✓] Release-Archiv & Checksummen:
+      - `scripts/generate_checksums.py` ausgeführt -> `dist/Chalk-macOS.zip` (143.21 MB).
+      - `dist/SHA256SUMS.txt` mit SHA-256 Hashes neu generiert.
+  [✓] QA-Verifikation:
+      - 9/9 Unit-Tests erfolgreich bestanden.
+      - `./scripts/deploy_web.sh test` erfolgreich validiert (0 verbotene Token).
 
 
-5. PROJEKT-DATEIEN & STRUKTUR
+5. ARTEFAKT- & PRÜFSUMMEN-ÜBERSICHT (dist/SHA256SUMS.txt)
+--------------------------------------------------------------------------------
+Chalk (arm64 Binary)  : 7906303bec6bc415515f457fb642b352c150c41e24eee287267f01a1402da165
+Chalk-macOS.zip       : 88acb77818a127290feb38895aba323d239382b02f89e3ec7df4ed0a87f481f5
+dist/Chalk.app        : Gebündelt mit Literal Chalk Icon (app.icns) & Info.plist Berechtigungen
+
+
+6. PROJEKT-DATEIEN & STRUKTUR
 --------------------------------------------------------------------------------
 chalk/
 ├── assets/
