@@ -1,6 +1,6 @@
 ================================================================================
 CHALK — AMBIENT COGNITIVE PRESENCE ENGINE & WEB PORTAL
-STATUS-REPORT, ARCHITEKTUR-ÜBERSICHT UND ANMERKUNGEN (PHASEN 1–5)
+STATUS-REPORT, ARCHITEKTUR-ÜBERSICHT UND ANMERKUNGEN (PHASEN 1–6)
 ================================================================================
 Stand: 2026-10-06
 Projektpfad (Desktop): /Users/user/Desktop/chalk/
@@ -16,78 +16,69 @@ Phase 2: Runtime Hardening, Hardware-Diagnostik, Minimalistisches Icon [ABGESCHL
 Phase 3: End-to-End Simulation, Standalone-Kompilierung & Release-Pipeline [ABGESCHLOSSEN]
 Phase 4: Multi-Agent Swarm Orchestration (Brand, Animated Web, Roadmap) [ABGESCHLOSSEN]
 Phase 5: Queen Bee Orchestration & Universelle Positionierung [ABGESCHLOSSEN]
+Phase 6: Consumer-Grade Polish, De-Hackerization & Kontrast-Reparatur [ABGESCHLOSSEN]
 
 - Unit- & Integrationstest-Suite: 9/9 TESTS BESTANDEN (1.48s).
 - End-to-End Dry-Run Simulation: 5/5 STAGES ERFOLGREICH (Notes/Lecture_Simulation.md verifiziert).
 - Pre-Flight Hardware-Diagnostik: ALLE RECHTE AKTIV (Mikrofon, Bildschirmaufnahme, Barrierefreiheit).
-- Brand-Identität: Authentischer zylindrischer Kreidestift auf Schiefertafel mit Kreidestrich.
-- Web Experience: Jitter-freie LERP-Physik (requestAnimationFrame), Dual-Theme (Dark Slate / Pure Chalk),
-  reine Vektor-Icons (0% Emojis), sichere Chip-Positionierung ohne Textüberlagerung.
-- Standalone Kompilierung: dist/Chalk.app (143 MB arm64) mit neuem app.icns re-kompiliert.
+- Brand-Identität: Authentischer Kreidestift auf Schiefertafel mit Kreidestrich (assets/brand/logo.svg).
+- UI/UX & Ästhetik: Notion/Apple-Niveau; Befreit von Hacker-Jargon; Warme, lesbare Typografie.
+- Chip-Docking: Permanente Exterior-Docking-Positionierung (-top-6 / -bottom-6); 0% Text-Überdeckung.
+- Dual-Theme Kontrast: Heller Modus mit perfekter Lesbarkeit (Hellgraue Terminal-Boxen mit tiefdunkler Schrift).
+- Standalone Kompilierung: dist/Chalk.app (143 MB arm64) mit verifizierten Berechtigungen & Icons.
 - Release-Integrität: scripts/generate_checksums.py -> dist/SHA256SUMS.txt verifiziert.
 
 
-2. PHASE 5 DURCHGEFÜHRTE MASSNAHMEN (QUEEN BEE ORCHESTRATION)
+2. PHASE 6 DURCHGEFÜHRTE MASSNAHMEN (CONSUMER-GRADE POLISH)
 --------------------------------------------------------------------------------
 
-A. WORKER BEE 1: LITERAL CHALK ON SLATE BRAND-IDENTITÄT
-  [✓] Vektor-Emblem (assets/brand/logo.svg & web/assets/favicon.svg):
-      - Ersetzt das abstrakte Kristallgitter durch einen unverkennbaren Kreidestift:
-        * 45°-geneigter Zylinder mit gefaster Schreibspitze (chamfered tip).
-        * Subtile zylindrische Matt-Schattierung (#FFFFFF bis #CBD5E1).
-        * Taktiler Kreidestaubstrich direkt auf dem tiefen Obsidian-Schieferbett (#07080B).
-  [✓] Asset-Kompilierung (assets/generate_icon.py):
-      - 2048x2048 Master mit 4x Supersampling und Lanczos-Downsampling auf 512x512.
-      - assets/app.png (512x512 Master)
-      - web/assets/logo.png (512x512 Web-Asset)
-      - web/assets/favicon.svg (Leichtgewichtiges SVG-Favicon)
-      - assets/app.ico (Multi-Resolution 16, 24, 32, 48, 64, 128, 256 px)
-      - assets/app.icns (macOS Retina Bundle-Icon)
-  [✓] System-Tray Synchronisation (src/ui/tray.py):
-      - Saubere 16x16 / 24x24 Menüleisten-Darstellung mit Status-Pips.
+A. WORKER BEE 1: DE-HACKERIZATION & APPLE/NOTION ELEGANZ
+  [✓] Beseitigung von technischem Debug-Jargon in web/index.html (Hero Mockup):
+      - Ersetzt `SLIDE FEED (pHash: a7f8c2) 0.05 FPS` durch `PRESENTATION SYNC` und `Active Slide 14`.
+      - Ersetzt `Hamming Distance: Δ=14 (>10 Trigger)` durch `Automatic Slide Recognition • In Sync`.
+      - Ersetzt `Tokens Ingested: 142,890 / 1,000,000` durch `Session Context: 14% used`.
+      - Ersetzt `RPD Remaining: 48 / 50` durch `Status: Direct BYOK Connected`.
+  [✓] Universeller, ansprechender Inhalt:
+      - Folientitel: "Strategic Decision Frameworks & Value Creation" (Strategy & Decision Science).
+      - Mathematische Formel: ROI_net = (Net Benefit - Capital Outlay) / Cost of Risk.
+      - Notiz-Puffer: Klar strukturierte Notion-artige Zusammenfassung ("Executive Summary & Risk Allocation").
+  [✓] Warme Typografie & Geometrie:
+      - Durchgehend moderne serifenlose Typografie (SF Pro Display / Inter / system-ui).
+      - Monospace-Schriftart strikt auf Formeln und Terminal-Befehle beschränkt.
+      - Elegante abgerundete Kartenränder (rounded-xl, rounded-2xl) und dezente Schatten.
 
-B. WORKER BEE 2: JITTER-FREIE LERP-PHYSIK, CHIP-LAYOUT & EXPANDIERTE POSITIONIERUNG
-  [✓] Entkoppelte 3D-Karten LERP-Physik (web/index.html):
-      - mousemove entkoppelt via requestAnimationFrame-Schleife:
-        currentX += (targetX - currentX) * 0.08; currentY += (targetY - currentY) * 0.08;
-      - Vollkommen jitter-freie, trägheitsbasierte Kartenneigung (max. 8°).
-  [✓] Kollisionsfreie Exterior-Safe-Margins für Action Chips:
-      - pointer-events: none auf .glare-overlay und alle .floating-chip Elemente.
-      - Chip 1 (LaTeX Proof Sync): top: -36px; left: -24px;
-      - Chip 2 (Silero Break Sleep): top: 40%; right: -32px;
-      - Chip 3 (OCR Event): bottom: -32px; left: 15%;
-      - Keine Überdeckung von Titeln, Formularen oder Notizpuffern mehr möglich.
-  [✓] Vollständige Bereinigung von AI-Slop & Emojis:
-      - Kaffeetasse (☕), Blitz (⚡), Schild (🛡️), Befehl (⌘) eliminiert.
-      - Ersetzt durch monochrome 1.5px Vektor-SVGs und Monospace-Tags ([SYNC], [BREAK], [OCR], [CMD]).
-  [✓] 4-teiliges Use-Case Bento-Grid (Beyond the Classroom):
-      - 01: Universitäts-Vorlesungen & Mathematische Beweise (LaTeX / KaTeX)
-      - 02: Technische Seminare & Architektur-Reviews (ADR / Code Snippets)
-      - 03: Vorstandssitzungen & Strategie-Calls (Action Items / Decision Logs)
-      - 04: Webinars & Remote-Konferenzen (Loopback Audio / Slide Archive)
+B. WORKER BEE 2: PERMANENTES EXTERIOR SAFE-DOCKING DER ACTION-CHIPS
+  [✓] Vollständige Beseitigung von In-Card Prozentkoordinaten:
+      - Die 3 Event-Chips wurden vollständig aus dem Karteninneren verbannt:
+        * Chip 1 (LaTeX Proof): Sauber über der oberen linken Kante (-top-4 sm:-top-6 left-2 sm:left-6).
+        * Chip 2 (Silence Detected): Sauber über der oberen rechten Kante (-top-4 sm:-top-6 right-2 sm:right-6).
+        * Chip 3 (Slide Transition): Sauber unterhalb der unteren Kante (-bottom-4 sm:-bottom-6 left-1/2 -translate-x-1/2).
+  [✓] Absolute Überdeckungsfreiheit:
+      - `pointer-events: none` und `z-20` auf allen Chips.
+      - Unmögliche Verdeckung von Texten, Formeln oder Bedienelementen im Hero-Mockup.
+  [✓] Zero-Emoji-Politik aufrechterhalten:
+      - Reine Vektor-SVGs (Pausenuhr, Terminalprompt, Schild) und Monospace-Tags ([SYNC], [BREAK], [OCR]).
 
-C. WORKER BEE 3: DUAL THEME ENGINE & MULTI-MODEL ROADMAP
-  [✓] Dual Theme Switcher (Dark Slate / Pure Chalk):
-      - Toggle-Schalter in der Navigationsleiste mit Persistenz in localStorage ('chalk-theme').
-      - Dark Mode: #050508 Obsidian, #0E0F16 Schiefer, #F8FAFC Kreideweiß.
-      - Light Mode: #F8FAFC Reines Papier, #FFFFFF Kartenbasis, #0F172A Graphit-Tinte, #E2E8F0 Haarlinie.
-  [✓] Pluggable Model Runtime (BYOK) Callout:
-      - Spezifikations-Karte hervorhebend: Start auf Google AI Studio (Gemini 2.5 Flash / Pro, 1M Context).
-      - Kern-Abstraktion bereit für Anthropic Claude 3.7, OpenAI GPT-4o und lokale Ollama/MLX Runtimes in v1.1.
+C. WORKER BEE 3: REPARATUR DES LIGHT-MODE KONTRASTS & LAG-FREIE THEMES
+  [✓] Behebung der pechschwarzen Terminal-Boxen im Light Mode:
+      - Dedizierte CSS-Variablen für beide Modi:
+        * Dark Mode: --terminal-bg: #07080B, --terminal-text: #F8FAFC, --terminal-border: rgba(255,255,255,0.1)
+        * Light Mode: --terminal-bg: #F1F5F9, --terminal-text: #0F172A, --terminal-border: #CBD5E1
+      - Im Light Mode sind Terminal-Boxen nun hellgrau mit gestochen scharfer dunkelgrauer Schrift.
+      - Auch Copy-Buttons adaptieren nahtlos (--terminal-btn-bg: #E2E8F0, --terminal-btn-text: #334155).
+  [✓] Beseitigung von Theme-Switching Lags:
+      - CSS-Transitions auf performante background-color und border-color beschränkt (0.2s ease).
+      - OS Switcher auf dedizierte CSS-Klassen umgestellt (.os-tab-active, .os-tab-inactive);
+        kein Reflow-Stottern oder Style-Konflikt mehr beim Wechsel zwischen Dark und Light Mode.
 
-D. WORKER BEE 4: AUSTRIAN & EU LEGAL COMPLIANCE & RELEASE
-  [✓] Rechtliche Transparenz-Modale (web/index.html):
-      - Impressum & Offenlegung gem. österreichischem § 25 Abs. 5 MedienG & § 5 ECG.
-      - Datenschutzerklärung gem. DSGVO & expliziter Hinweis auf § 165 Abs. 3 TKG 2021
-        (Keine Tracking-Cookies = Kein Cookie-Banner erforderlich).
-      - Strafrechtlicher Warnhinweis gem. § 120 StGB (Tonaufnahmen) mit Unterscheidung zwischen
-        Hochschul-Lehrveranstaltungen und geschäftlichen Konferenzschaltungen (Two-Party Consent).
-  [✓] Standalone Binary Re-Kompilierung:
-      - dist/Chalk (144.2 MB Mach-O arm64 Executable).
-      - dist/Chalk.app (gebündelt mit neuem literal chalk app.icns und macOS Berechtigungsmanifesten).
-  [✓] Release Checksummen-Aktualisierung (dist/SHA256SUMS.txt):
-      - dist/Chalk-macOS.zip (143.20 MB) erzeugt.
-      - Prüfsummen generiert und verifiziert.
+D. WORKER BEE 4: QA-VERIFIKATION & DESKTOP-SYNCHRONISATION
+  [✓] Verifikationstests:
+      - ./scripts/deploy_web.sh test -> PASS (0 verbotene Token, alle Dateien intakt).
+      - Emoji-Scan -> 0 verbotene Symbole im Web-Portal.
+      - Unit-Test-Suite -> 9/9 Tests bestanden (1.48s).
+  [✓] 1:1 Spiegelung:
+      - Vollständig synchronisiert nach /Users/user/Desktop/chalk/.
+      - SHA-256 Checksummen in dist/SHA256SUMS.txt intakt.
 
 
 3. ARTEFAKT- & PRÜFSUMMEN-ÜBERSICHT (dist/SHA256SUMS.txt)
@@ -147,11 +138,11 @@ chalk/
 │   ├── assets/
 │   │   ├── favicon.svg            # Literal Chalk SVG Favicon
 │   │   └── logo.png               # Web Hero Logo (512x512)
-│   └── index.html                 # Dual-Theme Web-Portal mit LERP-Physik
+│   └── index.html                 # Apple/Notion Tier Web-Portal mit Safe Docking
 ├── .github/
 │   └── workflows/
 │       ├── deploy_web.yml         # GitHub Pages Deployment Workflow
 │       └── release.yml            # Multi-OS CI/CD Release Pipeline
 ├── .gitignore                     # Git-Ignore für Venv & Build-Caches
 └── STATUS_UND_ANMERKUNGEN.txt     # Diese Dokumentationsdatei
-===============================================================================
+================================================================================
