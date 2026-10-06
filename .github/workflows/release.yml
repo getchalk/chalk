@@ -63,12 +63,13 @@ jobs:
             zip -y Chalk-macOS.zip Chalk
           fi
 
-      # Windows Packaging: Rename dist binary
+      # Windows Packaging: Provide both Chalk-Setup.exe and Chalk-Windows.exe
       - name: Package Windows Binary
         if: runner.os == 'Windows'
         shell: bash
         run: |
           cd dist
+          cp Chalk.exe Chalk-Setup.exe
           cp Chalk.exe Chalk-Windows.exe
 
       - name: Upload Build Artifact
@@ -98,6 +99,13 @@ jobs:
           name: Chalk-Windows.exe
           path: release-assets
 
+      - name: Create Chalk-Setup.exe alias for release
+        run: |
+          cd release-assets
+          if [ -f "Chalk-Windows.exe" ]; then
+            cp Chalk-Windows.exe Chalk-Setup.exe
+          fi
+
       - name: Generate Cryptographic SHA-256 Checksums
         run: |
           cd release-assets
@@ -109,6 +117,7 @@ jobs:
         with:
           files: |
             release-assets/Chalk-macOS.zip
+            release-assets/Chalk-Setup.exe
             release-assets/Chalk-Windows.exe
             release-assets/SHA256SUMS.txt
           name: Chalk ${{ github.ref_name }} — Autonomous Desktop Lecture Engine

@@ -4,10 +4,14 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Chalk — Never scramble to take notes again</title>
-  <meta name="description" content="Chalk listens, sees slides, and writes your notes. Autonomous desktop app for lectures, meetings, and calls with 100% local privacy.">
+  <meta name="description" content="Chalk listens, sees the screen, and writes your notes. Autonomous desktop app for lectures, meetings, and calls with 100% local privacy.">
   <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
   <link rel="icon" type="image/png" href="assets/logo.png">
   <script src="https://cdn.tailwindcss.com"></script>
+  <!-- KaTeX Mathematical Typography Engine -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
   <style>
     :root {
       --bg-obsidian: #121317;
@@ -35,6 +39,9 @@
       --pill-text: #F8FAFC;
       --nav-bg: rgba(18, 19, 23, 0.85);
       --modal-bg: #1A1C23;
+      --logo-bg: #121317;
+      --logo-border: rgba(255, 255, 255, 0.12);
+      --logo-chalk: #F8FAFC;
     }
 
     html.theme-light {
@@ -63,6 +70,9 @@
       --pill-text: #0F172A;
       --nav-bg: rgba(251, 251, 253, 0.85);
       --modal-bg: #FFFFFF;
+      --logo-bg: #FFFFFF;
+      --logo-border: #E2E8F0;
+      --logo-chalk: #0F172A;
     }
 
     body {
@@ -140,23 +150,33 @@
     html.theme-light .lang-opt-btn:hover {
       background-color: rgba(0, 0, 0, 0.05);
     }
+
+    /* KaTeX Zero-Flash Anti-Jitter Typography */
+    .render-math {
+      opacity: 0;
+      transition: opacity 0.12s ease-in;
+    }
+    .render-math.math-rendered,
+    .render-math:has(.katex) {
+      opacity: 1;
+    }
   </style>
 </head>
 <body class="relative min-h-screen">
 
   <!-- Navigation Bar -->
-  <nav class="sticky top-0 z-40 backdrop-blur-xl border-b px-6 py-4 transition-colors" style="background-color: var(--nav-bg); border-color: var(--chalk-border);">
-    <div class="max-w-6xl mx-auto flex items-center justify-between">
+  <nav class="sticky top-0 z-40 backdrop-blur-xl border-b px-6 sm:px-10 lg:px-16 py-4 transition-colors" style="background-color: var(--nav-bg); border-color: var(--chalk-border);">
+    <div class="max-w-7xl mx-auto flex items-center justify-between">
       <!-- Literal Chalk Brand Mark -->
       <a href="#" class="flex items-center gap-3 group">
-        <div class="w-8 h-8 rounded-lg border flex items-center justify-center p-1 transition" style="background-color: var(--surface-graphite); border-color: var(--chalk-border);">
-          <svg viewBox="0 0 128 128" class="w-full h-full" fill="none">
-            <rect width="128" height="128" rx="28" fill="#121317"/>
-            <path d="M 32 94 L 102 94" stroke="#F8FAFC" stroke-width="7" stroke-linecap="round" opacity="0.9"/>
+        <div class="w-8 h-8 rounded-lg overflow-hidden flex items-center justify-center transition shadow-sm border" style="background-color: var(--logo-bg); border-color: var(--logo-border);">
+          <svg viewBox="0 0 128 128" class="w-full h-full p-1" fill="none">
+            <rect width="128" height="128" rx="28" fill="var(--logo-bg)"/>
+            <path d="M 32 94 L 102 94" stroke="var(--logo-chalk)" stroke-width="7" stroke-linecap="round" opacity="0.9"/>
             <g transform="translate(64, 56) rotate(45)">
-              <rect x="-8" y="-36" width="16" height="60" fill="#F8FAFC" rx="2"/>
-              <path d="M -8 24 L 0 38 L 8 24 Z" fill="#FFFFFF"/>
-              <line x1="-7" y1="-34" x2="-7" y2="24" stroke="#FFFFFF" stroke-width="1.5"/>
+              <rect x="-8" y="-36" width="16" height="60" fill="var(--logo-chalk)" rx="2"/>
+              <path d="M -8 24 L 0 38 L 8 24 Z" fill="var(--logo-chalk)"/>
+              <line x1="-7" y1="-34" x2="-7" y2="24" stroke="var(--logo-bg)" stroke-width="1.5" opacity="0.4"/>
             </g>
           </svg>
         </div>
@@ -224,17 +244,12 @@
   </nav>
 
   <!-- Hero Section -->
-  <header class="max-w-6xl mx-auto px-6 pt-20 pb-16 text-center relative bg-dot-grid z-10">
-    <!-- Calm Trust Badge -->
-    <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border text-xs font-mono mb-8 shadow-sm" style="background-color: var(--pill-bg); border-color: var(--pill-border); color: var(--pill-text);">
-      <span data-i18n="hero_badge">LOCAL-FIRST • DIRECT BYOK • NO CHALK SERVERS</span>
-    </div>
-
+  <header class="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16 pt-20 pb-16 text-center relative bg-dot-grid z-10">
     <!-- Core Headline -->
     <h1 class="text-4xl sm:text-6xl md:text-7xl font-bold tracking-tight max-w-4xl mx-auto leading-[1.1] mb-6" style="color: var(--chalk-white);" data-i18n="hero_headline">
       Never scramble to take notes again.<br>
       <span class="opacity-80 font-normal">
-        Chalk listens, sees the slides, and writes your notes.
+        Chalk listens, sees the screen, and writes your notes.
       </span>
     </h1>
 
@@ -243,18 +258,26 @@
     </p>
 
     <!-- CTAs -->
-    <div class="flex flex-col sm:flex-row items-center justify-center gap-4 mb-10">
-      <a href="#download" class="w-full sm:w-auto px-7 py-3.5 rounded-xl font-semibold transition shadow-md flex items-center justify-center gap-2 text-sm" style="background-color: var(--chalk-white); color: var(--bg-obsidian);">
+    <div class="flex flex-col sm:flex-row items-center justify-center gap-4 mb-3">
+      <a id="hero-primary-download-btn" href="#download" class="w-full sm:w-auto px-7 py-3.5 rounded-xl font-semibold transition shadow-md flex items-center justify-center gap-2 text-sm hover:opacity-90" style="background-color: var(--chalk-white); color: var(--bg-obsidian);">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
-        <span data-i18n="hero_cta_mac">Download for macOS (Apple Silicon)</span>
+        <span id="hero-primary-download-text" data-i18n="hero_cta_dynamic">Download for macOS (Apple Silicon)</span>
       </a>
-      <a href="#download" class="w-full sm:w-auto px-6 py-3.5 rounded-xl border font-medium transition flex items-center justify-center gap-2 text-sm" style="background-color: var(--surface-graphite); border-color: var(--chalk-border); color: var(--chalk-white);">
-        <span data-i18n="hero_cta_win">Download for Windows (x64)</span>
+      <a id="hero-explore-btn" href="#hero-card" class="w-full sm:w-auto px-6 py-3.5 rounded-xl border font-medium transition flex items-center justify-center gap-2 text-sm hover:opacity-90" style="background-color: var(--surface-graphite); border-color: var(--chalk-border); color: var(--chalk-white);">
+        <span data-i18n="hero_explore_btn">Explore Live Session</span>
+        <span class="font-mono text-xs">↓</span>
       </a>
     </div>
 
+    <!-- Micro-typography Subline with interactive OS switch -->
+    <div class="text-[11px] font-mono mb-10 flex items-center justify-center gap-2" style="color: var(--chalk-muted);">
+      <span>v1.0.0 • 100% Local • Free Standalone</span>
+      <span>•</span>
+      <button id="hero-os-switch" onclick="toggleHeroOS()" class="underline hover:opacity-80 transition cursor-pointer" style="color: var(--chalk-slate);">Switch to Windows</button>
+    </div>
+
     <!-- 3D Perspective Card Showcase -->
-    <div class="tilt-container max-w-5xl mx-auto relative pt-4 pb-10">
+    <div class="tilt-container max-w-6xl mx-auto relative pt-4 pb-10">
 
       <!-- Core Interactive Mockup Card -->
       <div id="hero-card" class="tilt-card relative rounded-2xl border shadow-2xl overflow-hidden text-left backdrop-blur-xl" style="background-color: var(--surface-graphite); border-color: var(--chalk-border);">
@@ -263,16 +286,16 @@
         <!-- Window Title Bar -->
         <div class="px-5 py-3 border-b flex items-center justify-between" style="border-color: var(--chalk-border); background-color: var(--hud-header-bg);">
           <div class="flex items-center gap-2">
-            <div class="w-3 h-3 rounded-full bg-slate-400/30"></div>
-            <div class="w-3 h-3 rounded-full bg-slate-400/30"></div>
-            <div class="w-3 h-3 rounded-full bg-slate-400/30"></div>
+            <div class="w-3 h-3 rounded-full shadow-sm" style="background-color: #FF5F56; border: 1px solid #E0443E;"></div>
+            <div class="w-3 h-3 rounded-full shadow-sm" style="background-color: #FFBD2E; border: 1px solid #DEA123;"></div>
+            <div class="w-3 h-3 rounded-full shadow-sm" style="background-color: #27C93F; border: 1px solid #1AAB29;"></div>
             <span class="text-xs font-medium ml-3" style="color: var(--chalk-slate);" data-i18n="preview_title">Lecture: Financial Markets & Risk — Chalk</span>
           </div>
 
-          <!-- Calm Status Badge -->
+          <!-- Apple Live Recording Indicator & Real-Time Timer -->
           <div class="flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium" style="background-color: var(--pill-bg); border: 1px solid var(--pill-border); color: var(--chalk-white);">
-            <span class="w-1.5 h-1.5 rounded-full bg-slate-300"></span>
-            <span data-i18n="preview_status">Recording active (01:42)</span>
+            <span class="w-2 h-2 rounded-full bg-red-500 animate-pulse shadow-[0_0_8px_rgba(239,68,68,0.7)]"></span>
+            <span data-i18n="preview_status_label">Recording active</span> (<span id="live-timer" class="font-mono">01:42</span>)
           </div>
         </div>
 
@@ -281,21 +304,39 @@
 
           <!-- Left Column: Presentation & Assistant Query -->
           <div class="md:col-span-5 space-y-4">
-            <!-- Slide Capture Card -->
+            <!-- Active Screen Capture Card -->
             <div class="rounded-xl border p-4 relative overflow-hidden shadow-sm" style="background-color: var(--hud-card-bg); border-color: var(--chalk-border);">
               <div class="flex items-center justify-between text-xs font-medium mb-2.5" style="color: var(--chalk-slate);">
-                <span data-i18n="preview_slide_label">SLIDE PREVIEW</span>
-                <span class="text-[11px] font-mono px-1.5 py-0.5 rounded border" style="background-color: var(--surface-elevated); border-color: var(--chalk-border); color: var(--chalk-muted);" data-i18n="preview_slide_num">Slide 14</span>
+                <span data-i18n="preview_screen_label">SCREEN CAPTURE</span>
+                <span class="text-[11px] font-mono px-1.5 py-0.5 rounded border" style="background-color: var(--surface-elevated); border-color: var(--chalk-border); color: var(--chalk-muted);" data-i18n="preview_screen_badge">Display 1</span>
               </div>
-              <div class="aspect-video rounded-lg border flex flex-col items-center justify-center p-4 text-center relative overflow-hidden" style="background-color: var(--surface-elevated); border-color: var(--chalk-border);">
-                <div class="text-[11px] font-medium mb-1" style="color: var(--chalk-muted);" data-i18n="preview_slide_topic">Asset Pricing & Risk Modeling</div>
-                <div class="text-sm font-semibold mb-2.5" style="color: var(--chalk-white);" data-i18n="preview_slide_heading">Modern Portfolio Theory — Slide 14</div>
-                <div class="text-xs font-mono px-3 py-1 rounded border shadow-sm" style="background-color: var(--surface-terminal); border-color: var(--chalk-border); color: var(--terminal-text);">
-                  $$E(R_i) = R_f + eta_i [E(R_m) - R_f]$$
+              <div class="aspect-video rounded-lg border flex flex-col justify-between p-3 text-center relative overflow-hidden" style="background-color: var(--surface-elevated); border-color: var(--chalk-border);">
+                <!-- Mini Window Chrome -->
+                <div class="flex items-center justify-between pb-1.5 border-b border-white/5 text-[10px] text-left opacity-70">
+                  <div class="flex items-center gap-1.5">
+                    <span class="w-1.5 h-1.5 rounded-full bg-slate-500/40"></span>
+                    <span class="w-1.5 h-1.5 rounded-full bg-slate-500/40"></span>
+                    <span class="w-1.5 h-1.5 rounded-full bg-slate-500/40"></span>
+                    <span class="ml-1.5 font-mono text-[9px] truncate max-w-[140px]" style="color: var(--chalk-muted);">Asset_Pricing_Lecture_04.pdf</span>
+                  </div>
+                  <span class="font-mono text-[9px] px-1 rounded bg-black/20" style="color: var(--chalk-muted);">1080p</span>
+                </div>
+
+                <!-- Window Content Area -->
+                <div class="my-auto py-1">
+                  <div class="text-[11px] font-medium mb-0.5" style="color: var(--chalk-muted);" data-i18n="preview_screen_topic">Portfolio Theory & Risk Modeling</div>
+                  <div class="text-xs sm:text-sm font-semibold mb-1" style="color: var(--chalk-white);" data-i18n="preview_screen_heading">Capital Asset Pricing Model (CAPM)</div>
+                  <div class="render-math text-xs sm:text-sm text-center font-serif" style="color: var(--chalk-white);">$$E(R_i) = R_f + \beta_i [E(R_m) - R_f]$$</div>
+                </div>
+
+                <!-- Bottom Status Line -->
+                <div class="pt-1 border-t border-white/5 flex items-center justify-between text-[9px] font-mono opacity-60" style="color: var(--chalk-muted);">
+                  <span>Screen Watcher: Active</span>
+                  <span>Delta Sync: In Frame</span>
                 </div>
               </div>
               <div class="mt-3 flex items-center justify-between text-xs" style="color: var(--chalk-muted);">
-                <span data-i18n="preview_slide_sync">Auto-synchronized</span>
+                <span data-i18n="preview_screen_sync">Screen Sync Active</span>
                 <span class="font-medium" style="color: var(--chalk-white);" data-i18n="preview_slide_local">Local detection</span>
               </div>
             </div>
@@ -334,10 +375,7 @@
                 <p data-i18n="preview_notes_p1">
                   The expected return of an asset comprises the risk-free rate plus the market risk premium. Unsystematic individual risk is eliminated through portfolio diversification.
                 </p>
-                <div class="p-3 rounded-xl border font-mono text-xs overflow-x-auto shadow-sm" style="background-color: var(--surface-terminal); border-color: var(--chalk-border); color: var(--terminal-text);">
-                  $$E(R_i) = R_f + eta_i \left[E(R_m) - R_f
-ight]$$
-                </div>
+                <div class="render-math py-2 text-sm sm:text-base text-center font-serif" style="color: var(--chalk-white);">$$E(R_i) = R_f + \beta_i \left[E(R_m) - R_f\right]$$</div>
                 <ul class="space-y-1.5 text-xs">
                   <li data-i18n="preview_notes_li1"><strong style="color: var(--chalk-white);">Beta factor (&beta;<sub>i</sub>):</strong> Sensitivity of asset return to broad market movements.</li>
                   <li data-i18n="preview_notes_li2"><strong style="color: var(--chalk-white);">Risk-free rate (R<sub>f</sub>):</strong> Benchmark sovereign bond yield as the hurdle rate.</li>
@@ -355,82 +393,84 @@ ight]$$
 
         </div>
       </div>
+      <script>
+        if (typeof renderMathInElement === 'function') {
+          var hc = document.getElementById('hero-card');
+          if (hc) {
+            renderMathInElement(hc, { delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}], throwOnError: false });
+            hc.querySelectorAll('.render-math').forEach(function(el){ el.classList.add('math-rendered'); });
+          }
+        }
+      </script>
     </div>
   </header>
-
-  <!-- Authentic Lecture Atmosphere Transition -->
-  <div class="max-w-4xl mx-auto px-6 mb-16 relative z-10">
-    <div class="overflow-hidden rounded-2xl border shadow-xl relative max-h-72 sm:max-h-80" style="border-color: var(--chalk-border); background-color: var(--surface-terminal);">
-      <img src="assets/img/lecture_atmosphere.webp" alt="Chalk in an academic lecture hall" class="w-full h-full object-cover object-center transition duration-500 hover:scale-[1.01]" loading="lazy">
-    </div>
-  </div>
-
-  <!-- 3-Step Principle Section -->
-  <section id="how-it-works" class="max-w-6xl mx-auto px-6 py-24 border-t z-10 relative" style="border-color: var(--chalk-border);">
-    <div class="text-center max-w-2xl mx-auto mb-16">
-      <div class="text-xs font-mono uppercase tracking-widest mb-3" style="color: var(--chalk-muted);" data-i18n="steps_tag">HOW IT WORKS</div>
-      <h2 class="text-3xl sm:text-4xl font-bold tracking-tight" style="color: var(--chalk-white);" data-i18n="steps_title">The 3-Step Principle</h2>
-      <p class="text-sm mt-3" style="color: var(--chalk-slate);" data-i18n="steps_subtitle">No stress, no frantic typing. Complete focus on the presenter.</p>
-    </div>
-
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-
-      <!-- Step 1 -->
-      <div class="rounded-2xl border p-7 transition flex flex-col justify-between shadow-sm" style="background-color: var(--surface-graphite); border-color: var(--chalk-border);">
-        <div>
-          <div class="w-10 h-10 rounded-xl border flex items-center justify-center mb-5 font-mono text-sm font-bold" style="background-color: var(--surface-elevated); border-color: var(--chalk-border); color: var(--chalk-white);">
-            01
-          </div>
-          <h3 class="text-lg font-semibold mb-2" style="color: var(--chalk-white);" data-i18n="step1_title">1. Chalk runs silently</h3>
-          <p class="text-sm leading-relaxed mb-4" style="color: var(--chalk-slate);" data-i18n="step1_desc">
-            Chalk runs quietly in the background of your laptop. One click or pressing Alt+Space is all it takes — no complex configuration or audio routing cables.
-          </p>
-        </div>
-        <div class="pt-4 border-t text-xs flex justify-between" style="border-color: var(--chalk-border); color: var(--chalk-muted);">
-          <span data-i18n="step1_tag1">Setup: Instant launch</span>
-          <span data-i18n="step1_tag2">Silent background process</span>
-        </div>
-      </div>
-
-      <!-- Step 2 -->
-      <div class="rounded-2xl border p-7 transition flex flex-col justify-between shadow-sm" style="background-color: var(--surface-graphite); border-color: var(--chalk-border);">
-        <div>
-          <div class="w-10 h-10 rounded-xl border flex items-center justify-center mb-5 font-mono text-sm font-bold" style="background-color: var(--surface-elevated); border-color: var(--chalk-border); color: var(--chalk-white);">
-            02
-          </div>
-          <h3 class="text-lg font-semibold mb-2" style="color: var(--chalk-white);" data-i18n="step2_title">2. You listen actively</h3>
-          <p class="text-sm leading-relaxed mb-4" style="color: var(--chalk-slate);" data-i18n="step2_desc">
-            You don't type a single word, staying completely immersed in the conversation. Chalk captures speech, slide transitions, and whiteboard formulas autonomously.
-          </p>
-        </div>
-        <div class="pt-4 border-t text-xs flex justify-between" style="border-color: var(--chalk-border); color: var(--chalk-muted);">
-          <span data-i18n="step2_tag1">Focus: 100% presence</span>
-          <span data-i18n="step2_tag2">Speech pauses handled</span>
-        </div>
-      </div>
-
-      <!-- Step 3 -->
-      <div class="rounded-2xl border p-7 transition flex flex-col justify-between shadow-sm" style="background-color: var(--surface-graphite); border-color: var(--chalk-border);">
-        <div>
-          <div class="w-10 h-10 rounded-xl border flex items-center justify-center mb-5 font-mono text-sm font-bold" style="background-color: var(--surface-elevated); border-color: var(--chalk-border); color: var(--chalk-white);">
-            03
-          </div>
-          <h3 class="text-lg font-semibold mb-2" style="color: var(--chalk-white);" data-i18n="step3_title">3. Structured notes in Obsidian</h3>
-          <p class="text-sm leading-relaxed mb-4" style="color: var(--chalk-slate);" data-i18n="step3_desc">
-            When finished, you receive clean, structured Markdown notes with key points, LaTeX formulas, and slide snapshots. Ready for Obsidian or your editor of choice.
-          </p>
-        </div>
-        <div class="pt-4 border-t text-xs flex justify-between" style="border-color: var(--chalk-border); color: var(--chalk-muted);">
-          <span data-i18n="step3_tag1">Format: LaTeX Markdown</span>
-          <span data-i18n="step3_tag2">1-Click Obsidian export</span>
-        </div>
-      </div>
+ 
+   <!-- 3-Step Principle Section -->
+   <section id="how-it-works" class="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16 py-24 border-t z-10 relative" style="border-color: var(--chalk-border);">
+     <div class="text-center max-w-2xl mx-auto mb-16">
+       <div class="text-xs font-mono uppercase tracking-widest mb-3" style="color: var(--chalk-muted);" data-i18n="steps_tag">HOW IT WORKS</div>
+       <h2 class="text-3xl sm:text-4xl font-bold tracking-tight" style="color: var(--chalk-white);" data-i18n="steps_title">The 3-Step Principle</h2>
+       <p class="text-sm mt-3" style="color: var(--chalk-slate);" data-i18n="steps_subtitle">No stress, no frantic typing. Complete focus on the presenter.</p>
+     </div>
+ 
+     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+ 
+       <!-- Step 1 -->
+       <div class="rounded-2xl border p-7 transition flex flex-col justify-between shadow-sm" style="background-color: var(--surface-graphite); border-color: var(--chalk-border);">
+         <div>
+           <div class="w-10 h-10 rounded-xl border flex items-center justify-center mb-5 font-mono text-sm font-bold" style="background-color: var(--surface-elevated); border-color: var(--chalk-border); color: var(--chalk-white);">
+             01
+           </div>
+           <h3 class="text-lg font-semibold mb-2" style="color: var(--chalk-white);" data-i18n="step1_title">Chalk runs silently</h3>
+           <p class="text-sm leading-relaxed mb-4" style="color: var(--chalk-slate);" data-i18n="step1_desc">
+             Chalk runs quietly in the background of your laptop. One click or pressing Alt+Space is all it takes — no complex configuration or audio routing cables.
+           </p>
+         </div>
+         <div class="pt-4 border-t text-xs flex justify-between" style="border-color: var(--chalk-border); color: var(--chalk-muted);">
+           <span data-i18n="step1_tag1">Setup: Instant launch</span>
+           <span data-i18n="step1_tag2">Silent background process</span>
+         </div>
+       </div>
+ 
+       <!-- Step 2 -->
+       <div class="rounded-2xl border p-7 transition flex flex-col justify-between shadow-sm" style="background-color: var(--surface-graphite); border-color: var(--chalk-border);">
+         <div>
+           <div class="w-10 h-10 rounded-xl border flex items-center justify-center mb-5 font-mono text-sm font-bold" style="background-color: var(--surface-elevated); border-color: var(--chalk-border); color: var(--chalk-white);">
+             02
+           </div>
+           <h3 class="text-lg font-semibold mb-2" style="color: var(--chalk-white);" data-i18n="step2_title">You listen actively</h3>
+           <p class="text-sm leading-relaxed mb-4" style="color: var(--chalk-slate);" data-i18n="step2_desc">
+             You don't type a single word, staying completely immersed in the conversation. Chalk captures speech, slide transitions, and whiteboard formulas autonomously.
+           </p>
+         </div>
+         <div class="pt-4 border-t text-xs flex justify-between" style="border-color: var(--chalk-border); color: var(--chalk-muted);">
+           <span data-i18n="step2_tag1">Focus: 100% presence</span>
+           <span data-i18n="step2_tag2">Speech pauses handled</span>
+         </div>
+       </div>
+ 
+       <!-- Step 3 -->
+       <div class="rounded-2xl border p-7 transition flex flex-col justify-between shadow-sm" style="background-color: var(--surface-graphite); border-color: var(--chalk-border);">
+         <div>
+           <div class="w-10 h-10 rounded-xl border flex items-center justify-center mb-5 font-mono text-sm font-bold" style="background-color: var(--surface-elevated); border-color: var(--chalk-border); color: var(--chalk-white);">
+             03
+           </div>
+           <h3 class="text-lg font-semibold mb-2" style="color: var(--chalk-white);" data-i18n="step3_title">Structured notes in Obsidian</h3>
+           <p class="text-sm leading-relaxed mb-4" style="color: var(--chalk-slate);" data-i18n="step3_desc">
+             When finished, you receive clean, structured Markdown notes with key points, LaTeX formulas, and slide snapshots. Ready for Obsidian or your editor of choice.
+           </p>
+         </div>
+         <div class="pt-4 border-t text-xs flex justify-between" style="border-color: var(--chalk-border); color: var(--chalk-muted);">
+           <span data-i18n="step3_tag1">Format: LaTeX Markdown</span>
+           <span data-i18n="step3_tag2">1-Click Obsidian export</span>
+         </div>
+       </div>
 
     </div>
   </section>
 
   <!-- Universal Use Cases Bento Grid -->
-  <section id="use-cases" class="max-w-6xl mx-auto px-6 py-24 border-t z-10 relative" style="border-color: var(--chalk-border);">
+  <section id="use-cases" class="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16 py-24 border-t z-10 relative" style="border-color: var(--chalk-border);">
     <div class="text-center max-w-2xl mx-auto mb-16">
       <div class="text-xs font-mono uppercase tracking-widest mb-3" style="color: var(--chalk-muted);" data-i18n="cases_tag">USE CASES</div>
       <h2 class="text-3xl sm:text-4xl font-bold tracking-tight" style="color: var(--chalk-white);" data-i18n="cases_title">Engineered for Demanding Discussions</h2>
@@ -442,7 +482,7 @@ ight]$$
       <!-- Case 1: University Lectures -->
       <div class="rounded-2xl border p-7 transition flex flex-col justify-between shadow-sm" style="background-color: var(--surface-graphite); border-color: var(--chalk-border);">
         <div>
-          <div class="w-9 h-9 rounded-lg border flex items-center justify-center font-mono text-xs mb-4" style="background-color: var(--surface-elevated); border-color: var(--chalk-border); color: var(--chalk-white);">
+          <div class="w-9 h-9 rounded-lg border flex items-center justify-center font-mono text-xs font-bold mb-4" style="background-color: var(--surface-elevated); border-color: var(--chalk-border); color: var(--chalk-white);">
             01
           </div>
           <h3 class="text-lg font-bold mb-2" style="color: var(--chalk-white);" data-i18n="case1_title">University Lectures & Academic Seminars</h3>
@@ -459,7 +499,7 @@ ight]$$
       <!-- Case 2: Technical Seminars & Architecture Reviews -->
       <div class="rounded-2xl border p-7 transition flex flex-col justify-between shadow-sm" style="background-color: var(--surface-graphite); border-color: var(--chalk-border);">
         <div>
-          <div class="w-9 h-9 rounded-lg border flex items-center justify-center font-mono text-xs mb-4" style="background-color: var(--surface-elevated); border-color: var(--chalk-border); color: var(--chalk-white);">
+          <div class="w-9 h-9 rounded-lg border flex items-center justify-center font-mono text-xs font-bold mb-4" style="background-color: var(--surface-elevated); border-color: var(--chalk-border); color: var(--chalk-white);">
             02
           </div>
           <h3 class="text-lg font-bold mb-2" style="color: var(--chalk-white);" data-i18n="case2_title">Technical Reviews & Architecture Walkthroughs</h3>
@@ -476,7 +516,7 @@ ight]$$
       <!-- Case 3: Executive Strategy & Board Calls -->
       <div class="rounded-2xl border p-7 transition flex flex-col justify-between shadow-sm" style="background-color: var(--surface-graphite); border-color: var(--chalk-border);">
         <div>
-          <div class="w-9 h-9 rounded-lg border flex items-center justify-center font-mono text-xs mb-4" style="background-color: var(--surface-elevated); border-color: var(--chalk-border); color: var(--chalk-white);">
+          <div class="w-9 h-9 rounded-lg border flex items-center justify-center font-mono text-xs font-bold mb-4" style="background-color: var(--surface-elevated); border-color: var(--chalk-border); color: var(--chalk-white);">
             03
           </div>
           <h3 class="text-lg font-bold mb-2" style="color: var(--chalk-white);" data-i18n="case3_title">Executive Strategy & Board Meetings</h3>
@@ -493,7 +533,7 @@ ight]$$
       <!-- Case 4: Webinars & Remote Conferences -->
       <div class="rounded-2xl border p-7 transition flex flex-col justify-between shadow-sm" style="background-color: var(--surface-graphite); border-color: var(--chalk-border);">
         <div>
-          <div class="w-9 h-9 rounded-lg border flex items-center justify-center font-mono text-xs mb-4" style="background-color: var(--surface-elevated); border-color: var(--chalk-border); color: var(--chalk-white);">
+          <div class="w-9 h-9 rounded-lg border flex items-center justify-center font-mono text-xs font-bold mb-4" style="background-color: var(--surface-elevated); border-color: var(--chalk-border); color: var(--chalk-white);">
             04
           </div>
           <h3 class="text-lg font-bold mb-2" style="color: var(--chalk-white);" data-i18n="case4_title">Webinars & Virtual Conferences</h3>
@@ -511,30 +551,53 @@ ight]$$
   </section>
 
   <!-- Privacy & Local-First Architecture Section -->
-  <section id="privacy" class="max-w-6xl mx-auto px-6 py-20 border-t z-10 relative" style="border-color: var(--chalk-border);">
-    <div class="rounded-3xl border p-8 sm:p-12 relative overflow-hidden shadow-sm" style="background-color: var(--surface-graphite); border-color: var(--chalk-border);">
-      <div class="max-w-3xl">
-        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full border text-xs font-mono mb-6" style="background-color: var(--surface-elevated); border-color: var(--chalk-border); color: var(--chalk-slate);">
-          <span data-i18n="privacy_badge">LOCAL-FIRST • DIRECT BYOK • NO CHALK SERVERS</span>
-        </div>
-        <h2 class="text-3xl sm:text-4xl font-bold tracking-tight mb-4" style="color: var(--chalk-white);" data-i18n="privacy_headline">
-          Your data belongs to you.<br>No middlemen. No Chalk servers.
-        </h2>
-        <p class="text-sm sm:text-base leading-relaxed mb-6" style="color: var(--chalk-slate);" data-i18n="privacy_p1">
-          Unlike cloud meeting bots that route your private conversations and confidential slides through third-party servers, Chalk operates on a strict Local-First and Direct BYOK (Bring Your Own Key) architecture.
-        </p>
-        <p class="text-sm sm:text-base font-semibold leading-relaxed mb-8" style="color: var(--chalk-white);" data-i18n="privacy_p2">
-          100% Private: Audio recordings and screen captures never leave your laptop. Chalk communicates solely and directly between your computer and your chosen AI provider (Google Gemini, Anthropic Claude, OpenAI).
-        </p>
+  <section id="privacy" class="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16 py-24 border-t z-10 relative scroll-mt-24" style="border-color: var(--chalk-border);">
+    <div class="text-center max-w-2xl mx-auto mb-16">
+      <div class="text-xs font-mono uppercase tracking-widest mb-3" style="color: var(--chalk-muted);" data-i18n="privacy_tag">LOCAL-FIRST PRIVACY</div>
+      <h2 class="text-3xl sm:text-4xl font-bold tracking-tight" style="color: var(--chalk-white);" data-i18n="privacy_title">Your data belongs to you.<br>No middlemen. No servers.</h2>
+      <p class="text-sm mt-3" style="color: var(--chalk-slate);" data-i18n="privacy_subtitle">Unlike cloud meeting bots, Chalk processes audio and screen captures exclusively locally on your hardware.</p>
+    </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
-          <div class="p-4 rounded-xl border mono-terminal shadow-sm">
-            <div class="font-semibold mb-1" style="color: var(--terminal-text);" data-i18n="privacy_card1_title">Native OS Credential Vault</div>
-            <div style="color: var(--chalk-muted);" data-i18n="privacy_card1_desc">API keys are securely encrypted in macOS Keychain or Windows DPAPI.</div>
+    <div class="rounded-3xl border p-8 sm:p-12 relative overflow-hidden shadow-sm" style="background-color: var(--surface-graphite); border-color: var(--chalk-border);">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+        <!-- Left Column (7 Cols) -->
+        <div class="lg:col-span-7">
+          <div class="inline-flex items-center gap-2 px-2.5 py-1 rounded-md text-[11px] font-mono border mb-4" style="background-color: var(--surface-terminal); border-color: var(--chalk-border); color: var(--chalk-muted);">
+            <span class="w-1.5 h-1.5 rounded-full" style="background-color: var(--chalk-slate);"></span>
+            <span data-i18n="privacy_badge">STRICT LOCAL-FIRST ARCHITECTURE</span>
           </div>
-          <div class="p-4 rounded-xl border mono-terminal shadow-sm">
-            <div class="font-semibold mb-1" style="color: var(--terminal-text);" data-i18n="privacy_card2_title">Direct TLS 1.3 Connection</div>
-            <div style="color: var(--chalk-muted);" data-i18n="privacy_card2_desc">Synthesis requests travel directly from your laptop to your official AI provider endpoint with zero intermediaries.</div>
+          <h3 class="text-xl sm:text-2xl font-bold tracking-tight mb-3" style="color: var(--chalk-white);" data-i18n="privacy_box_title">Zero cloud relays. Absolute data sovereignty.</h3>
+          <p class="text-sm sm:text-base leading-relaxed mb-6" style="color: var(--chalk-slate);" data-i18n="privacy_p1">
+            Unlike cloud meeting bots that route your private conversations and confidential presentations through third-party servers, Chalk operates on a strict Local-First and Direct BYOK (Bring Your Own Key) architecture. Audio recordings and screen captures never leave your laptop unencrypted, communicating solely and directly between your workstation and your personal AI accounts with zero intermediary relays.
+          </p>
+          <div class="grid grid-cols-3 gap-3 pt-5 border-t" style="border-color: var(--chalk-border);">
+            <div>
+              <div class="text-[10px] font-mono uppercase tracking-wider mb-1" style="color: var(--chalk-muted);" data-i18n="privacy_stat1_label">Audio & Screen</div>
+              <div class="text-xs sm:text-sm font-bold" style="color: var(--chalk-white);" data-i18n="privacy_stat1_val">100% On-Device</div>
+            </div>
+            <div>
+              <div class="text-[10px] font-mono uppercase tracking-wider mb-1" style="color: var(--chalk-muted);" data-i18n="privacy_stat2_label">Cloud Relays</div>
+              <div class="text-xs sm:text-sm font-bold" style="color: var(--chalk-white);" data-i18n="privacy_stat2_val">Zero Servers</div>
+            </div>
+            <div>
+              <div class="text-[10px] font-mono uppercase tracking-wider mb-1" style="color: var(--chalk-muted);" data-i18n="privacy_stat3_label">Telemetry</div>
+              <div class="text-xs sm:text-sm font-bold" style="color: var(--chalk-white);" data-i18n="privacy_stat3_val">0 KB Collected</div>
+            </div>
+          </div>
+        </div>
+        <!-- Right Column (5 Cols): 3 Architecture Cards -->
+        <div class="lg:col-span-5 space-y-3">
+          <div class="p-4 rounded-xl border shadow-sm" style="background-color: var(--surface-terminal); border-color: var(--chalk-border);">
+            <div class="font-semibold text-xs mb-1" style="color: var(--chalk-white);" data-i18n="privacy_card1_title">Native Hardware Vault</div>
+            <div class="text-[11px]" style="color: var(--chalk-slate);" data-i18n="privacy_card1_desc">API keys are securely encrypted in macOS Keychain or Windows DPAPI.</div>
+          </div>
+          <div class="p-4 rounded-xl border shadow-sm" style="background-color: var(--surface-terminal); border-color: var(--chalk-border);">
+            <div class="font-semibold text-xs mb-1" style="color: var(--chalk-white);" data-i18n="privacy_card2_title">Direct TLS 1.3 Connection</div>
+            <div class="text-[11px]" style="color: var(--chalk-slate);" data-i18n="privacy_card2_desc">Synthesis requests travel without detours from localhost directly to Google, Anthropic, or OpenAI.</div>
+          </div>
+          <div class="p-4 rounded-xl border shadow-sm" style="background-color: var(--surface-terminal); border-color: var(--chalk-border);">
+            <div class="font-semibold text-xs mb-1" style="color: var(--chalk-white);" data-i18n="privacy_card3_title">Zero-Knowledge Guarantee</div>
+            <div class="text-[11px]" style="color: var(--chalk-slate);" data-i18n="privacy_card3_desc">Zero telemetry, zero tracking cookies (§ 165 TKG), zero central relay servers.</div>
           </div>
         </div>
       </div>
@@ -542,7 +605,7 @@ ight]$$
   </section>
 
   <!-- Download & Installation Section -->
-  <section id="download" class="max-w-5xl mx-auto px-6 py-24 border-t z-10 relative" style="border-color: var(--chalk-border);">
+  <section id="download" class="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16 py-24 border-t z-10 relative" style="border-color: var(--chalk-border);">
     <div class="text-center max-w-2xl mx-auto mb-12">
       <div class="text-xs font-mono uppercase tracking-widest mb-3" style="color: var(--chalk-muted);" data-i18n="download_tag">DOWNLOAD</div>
       <h2 class="text-3xl sm:text-4xl font-bold tracking-tight" style="color: var(--chalk-white);" data-i18n="download_title">Chalk for your Desktop</h2>
@@ -616,126 +679,101 @@ ight]$$
   </section>
 
   <!-- Legal Compliance & Regulatory Transparency Footer -->
-  <footer class="border-t py-14 px-6 text-xs z-10 relative transition-colors" style="border-color: var(--chalk-border); background-color: var(--surface-graphite);">
-    <div class="max-w-6xl mx-auto flex flex-col md:flex-row items-start md:items-center justify-between gap-8">
+  <footer class="border-t py-12 px-6 sm:px-10 lg:px-16 text-xs z-10 relative transition-colors" style="border-color: var(--chalk-border); background-color: var(--surface-graphite);">
+    <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-6">
       
-      <!-- Left: Identity & Privacy Pledge -->
-      <div class="space-y-2 max-w-md">
-        <div class="flex items-center gap-2">
-          <span class="font-bold tracking-widest font-mono text-sm" style="color: var(--chalk-white);">CHALK</span>
-          <span style="color: var(--chalk-muted);">•</span>
-          <span class="text-[11px]" style="color: var(--chalk-slate);" data-i18n="footer_sub">LOCAL LECTURE & MEETING SYNTHESIS</span>
-        </div>
-        <p class="leading-relaxed text-[11px]" style="color: var(--chalk-muted);" data-i18n="footer_p">
-          100% private: Audio recordings remain on your laptop and are never sent to foreign relay servers. Chalk communicates exclusively and directly with your own AI API account.
-        </p>
-        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full border text-[10px] font-mono shadow-sm" style="background-color: var(--surface-elevated); border-color: var(--chalk-border); color: var(--chalk-slate);">
-          <span data-i18n="footer_badges">NO COOKIES (§ 165 TKG) • ZERO TELEMETRY • NO CHALK SERVERS</span>
-        </div>
+      <!-- Left: Identity & Presence -->
+      <div class="flex items-center gap-2">
+        <span class="font-bold tracking-wider font-mono text-xs" style="color: var(--chalk-white);">CHALK</span>
+        <span class="text-slate-500">•</span>
+        <span class="text-xs text-slate-400" data-i18n="footer_identity">Local Presence & Synthesis</span>
       </div>
 
-      <!-- Right: Legal Modals Nav & Meeting Notice Copy Button -->
-      <div class="flex flex-wrap items-center gap-6 text-xs" style="color: var(--chalk-slate);">
-        <button onclick="openModal('modal-impressum')" class="hover:underline transition underline-offset-4" style="color: var(--chalk-white);" data-i18n="link_impressum">
-          Legal Notice (§ 25 MedienG & § 5 ECG)
-        </button>
-        <button onclick="openModal('modal-dsgvo')" class="hover:underline transition underline-offset-4" style="color: var(--chalk-white);" data-i18n="link_dsgvo">
-          Privacy Policy (GDPR & § 165 TKG)
-        </button>
-        <button onclick="openModal('modal-recording')" class="hover:underline transition underline-offset-4" style="color: var(--chalk-white);" data-i18n="link_recording">
-          Recording Law (§ 120 StGB Austria)
-        </button>
-        <button onclick="copyMeetingNotice(this)" class="hover:underline transition underline-offset-4 flex items-center gap-1.5 font-medium" style="color: var(--chalk-white);">
-          <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
-          <span data-i18n="link_copy_notice">Copy Meeting Notice</span>
+      <!-- Right: Consolidated Legal Hub Link -->
+      <div class="flex items-center text-xs">
+        <button onclick="openModal('modal-legal-hub')" class="hover:underline transition underline-offset-4" style="color: var(--chalk-slate);" data-i18n="link_legal_hub">
+          Legal & Privacy
         </button>
       </div>
 
     </div>
   </footer>
 
-  <!-- MODAL: Impressum (§ 25 Abs. 5 MedienG, § 5 ECG) -->
-  <div id="modal-impressum" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-md hidden items-center justify-center p-4">
-    <div class="max-w-xl w-full rounded-2xl border p-7 text-left space-y-4 shadow-2xl" style="background-color: var(--modal-bg); border-color: var(--chalk-border);">
+  <!-- MODAL: Consolidated Legal Hub (§ 25 MedienG, DSGVO, § 120 StGB) -->
+  <div id="modal-legal-hub" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-md hidden items-center justify-center p-4">
+    <div class="max-w-2xl w-full rounded-2xl border p-7 text-left space-y-4 shadow-2xl" style="background-color: var(--modal-bg); border-color: var(--chalk-border);">
       <div class="flex items-center justify-between border-b pb-3" style="border-color: var(--chalk-border);">
-        <h3 class="text-sm font-bold font-mono uppercase tracking-wider" style="color: var(--chalk-white);" data-i18n="modal_impressum_title">Legal Notice & Disclosure (§ 25 MedienG, § 5 ECG)</h3>
-        <button onclick="closeModal('modal-impressum')" class="p-1 rounded-lg hover:bg-white/10 text-slate-400 hover:text-white transition" aria-label="Close">
+        <h3 class="text-sm font-bold font-mono uppercase tracking-wider" style="color: var(--chalk-white);" data-i18n="modal_legal_hub_title">Legal Information & Compliance Hub</h3>
+        <button onclick="closeModal('modal-legal-hub')" class="p-1 rounded-lg hover:bg-white/10 text-slate-400 hover:text-white transition" aria-label="Close">
           <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <line x1="18" y1="6" x2="6" y2="18"></line>
             <line x1="6" y1="6" x2="18" y2="18"></line>
           </svg>
         </button>
       </div>
-      <div class="text-xs space-y-2 leading-relaxed max-h-[60vh] overflow-y-auto pr-2" style="color: var(--chalk-slate);" data-i18n="modal_impressum_content">
-        <p><strong>Media Owner & Publisher:</strong> Chalk Open Source Project</p>
-        <p><strong>Location:</strong> Vienna / Linz, Republic of Austria</p>
-        <p><strong>Applicable Legislation:</strong> Media Act (MedienG), E-Commerce Act (ECG), Telecommunications Act (TKG 2021).</p>
-        <p><strong>Corporate Purpose:</strong> Development of free, privacy-first desktop software for academic and professional synthesis as well as discourse analysis.</p>
-        <p><strong>Editorial Policy (§ 25 Para. 4 MedienG):</strong> Information regarding architecture, security models, and source code of the Chalk open source application.</p>
-        <p><strong>Supervisory Authority:</strong> Not subject to specific commercial supervision (pure non-commercial open-source project).</p>
-      </div>
-      <button onclick="closeModal('modal-impressum')" class="w-full py-2.5 rounded-lg border font-mono text-xs transition" style="background-color: var(--surface-elevated); border-color: var(--chalk-border); color: var(--chalk-white);">
-        <span data-i18n="modal_close">Close</span>
-      </button>
-    </div>
-  </div>
 
-  <!-- MODAL: Datenschutz / DSGVO & § 165 Abs. 3 TKG 2021 -->
-  <div id="modal-dsgvo" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-md hidden items-center justify-center p-4">
-    <div class="max-w-xl w-full rounded-2xl border p-7 text-left space-y-4 shadow-2xl" style="background-color: var(--modal-bg); border-color: var(--chalk-border);">
-      <div class="flex items-center justify-between border-b pb-3" style="border-color: var(--chalk-border);">
-        <h3 class="text-sm font-bold font-mono uppercase tracking-wider" style="color: var(--chalk-white);" data-i18n="modal_dsgvo_title">Privacy Policy (GDPR / § 165 Para. 3 TKG 2021)</h3>
-        <button onclick="closeModal('modal-dsgvo')" class="p-1 rounded-lg hover:bg-white/10 text-slate-400 hover:text-white transition" aria-label="Close">
-          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <line x1="18" y1="6" x2="6" y2="18"></line>
-            <line x1="6" y1="6" x2="18" y2="18"></line>
-          </svg>
-        </button>
-      </div>
-      <div class="text-xs space-y-2 leading-relaxed max-h-[60vh] overflow-y-auto pr-2" style="color: var(--chalk-slate);" data-i18n="modal_dsgvo_content">
-        <p><strong>1. Data Minimization Principle (§ 165 Para. 3 TKG 2021):</strong> This website stores zero tracking cookies and uses no third-party analytics tools. Therefore, no intrusive cookie banner is required.</p>
-        <p><strong>2. Client-Side Local-First & Direct BYOK Architecture:</strong> The Chalk desktop application never transmits audio recordings, screen captures, or generated notes to Chalk project servers. Zero relay infrastructure exists.</p>
-        <p><strong>3. Direct BYOK API Communication:</strong> All synthesis requests are transmitted directly from your device via TLS 1.3 to your chosen AI provider endpoints. Your API key remains encrypted within your native OS keychain (macOS Keychain or Windows DPAPI).</p>
-      </div>
-      <button onclick="closeModal('modal-dsgvo')" class="w-full py-2.5 rounded-lg border font-mono text-xs transition" style="background-color: var(--surface-elevated); border-color: var(--chalk-border); color: var(--chalk-white);">
-        <span data-i18n="modal_close">Close</span>
-      </button>
-    </div>
-  </div>
-
-  <!-- MODAL: Rechtlicher Hinweis (§ 120 StGB) with Meeting Notice Snippet -->
-  <div id="modal-recording" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-md hidden items-center justify-center p-4">
-    <div class="max-w-xl w-full rounded-2xl border p-7 text-left space-y-4 shadow-2xl" style="background-color: var(--modal-bg); border-color: var(--chalk-border);">
-      <div class="flex items-center justify-between border-b pb-3" style="border-color: var(--chalk-border);">
-        <h3 class="text-sm font-bold font-mono uppercase tracking-wider" style="color: var(--chalk-white);" data-i18n="modal_recording_title">Legal Compliance: Audio Recordings (§ 120 StGB)</h3>
-        <button onclick="closeModal('modal-recording')" class="p-1 rounded-lg hover:bg-white/10 text-slate-400 hover:text-white transition" aria-label="Close">
-          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <line x1="18" y1="6" x2="6" y2="18"></line>
-            <line x1="6" y1="6" x2="18" y2="18"></line>
-          </svg>
-        </button>
-      </div>
-      <div class="text-xs space-y-2 leading-relaxed max-h-[50vh] overflow-y-auto pr-2" style="color: var(--chalk-slate);" data-i18n="modal_recording_content">
-        <p><strong>Consent for Audio Recordings (§ 120 StGB Austria / International Wiretap Acts):</strong></p>
-        <p>Pursuant to § 120 Para. 1 of the Austrian Criminal Code (StGB) and comparable international regulations (§ 201 StGB Germany, wiretap consent statutes), recording someone's non-public spoken words without authorization is strictly prohibited.</p>
-        <p>Always ensure lecturers, speakers, and meeting participants are informed beforehand and have consented to the use of Chalk for meeting synthesis.</p>
-      </div>
-
-      <!-- Meeting Notice Snippet Box & Copy Button -->
-      <div class="p-3.5 rounded-xl border space-y-2 mono-terminal" style="background-color: var(--surface-terminal); border-color: var(--chalk-border);">
-        <div class="text-[11px] font-semibold" style="color: var(--terminal-text);" data-i18n="modal_recording_box_label">Recommended notice for meeting chats / invites:</div>
-        <div class="text-[11px] select-all leading-relaxed p-2.5 rounded border bg-black/20" style="color: var(--chalk-slate); border-color: var(--chalk-border);">
-          Hinweis: Zur Erstellung strukturierter Besprechungsnotizen wird Chalk (lokale KI-Synthese) eingesetzt. / Notice: Chalk is used to generate structured notes.
+      <div class="text-xs space-y-4 leading-relaxed max-h-[65vh] overflow-y-auto pr-2" style="color: var(--chalk-slate);">
+        
+        <!-- Section 1: Impressum (§ 25 MedienG & § 5 ECG) -->
+        <div class="p-4 rounded-xl border space-y-2" style="background-color: var(--surface-terminal); border-color: var(--chalk-border);">
+          <h4 class="font-semibold text-xs flex items-center gap-2" style="color: var(--chalk-white);">
+            <span class="font-mono text-[10px] px-1.5 py-0.5 rounded border" style="background-color: var(--surface-elevated); border-color: var(--chalk-border);">01</span>
+            <span data-i18n="legal_sec1_title">Legal Disclosure (§ 25 MedienG, § 5 ECG)</span>
+          </h4>
+          <div class="space-y-1 text-[11px]" data-i18n="legal_sec1_body">
+            <p><strong>Medieninhaber & Betreiber:</strong> Volodymyr Gladkyy</p>
+            <p><strong>Standort / Sitz:</strong> Wien, Österreich</p>
+            <p><strong>Kontakt-E-Mail:</strong> <a href="mailto:volodyagladkyy@gmail.com" class="underline hover:text-white transition" style="color: var(--chalk-white);">volodyagladkyy@gmail.com</a></p>
+            <p><strong>Zweck:</strong> Bereitstellung und Dokumentation der quelloffenen Desktop-Software Chalk für Studien- und Forschungszwecke.</p>
+            <p><strong>Anwendbare Rechtsvorschriften:</strong> Mediengesetz (MedienG), E-Commerce-Gesetz (ECG), Telekommunikationsgesetz (TKG 2021).</p>
+          </div>
         </div>
-        <button onclick="copyMeetingNotice(this)" class="w-full py-2.5 rounded-lg border font-medium text-xs transition flex items-center justify-center gap-2 hover:opacity-90" style="background-color: var(--terminal-btn-bg); border-color: var(--terminal-btn-border); color: var(--terminal-btn-text);">
-          <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
-          <span data-i18n="modal_copy_notice_btn">Copy Meeting Notice</span>
-        </button>
+
+        <!-- Section 2: Datenschutz (DSGVO & § 165 Abs. 3 TKG 2021) -->
+        <div class="p-4 rounded-xl border space-y-2" style="background-color: var(--surface-terminal); border-color: var(--chalk-border);">
+          <h4 class="font-semibold text-xs flex items-center gap-2" style="color: var(--chalk-white);">
+            <span class="font-mono text-[10px] px-1.5 py-0.5 rounded border" style="background-color: var(--surface-elevated); border-color: var(--chalk-border);">02</span>
+            <span data-i18n="legal_sec2_title">Privacy Policy (GDPR / § 165 TKG 2021)</span>
+          </h4>
+          <div class="space-y-1 text-[11px]" data-i18n="legal_sec2_body">
+            <p><strong>1. Datenvermeidung:</strong> Diese Website speichert keinerlei Tracking-Cookies und verwendet keine Analysetools (§ 165 Abs. 3 TKG 2021).</p>
+            <p><strong>2. Local-First Architektur:</strong> Tonaufnahmen, VAD-Puffer und Bildschirmaufnahmen verbleiben ausschließlich lokal auf Ihrer Festplatte unter <code>~/.chalk/sessions/</code>. Keine Relay-Server.</p>
+            <p><strong>3. Direkte BYOK-Kommunikation:</strong> Syntheseanfragen fließen direkt über TLS 1.3 von localhost zu Ihren persönlichen KI-Endpunkten (Google Gemini, Anthropic Claude, OpenAI). API-Schlüssel liegen sicher verschlüsselt im Betriebssystem-Tresor.</p>
+          </div>
+        </div>
+
+        <!-- Section 3: Aufzeichnungshinweis (§ 120 StGB Österreich) -->
+        <div class="p-4 rounded-xl border space-y-2.5" style="background-color: var(--surface-terminal); border-color: var(--chalk-border);">
+          <h4 class="font-semibold text-xs flex items-center gap-2" style="color: var(--chalk-white);">
+            <span class="font-mono text-[10px] px-1.5 py-0.5 rounded border" style="background-color: var(--surface-elevated); border-color: var(--chalk-border);">03</span>
+            <span data-i18n="legal_sec3_title">Recording Compliance (§ 120 StGB Austria / European Law)</span>
+          </h4>
+          <div class="text-[11px]" data-i18n="legal_sec3_body">
+            Gemäß § 120 Abs. 1 Strafgesetzbuch (StGB) Österreich und vergleichbaren europäischen Regelungen (§ 201 StGB Deutschland) ist die unbefugte Tonaufnahme des nicht-öffentlichen Wortes einer anderen Person strafbar. Stellen Sie vor jeder Aufzeichnung sicher, dass Dozenten, Vortragende und Gesprächsteilnehmer vorab informiert wurden und zugestimmt haben.
+          </div>
+
+          <!-- Meeting Notice Snippet Box & Copy Button -->
+          <div class="rounded-xl border p-4 space-y-3 transition" style="background-color: var(--surface-elevated); border-color: var(--chalk-border);">
+            <div class="flex items-center justify-between text-[11px] font-mono tracking-wide" style="color: var(--chalk-muted);">
+              <span data-i18n="modal_recording_box_label">Empfohlener Hinweistext für Chat / Einladung:</span>
+            </div>
+            <div class="text-[12px] leading-relaxed select-all font-mono p-3 rounded-lg border" style="background-color: var(--surface-terminal); border-color: var(--chalk-border); color: var(--chalk-white);">
+              Hinweis: Zur Erstellung strukturierter Besprechungsnotizen wird Chalk (lokale KI-Synthese) eingesetzt. / Notice: Chalk is used to generate structured notes.
+            </div>
+            <button onclick="copyMeetingNotice(this)" class="w-full py-2.5 px-4 rounded-lg font-medium text-xs transition flex items-center justify-center gap-2 hover:opacity-90 shadow-sm" style="background-color: var(--chalk-white); color: var(--bg-obsidian);">
+              <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+              <span data-i18n="modal_copy_notice_btn">Hinweistext kopieren</span>
+            </button>
+          </div>
+        </div>
+
       </div>
 
-      <button onclick="closeModal('modal-recording')" class="w-full py-2.5 rounded-lg border font-mono text-xs transition" style="background-color: var(--surface-elevated); border-color: var(--chalk-border); color: var(--chalk-white);">
-        <span data-i18n="modal_understood">Understood</span>
-      </button>
+      <div class="border-t pt-3 flex justify-end" style="border-color: var(--chalk-border);">
+        <button onclick="closeModal('modal-legal-hub')" class="px-5 py-2 rounded-lg border font-mono text-xs transition" style="background-color: var(--surface-elevated); border-color: var(--chalk-border); color: var(--chalk-white);">
+          <span data-i18n="modal_close">Schließen</span>
+        </button>
+      </div>
     </div>
   </div>
 
@@ -745,7 +783,7 @@ ight]$$
     const translations = {
   "en": {
     "page_title": "Chalk — Never scramble to take notes again",
-    "page_desc": "Chalk listens, sees slides, and writes your notes. Autonomous desktop app for lectures, meetings, and calls with 100% local privacy.",
+    "page_desc": "Chalk listens, sees the screen, and writes your notes. Autonomous desktop app for lectures, meetings, and calls with 100% local privacy.",
     "nav_how_it_works": "How it works",
     "nav_use_cases": "Use cases",
     "nav_privacy": "Privacy",
@@ -753,17 +791,20 @@ ight]$$
     "theme_dark": "Dark",
     "theme_light": "Light",
     "hero_badge": "LOCAL-FIRST • DIRECT BYOK • NO CHALK SERVERS",
-    "hero_headline": "Never scramble to take notes again.<br><span class=\"opacity-80 font-normal\">Chalk listens, sees the slides, and writes your notes.</span>",
+    "hero_headline": "Never scramble to take notes again.<br><span class=\"opacity-80 font-normal\">Chalk listens, sees the screen, and writes your notes.</span>",
     "hero_subheadline": "Whether in lectures, team meetings, or video calls: Stop typing. Listen actively and stay present in the conversation — Chalk synthesizes everything into structured notes.",
     "hero_cta_mac": "Download for macOS (Apple Silicon)",
     "hero_cta_win": "Download for Windows (x64)",
+    "hero_cta_dynamic": "Download for macOS (Apple Silicon)",
+    "hero_explore_btn": "Explore Live Session",
     "preview_title": "Lecture: Financial Markets & Risk — Chalk",
     "preview_status": "Recording active (01:42)",
-    "preview_slide_label": "SLIDE PREVIEW",
-    "preview_slide_num": "Slide 14",
-    "preview_slide_topic": "Asset Pricing & Risk Modeling",
-    "preview_slide_heading": "Modern Portfolio Theory — Slide 14",
-    "preview_slide_sync": "Auto-synchronized",
+    "preview_status_label": "Recording active",
+    "preview_screen_label": "SCREEN CAPTURE",
+    "preview_screen_badge": "Display 1",
+    "preview_screen_topic": "Portfolio Theory & Risk Modeling",
+    "preview_screen_heading": "Capital Asset Pricing Model (CAPM)",
+    "preview_screen_sync": "Screen Sync Active",
     "preview_slide_local": "Local detection",
     "preview_recall_label": "INTELLIGENT RECALL (Alt+Space)",
     "preview_recall_query": "How does beta behave during market volatility?",
@@ -781,15 +822,15 @@ ight]$$
     "steps_tag": "HOW IT WORKS",
     "steps_title": "The 3-Step Principle",
     "steps_subtitle": "No stress, no frantic typing. Complete focus on the presenter.",
-    "step1_title": "1. Chalk runs silently",
+    "step1_title": "Chalk runs silently",
     "step1_desc": "Chalk runs quietly in the background of your laptop. One click or pressing Alt+Space is all it takes — no complex configuration or audio routing cables.",
     "step1_tag1": "Setup: Instant launch",
     "step1_tag2": "Silent background process",
-    "step2_title": "2. You listen actively",
+    "step2_title": "You listen actively",
     "step2_desc": "You don't type a single word, staying completely immersed in the conversation. Chalk captures speech, slide transitions, and whiteboard formulas autonomously.",
     "step2_tag1": "Focus: 100% presence",
     "step2_tag2": "Speech pauses handled",
-    "step3_title": "3. Structured notes in Obsidian",
+    "step3_title": "Structured notes in Obsidian",
     "step3_desc": "When finished, you receive clean, structured Markdown notes with key points, LaTeX formulas, and slide snapshots. Ready for Obsidian or your editor of choice.",
     "step3_tag1": "Format: LaTeX Markdown",
     "step3_tag2": "1-Click Obsidian export",
@@ -812,14 +853,24 @@ ight]$$
     "case4_desc": "Captures Zoom, Teams, and keynote livestreams via direct system audio and slide change detection, building searchable knowledge archives automatically.",
     "case4_tag1": "Audience: Knowledge Workers & Analysts",
     "case4_tag2": "Output: Knowledge Base Notes",
-    "privacy_badge": "LOCAL-FIRST • DIRECT BYOK • NO CHALK SERVERS",
-    "privacy_headline": "Your data belongs to you.<br>No middlemen. No Chalk servers.",
-    "privacy_p1": "Unlike cloud meeting bots that route your private conversations and confidential slides through third-party servers, Chalk operates on a strict Local-First and Direct BYOK (Bring Your Own Key) architecture.",
-    "privacy_p2": "100% Private: Audio recordings and screen captures never leave your laptop. Chalk communicates solely and directly between your computer and your chosen AI provider (Google Gemini, Anthropic Claude, OpenAI).",
-    "privacy_card1_title": "Native OS Credential Vault",
+    "privacy_tag": "LOCAL-FIRST PRIVACY",
+    "privacy_title": "Your data belongs to you.<br>No middlemen. No servers.",
+    "privacy_subtitle": "Unlike cloud meeting bots, Chalk processes audio and screen captures exclusively locally on your hardware.",
+    "privacy_badge": "STRICT LOCAL-FIRST ARCHITECTURE",
+    "privacy_box_title": "Zero cloud relays. Absolute data sovereignty.",
+    "privacy_p1": "Unlike cloud meeting bots that route your private conversations and confidential presentations through third-party servers, Chalk operates on a strict Local-First and Direct BYOK (Bring Your Own Key) architecture. Audio recordings and screen captures never leave your laptop unencrypted, communicating solely and directly between your workstation and your personal AI accounts with zero intermediary relays.",
+    "privacy_stat1_label": "Audio & Screen",
+    "privacy_stat1_val": "100% On-Device",
+    "privacy_stat2_label": "Cloud Relays",
+    "privacy_stat2_val": "Zero Servers",
+    "privacy_stat3_label": "Telemetry",
+    "privacy_stat3_val": "0 KB Collected",
+    "privacy_card1_title": "Native Hardware Vault",
     "privacy_card1_desc": "API keys are securely encrypted in macOS Keychain or Windows DPAPI.",
     "privacy_card2_title": "Direct TLS 1.3 Connection",
-    "privacy_card2_desc": "Synthesis requests travel directly from your laptop to your official AI provider endpoint with zero intermediaries.",
+    "privacy_card2_desc": "Synthesis requests travel without detours from localhost directly to Google, Anthropic, or OpenAI.",
+    "privacy_card3_title": "Zero-Knowledge Guarantee",
+    "privacy_card3_desc": "Zero telemetry, zero tracking cookies (§ 165 TKG), zero central relay servers.",
     "download_tag": "DOWNLOAD",
     "download_title": "Chalk for your Desktop",
     "download_subtitle": "Select your operating system and start in seconds.",
@@ -838,27 +889,24 @@ ight]$$
     "cli_title": "Optional for developers (Terminal Quick-Install):",
     "btn_copy": "Copy",
     "btn_copied": "Copied",
-    "footer_sub": "LOCAL LECTURE & MEETING SYNTHESIS",
-    "footer_p": "100% private: Audio recordings remain on your laptop and are never sent to foreign relay servers. Chalk communicates exclusively and directly with your own AI API account.",
-    "footer_badges": "NO COOKIES (§ 165 TKG) • ZERO TELEMETRY • NO CHALK SERVERS",
-    "link_impressum": "Legal Notice (§ 25 MedienG & § 5 ECG)",
-    "link_dsgvo": "Privacy Policy (GDPR & § 165 TKG)",
-    "link_recording": "Recording Law (§ 120 StGB Austria)",
-    "link_copy_notice": "Copy Meeting Notice",
-    "modal_impressum_title": "Legal Notice & Disclosure (§ 25 MedienG, § 5 ECG)",
-    "modal_impressum_content": "<p><strong>Media Owner & Publisher:</strong> Chalk Open Source Project</p><p><strong>Location:</strong> Vienna / Linz, Republic of Austria</p><p><strong>Applicable Legislation:</strong> Media Act (MedienG), E-Commerce Act (ECG), Telecommunications Act (TKG 2021).</p><p><strong>Corporate Purpose:</strong> Development of free, privacy-first desktop software for academic and professional synthesis as well as discourse analysis.</p><p><strong>Editorial Policy (§ 25 Para. 4 MedienG):</strong> Information regarding architecture, security models, and source code of the Chalk open source application.</p><p><strong>Supervisory Authority:</strong> Not subject to specific commercial supervision (pure non-commercial open-source project).</p>",
-    "modal_dsgvo_title": "Privacy Policy (GDPR / § 165 Para. 3 TKG 2021)",
-    "modal_dsgvo_content": "<p><strong>1. Data Minimization Principle (§ 165 Para. 3 TKG 2021):</strong> This website stores zero tracking cookies and uses no third-party analytics tools. Therefore, no intrusive cookie banner is required.</p><p><strong>2. Client-Side Local-First & Direct BYOK Architecture:</strong> The Chalk desktop application never transmits audio recordings, screen captures, or generated notes to Chalk project servers. Zero relay infrastructure exists.</p><p><strong>3. Direct BYOK API Communication:</strong> All synthesis requests are transmitted directly from your device via TLS 1.3 to your chosen AI provider endpoints. Your API key remains encrypted within your native OS keychain (macOS Keychain or Windows DPAPI).</p>",
-    "modal_recording_title": "Legal Compliance: Audio Recordings (§ 120 StGB)",
-    "modal_recording_content": "<p><strong>Consent for Audio Recordings (§ 120 StGB Austria / International Wiretap Acts):</strong></p><p>Pursuant to § 120 Para. 1 of the Austrian Criminal Code (StGB) and comparable international regulations (§ 201 StGB Germany, wiretap consent statutes), recording someone's non-public spoken words without authorization is strictly prohibited.</p><p>Always ensure lecturers, speakers, and meeting participants are informed beforehand and have consented to the use of Chalk for meeting synthesis.</p>",
+    "footer_identity": "Local Presence & Synthesis",
+    "link_legal_hub": "Legal & Privacy",
+    "os_switch_to_win": "Switch to Windows",
+    "os_switch_to_mac": "Switch to Mac",
+    "modal_legal_hub_title": "Legal Information & Compliance Hub",
+    "legal_sec1_title": "Legal Disclosure (§ 25 MedienG, § 5 ECG)",
+    "legal_sec1_body": "<p><strong>Media Owner & Operator:</strong> Volodymyr Gladkyy</p><p><strong>Location / Seat:</strong> Vienna, Austria</p><p><strong>Contact E-Mail:</strong> <a href=\"mailto:volodyagladkyy@gmail.com\" class=\"underline hover:text-white transition\" style=\"color: var(--chalk-white);\">volodyagladkyy@gmail.com</a></p><p><strong>Purpose:</strong> Provision and documentation of the open-source desktop software Chalk for personal and academic study purposes.</p><p><strong>Applicable Legislation:</strong> Media Act (MedienG), E-Commerce Act (ECG), Telecommunications Act (TKG 2021).</p>",
+    "legal_sec2_title": "Privacy Policy (GDPR / § 165 TKG 2021)",
+    "legal_sec2_body": "<p><strong>1. Zero Cookies & Telemetry:</strong> This website stores zero cookies and uses zero tracking or analytics scripts (§ 165 Abs. 3 TKG 2021).</p><p><strong>2. Local-First Architecture:</strong> Audio recordings, VAD buffers, and screen captures are stored strictly on your local disk in <code>~/.chalk/sessions/</code>. No third-party or project servers receive your data.</p><p><strong>3. Direct BYOK Connection:</strong> AI synthesis requests travel directly over TLS 1.3 from localhost to your configured AI provider (Google Gemini, Anthropic Claude, OpenAI). API keys remain securely encrypted in macOS Keychain or Windows DPAPI.</p>",
+    "legal_sec3_title": "Recording Compliance (§ 120 StGB Austria / European Law)",
+    "legal_sec3_body": "Pursuant to § 120 Para. 1 of the Austrian Criminal Code (StGB) and comparable European legislation (§ 201 StGB Germany, wiretap consent statutes), recording non-public spoken words without prior authorization is unlawful. Always ensure all lecturers, presenters, and meeting participants have consented prior to activating recording.",
     "modal_recording_box_label": "Recommended notice for meeting chats / invites:",
     "modal_copy_notice_btn": "Copy Meeting Notice",
-    "modal_close": "Close",
-    "modal_understood": "Understood"
+    "modal_close": "Close"
   },
   "de": {
     "page_title": "Chalk — Nie wieder hektisch mitschreiben",
-    "page_desc": "Chalk hört zu, sieht die Folien und schreibt deine Notizen. Autonome Desktop-App für Vorlesungen, Meetings und Gespräche mit 100% lokaler Privatsphäre.",
+    "page_desc": "Chalk hört zu, sieht den Bildschirm und schreibt deine Notizen. Autonome Desktop-App für Vorlesungen, Meetings und Gespräche mit 100% lokaler Privatsphäre.",
     "nav_how_it_works": "Funktionsweise",
     "nav_use_cases": "Einsatzbereiche",
     "nav_privacy": "Privatsphäre",
@@ -866,17 +914,20 @@ ight]$$
     "theme_dark": "Dunkel",
     "theme_light": "Hell",
     "hero_badge": "LOCAL-FIRST • DIREKTES BYOK • KEINE CHALK-SERVER",
-    "hero_headline": "Nie wieder hektisch mitschreiben.<br><span class=\"opacity-80 font-normal\">Chalk hört zu, sieht die Folien und schreibt deine Notizen.</span>",
+    "hero_headline": "Nie wieder hektisch mitschreiben.<br><span class=\"opacity-80 font-normal\">Chalk hört zu, sieht den Bildschirm und schreibt deine Notizen.</span>",
     "hero_subheadline": "Ob in der Vorlesung, im Team-Meeting oder im Online-Call: Du musst nicht mehr tippen. Höre einfach zu und sei voll im Gespräch – Chalk fasst alles strukturiert zusammen.",
     "hero_cta_mac": "Download für macOS (Apple Silicon)",
     "hero_cta_win": "Download für Windows (x64)",
+    "hero_cta_dynamic": "Download für macOS (Apple Silicon)",
+    "hero_explore_btn": "Live-Sitzung erkunden",
     "preview_title": "Vorlesung: Finanzmärkte & Risiko — Chalk",
     "preview_status": "Aufnahme aktiv (01:42)",
-    "preview_slide_label": "FOLIENVORSCHAU",
-    "preview_slide_num": "Folie 14",
-    "preview_slide_topic": "Asset Pricing & Risikomodellierung",
-    "preview_slide_heading": "Moderne Portfoliotheorie — Folie 14",
-    "preview_slide_sync": "Automatisch synchronisiert",
+    "preview_status_label": "Aufnahme aktiv",
+    "preview_screen_label": "BILDSCHIRMAUFNAHME",
+    "preview_screen_badge": "Display 1",
+    "preview_screen_topic": "Portfoliotheorie & Risikomodellierung",
+    "preview_screen_heading": "Capital Asset Pricing Model (CAPM)",
+    "preview_screen_sync": "Bildschirm-Sync aktiv",
     "preview_slide_local": "Lokale Erkennung",
     "preview_recall_label": "INTELLIGENTE RÜCKFRAGE (Alt+Space)",
     "preview_recall_query": "Wie verhält sich das Beta bei Marktvolatilität?",
@@ -894,15 +945,15 @@ ight]$$
     "steps_tag": "SO EINFACH FUNKTIONIERT ES",
     "steps_title": "Das 3-Schritte-Prinzip",
     "steps_subtitle": "Kein Stress, kein Tippen. Vollste Konzentration auf den Vortragenden.",
-    "step1_title": "1. Chalk läuft leise",
+    "step1_title": "Chalk läuft leise",
     "step1_desc": "Chalk läuft leise im Hintergrund deines Laptops. Ein Klick oder Druck auf Alt+Space genügt – ohne komplizierte Einrichtung oder Audiokabel.",
     "step1_tag1": "Setup: Sofort startklar",
     "step1_tag2": "Lautlos im Hintergrund",
-    "step2_title": "2. Du hörst aktiv zu",
+    "step2_title": "Du hörst aktiv zu",
     "step2_desc": "Du tippst kein einziges Wort mit, sondern konzentrierst dich voll auf das Gespräch. Chalk erfasst die Stimme, Folienwechsel und Whiteboard-Formeln autonom.",
     "step2_tag1": "Fokus: 100 % Präsenz",
     "step2_tag2": "Sprechpausen geschont",
-    "step3_title": "3. Strukturierte Notizen in Obsidian",
+    "step3_title": "Strukturierte Notizen in Obsidian",
     "step3_desc": "Am Ende erhältst du ein sauberes, strukturiertes Markdown-Dokument mit Kernaussagen, Formeln und Folienausschnitten. Bereit für Obsidian oder deinen Editor.",
     "step3_tag1": "Format: LaTeX Markdown",
     "step3_tag2": "1-Klick Obsidian Export",
@@ -925,14 +976,24 @@ ight]$$
     "case4_desc": "Erfasst Zoom-, Teams- und YouTube-Keynotes über direkte Audioschnittstellen und Bildwechsel, sodass automatisiert durchsuchbare Wissensarchive entstehen.",
     "case4_tag1": "Zielgruppe: Wissensarbeiter & Analysten",
     "case4_tag2": "Ausgabe: Wissensdatenbank-Notizen",
-    "privacy_badge": "LOCAL-FIRST • DIREKTES BYOK • KEINE CHALK-SERVER",
-    "privacy_headline": "Deine Daten gehören dir.<br>Keine Mittelsmänner. Keine Server.",
-    "privacy_p1": "Im Gegensatz zu Cloud-Diensten, die deine privaten Gespräche und vertraulichen Folien über fremde Server leiten, arbeitet Chalk unter einer kompromisslosen Local-First und Direct BYOK (Bring Your Own Key) Architektur.",
-    "privacy_p2": "100 % privat: Deine Aufnahmen verbleiben ausschließlich auf deinem Laptop. Chalk kommuniziert ausschließlich direkt zwischen deinem Rechner und deinem gewählten KI-Konto.",
-    "privacy_card1_title": "Nativer Betriebssystem-Tresor",
-    "privacy_card1_desc": "API-Schlüssel liegen verschlüsselt im macOS Schlüsselbund oder Windows DPAPI.",
+    "privacy_tag": "LOCAL-FIRST DATENSCHUTZ",
+    "privacy_title": "Deine Daten gehören dir.<br>Keine Mittelsmänner. Keine Server.",
+    "privacy_subtitle": "Im Gegensatz zu Cloud-Meeting-Bots verarbeitet Chalk Ton und Bildschirmaufnahmen ausschließlich lokal auf deiner Hardware.",
+    "privacy_badge": "STRIKT LOCAL-FIRST ARCHITEKTUR",
+    "privacy_box_title": "Keine Cloud-Relays. Absolute Datenhoheit.",
+    "privacy_p1": "Im Gegensatz zu Cloud-Meeting-Bots, die private Gespräche und vertrauliche Präsentationen über fremde Server leiten, setzt Chalk auf eine kompromisslose Local-First- und Direct-BYOK-Architektur (Bring Your Own Key). Tonaufnahmen und Bildschirmerfassungen verlassen deinen Laptop niemals unverschlüsselt, sondern kommunizieren ausschließlich und direkt zwischen deinem Rechner und deinen persönlichen KI-Konten – ohne zwischengeschaltete Relay-Server.",
+    "privacy_stat1_label": "Audio & Bildschirm",
+    "privacy_stat1_val": "100% Auf dem Rechner",
+    "privacy_stat2_label": "Cloud-Relays",
+    "privacy_stat2_val": "0 Zwischenstationen",
+    "privacy_stat3_label": "Telemetrie",
+    "privacy_stat3_val": "0 KB Erfasst",
+    "privacy_card1_title": "Nativer Hardware-Tresor",
+    "privacy_card1_desc": "API-Schlüssel liegen sicher verschlüsselt im macOS Schlüsselbund oder Windows DPAPI.",
     "privacy_card2_title": "Direkte TLS 1.3 Verbindung",
-    "privacy_card2_desc": "Synthese erfolgt ausschließlich direkt zwischen deinem Rechner und deinem API-Konto.",
+    "privacy_card2_desc": "Synthese-Requests fließen ohne Umwege von localhost direkt zu Google, Anthropic oder OpenAI.",
+    "privacy_card3_title": "Zero-Knowledge Garantie",
+    "privacy_card3_desc": "Keine Telemetrie, keine Tracking-Cookies (§ 165 TKG), keine zentralen Relay-Server.",
     "download_tag": "DOWNLOAD",
     "download_title": "Chalk für deinen Desktop",
     "download_subtitle": "Wähle dein Betriebssystem und starte in wenigen Sekunden.",
@@ -951,27 +1012,24 @@ ight]$$
     "cli_title": "Optional für Entwickler (Terminal Quick-Install):",
     "btn_copy": "Kopieren",
     "btn_copied": "Kopiert",
-    "footer_sub": "LOKALE VORLESUNGS- UND MEETING-SYNTHESE",
-    "footer_p": "100 % privat: Deine Aufnahmen verbleiben auf deinem Laptop und werden auf keinen fremden Relay-Server übertragen. Chalk kommuniziert ausschließlich direkt mit deinem eigenen KI-Konto.",
-    "footer_badges": "KEINE COOKIES (§ 165 TKG) • ZERO TELEMETRIE • KEINE CHALK-SERVER",
-    "link_impressum": "Impressum (§ 25 Abs. 5 MedienG & § 5 ECG)",
-    "link_dsgvo": "Datenschutz (DSGVO & § 165 TKG)",
-    "link_recording": "Rechtlicher Hinweis (§ 120 StGB Österreich)",
-    "link_copy_notice": "Hinweistext kopieren",
-    "modal_impressum_title": "Impressum & Offenlegung (§ 25 Abs. 5 MedienG, § 5 ECG)",
-    "modal_impressum_content": "<p><strong>Medieninhaber & Herausgeber:</strong> Chalk Open Source Project</p><p><strong>Standort:</strong> Wien / Linz, Republik Österreich</p><p><strong>Anwendbare Rechtsvorschriften:</strong> Mediengesetz (MedienG), E-Commerce-Gesetz (ECG), Telekommunikationsgesetz (TKG 2021).</p><p><strong>Unternehmensgegenstand & Zweck:</strong> Entwicklung freier, datenschutzfreundlicher Desktop-Software für universitäre und berufliche Mitschriften sowie wissenschaftliche Diskursanalysen.</p><p><strong>Grundlegende Richtung des Mediums (§ 25 Abs. 4 MedienG):</strong> Information über Funktionsweise, Architektur, Sicherheitsmodelle und Quelltexte des Open-Source-Programms Chalk.</p><p><strong>Aufsichtsbehörde:</strong> Keine gesonderte behördliche Aufsicht (reines Open-Source-Softwareprojekt ohne entgeltliche Vermittlung).</p>",
-    "modal_dsgvo_title": "Datenschutzerklärung (DSGVO / § 165 Abs. 3 TKG 2021)",
-    "modal_dsgvo_content": "<p><strong>1. Grundsatz der Datenvermeidung (§ 165 Abs. 3 TKG 2021):</strong> Diese Website speichert keinerlei Tracking-Cookies und verwendet keine Drittanbieter-Analysetools. Daher ist kein störendes Cookie-Banner erforderlich.</p><p><strong>2. Client-Seitiges Local-First & Direct BYOK Prinzip:</strong> Die Desktop-Anwendung Chalk überträgt Tonaufnahmen, Bildschirminhalte oder generierte Notizen niemals an Server der Projektbetreiber. Es existiert keine zentrale Relayinfrastruktur.</p><p><strong>3. Direkte BYOK-Kommunikation:</strong> Sämtliche Syntheseanfragen werden direkt von Ihrem Rechner über TLS 1.3 an die API-Endpunkte Ihres gewählten Anbieters übermittelt. Ihr API-Schlüssel verbleibt in der verschlüsselten OS-Schlüsselverwaltung (macOS Keychain bzw. Windows DPAPI).</p>",
-    "modal_recording_title": "Rechtlicher Hinweis: Tonaufnahmen (§ 120 StGB)",
-    "modal_recording_content": "<p><strong>Einverständnis bei Tonaufnahmen (§ 120 StGB Österreich):</strong></p><p>Gemäß § 120 Abs. 1 Strafgesetzbuch (StGB) ist die unbefugte Tonaufnahme des nicht-öffentlichen Wortes einer anderen Person strafbar.</p><p>Stellen Sie sicher, dass Vortragende, Dozenten und Gesprächsteilnehmer vor Beginn der Aufzeichnung über den Einsatz von Chalk informiert sind und zugestimmt haben.</p>",
+    "footer_identity": "Lokale Präsenz & Synthese",
+    "link_legal_hub": "Rechtliches & Datenschutz",
+    "os_switch_to_win": "Zu Windows wechseln",
+    "os_switch_to_mac": "Zu macOS wechseln",
+    "modal_legal_hub_title": "Rechtliches, Datenschutz & Aufzeichnungshinweis",
+    "legal_sec1_title": "Impressum (§ 25 Abs. 5 MedienG & § 5 ECG)",
+    "legal_sec1_body": "<p><strong>Medieninhaber & Betreiber:</strong> Volodymyr Gladkyy</p><p><strong>Standort / Sitz:</strong> Wien, Österreich</p><p><strong>Kontakt-E-Mail:</strong> <a href=\"mailto:volodyagladkyy@gmail.com\" class=\"underline hover:text-white transition\" style=\"color: var(--chalk-white);\">volodyagladkyy@gmail.com</a></p><p><strong>Zweck:</strong> Bereitstellung und Dokumentation der quelloffenen Desktop-Software Chalk für Studien- und Forschungszwecke.</p><p><strong>Anwendbare Rechtsvorschriften:</strong> Mediengesetz (MedienG), E-Commerce-Gesetz (ECG), Telekommunikationsgesetz (TKG 2021).</p>",
+    "legal_sec2_title": "Datenschutz (DSGVO & § 165 Abs. 3 TKG 2021)",
+    "legal_sec2_body": "<p><strong>1. Datenvermeidung:</strong> Diese Website speichert keinerlei Tracking-Cookies und verwendet keine Analysetools (§ 165 Abs. 3 TKG 2021).</p><p><strong>2. Local-First Architektur:</strong> Tonaufnahmen, VAD-Puffer und Bildschirmaufnahmen verbleiben ausschließlich lokal auf Ihrer Festplatte unter <code>~/.chalk/sessions/</code>. Keine Relay-Server.</p><p><strong>3. Direkte BYOK-Kommunikation:</strong> Syntheseanfragen fließen direkt über TLS 1.3 von localhost zu Ihren persönlichen KI-Endpunkten (Google Gemini, Anthropic Claude, OpenAI). API-Schlüssel liegen sicher verschlüsselt im Betriebssystem-Tresor.</p>",
+    "legal_sec3_title": "Aufzeichnungshinweis (§ 120 StGB Österreich)",
+    "legal_sec3_body": "Gemäß § 120 Abs. 1 Strafgesetzbuch (StGB) Österreich und vergleichbaren europäischen Regelungen (§ 201 StGB Deutschland) ist die unbefugte Tonaufnahme des nicht-öffentlichen Wortes einer anderen Person strafbar. Stellen Sie vor jeder Aufzeichnung sicher, dass Dozenten, Vortragende und Gesprächsteilnehmer vorab informiert wurden und zugestimmt haben.",
     "modal_recording_box_label": "Empfohlener Hinweistext für Chat / Einladung:",
     "modal_copy_notice_btn": "Hinweistext kopieren",
-    "modal_close": "Schließen",
-    "modal_understood": "Verstanden"
+    "modal_close": "Schließen"
   },
   "fr": {
     "page_title": "Chalk — Ne prenez plus jamais de notes dans l'urgence",
-    "page_desc": "Chalk écoute, regarde les diapositives et rédige vos notes. Application de bureau autonome pour cours et réunions avec confidentialité 100 % locale.",
+    "page_desc": "Chalk écoute, regarde l'écran et rédige vos notes. Application de bureau autonome pour cours et réunions avec confidentialité 100 % locale.",
     "nav_how_it_works": "Fonctionnement",
     "nav_use_cases": "Cas d'usage",
     "nav_privacy": "Confidentialité",
@@ -979,17 +1037,20 @@ ight]$$
     "theme_dark": "Sombre",
     "theme_light": "Clair",
     "hero_badge": "LOCAL-FIRST • BYOK DIRECT • AUCUN SERVEUR CHALK",
-    "hero_headline": "Ne prenez plus jamais de notes dans l'urgence.<br><span class=\"opacity-80 font-normal\">Chalk écoute, regarde les diapositives et rédige vos notes.</span>",
+    "hero_headline": "Ne prenez plus jamais de notes dans l'urgence.<br><span class=\"opacity-80 font-normal\">Chalk écoute, regarde l'écran et rédige vos notes.</span>",
     "hero_subheadline": "En cours magistral, en réunion d'équipe ou en visioconférence : arrêtez de taper. Écoutez activement et restez engagé — Chalk synthétise tout de manière structurée.",
     "hero_cta_mac": "Télécharger pour macOS (Apple Silicon)",
     "hero_cta_win": "Télécharger pour Windows (x64)",
+    "hero_cta_dynamic": "Télécharger pour macOS (Apple Silicon)",
+    "hero_explore_btn": "Explorer la session",
     "preview_title": "Cours : Marchés financiers et risque — Chalk",
     "preview_status": "Enregistrement en cours (01:42)",
-    "preview_slide_label": "APERÇU DIAPOSITIVE",
-    "preview_slide_num": "Diapo 14",
-    "preview_slide_topic": "Évaluation d'actifs et risque",
-    "preview_slide_heading": "Théorie moderne du portefeuille — Diapo 14",
-    "preview_slide_sync": "Synchronisé automatiquement",
+    "preview_status_label": "Enregistrement en cours",
+    "preview_screen_label": "CAPTURE D'ÉCRAN",
+    "preview_screen_badge": "Display 1",
+    "preview_screen_topic": "Théorie du portefeuille & Risque",
+    "preview_screen_heading": "Capital Asset Pricing Model (CAPM)",
+    "preview_screen_sync": "Sync écran active",
     "preview_slide_local": "Détection locale",
     "preview_recall_label": "REQUÊTE INTELLIGENTE (Alt+Space)",
     "preview_recall_query": "Comment le bêta réagit-il à la volatilité du marché ?",
@@ -1007,15 +1068,15 @@ ight]$$
     "steps_tag": "COMMENT ÇA MARCHE",
     "steps_title": "Le principe en 3 étapes",
     "steps_subtitle": "Zéro stress, zéro frappe manuelle. Concentration totale sur l'orateur.",
-    "step1_title": "1. Chalk s'exécute discrètement",
+    "step1_title": "Chalk s'exécute discrètement",
     "step1_desc": "Chalk fonctionne silencieusement en arrière-plan. Un simple clic ou le raccourci Alt+Espace suffit — sans réglages complexes ni câblage audio.",
     "step1_tag1": "Configuration : Immédiate",
     "step1_tag2": "Discret en arrière-plan",
-    "step2_title": "2. Vous écoutez activement",
+    "step2_title": "Vous écoutez activement",
     "step2_desc": "Vous ne tapez aucun mot et restez totalement engagé dans la discussion. Chalk enregistre la voix, détecte les diapositives et capture les formules au tableau.",
     "step2_tag1": "Focus : 100 % présence",
     "step2_tag2": "Pauses naturelles gérées",
-    "step3_title": "3. Notes structurées dans Obsidian",
+    "step3_title": "Notes structurées dans Obsidian",
     "step3_desc": "À la fin, vous obtenez un document Markdown structuré avec idées maîtresses, formules LaTeX et captures. Prêt pour Obsidian ou votre éditeur favori.",
     "step3_tag1": "Format : Markdown LaTeX",
     "step3_tag2": "Export Obsidian en 1 clic",
@@ -1038,14 +1099,24 @@ ight]$$
     "case4_desc": "Capture les présentations Zoom, Teams ou en streaming grâce à l'audio système et la détection d'écrans, créant des archives consultables.",
     "case4_tag1": "Public : Professionnels et analystes",
     "case4_tag2": "Format : Base de connaissances",
-    "privacy_badge": "LOCAL-FIRST • BYOK DIRECT • AUCUN SERVEUR CHALK",
-    "privacy_headline": "Vos données vous appartiennent.<br>Aucun intermédiaire. Aucun serveur.",
-    "privacy_p1": "Contrairement aux assistants cloud qui transfèrent vos échanges et diapositives confidentielles sur des serveurs tiers, Chalk repose sur une architecture stricte Local-First et BYOK (Bring Your Own Key) directe.",
-    "privacy_p2": "100 % Privé : vos enregistrements restent exclusivement sur votre ordinateur. Chalk communique directement avec votre compte d'API d'IA choisi (Gemini, Claude, OpenAI).",
-    "privacy_card1_title": "Trousseau sécurisé du système",
+    "privacy_tag": "CONFIDENTIALITÉ 100 % LOCALE",
+    "privacy_title": "Vos données vous appartiennent.<br>Aucun intermédiaire. Aucun serveur.",
+    "privacy_subtitle": "Contrairement aux assistants cloud, Chalk traite le son et les captures d'écran exclusivement en local sur votre matériel.",
+    "privacy_badge": "ARCHITECTURE STRICTEMENT LOCALE",
+    "privacy_box_title": "Zéro relais cloud. Souveraineté totale des données.",
+    "privacy_p1": "Contrairement aux assistants cloud qui font transiter vos conversations privées et présentations confidentielles par des serveurs tiers, Chalk repose sur une architecture stricte Local-First et BYOK (Bring Your Own Key) directe. Les enregistrements audio et captures d'écran ne quittent jamais votre ordinateur en clair, communiquant uniquement et directement entre votre poste de travail et vos comptes IA personnels, sans aucun relais intermédiaire.",
+    "privacy_stat1_label": "Audio & Écran",
+    "privacy_stat1_val": "100 % Sur l'appareil",
+    "privacy_stat2_label": "Relais Cloud",
+    "privacy_stat2_val": "Zéro Serveur",
+    "privacy_stat3_label": "Télémétrie",
+    "privacy_stat3_val": "0 Ko Collecté",
+    "privacy_card1_title": "Coffre-fort matériel natif",
     "privacy_card1_desc": "Les clés d'API sont chiffrées dans le trousseau macOS ou Windows DPAPI.",
     "privacy_card2_title": "Connexion directe TLS 1.3",
-    "privacy_card2_desc": "La synthèse s'effectue exclusivement entre votre machine et vos API officielles.",
+    "privacy_card2_desc": "Les requêtes de synthèse transitent directement de localhost vers Google, Anthropic ou OpenAI.",
+    "privacy_card3_title": "Garantie Zéro Connaissance",
+    "privacy_card3_desc": "Zéro télémétrie, zéro cookie traceur (§ 165 TKG), aucun serveur relais central.",
     "download_tag": "TÉLÉCHARGEMENT",
     "download_title": "Chalk pour votre bureau",
     "download_subtitle": "Choisissez votre système et démarrez en quelques secondes.",
@@ -1064,27 +1135,24 @@ ight]$$
     "cli_title": "Optionnel pour développeurs (Installation rapide via terminal) :",
     "btn_copy": "Copier",
     "btn_copied": "Copié",
-    "footer_sub": "SYNTHÈSE LOCALE DE COURS ET RÉUNIONS",
-    "footer_p": "100 % privé : vos enregistrements restent sur votre ordinateur et ne transitent par aucun serveur relais. Chalk échange exclusivement avec votre propre compte d'API.",
-    "footer_badges": "AUCUN COOKIE (§ 165 TKG) • ZÉRO TÉLÉMÉTRIE • AUCUN SERVEUR CHALK",
-    "link_impressum": "Mentions légales (§ 25 MedienG & § 5 ECG)",
-    "link_dsgvo": "Confidentialité (RGPD & § 165 TKG)",
-    "link_recording": "Législation d'enregistrement (§ 120 StGB)",
-    "link_copy_notice": "Copier la mention de réunion",
-    "modal_impressum_title": "Mentions légales et transparence (§ 25 MedienG, § 5 ECG)",
-    "modal_impressum_content": "<p><strong>Éditeur et propriétaire du média :</strong> Chalk Open Source Project</p><p><strong>Siège :</strong> Vienne / Linz, République d'Autriche</p><p><strong>Cadre juridique applicable :</strong> Loi sur les médias (MedienG), loi sur le commerce électronique (ECG), loi sur les télécommunications (TKG 2021).</p><p><strong>Objet et vocation :</strong> Développement de logiciels de bureau libres et respectueux de la vie privée pour la prise de notes universitaire et professionnelle.</p><p><strong>Ligne éditoriale (§ 25 al. 4 MedienG) :</strong> Information sur le fonctionnement, l'architecture, les modèles de sécurité et le code source de Chalk.</p><p><strong>Autorité de tutelle :</strong> Aucune tutelle commerciale spécifique (projet open source non commercial).</p>",
-    "modal_dsgvo_title": "Politique de confidentialité (RGPD / § 165 al. 3 TKG 2021)",
-    "modal_dsgvo_content": "<p><strong>1. Principe de minimisation des données (§ 165 al. 3 TKG 2021) :</strong> Ce site ne dépose aucun cookie de traçage et n'utilise aucun outil d'analyse tiers. Aucun bandeau cookie n'est requis.</p><p><strong>2. Architecture locale et BYOK direct :</strong> L'application Chalk ne transmet jamais vos enregistrements audio, captures d'écran ou notes à des serveurs Chalk. Aucune infrastructure relais n'existe.</p><p><strong>3. Communication directe avec vos clés API :</strong> Toutes les requêtes sont transmises directement depuis votre machine en TLS 1.3 vers les serveurs de votre fournisseur d'IA. Vos clés d'API restent chiffrées dans le trousseau de votre OS (macOS Keychain ou Windows DPAPI).</p>",
-    "modal_recording_title": "Conformité légale : Enregistrements audio (§ 120 StGB)",
-    "modal_recording_content": "<p><strong>Consentement pour les enregistrements audio (§ 120 StGB / Droit européen) :</strong></p><p>Conformément à l'article 120 alinéa 1 du Code pénal autrichien (StGB) et aux législations européennes comparables, l'enregistrement non autorisé de paroles non publiques est punissable par la loi.</p><p>Assurez-vous toujours que les intervenants, professeurs et participants sont informés au préalable et ont donné leur accord pour l'utilisation de Chalk.</p>",
+    "footer_identity": "Présence et synthèse locales",
+    "link_legal_hub": "Mentions légales & Confidentialité",
+    "os_switch_to_win": "Passer à Windows",
+    "os_switch_to_mac": "Passer à macOS",
+    "modal_legal_hub_title": "Centre de conformité légale et confidentialité",
+    "legal_sec1_title": "Mentions légales (§ 25 MedienG, § 5 ECG)",
+    "legal_sec1_body": "<p><strong>Éditeur & Exploitant :</strong> Volodymyr Gladkyy</p><p><strong>Siège :</strong> Vienne, Autriche</p><p><strong>E-mail de contact :</strong> <a href=\"mailto:volodyagladkyy@gmail.com\" class=\"underline hover:text-white transition\" style=\"color: var(--chalk-white);\">volodyagladkyy@gmail.com</a></p><p><strong>Objet :</strong> Documentation et mise à disposition du logiciel open-source Chalk pour études et recherches.</p><p><strong>Cadre juridique :</strong> Loi sur les médias (MedienG), ECG, TKG 2021.</p>",
+    "legal_sec2_title": "Confidentialité (RGPD / § 165 TKG 2021)",
+    "legal_sec2_body": "<p><strong>1. Zéro traceur :</strong> Ce site ne dépose aucun cookie traceur et n'utilise aucun outil d'analyse tiers (§ 165 TKG 2021).</p><p><strong>2. Architecture locale :</strong> Vos enregistrements audio et captures d'écran restent exclusivement sur votre disque local sous <code>~/.chalk/sessions/</code>. Aucun serveur relais.</p><p><strong>3. BYOK direct :</strong> Les requêtes d'IA transitent directement en TLS 1.3 de localhost vers vos fournisseurs d'IA configurés. Clés sécurisées dans le trousseau système.</p>",
+    "legal_sec3_title": "Conformité d'enregistrement (§ 120 StGB / Droit européen)",
+    "legal_sec3_body": "Conformément à l'article 120 alinéa 1 du Code pénal autrichien (StGB) et aux réglementations européennes comparables (§ 201 StGB Allemagne), l'enregistrement non autorisé de paroles non publiques est punissable par la loi. Veillez à toujours obtenir le consentement préalable de l'ensemble des participants.",
     "modal_recording_box_label": "Texte de notification recommandé pour le chat / l'invitation :",
     "modal_copy_notice_btn": "Copier la mention de réunion",
-    "modal_close": "Fermer",
-    "modal_understood": "Compris"
+    "modal_close": "Fermer"
   },
   "es": {
     "page_title": "Chalk — Nunca más vuelvas a tomar notas a toda prisa",
-    "page_desc": "Chalk escucha, observa las diapositivas y redacta tus notas. Aplicación de escritorio autónoma para clases y reuniones con privacidad 100 % local.",
+    "page_desc": "Chalk escucha, observa la pantalla y redacta tus notas. Aplicación de escritorio autónoma para clases y reuniones con privacidad 100 % local.",
     "nav_how_it_works": "Cómo funciona",
     "nav_use_cases": "Casos de uso",
     "nav_privacy": "Privacidad",
@@ -1092,17 +1160,20 @@ ight]$$
     "theme_dark": "Oscuro",
     "theme_light": "Claro",
     "hero_badge": "LOCAL-FIRST • BYOK DIRECTO • SIN SERVIDORES CHALK",
-    "hero_headline": "Nunca más vuelvas a tomar notas a toda prisa.<br><span class=\"opacity-80 font-normal\">Chalk escucha, observa las diapositivas y redacta tus notas.</span>",
+    "hero_headline": "Nunca más vuelvas a tomar notas a toda prisa.<br><span class=\"opacity-80 font-normal\">Chalk escucha, observa la pantalla y redacta tus notas.</span>",
     "hero_subheadline": "En clases universitarias, reuniones de equipo o videollamadas: no te preocupes por escribir. Escucha con atención y participa plenamente — Chalk sintetiza todo de forma estructurada.",
     "hero_cta_mac": "Descargar para macOS (Apple Silicon)",
     "hero_cta_win": "Descargar para Windows (x64)",
+    "hero_cta_dynamic": "Descargar para macOS (Apple Silicon)",
+    "hero_explore_btn": "Explorar sesión en vivo",
     "preview_title": "Clase: Mercados financieros y riesgo — Chalk",
     "preview_status": "Grabación activa (01:42)",
-    "preview_slide_label": "VISTA PREVIA DIAPOSITIVA",
-    "preview_slide_num": "Diapositiva 14",
-    "preview_slide_topic": "Valoración de activos y riesgo",
-    "preview_slide_heading": "Teoría moderna de carteras — Diapositiva 14",
-    "preview_slide_sync": "Sincronizado automáticamente",
+    "preview_status_label": "Grabación activa",
+    "preview_screen_label": "CAPTURA DE PANTALLA",
+    "preview_screen_badge": "Display 1",
+    "preview_screen_topic": "Teoría de carteras y riesgo",
+    "preview_screen_heading": "Capital Asset Pricing Model (CAPM)",
+    "preview_screen_sync": "Sincronización de pantalla",
     "preview_slide_local": "Detección local",
     "preview_recall_label": "CONSULTA INTELIGENTE (Alt+Space)",
     "preview_recall_query": "¿Cómo se comporta la beta ante la volatilidad del mercado?",
@@ -1120,15 +1191,15 @@ ight]$$
     "steps_tag": "CÓMO FUNCIONA",
     "steps_title": "El principio de 3 pasos",
     "steps_subtitle": "Sin estrés ni tecleo apresurado. Concentración total en el ponente.",
-    "step1_title": "1. Chalk opera silenciosamente",
+    "step1_title": "Chalk opera silenciosamente",
     "step1_desc": "Chalk funciona silenciosamente en segundo plano. Basta un clic o pulsar Alt+Espacio, sin configuraciones complejas ni cables de audio.",
     "step1_tag1": "Ajuste: Listo al instante",
     "step1_tag2": "Invisible en segundo plano",
-    "step2_title": "2. Tú escuchas activamente",
+    "step2_title": "Tú escuchas activamente",
     "step2_desc": "No escribes ni una sola palabra y te concentras por completo. Chalk captura la voz, el cambio de diapositivas y las fórmulas en pizarra de forma autónoma.",
     "step2_tag1": "Foco: 100 % presencia",
     "step2_tag2": "Pausas naturales cuidadas",
-    "step3_title": "3. Notas estructuradas en Obsidian",
+    "step3_title": "Notas estructuradas en Obsidian",
     "step3_desc": "Al finalizar, obtienes un documento Markdown impecable con puntos clave, fórmulas LaTeX y recortes de diapositivas. Listo para Obsidian o tu editor.",
     "step3_tag1": "Formato: LaTeX Markdown",
     "step3_tag2": "Exportar a Obsidian en 1 clic",
@@ -1151,14 +1222,24 @@ ight]$$
     "case4_desc": "Registra eventos de Zoom, Teams y streaming con audio directo y detección de diapositivas, creando archivos de consulta automática.",
     "case4_tag1": "Público: Profesionales y analistas",
     "case4_tag2": "Salida: Archivo de conocimiento",
-    "privacy_badge": "LOCAL-FIRST • BYOK DIRECTO • SIN SERVIDORES CHALK",
-    "privacy_headline": "Tus datos te pertenecen.<br>Sin intermediarios. Sin servidores Chalk.",
-    "privacy_p1": "A diferencia de los servicios en la nube que desvían conversaciones y diapositivas privadas a servidores de terceros, Chalk opera bajo una estricta arquitectura Local-First y BYOK directa.",
-    "privacy_p2": "100 % Privado: tus grabaciones permanecen exclusivamente en tu ordenador. Chalk se comunica de forma directa con tu propia cuenta de IA (Gemini, Claude, OpenAI).",
-    "privacy_card1_title": "Bóveda de credenciales del SO",
-    "privacy_card1_desc": "Las claves API se cifran en el llavero de macOS o en Windows DPAPI.",
+    "privacy_tag": "PRIVACIDAD LOCAL-FIRST",
+    "privacy_title": "Tus datos te pertenecen.<br>Sin intermediarios. Sin servidores.",
+    "privacy_subtitle": "A diferencia de los bots en la nube, Chalk procesa el audio y las capturas de pantalla exclusivamente en local en tu hardware.",
+    "privacy_badge": "ARQUITECTURA ESTRICTAMENTE LOCAL-FIRST",
+    "privacy_box_title": "Cero repetidores en la nube. Soberanía total.",
+    "privacy_p1": "A diferencia de los bots en la nube que enrutan tus conversaciones privadas y presentaciones confidenciales a través de servidores de terceros, Chalk opera con una estricta arquitectura Local-First y BYOK (Bring Your Own Key) directo. Las grabaciones de audio y capturas de pantalla nunca salen de tu portátil sin cifrar, comunicándose única y directamente entre tu estación de trabajo y tus cuentas personales de IA, sin repetidores intermediarios.",
+    "privacy_stat1_label": "Audio y Pantalla",
+    "privacy_stat1_val": "100% En el dispositivo",
+    "privacy_stat2_label": "Repetidores Cloud",
+    "privacy_stat2_val": "Cero Servidores",
+    "privacy_stat3_label": "Telemetría",
+    "privacy_stat3_val": "0 KB Recopilados",
+    "privacy_card1_title": "Bóveda de hardware nativa",
+    "privacy_card1_desc": "Las claves de API se cifran de forma segura en el llavero de macOS o Windows DPAPI.",
     "privacy_card2_title": "Conexión directa TLS 1.3",
-    "privacy_card2_desc": "La síntesis se realiza exclusivamente entre tu ordenador y tu cuenta API oficial.",
+    "privacy_card2_desc": "Las solicitudes de síntesis viajan sin desvíos desde localhost directamente a Google, Anthropic u OpenAI.",
+    "privacy_card3_title": "Garantía de conocimiento cero",
+    "privacy_card3_desc": "Cero telemetría, cero cookies de seguimiento (§ 165 TKG), cero servidores de retransmisión.",
     "download_tag": "DESCARGA",
     "download_title": "Chalk para tu escritorio",
     "download_subtitle": "Elige tu sistema operativo y comienza en cuestión de segundos.",
@@ -1177,27 +1258,24 @@ ight]$$
     "cli_title": "Opcional para desarrolladores (Instalación rápida en terminal):",
     "btn_copy": "Copiar",
     "btn_copied": "Copiado",
-    "footer_sub": "SÍNTESIS LOCAL DE CLASES Y REUNIONES",
-    "footer_p": "100 % privado: tus grabaciones permanecen en tu ordenador y no pasan por servidores intermediarios. Chalk se comunica directamente con tu propia cuenta de API.",
-    "footer_badges": "SIN COOKIES (§ 165 TKG) • CERO TELEMETRÍA • SIN SERVIDORES CHALK",
-    "link_impressum": "Aviso legal (§ 25 MedienG & § 5 ECG)",
-    "link_dsgvo": "Privacidad (RGPD & § 165 TKG)",
-    "link_recording": "Aviso sobre grabaciones (§ 120 StGB)",
-    "link_copy_notice": "Copiar aviso de reunión",
-    "modal_impressum_title": "Aviso legal y divulgación (§ 25 MedienG, § 5 ECG)",
-    "modal_impressum_content": "<p><strong>Titular del medio y editor:</strong> Chalk Open Source Project</p><p><strong>Ubicación:</strong> Viena / Linz, República de Austria</p><p><strong>Legislación aplicable:</strong> Ley de Medios (MedienG), Ley de Comercio Electrónico (ECG), Ley de Telecomunicaciones (TKG 2021).</p><p><strong>Objeto y finalidad:</strong> Desarrollo de software de escritorio libre y centrado en la privacidad para síntesis de apuntes académicos y profesionales.</p><p><strong>Línea editorial (§ 25 párr. 4 MedienG):</strong> Información sobre el funcionamiento, arquitectura, modelos de seguridad y código fuente de Chalk.</p><p><strong>Autoridad de supervisión:</strong> Sin supervisión comercial específica (proyecto de código abierto estrictamente no comercial).</p>",
-    "modal_dsgvo_title": "Política de privacidad (RGPD / § 165 párr. 3 TKG 2021)",
-    "modal_dsgvo_content": "<p><strong>1. Principio de minimización de datos (§ 165 párr. 3 TKG 2021):</strong> Este sitio no utiliza cookies de seguimiento ni herramientas analíticas de terceros. No se requiere aviso de cookies.</p><p><strong>2. Arquitectura Local-First y BYOK Directa:</strong> La aplicación de escritorio Chalk jamás envía grabaciones de audio, pantallas o notas a servidores de Chalk. No existe infraestructura de retransmisión.</p><p><strong>3. Comunicación directa con tu proveedor de IA:</strong> Todas las peticiones se transmiten directamente desde tu equipo vía TLS 1.3 a tu proveedor de IA configurado. Las claves API permanecen cifradas en el llavero nativo del SO (macOS Keychain o Windows DPAPI).</p>",
-    "modal_recording_title": "Cumplimiento legal: Grabaciones de audio (§ 120 StGB)",
-    "modal_recording_content": "<p><strong>Consentimiento en grabaciones de voz (§ 120 StGB / Legislación penal):</strong></p><p>De conformidad con el § 120 párr. 1 del Código Penal austriaco (StGB) y normativas análogas, la grabación no consentida de la palabra no pública de otra persona está penalizada.</p><p>Asegúrese siempre de que ponentes, profesores y participantes estén informados previamente y hayan dado su consentimiento al uso de Chalk.</p>",
+    "footer_identity": "Presencia y síntesis local",
+    "link_legal_hub": "Aviso legal y Privacidad",
+    "os_switch_to_win": "Cambiar a Windows",
+    "os_switch_to_mac": "Cambiar a macOS",
+    "modal_legal_hub_title": "Centro de cumplimiento legal y privacidad",
+    "legal_sec1_title": "Aviso legal (§ 25 MedienG, § 5 ECG)",
+    "legal_sec1_body": "<p><strong>Titular del medio y operador:</strong> Volodymyr Gladkyy</p><p><strong>Ubicación / Sede:</strong> Viena, Austria</p><p><strong>Correo de contacto:</strong> <a href=\"mailto:volodyagladkyy@gmail.com\" class=\"underline hover:text-white transition\" style=\"color: var(--chalk-white);\">volodyagladkyy@gmail.com</a></p><p><strong>Finalidad:</strong> Documentación y distribución del software libre Chalk para fines de estudio e investigación.</p><p><strong>Legislación aplicable:</strong> Ley de Medios (MedienG), ECG, TKG 2021.</p>",
+    "legal_sec2_title": "Protección de datos (RGPD / § 165 TKG 2021)",
+    "legal_sec2_body": "<p><strong>1. Minimización de datos:</strong> Este sitio web no utiliza cookies de seguimiento ni scripts analíticos de terceros (§ 165 TKG 2021).</p><p><strong>2. Arquitectura Local-First:</strong> Las grabaciones de audio y capturas de pantalla permanecen exclusivamente en tu disco local en <code>~/.chalk/sessions/</code>. Cero servidores intermediarios.</p><p><strong>3. Conexión BYOK directa:</strong> Las solicitudes de IA se envían directamente por TLS 1.3 desde localhost a tu proveedor de IA configurado. Claves cifradas en el llavero del SO.</p>",
+    "legal_sec3_title": "Aviso sobre grabaciones (§ 120 StGB / Derecho europeo)",
+    "legal_sec3_body": "De conformidad con el § 120 párr. 1 del Código Penal austriaco (StGB) und normativas europeas análogas (§ 201 StGB Alemania), la grabación no consentida de la palabra no pública está penalizada. Asegúrese siempre de contar con el consentimiento previo de todos los participantes.",
     "modal_recording_box_label": "Aviso recomendado para chat / invitación:",
     "modal_copy_notice_btn": "Copiar aviso de reunión",
-    "modal_close": "Cerrar",
-    "modal_understood": "Entendido"
+    "modal_close": "Cerrar"
   },
   "zh": {
     "page_title": "Chalk — 告别手忙脚乱的听课记录",
-    "page_desc": "Chalk 实时倾听、识别幻灯片并自动生成结构化笔记。专为讲座、会议和深度交谈打造的自主桌面客户端，100% 本地隐私保障。",
+    "page_desc": "Chalk 实时倾听、捕捉屏幕画面并自动生成结构化笔记。专为讲座、会议和深度交谈打造的自主桌面客户端，100% 本地隐私保障。",
     "nav_how_it_works": "工作原理",
     "nav_use_cases": "应用场景",
     "nav_privacy": "隐私保障",
@@ -1205,17 +1283,20 @@ ight]$$
     "theme_dark": "深色",
     "theme_light": "浅色",
     "hero_badge": "100% 本地优先 • 密钥直连 BYOK • 无中转服务器",
-    "hero_headline": "告别手忙脚乱的听课记录。<br><span class=\"opacity-80 font-normal\">Chalk 实时倾听、识别幻灯片并自动生成结构化笔记。</span>",
+    "hero_headline": "告别手忙脚乱的听课记录。<br><span class=\"opacity-80 font-normal\">Chalk 实时倾听、捕捉屏幕画面并自动生成结构化笔记。</span>",
     "hero_subheadline": "无论是在大学讲座、团队研讨还是远程视频通话中：无需匆忙打字。全神贯注沉浸于交谈与思考——Chalk 为你自动提炼条理分明的结构化笔记。",
     "hero_cta_mac": "下载 macOS 版 (Apple Silicon)",
     "hero_cta_win": "下载 Windows 版 (x64)",
+    "hero_cta_dynamic": "下载 macOS 版 (Apple Silicon)",
+    "hero_explore_btn": "探索实时会话演示",
     "preview_title": "讲座：金融市场与风险分析 — Chalk",
     "preview_status": "录音采集中 (01:42)",
-    "preview_slide_label": "幻灯片预览",
-    "preview_slide_num": "第 14 页",
-    "preview_slide_topic": "资产定价与风险建模",
-    "preview_slide_heading": "现代资产组合理论 — 第 14 页",
-    "preview_slide_sync": "自动同步完成",
+    "preview_status_label": "正在录制",
+    "preview_screen_label": "屏幕画面捕获",
+    "preview_screen_badge": "主显示屏",
+    "preview_screen_topic": "投资组合理论与风险建模",
+    "preview_screen_heading": "资本资产定价模型 (CAPM)",
+    "preview_screen_sync": "实时画面同步",
     "preview_slide_local": "本地智能识别",
     "preview_recall_label": "智能即时问答 (Alt+Space)",
     "preview_recall_query": "市场剧烈波动时贝塔系数如何变化？",
@@ -1233,15 +1314,15 @@ ight]$$
     "steps_tag": "极简工作流",
     "steps_title": "三步极简体验",
     "steps_subtitle": "告别焦虑与键盘敲击。全身心倾听主讲人见解。",
-    "step1_title": "1. Chalk 静默在后台运行",
+    "step1_title": "Chalk 静默在后台运行",
     "step1_desc": "Chalk 在笔记本后台静默待命。只需轻轻一点或按下快捷键 Alt+Space，免去繁杂配置或虚拟音频驱动跳线。",
     "step1_tag1": "启动：开箱即用",
     "step1_tag2": "零干扰：后台无声运行",
-    "step2_title": "2. 你全神贯注沉浸思考",
+    "step2_title": "你全神贯注沉浸思考",
     "step2_desc": "无需敲击任何按键，全身心参与讨论。Chalk 自主捕获主讲人发言、幻灯片翻页轨迹与白板数学公式推导。",
     "step2_tag1": "专注：100% 临场沉浸",
     "step2_tag2": "降噪：自动识别说话停顿",
-    "step3_title": "3. 结构化笔记同步至 Obsidian",
+    "step3_title": "结构化笔记同步至 Obsidian",
     "step3_desc": "录制结束瞬间，获得条理完备的 Markdown 文档，涵盖核心论点、LaTeX 数学公式与幻灯片关键截图。一键无缝接入 Obsidian 或任意编辑器。",
     "step3_tag1": "格式：LaTeX Markdown",
     "step3_tag2": "一键导出至 Obsidian",
@@ -1264,14 +1345,24 @@ ight]$$
     "case4_desc": "通过系统内录与画面识别无损记录 Zoom、Teams 等线上会议，自动沉淀为可全盘检索的知识库资产。",
     "case4_tag1": "适用人群：知识工作者与分析师",
     "case4_tag2": "输出：知识库 Markdown 归档",
-    "privacy_badge": "100% 本地优先 • 密钥直连 BYOK • 无中转服务器",
-    "privacy_headline": "数据资产完全归你所有。<br>无第三方中介。无中转服务器。",
-    "privacy_p1": "与将私密对话和机密幻灯片上传至第三方中继服务器的云端机器人不同，Chalk 贯彻纯粹的“本地优先”与“BYOK（自带大模型密钥）”直连架构。",
-    "privacy_p2": "100% 隐私归属：音频与画面采集完全停留在你的本地设备中。Chalk 仅直接与你绑定的 AI 模型接口（Gemini, Claude, OpenAI）进行 TLS 1.3 通信，绝无任何中间商拦截。",
-    "privacy_card1_title": "原生操作系统安全凭据库",
-    "privacy_card1_desc": "API 密钥安全存放在 macOS 钥匙串或 Windows DPAPI 加密保险箱中。",
+    "privacy_tag": "本地优先隐私保护",
+    "privacy_title": "数据资产完全归你所有。<br>无中介。无中转服务器。",
+    "privacy_subtitle": "与云端会议机器人不同，Chalk 仅在你的本地硬件上离线处理音频与屏幕画面。",
+    "privacy_badge": "严格端侧物理隔离架构",
+    "privacy_box_title": "零云端中继。绝对数据主权。",
+    "privacy_p1": "与将私人对话和保密幻灯片上传至第三方服务器的云端会议机器人截然不同，Chalk 遵循严格的本地优先 (Local-First) 与密钥直连 (Direct BYOK) 架构。录音文件与屏幕截图绝不以明文形式离开笔记本电脑，仅在你本机的终端设备与专属个人 AI 账户之间建立安全直连，无任何中转服务器旁路中继。",
+    "privacy_stat1_label": "音画数据处理",
+    "privacy_stat1_val": "100% 本地端侧",
+    "privacy_stat2_label": "云端中继节点",
+    "privacy_stat2_val": "零中转服务器",
+    "privacy_stat3_label": "后台遥测指标",
+    "privacy_stat3_val": "0 KB 数据收集",
+    "privacy_card1_title": "原生系统安全硬件库",
+    "privacy_card1_desc": "API 密钥在 macOS 钥匙串或 Windows DPAPI 中安全加密存储。",
     "privacy_card2_title": "端到端 TLS 1.3 直连",
-    "privacy_card2_desc": "AI 合成请求仅在你的电脑与官方大模型服务之间直接收发，绝不经过中转代理。",
+    "privacy_card2_desc": "模型合成请求直接从 localhost 发送至 Google、Anthropic 或 OpenAI，绝无旁路中转。",
+    "privacy_card3_title": "零知识架构保障",
+    "privacy_card3_desc": "零遥测收集、零追踪 Cookie (§ 165 TKG)，无任何集中式中转服务器。",
     "download_tag": "立即下载",
     "download_title": "获取 Chalk 桌面客户端",
     "download_subtitle": "选择你的操作系统，即刻开启无扰听课体验。",
@@ -1290,37 +1381,70 @@ ight]$$
     "cli_title": "开发者终端便捷安装（可选）：",
     "btn_copy": "复制",
     "btn_copied": "已复制",
-    "footer_sub": "本地讲座与会议智能纪要",
-    "footer_p": "100% 本地隐私：录音文件纯本地保留，绝不上传至任何中转服务器。Chalk 仅由客户端直连您个人的 AI 模型账号。",
-    "footer_badges": "零 COOKIES (§ 165 TKG) • 零遥测数据 • 无 CHALK 代理服务器",
-    "link_impressum": "法定信息 (§ 25 MedienG & § 5 ECG)",
-    "link_dsgvo": "隐私合规 (GDPR & § 165 TKG)",
-    "link_recording": "录音合规警示 (§ 120 StGB 奥地利刑法)",
-    "link_copy_notice": "复制会议告知文本",
-    "modal_impressum_title": "法律声明与信息披露 (§ 25 MedienG, § 5 ECG)",
-    "modal_impressum_content": "<p><strong>媒体所有者与发布者：</strong> Chalk 开源项目组织</p><p><strong>注册地：</strong> 奥地利共和国 维也纳 / 林茨</p><p><strong>适用法规：</strong> 奥地利媒体法 (MedienG)、电子商务法 (ECG)、电信法 (TKG 2021)。</p><p><strong>项目宗旨：</strong> 面向全球开发者与学术界开发保护个人隐私、免受商业追踪的开源学术及会议纪要桌面工具。</p><p><strong>出版宗旨 (§ 25 第 4 款 MedienG)：</strong> 公开 Chalk 开源软件的技术架构、本地隐私安全模型与源代码信息。</p><p><strong>监管机构：</strong> 纯开源非商业免费项目，不涉及商业中介运营。</p>",
-    "modal_dsgvo_title": "隐私合规与数据保护声明 (GDPR / § 165 第 3 款 TKG 2021)",
-    "modal_dsgvo_content": "<p><strong>1. 数据最小化与零追踪原则 (§ 165 第 3 款 TKG 2021)：</strong> 本官方门户绝不植入任何跟踪 Cookie，亦未引入任何第三方埋点统计工具，因此无需繁琐的 Cookie 授权弹窗。</p><p><strong>2. 本地优先与直连 BYOK 架构：</strong> Chalk 桌面客户端绝不会将你的声音采集、屏幕截图或生成的笔记传输至任何 Chalk 服务器。不存在任何中转云中枢。</p><p><strong>3. 密钥端到端加密与官方直连：</strong> 所有文本与语音合成请求均在你的设备上通过 TLS 1.3 直接发送至你所配置的官方大模型 API。API 密钥安全存放在本地系统保险箱中 (macOS Keychain 或 Windows DPAPI)。</p>",
-    "modal_recording_title": "法律合规提示：音频录制与知情同意 (§ 120 StGB)",
-    "modal_recording_content": "<p><strong>关于语音录制的合法知情同意提醒 (§ 120 StGB 奥地利刑法及多国合规法规)：</strong></p><p>根据奥地利刑法第 120 条第 1 款（及德国刑法第 201 条等国际法例），未经许可录制他人非公开言论属于违法行为。</p><p>在启动 Chalk 进行讲座或会议记录前，请务必提前告知主讲人、授课教师及全体参会者，并取得合规知情同意。</p>",
+    "footer_identity": "本地专注与智能纪要",
+    "link_legal_hub": "法律信息与隐私",
+    "os_switch_to_win": "切换至 Windows 版",
+    "os_switch_to_mac": "切换至 macOS 版",
+    "modal_legal_hub_title": "法律合规、隐私保护与录音须知",
+    "legal_sec1_title": "法定披露 (§ 25 MedienG, § 5 ECG)",
+    "legal_sec1_body": "<p><strong>媒体所有者与运营主体：</strong> Volodymyr Gladkyy</p><p><strong>所在地 / 机构驻地：</strong> 奥地利 维也纳</p><p><strong>联系邮箱：</strong> <a href=\"mailto:volodyagladkyy@gmail.com\" class=\"underline hover:text-white transition\" style=\"color: var(--chalk-white);\">volodyagladkyy@gmail.com</a></p><p><strong>项目目的：</strong> 为学术研讨与个人学习研究提供开源桌面软件 Chalk。</p><p><strong>适用法规：</strong> 奥地利媒体法 (MedienG)、电子商务法 (ECG)、电信法 (TKG 2021)。</p>",
+    "legal_sec2_title": "隐私合规与数据保护 (GDPR / § 165 TKG 2021)",
+    "legal_sec2_body": "<p><strong>1. 零追踪与数据最小化：</strong> 本网站不使用任何跟踪 Cookie 或第三方分析代码 (§ 165 TKG 2021)。</p><p><strong>2. 本地优先架构：</strong> 音频录音、VAD 缓冲与屏幕截图完全保存在本地磁盘 <code>~/.chalk/sessions/</code>，绝无任何第三方中继服务器接收您的数据。</p><p><strong>3. BYOK 直连通信：</strong> AI 合成请求直接通过 TLS 1.3 从本机发送至您绑定的模型提供商 (Gemini, Claude, OpenAI)。密钥存放在系统级加密钥匙串中。</p>",
+    "legal_sec3_title": "录音合规须知 (§ 120 StGB 奥地利刑法及国际合规)",
+    "legal_sec3_body": "根据奥地利刑法第 120 条第 1 款及相关国际法规（如德国刑法第 201 条），未经许可录制他人非公开言论属于违法行为。在启动 Chalk 录音前，请务必提前告知授课讲师与参会人员并取得知情同意。",
     "modal_recording_box_label": "推荐在会议聊天区或日程邀请中发送的告知文案：",
     "modal_copy_notice_btn": "复制会议告知文本",
-    "modal_close": "关闭",
-    "modal_understood": "我已了解"
+    "modal_close": "关闭"
   }
 };
 
     const notesTranslations = {
-      en: `# Capital Market Line & Systematic Risk\n\nThe expected return of an asset comprises the risk-free rate plus the market risk premium. Unsystematic individual risk is eliminated through portfolio diversification.\n\n$$E(R_i) = R_f + \\beta_i [E(R_m) - R_f]$$\n\n- **Beta factor (\\beta_i):** Sensitivity of asset return to broad market movements.\n- **Risk-free rate (R_f):** Benchmark sovereign bond yield as the hurdle rate.\n- **[Lecturer Core Point @ 01:14:20]:** Only systematic risk is compensated by the market with a risk premium.`,
-      de: `# Kapitalmarktlinie & Systematisches Risiko\n\nDie erwartete Rendite eines Wertpapiers setzt sich aus dem risikofreien Zins und der marktweiten Risikoprämie zusammen. Das unsystematische Einzelrisiko wird durch Portfolio-Diversifikation eliminiert.\n\n$$E(R_i) = R_f + \\beta_i [E(R_m) - R_f]$$\n\n- **Beta-Faktor (\\beta_i):** Sensitivität der Rendite gegenüber Schwankungen des Gesamtmarktes.\n- **Risikofreier Zins (R_f):** Rendite erstklassiger Staatsanleihen als Mindesthürde.\n- **[Kernaussage Dozent @ 01:14:20]:** Nur systematisches Risiko wird vom Markt mit einer Prämie vergütet.`,
-      fr: `# Droite de marché et risque systématique\n\nLe rendement attendu d'un actif se compose du taux sans risque et de la prime de risque du marché. Le risque spécifique non systématique est éliminé par la diversification.\n\n$$E(R_i) = R_f + \\beta_i [E(R_m) - R_f]$$\n\n- **Facteur Bêta (\\beta_i) :** Sensibilité du rendement aux fluctuations de l'ensemble du marché.\n- **Taux sans risque (R_f) :** Rendement des emprunts d'État de référence comme taux minimal.\n- **[Point clé enseignant @ 01:14:20] :** Seul le risque systématique est rémunéré par une prime de marché.`,
-      es: `# Línea del mercado de capitales y riesgo sistemático\n\nEl rendimiento esperado de un activo se compone de la tasa libre de riesgo y la prima de riesgo del mercado. El riesgo no sistemático se elimina mediante la diversificación.\n\n$$E(R_i) = R_f + \\beta_i [E(R_m) - R_f]$$\n\n- **Factor Beta (\\beta_i):** Sensibilidad del rendimiento ante fluctuaciones del mercado global.\n- **Tasa libre de riesgo (R_f):** Rendimiento de bonos soberanos de máxima calificación como umbral.\n- **[Punto clave del ponente @ 01:14:20]:** Solo el riesgo sistemático es compensado por el mercado.`,
-      zh: `# 资本市场线与系统性风险\n\n证券的预期收益率由无风险利率与全市场风险溢价共同决定。非系统性个股风险可通过资产组合多元化配置彻底消除。\n\n$$E(R_i) = R_f + \\beta_i [E(R_m) - R_f]$$\n\n- **贝塔系数 (\\beta_i)：** 资产收益对整个市场波动的敏感程度。\n- **无风险利率 (R_f)：** 高评级国债收益率作为投资回报的基准门槛。\n- **[讲师核心论点 @ 01:14:20]：** 市场上唯有系统性风险能够获得风险溢价补偿。`
+      en: `# Capital Market Line & Systematic Risk\n\nThe expected return of an asset comprises the risk-free rate plus the market risk premium. Unsystematic individual risk is eliminated through portfolio diversification.\n\n$$E(R_i) = R_f + \\beta_i \\left[E(R_m) - R_f\\right]$$\n\n- **Beta factor (\\beta_i):** Sensitivity of asset return to broad market movements.\n- **Risk-free rate (R_f):** Benchmark sovereign bond yield as the hurdle rate.\n- **[Lecturer Core Point @ 01:14:20]:** Only systematic risk is compensated by the market with a risk premium.`,
+      de: `# Kapitalmarktlinie & Systematisches Risiko\n\nDie erwartete Rendite eines Wertpapiers setzt sich aus dem risikofreien Zins und der marktweiten Risikoprämie zusammen. Das unsystematische Einzelrisiko wird durch Portfolio-Diversifikation eliminiert.\n\n$$E(R_i) = R_f + \\beta_i \\left[E(R_m) - R_f\\right]$$\n\n- **Beta-Faktor (\\beta_i):** Sensitivität der Rendite gegenüber Schwankungen des Gesamtmarktes.\n- **Risikofreier Zins (R_f):** Rendite erstklassiger Staatsanleihen als Mindesthürde.\n- **[Kernaussage Dozent @ 01:14:20]:** Nur systematisches Risiko wird vom Markt mit einer Prämie vergütet.`,
+      fr: `# Droite de marché et risque systématique\n\nLe rendement attendu d'un actif se compose du taux sans risque et de la prime de risque du marché. Le risque spécifique non systématique est éliminé par la diversification.\n\n$$E(R_i) = R_f + \\beta_i \\left[E(R_m) - R_f\\right]$$\n\n- **Facteur Bêta (\\beta_i) :** Sensibilité du rendement aux fluctuations de l'ensemble du marché.\n- **Taux sans risque (R_f) :** Rendement des emprunts d'État de référence comme taux minimal.\n- **[Point clé enseignant @ 01:14:20] :** Seul le risque systématique est rémunéré par une prime de marché.`,
+      es: `# Línea del mercado de capitales y riesgo sistemático\n\nEl rendimiento esperado de un activo se compone de la tasa libre de riesgo y la prima de riesgo del mercado. El riesgo no sistemático se elimina mediante la diversificación.\n\n$$E(R_i) = R_f + \\beta_i \\left[E(R_m) - R_f\\right]$$\n\n- **Factor Beta (\\beta_i):** Sensibilidad del rendimiento ante fluctuaciones del mercado global.\n- **Tasa libre de riesgo (R_f):** Rendimiento de bonos soberanos de máxima calificación como umbral.\n- **[Punto clave del ponente @ 01:14:20]:** Solo el riesgo sistemático es compensado por el mercado.`,
+      zh: `# 资本市场线与系统性风险\n\n证券的预期收益率由无风险利率与全市场风险溢价共同决定。非系统性个股风险可通过资产组合多元化配置彻底消除。\n\n$$E(R_i) = R_f + \\beta_i \\left[E(R_m) - R_f\\right]$$\n\n- **贝塔系数 (\\beta_i)：** 资产收益对整个市场波动的敏感程度。\n- **无风险利率 (R_f)：** 高评级国债收益率作为投资回报的基准门槛。\n- **[讲师核心论点 @ 01:14:20]：** 市场上唯有系统性风险能够获得风险溢价补偿。`
     };
 
     const MEETING_NOTICE = "Hinweis: Zur Erstellung strukturierter Besprechungsnotizen wird Chalk (lokale KI-Synthese) eingesetzt. / Notice: Chalk is used to generate structured notes.";
 
     let currentLang = 'en';
+
+    // Dynamic OS Detection & Switch
+    let detectedOS = 'mac';
+    if (typeof navigator !== 'undefined' && navigator.userAgent && navigator.userAgent.indexOf('Win') !== -1) {
+      detectedOS = 'win';
+    }
+
+    function updateHeroDownloadButton() {
+      const btnText = document.getElementById('hero-primary-download-text');
+      const osSwitch = document.getElementById('hero-os-switch');
+      const btnLink = document.getElementById('hero-primary-download-btn');
+      if (!btnText || !osSwitch || !translations[currentLang]) return;
+      const isMac = detectedOS === 'mac';
+      btnText.textContent = isMac ? translations[currentLang].hero_cta_mac : translations[currentLang].hero_cta_win;
+      osSwitch.textContent = isMac ? translations[currentLang].os_switch_to_win : translations[currentLang].os_switch_to_mac;
+      if (btnLink) {
+        btnLink.setAttribute('href', '#download');
+      }
+    }
+
+    function toggleHeroOS() {
+      detectedOS = detectedOS === 'mac' ? 'win' : 'mac';
+      updateHeroDownloadButton();
+    }
+
+    // Apple Live Recording Timer (Starts at 01:42 = 102 seconds)
+    let timerSeconds = 102;
+    setInterval(() => {
+      timerSeconds++;
+      const mins = String(Math.floor(timerSeconds / 60)).padStart(2, '0');
+      const secs = String(timerSeconds % 60).padStart(2, '0');
+      const timerEl = document.getElementById('live-timer');
+      if (timerEl) {
+        timerEl.textContent = `${mins}:${secs}`;
+      }
+    }, 1000);
 
     function setLanguage(lang) {
       if (!translations[lang]) return;
@@ -1362,6 +1486,9 @@ ight]$$
         }
       });
 
+      // Update dynamic hero download button & switch text
+      updateHeroDownloadButton();
+
       // Update document title and meta description
       if (translations[lang].page_title) {
         document.title = translations[lang].page_title;
@@ -1377,6 +1504,43 @@ ight]$$
       if (label) {
         label.textContent = isLight ? translations[lang].theme_light : translations[lang].theme_dark;
       }
+
+      // Render KaTeX formulas in mockup
+      renderHeroMath();
+    }
+
+    // KaTeX Math Rendering in Mockup
+    function renderHeroMath() {
+      if (typeof renderMathInElement === 'function') {
+        const heroCard = document.getElementById('hero-card');
+        if (heroCard) {
+          renderMathInElement(heroCard, {
+            delimiters: [
+              { left: '$$', right: '$$', display: true },
+              { left: '$', right: '$', display: false }
+            ],
+            throwOnError: false
+          });
+          heroCard.querySelectorAll('.render-math').forEach(el => {
+            el.classList.add('math-rendered');
+          });
+        }
+      } else {
+        setTimeout(renderHeroMath, 100);
+      }
+    }
+    window.addEventListener('load', renderHeroMath);
+
+    // Smooth Vertical Centering for Explore Live Session Button
+    const exploreBtn = document.getElementById('hero-explore-btn');
+    if (exploreBtn) {
+      exploreBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        const heroCard = document.getElementById('hero-card');
+        if (heroCard) {
+          heroCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      });
     }
 
     function toggleLangMenu(event) {
@@ -1401,13 +1565,18 @@ ight]$$
       }
     });
 
-    // 2. 3D Card Hover Perspective
+    // 2. 3D Card Hover Perspective (Smooth Apple Damping)
     const heroCard = document.getElementById('hero-card');
     if (heroCard) {
       let currentX = 0, currentY = 0;
       let targetX = 0, targetY = 0;
       let glareX = 50, glareY = 50;
       let targetGlareX = 50, targetGlareY = 50;
+      let enterProgress = 0;
+
+      heroCard.addEventListener('mouseenter', () => {
+        enterProgress = 0;
+      });
 
       heroCard.addEventListener('mousemove', (e) => {
         const rect = heroCard.getBoundingClientRect();
@@ -1416,8 +1585,12 @@ ight]$$
         const centerX = rect.width / 2;
         const centerY = rect.height / 2;
 
-        targetX = ((y - centerY) / centerY) * -5;
-        targetY = ((x - centerX) / centerX) * 5;
+        enterProgress = Math.min(1, enterProgress + 0.1);
+        const rawTargetX = ((y - centerY) / centerY) * -3.5;
+        const rawTargetY = ((x - centerX) / centerX) * 3.5;
+
+        targetX = rawTargetX * enterProgress;
+        targetY = rawTargetY * enterProgress;
         targetGlareX = (x / rect.width) * 100;
         targetGlareY = (y / rect.height) * 100;
       });
@@ -1425,13 +1598,16 @@ ight]$$
       heroCard.addEventListener('mouseleave', () => {
         targetX = 0;
         targetY = 0;
+        targetGlareX = 50;
+        targetGlareY = 50;
+        enterProgress = 0;
       });
 
       function animateTilt() {
-        currentX += (targetX - currentX) * 0.08;
-        currentY += (targetY - currentY) * 0.08;
-        glareX += (targetGlareX - glareX) * 0.1;
-        glareY += (targetGlareY - glareY) * 0.1;
+        currentX += (targetX - currentX) * 0.05;
+        currentY += (targetY - currentY) * 0.05;
+        glareX += (targetGlareX - glareX) * 0.08;
+        glareY += (targetGlareY - glareY) * 0.08;
 
         heroCard.style.transform = `perspective(1200px) rotateX(${currentX.toFixed(3)}deg) rotateY(${currentY.toFixed(3)}deg)`;
         heroCard.style.setProperty('--glare-x', `${glareX.toFixed(1)}%`);

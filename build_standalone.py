@@ -19,6 +19,7 @@ ASSETS_DIR = os.path.join(PROJECT_ROOT, "assets")
 ICO_PATH = os.path.join(ASSETS_DIR, "app.ico")
 ICNS_PATH = os.path.join(ASSETS_DIR, "app.icns")
 ICON_PATH = ICNS_PATH if sys.platform == "darwin" and os.path.exists(ICNS_PATH) else ICO_PATH
+ENTITLEMENTS_PATH = os.path.join(ASSETS_DIR, "entitlements.plist")
 SPEC_PATH = os.path.join(PROJECT_ROOT, "Chalk.spec")
 
 
@@ -45,6 +46,7 @@ project_root = r"{PROJECT_ROOT}"
 assets_dir = r"{ASSETS_DIR}"
 entry_point = r"{ENTRY_POINT}"
 icon_path = r"{ICON_PATH}"
+entitlements_path = r"{ENTITLEMENTS_PATH}"
 
 added_datas = [
     (assets_dir, 'assets'),
@@ -75,6 +77,7 @@ hidden_imports = [
     'torch',
     'torchaudio',
     'src.security.hotkeys',
+    'src.engine.config',
 ]
 
 a = Analysis(
@@ -114,7 +117,7 @@ exe = EXE(
     argv_emulation=False,
     target_arch=None,
     codesign_identity=None,
-    entitlements_file=None,
+    entitlements_file=entitlements_path if os.path.exists(entitlements_path) else None,
     icon=icon_path,
 )
 
@@ -135,6 +138,12 @@ if sys.platform == 'darwin':
             'NSScreenCaptureUsageDescription': 'Chalk requires screen recording permission to synchronize slide transitions and support the screen snip tool during lectures.',
             'NSMicrophoneUsageDescription': 'Chalk requires microphone access to record professor lectures, in-room discussions, and student questions.',
             'NSAppleEventsUsageDescription': 'Chalk requires accessibility permissions for zero-token presentation text extraction from slide decks.',
+            'CFBundleURLTypes': [
+                {{
+                    'CFBundleURLName': 'so.chalk.audio',
+                    'CFBundleURLSchemes': ['chalk-audio'],
+                }}
+            ],
         }},
     )
 """

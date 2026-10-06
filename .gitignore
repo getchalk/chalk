@@ -18,3 +18,17 @@ Thumbs.db
 .pytest_cache/
 .coverage
 htmlcov/
+dist/
+build/
+.venv/
+venv/
+__pycache__/
+*.pyc
+.DS_Store
+dist/
+build/
+.venv/
+venv/
+__pycache__/
+*.pyc
+.DS_Store

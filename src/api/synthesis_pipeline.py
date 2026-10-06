@@ -13,7 +13,7 @@ Provides:
 import re
 import json
 import logging
-from typing import List, Tuple, Dict, Any, Optional, Union
+from typing import List, Tuple, Dict, Any, Optional, Union, Literal
 from pydantic import BaseModel, Field, ConfigDict, field_validator
 
 from src.engine.session_state import ChunkState
@@ -39,30 +39,37 @@ SYNTHESIS_SYSTEM_INSTRUCTION = (
     "- Defer mathematical notation strictly to the presentation slides to prevent variable drift.\n"
     "- Every mathematical formula must be valid KaTeX.\n"
     "- Proofs must be structured step-by-step. If a step was omitted by the instructor, denote it explicitly with [Lücke].\n"
+    "- When visual architectures, state machines, flowcharts, or system hierarchies are discussed or displayed on slides, "
+    "generate valid Mermaid diagram syntax in the block explanation or latex field with type='diagram'.\n"
+    "- MULTI-SPEAKER & ACOUSTIC DIARIZATION:\n"
+    "  Differentiate speakers based on audio channel tags ([MIC] for nearby/room audio vs. [LOOPBACK] for system audio), "
+    "acoustic transitions, questions, and conversational dynamics.\n"
+    "  Assign the appropriate speaker to each note block: 'Lecturer', 'Audience Question', 'Meeting Host', or 'Discussion Participant'.\n"
+    "  Student questions, audience interjections, or meeting objections MUST strictly be flagged as speaker='Audience Question' or speaker='Discussion Participant'.\n"
 )
 
 
 class LectureNoteBlock(BaseModel):
     """
-    Individual structured note block representing a mathematical or conceptual unit.
+    Individual structured note block representing a mathematical, conceptual, or visual unit.
     """
     model_config = ConfigDict(extra="ignore")
 
-    type: str = Field(
+    type: Literal["theorem", "definition", "proof", "remark", "example", "diagram"] = Field(
         ...,
-        description="Type of the block: theorem | definition | proof | remark | example"
+        description="Type of the block: theorem | definition | proof | remark | example | diagram"
     )
     title: str = Field(
         ...,
-        description="Concise title of the theorem, definition, proof, remark, or example"
+        description="Concise title of the theorem, definition, proof, remark, example, or diagram"
     )
     latex: str = Field(
         default="",
-        description="KaTeX compatible mathematical formula or derivation (without outer $$)"
+        description="KaTeX compatible mathematical formula or Mermaid diagram syntax"
     )
     explanation: str = Field(
         default="",
-        description="Pedagogical explanation or verbal context from the lecture"
+        description="Pedagogical explanation, verbal context, or Mermaid diagram syntax"
     )
     segment_id: str = Field(
         default="",
@@ -72,6 +79,32 @@ class LectureNoteBlock(BaseModel):
         default="inferred",
         description="Source of this block: slide | speech | inferred"
     )
+    speaker: Optional[Literal["Lecturer", "Audience Question", "Meeting Host", "Discussion Participant"]] = Field(
+        default=None,
+        description="Identified speaker: Lecturer | Audience Question | Meeting Host | Discussion Participant"
+    )
+
+    @field_validator("speaker", mode="before")
+    @classmethod
+    def normalize_speaker(cls, v: Any) -> Optional[str]:
+        if v is None:
+            return None
+        if isinstance(v, str):
+            v_clean = v.strip().lower()
+            if not v_clean:
+                return None
+            if any(term in v_clean for term in ("audience", "question", "student", "frage", "publikum", "zuhörer")):
+                return "Audience Question"
+            if any(term in v_clean for term in ("lecturer", "professor", "dozent", "instructor", "speaker", "presenter", "vortragender")):
+                return "Lecturer"
+            if any(term in v_clean for term in ("host", "moderator", "meeting host", "leiter", "meeting-host")):
+                return "Meeting Host"
+            if any(term in v_clean for term in ("participant", "teilnehmer", "discussion", "diskussion", "colleague")):
+                return "Discussion Participant"
+            for candidate in ("Lecturer", "Audience Question", "Meeting Host", "Discussion Participant"):
+                if v_clean == candidate.lower():
+                    return candidate
+        return None
 
     @field_validator("type", mode="before")
     @classmethod
@@ -98,6 +131,15 @@ class LectureNoteBlock(BaseModel):
                 "example": "example",
                 "beispiel": "example",
                 "bsp": "example",
+                "diagram": "diagram",
+                "diagramm": "diagram",
+                "flowchart": "diagram",
+                "flussdiagramm": "diagram",
+                "architecture": "diagram",
+                "architektur": "diagram",
+                "state_machine": "diagram",
+                "zustandsdiagramm": "diagram",
+                "graph": "diagram",
             }
             return synonyms.get(v_clean, v_clean)
         return str(v)
@@ -465,6 +507,114 @@ def render_blocks_to_markdown(blocks: List[Union[Dict[str, Any], LectureNoteBloc
         explanation = str(data.get("explanation", "")).strip()
         source = str(data.get("source", "")).strip()
         segment_id = str(data.get("segment_id", "")).strip()
+        speaker = data.get("speaker")
+
+        # Special handling for visual architecture diagrams (Mermaid)
+        if b_type == "diagram":
+            mermaid_raw = latex.strip() or explanation.strip()
+            clean_lines = []
+            for m_line in mermaid_raw.splitlines():
+                if m_line.strip().startswith("```"):
+                    continue
+                clean_lines.append(m_line)
+            mermaid_body = "\n".join(clean_lines).strip()
+            if not mermaid_body:
+                mermaid_body = "graph TD\n    A[Start] --> B[End]"
+
+            d_lines = []
+            if title:
+                d_lines.append(f"> [!diagram] {title}")
+                if explanation and latex:
+                    for exp_line in explanation.splitlines():
+                        if exp_line.strip():
+                            d_lines.append(f"> {exp_line}")
+                d_lines.append(f"\n```mermaid\n{mermaid_body}\n```")
+            else:
+                d_lines.append(f"```mermaid\n{mermaid_body}\n```")
+
+            callout_sections.append("\n".join(d_lines))
+            continue
+
+        # Multi-speaker question callout handling
+        if speaker == "Audience Question":
+            ts_str = ""
+            if "@" in title:
+                header_title = title
+            elif segment_id:
+                ts_clean = segment_id
+                if ts_clean.startswith("SEG_"):
+                    ts_clean = ts_clean[4:]
+                ts_str = f" @ {ts_clean}"
+                if not title or title.lower() in ("audience question", "frage", "question", "remark", "example"):
+                    header_title = f"Audience Question{ts_str}"
+                else:
+                    header_title = f"Audience Question: {title}{ts_str}"
+            else:
+                if not title or title.lower() in ("audience question", "frage", "question", "remark", "example"):
+                    header_title = "Audience Question"
+                else:
+                    header_title = f"Audience Question: {title}"
+
+            lines = [f"> [!question] {header_title}"]
+
+            # Parse question and response from explanation
+            if "**Question:**" in explanation or "**Frage:**" in explanation:
+                for exp_line in explanation.splitlines():
+                    if exp_line.strip():
+                        lines.append(f"> {exp_line}")
+                    else:
+                        lines.append(">")
+            else:
+                split_candidates = ["\nResponse:", "\nresponse:", "\nAntwort:", "\nantwort:", "\nEinordnung:"]
+                q_text = ""
+                ans_text = ""
+                split_found = False
+                for sc in split_candidates:
+                    if sc in explanation:
+                        parts = explanation.split(sc, 1)
+                        q_text = parts[0].strip()
+                        ans_text = parts[1].strip()
+                        split_found = True
+                        break
+
+                if not split_found and "\n\n" in explanation:
+                    p = explanation.split("\n\n", 1)
+                    q_text = p[0].strip()
+                    ans_text = p[1].strip()
+                    split_found = True
+
+                if not split_found:
+                    q_text = explanation.strip()
+
+                if q_text:
+                    lines.append(f"> **Question:** {q_text}")
+                if ans_text:
+                    lines.append(">")
+                    lines.append(f"> **Response / Derivation:** {ans_text}")
+
+            if latex:
+                _, valid_latex = validate_latex_syntax(latex)
+                if lines and lines[-1] != ">":
+                    lines.append(">")
+                if not any("**Response / Derivation:**" in l for l in lines):
+                    lines.append("> **Response / Derivation:**")
+                lines.append("> $$")
+                for lat_line in valid_latex.splitlines():
+                    lines.append(f"> {lat_line}")
+                lines.append("> $$")
+
+            meta_items = []
+            if source and source != "inferred":
+                meta_items.append(f"Quelle: {source}")
+            if segment_id and f"@{segment_id}" not in header_title and f"@ {segment_id}" not in header_title:
+                meta_items.append(f"Segment: {segment_id}")
+            if meta_items:
+                if lines and lines[-1] != ">":
+                    lines.append(">")
+                lines.append(f"> <small>*{' | '.join(meta_items)}*</small>")
+
+            callout_sections.append("\n".join(lines))
+            continue
 
         # Normalize callout title
         if not title:
@@ -515,6 +665,8 @@ def render_blocks_to_markdown(blocks: List[Union[Dict[str, Any], LectureNoteBloc
 
         # Optional metadata attribution line
         meta_items = []
+        if speaker and speaker not in ("Lecturer", "Audience Question"):
+            meta_items.append(f"Sprecher: {speaker}")
         if source and source != "inferred":
             meta_items.append(f"Quelle: {source}")
         if segment_id:

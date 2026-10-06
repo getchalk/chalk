@@ -196,6 +196,10 @@ class SessionJournal:
             self._save_manifest_atomic_locked()
             logger.info("Session %s marked as completed.", self.session_id)
 
+    def complete_session(self):
+        """Alias for mark_completed()."""
+        self.mark_completed()
+
     def mark_status(self, status: str):
         """Sets the session status (e.g. 'recording', 'recovering', 'completed')."""
         with self._lock:
@@ -285,6 +289,56 @@ class SessionJournal:
 
         concatenated = np.concatenate(arrays, axis=0)
         return concatenated, sr
+
+    def get_audio_slice(
+        self, target_timestamp_sec: float, slice_duration: float = 20.0
+    ) -> Tuple[np.ndarray, int]:
+        """
+        Extracts a slice_duration audio snippet (default: 20s) centered on target_timestamp_sec
+        from the session's recorded segments.
+        Returns (audio_array, sample_rate).
+        """
+        sr = 16000
+        if slice_duration <= 0.0:
+            slice_duration = 20.0
+
+        target_start = max(0.0, target_timestamp_sec - (slice_duration / 2.0))
+        target_end = target_start + slice_duration
+
+        with self._lock:
+            segments = list(self.manifest.get("segments", []))
+
+        if not segments:
+            return np.zeros((0, 2), dtype=np.float32), sr
+
+        sliced_pieces = []
+        cur_t = 0.0
+
+        for seg in segments:
+            seg_dur = float(seg.get("duration_sec", 30.0))
+            seg_start = cur_t
+            seg_end = seg_start + seg_dur
+            cur_t = seg_end
+
+            # Check if segment overlaps [target_start, target_end]
+            if max(target_start, seg_start) < min(target_end, seg_end):
+                try:
+                    seg_audio, seg_sr = self.read_segment_audio(seg["id"])
+                    sr = seg_sr
+                    if len(seg_audio) > 0:
+                        overlap_start = max(target_start, seg_start) - seg_start
+                        overlap_end = min(target_end, seg_end) - seg_start
+                        idx_start = max(0, int(overlap_start * sr))
+                        idx_end = min(len(seg_audio), int(overlap_end * sr))
+                        if idx_end > idx_start:
+                            sliced_pieces.append(seg_audio[idx_start:idx_end])
+                except Exception as e:
+                    logger.warning("Error reading segment %s for audio slice: %s", seg.get("id"), e)
+
+        if not sliced_pieces:
+            return np.zeros((0, 2), dtype=np.float32), sr
+
+        return np.concatenate(sliced_pieces, axis=0), sr
 
     def read_manifest(self) -> Dict[str, Any]:
         """Returns the current manifest in memory."""

@@ -75,16 +75,66 @@ class ChunkState:
         )
 
 
+def slugify_topic(topic: str) -> str:
+    """Converts a topic string into a clean lowercase filename slug."""
+    if not topic:
+        return "lecture_notes"
+    clean = topic.strip().lower()
+    clean = re.sub(r"[^\w\s-]", "", clean)
+    clean = re.sub(r"[\s_-]+", "_", clean).strip("_")
+    return clean or "lecture_notes"
+
+
 class SessionNotesManager:
     """
-    Handles file I/O for ./Notes/Lecture_{YYYY-MM-DD}.md and context chaining.
+    Handles file I/O for lecture markdown notes and context chaining.
+    Supports standard ./Notes/Lecture_{YYYY-MM-DD}.md fallback
+    and smart Obsidian Vault auto-organization (<Vault>/Chalk/<YYYY-MM-DD>_<slug>.md)
+    with YAML frontmatter.
     """
 
-    def __init__(self, notes_dir: str = "Notes"):
-        self.notes_dir = os.path.abspath(notes_dir)
-        os.makedirs(self.notes_dir, exist_ok=True)
+    def __init__(
+        self,
+        notes_dir: Optional[str] = None,
+        session_id: Optional[str] = None,
+        topic: Optional[str] = None,
+        is_obsidian: Optional[bool] = None,
+    ):
+        from src.engine.config import get_obsidian_vault_path
+
+        self.session_id = session_id or "default"
         self.session_date_str = datetime.now().strftime("%Y-%m-%d")
-        self.session_file = os.path.join(self.notes_dir, f"Lecture_{self.session_date_str}.md")
+        self.topic = topic or "Lecture Notes"
+
+        vault_path = get_obsidian_vault_path()
+
+        if is_obsidian is not None:
+            self.is_obsidian = is_obsidian
+            if notes_dir is not None:
+                self.notes_dir = os.path.abspath(notes_dir)
+            elif vault_path and os.path.isdir(vault_path):
+                self.notes_dir = os.path.join(vault_path, "Chalk")
+            else:
+                self.notes_dir = os.path.abspath("Notes")
+        elif notes_dir is not None:
+            self.notes_dir = os.path.abspath(notes_dir)
+            # If user explicitly passed an obsidian vault or Chalk folder
+            self.is_obsidian = bool(vault_path and (os.path.abspath(vault_path) in self.notes_dir))
+        elif vault_path and os.path.isdir(vault_path):
+            self.notes_dir = os.path.join(vault_path, "Chalk")
+            self.is_obsidian = True
+        else:
+            self.notes_dir = os.path.abspath("Notes")
+            self.is_obsidian = False
+
+        os.makedirs(self.notes_dir, exist_ok=True)
+
+        if self.is_obsidian:
+            slug = slugify_topic(self.topic)
+            self.session_file = os.path.join(self.notes_dir, f"{self.session_date_str}_{slug}.md")
+        else:
+            self.session_file = os.path.join(self.notes_dir, f"Lecture_{self.session_date_str}.md")
+
         self.last_state = ChunkState()
         self.chunk_count = 0
         self._init_session_file()
@@ -92,17 +142,31 @@ class SessionNotesManager:
     def _init_session_file(self):
         """Initializes the markdown notes file with header if new."""
         if not os.path.exists(self.session_file):
-            header = (
-                f"# Chalk Lecture Notes — {self.session_date_str}\n\n"
-                f"*Generated autonomously by Chalk Desktop Lecture Engine*\n\n"
-                f"---\n\n"
-            )
+            if self.is_obsidian:
+                header = (
+                    f"---\n"
+                    f"tags: [chalk, lecture, study]\n"
+                    f"date: {self.session_date_str}\n"
+                    f'topic: "{self.topic}"\n'
+                    f'audio_session: "{self.session_id}"\n'
+                    f"---\n\n"
+                    f"# Chalk Lecture Notes — {self.session_date_str}\n\n"
+                    f"*Generated autonomously by Chalk Desktop Lecture Engine*\n\n"
+                    f"---\n\n"
+                )
+            else:
+                header = (
+                    f"# Chalk Lecture Notes — {self.session_date_str}\n\n"
+                    f"*Generated autonomously by Chalk Desktop Lecture Engine*\n\n"
+                    f"---\n\n"
+                )
             try:
                 with open(self.session_file, "w", encoding="utf-8") as f:
                     f.write(header)
                 logger.info("Initialized session notes file: %s", self.session_file)
             except Exception as e:
                 logger.error("Failed to initialize session notes: %s", e)
+
 
     def append_chunk_notes(self, markdown_text: str, start_time_str: str, end_time_str: str) -> ChunkState:
         """

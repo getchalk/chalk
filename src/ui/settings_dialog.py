@@ -20,6 +20,7 @@ from PyQt6.QtWidgets import (
     QMessageBox,
     QWidget,
     QComboBox,
+    QFileDialog,
 )
 
 from src.security.key_manager import (
@@ -29,6 +30,10 @@ from src.security.key_manager import (
     has_api_key,
     get_selected_model,
     set_selected_model,
+)
+from src.engine.config import (
+    get_obsidian_vault_path,
+    set_obsidian_vault_path,
 )
 
 MONOCHROME_STYLESHEET = """
@@ -281,6 +286,22 @@ class SettingsDialog(QDialog):
         openai_row.addWidget(self.toggle_oai_eye)
         layout.addLayout(openai_row)
 
+        # 5. Obsidian Vault Directory Picker
+        obsidian_label = QLabel("Obsidian Vault Verzeichnis (Optional für Auto-Sync):")
+        obsidian_label.setStyleSheet("font-weight: 500; color: #94A3B8; font-size: 12px;")
+        layout.addWidget(obsidian_label)
+
+        obsidian_row = QHBoxLayout()
+        self.obsidian_input = QLineEdit()
+        self.obsidian_input.setPlaceholderText("Pfad zum Obsidian Vault (z. B. ~/Documents/Obsidian)...")
+        obsidian_row.addWidget(self.obsidian_input)
+
+        self.obsidian_browse_btn = QPushButton("Durchsuchen...")
+        self.obsidian_browse_btn.setObjectName("secondaryButton")
+        self.obsidian_browse_btn.clicked.connect(self._browse_obsidian_vault)
+        obsidian_row.addWidget(self.obsidian_browse_btn)
+        layout.addLayout(obsidian_row)
+
         # Status Label
         self.status_label = QLabel("")
         self.status_label.setWordWrap(True)
@@ -343,9 +364,27 @@ class SettingsDialog(QDialog):
         if oai_key:
             self.openai_input.setText(oai_key)
 
-        if gemini_key or ant_key or oai_key:
-            self.status_label.setText("Schlüssel im Betriebssystem-Tresor geladen.")
+        # Load Obsidian vault path
+        vault_path = get_obsidian_vault_path()
+        if vault_path:
+            self.obsidian_input.setText(vault_path)
+
+        if gemini_key or ant_key or oai_key or vault_path:
+            self.status_label.setText("Einstellungen und Schlüssel geladen.")
             self.status_label.setStyleSheet("color: #FFFFFF; font-size: 12px;")
+
+    def _browse_obsidian_vault(self):
+        import os
+        current_val = self.obsidian_input.text().strip()
+        start_dir = os.path.expanduser(current_val) if current_val else os.path.expanduser("~")
+        chosen = QFileDialog.getExistingDirectory(
+            self,
+            "Obsidian Vault Verzeichnis auswählen",
+            start_dir,
+            QFileDialog.Option.ShowDirsOnly,
+        )
+        if chosen:
+            self.obsidian_input.setText(chosen)
 
     def _on_model_changed(self):
         self.status_label.setText("")
@@ -366,6 +405,10 @@ class SettingsDialog(QDialog):
         gemini_key = self.gemini_input.text().strip()
         ant_key = self.anthropic_input.text().strip()
         oai_key = self.openai_input.text().strip()
+        obsidian_vault = self.obsidian_input.text().strip()
+
+        # Save Obsidian vault path
+        set_obsidian_vault_path(obsidian_vault if obsidian_vault else None)
 
         # Save keys
         if gemini_key:

@@ -658,7 +658,185 @@ class TestChalkHudKaTeXRendering(unittest.TestCase):
         self.assertIn("&#8718;", html)  # Q.E.D. mark
         self.assertIn("#1A1C23", html)  # Dark titanium math card
 
+    def test_chalk_audio_url_parsing(self):
+        from src.ui.hud_window import parse_audio_timestamp, format_timestamp
+
+        # HH:MM:SS format
+        self.assertEqual(parse_audio_timestamp("chalk-audio://01:24:15"), 5055.0)
+        self.assertEqual(parse_audio_timestamp("chalk-audio://00:10:30"), 630.0)
+
+        # MM:SS format
+        self.assertEqual(parse_audio_timestamp("chalk-audio://24:15"), 1455.0)
+        self.assertEqual(parse_audio_timestamp("chalk-audio://05:00"), 300.0)
+
+        # Raw seconds format
+        self.assertEqual(parse_audio_timestamp("chalk-audio://5055"), 5055.0)
+        self.assertEqual(parse_audio_timestamp("chalk-audio://120.5"), 120.5)
+
+        # Direct timestamp strings (no scheme)
+        self.assertEqual(parse_audio_timestamp("01:24:15"), 5055.0)
+        self.assertEqual(parse_audio_timestamp("45"), 45.0)
+
+        # Formatting helper
+        self.assertEqual(format_timestamp(5055.0), "01:24:15")
+        self.assertEqual(format_timestamp(1455.0), "24:15")
+        self.assertEqual(format_timestamp(45.0), "00:45")
+
+    def test_obsidian_vault_and_frontmatter(self):
+        import tempfile
+        import shutil
+        from datetime import datetime
+        from src.engine.session_state import SessionNotesManager, slugify_topic
+        from src.engine.config import set_obsidian_vault_path, get_obsidian_vault_path
+
+        temp_vault = tempfile.mkdtemp(prefix="chalk_test_vault_")
+        try:
+            # Test slugify
+            self.assertEqual(slugify_topic("Measure Theory"), "measure_theory")
+            self.assertEqual(slugify_topic("Machine Learning: Deep Neural Nets!"), "machine_learning_deep_neural_nets")
+
+            # Test config persistence
+            set_obsidian_vault_path(temp_vault)
+            self.assertEqual(get_obsidian_vault_path(), os.path.abspath(temp_vault))
+
+            # Test SessionNotesManager with Obsidian auto-organization
+            today_str = datetime.now().strftime("%Y-%m-%d")
+            notes_mgr = SessionNotesManager(
+                notes_dir=os.path.join(temp_vault, "Chalk"),
+                session_id="sess_test_123",
+                topic="Measure Theory",
+                is_obsidian=True,
+            )
+
+            # 1. Subfolder creation: <Vault>/Chalk/
+            self.assertTrue(os.path.isdir(os.path.join(temp_vault, "Chalk")))
+
+            # 2. Note naming: <YYYY-MM-DD>_<slug>.md
+            expected_filename = f"{today_str}_measure_theory.md"
+            self.assertEqual(os.path.basename(notes_mgr.session_file), expected_filename)
+            self.assertTrue(os.path.exists(notes_mgr.session_file))
+
+            # 3. YAML frontmatter content
+            content = notes_mgr.read_full_notes()
+            self.assertIn("---", content)
+            self.assertIn("tags: [chalk, lecture, study]", content)
+            self.assertIn(f"date: {today_str}", content)
+            self.assertIn('topic: "Measure Theory"', content)
+            self.assertIn('audio_session: "sess_test_123"', content)
+        finally:
+            set_obsidian_vault_path(None)
+            shutil.rmtree(temp_vault, ignore_errors=True)
+
+    def test_diagram_to_mermaid_synthesis_rendering(self):
+        from src.api.synthesis_pipeline import LectureNoteBlock, render_blocks_to_markdown
+
+        # Test block with Mermaid flowchart
+        diagram_block = LectureNoteBlock(
+            type="diagram",
+            title="Verteilte Systemarchitektur",
+            latex="graph TD\n    Client[Web Client] --> Gateway[API Gateway]\n    Gateway --> ServiceA[Auth Service]\n    Gateway --> ServiceB[Compute Service]",
+            explanation="Architekturüberblick der Microservices-Infrastruktur.",
+            segment_id="SEG_30",
+            source="slide",
+        )
+
+        # 1. Type validation and synonym normalization
+        self.assertEqual(diagram_block.type, "diagram")
+
+        flowchart_block = LectureNoteBlock(
+            type="flowchart",
+            title="Prozessablauf",
+            latex="graph LR\n    A --> B",
+        )
+        self.assertEqual(flowchart_block.type, "diagram")
+
+        # 2. Markdown rendering contains ```mermaid fenced code block
+        markdown = render_blocks_to_markdown([diagram_block])
+        self.assertIn("```mermaid", markdown)
+        self.assertIn("graph TD", markdown)
+        self.assertIn("Client[Web Client] --> Gateway[API Gateway]", markdown)
+        self.assertIn("```", markdown)
+        self.assertIn("> [!diagram] Verteilte Systemarchitektur", markdown)
+
+    def test_journal_get_audio_slice(self):
+        import tempfile
+        import shutil
+        import numpy as np
+        from src.engine.journal import SessionJournal
+
+        temp_dir = tempfile.mkdtemp(prefix="chalk_journal_slice_test_")
+        try:
+            journal = SessionJournal(session_id="test_slice_sess", base_dir=temp_dir)
+            sr = 16000
+
+            # Write two 30-second segments of stereo audio
+            seg1_audio = np.full((30 * sr, 2), 0.25, dtype=np.float32)
+            seg2_audio = np.full((30 * sr, 2), 0.50, dtype=np.float32)
+
+            journal.write_segment(seg1_audio, start_wall_clock=1000.0, duration_sec=30.0)
+            journal.write_segment(seg2_audio, start_wall_clock=1030.0, duration_sec=30.0)
+
+            # Request 20s slice around 25s (spans 15s to 35s, crossing segment boundary)
+            sliced_audio, slice_sr = journal.get_audio_slice(target_timestamp_sec=25.0, slice_duration=20.0)
+
+            self.assertEqual(slice_sr, sr)
+            self.assertEqual(sliced_audio.ndim, 2)
+            self.assertEqual(sliced_audio.shape[1], 2)
+            # Duration should be 20 seconds = 320,000 samples
+            self.assertEqual(len(sliced_audio), 20 * sr)
+            # First half should be from seg1 (0.25), second half from seg2 (0.50)
+            self.assertAlmostEqual(float(sliced_audio[0, 0]), 0.25, places=2)
+            self.assertAlmostEqual(float(sliced_audio[-1, 0]), 0.50, places=2)
+        finally:
+            shutil.rmtree(temp_dir, ignore_errors=True)
+
+    def test_multi_speaker_diarization_callouts(self):
+        from src.api.synthesis_pipeline import LectureNoteBlock, render_blocks_to_markdown
+
+        # 1. Normalization of speaker tags & synonyms
+        b_aud1 = LectureNoteBlock(
+            type="remark",
+            title="Frage zum Konvergenzradius",
+            speaker="Audience Question",
+            explanation="Warum divergiert die Reihe außerhalb von r?\nResponse: Weil die Glieder keine Nullfolge mehr bilden.",
+            latex=r"\lim_{n \to \infty} a_n \neq 0",
+            segment_id="01:14:20",
+        )
+        self.assertEqual(b_aud1.speaker, "Audience Question")
+
+        b_aud2 = LectureNoteBlock(
+            type="example",
+            title="Audience Question @ 01:25:00",
+            speaker="student",  # Synonym
+            explanation="Gilt das auch in Banachräumen?",
+        )
+        self.assertEqual(b_aud2.speaker, "Audience Question")
+
+        b_lec = LectureNoteBlock(
+            type="theorem",
+            title="Hauptsatz der Analysis",
+            speaker="dozent",  # Synonym
+            explanation="Zusammenhang zwischen Differentiation und Integration.",
+            latex=r"\int_a^b f'(x) dx = f(b) - f(a)",
+        )
+        self.assertEqual(b_lec.speaker, "Lecturer")
+
+        # 2. Deterministic Callout Rendering for Audience Questions
+        md_aud = render_blocks_to_markdown([b_aud1])
+        self.assertIn("> [!question] Audience Question: Frage zum Konvergenzradius @ 01:14:20", md_aud)
+        self.assertIn("> **Question:** Warum divergiert die Reihe außerhalb von r?", md_aud)
+        self.assertIn("> **Response / Derivation:** Weil die Glieder keine Nullfolge mehr bilden.", md_aud)
+        self.assertIn(r"> $$", md_aud)
+        self.assertIn(r"> \lim_{n \to \infty} a_n \neq 0", md_aud)
+
+        # 3. Clean Lecturer rendering without question overhead
+        md_lec = render_blocks_to_markdown([b_lec])
+        self.assertIn("> [!theorem] Hauptsatz der Analysis", md_lec)
+        self.assertNotIn("> [!question]", md_lec)
+        self.assertNotIn("> **Question:**", md_lec)
+
 
 if __name__ == "__main__":
     unittest.main()
+
 

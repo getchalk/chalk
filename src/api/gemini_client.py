@@ -183,8 +183,10 @@ class GeminiLecturePipeline:
             "[HH:MM:SS](chalk-audio://HH:MM:SS) (or [MM:SS](chalk-audio://MM:SS)) so the user can click to scrub audio later.\n"
             "4. Extract all mathematical formulas into clean LaTeX display blocks ($$...$$) or inline ($...$). "
             "   Defer notation strictly to the presentation slides to prevent variable drift.\n"
-            "5. Provide calm, publication-grade prose with clear bullet points and derivations, matching the elegance of Notion and Apple Notes.\n"
-            "6. You MUST terminate your response with the following exact metadata block:\n"
+            "5. When visual architectures, state machines, flowcharts, or system hierarchies are discussed or displayed on slides, "
+            "generate valid Mermaid diagram syntax in a block with type 'diagram'.\n"
+            "6. Provide calm, publication-grade prose with clear bullet points and derivations, matching the elegance of Notion and Apple Notes.\n"
+            "7. You MUST terminate your response with the following exact metadata block:\n"
             "<!-- CHUNK_STATE\n"
             "Topic: <current topic name>\n"
             "Active_Variables: [<comma-separated defined mathematical variables>]\n"
@@ -325,7 +327,12 @@ class GeminiLecturePipeline:
             "Synthesize this lecture segment into structured note blocks. "
             "For any theorem, definition, proof, remark, or example, populate the schema. "
             "Defer notation strictly to the presentation slides to prevent variable drift. "
-            "Proofs must be step-by-step; unverified steps must be explicitly flagged as '[Lücke]'."
+            "Proofs must be step-by-step; unverified steps must be explicitly flagged as '[Lücke]'.\n\n"
+            "MULTI-SPEAKER & ACOUSTIC DIARIZATION:\n"
+            "Differentiate speakers based on audio channel tags ([MIC] for room audio vs. [LOOPBACK] for system audio), "
+            "acoustic transitions, questions, and conversational dynamics.\n"
+            "Assign the appropriate speaker to each note block: 'Lecturer', 'Audience Question', 'Meeting Host', or 'Discussion Participant'.\n"
+            "Student questions or audience interjections MUST strictly be flagged as speaker='Audience Question' or speaker='Discussion Participant'."
         )
 
         if len(stereo_audio) > 0:
@@ -592,7 +599,9 @@ class GeminiLecturePipeline:
             "STRICT MATHEMATICAL INTEGRITY RULE:\n"
             f"{STRICT_MATH_SYNTHESIS_INSTRUCTION}\n\n"
             "Produce comprehensive theorems, definitions, proofs, remarks, and examples. "
-            "Proofs must be step-by-step; unverified steps must be explicitly flagged as '[Lücke]'."
+            "Proofs must be step-by-step; unverified steps must be explicitly flagged as '[Lücke]'.\n\n"
+            "MULTI-SPEAKER & ACOUSTIC DIARIZATION:\n"
+            "Differentiate speakers: assign 'Lecturer', 'Audience Question', 'Meeting Host', or 'Discussion Participant' to each block."
         )
 
         prompt = f"FULL LECTURE NOTES TO DATE:\n\n{full_notes_markdown}\n\n"

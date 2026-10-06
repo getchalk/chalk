@@ -7,6 +7,7 @@ project_root = r"/Users/user/.gemini/antigravity/scratch/chalk"
 assets_dir = r"/Users/user/.gemini/antigravity/scratch/chalk/assets"
 entry_point = r"/Users/user/.gemini/antigravity/scratch/chalk/src/main.py"
 icon_path = r"/Users/user/.gemini/antigravity/scratch/chalk/assets/app.icns"
+entitlements_path = r"/Users/user/.gemini/antigravity/scratch/chalk/assets/entitlements.plist"
 
 added_datas = [
     (assets_dir, 'assets'),
@@ -37,6 +38,7 @@ hidden_imports = [
     'torch',
     'torchaudio',
     'src.security.hotkeys',
+    'src.engine.config',
 ]
 
 a = Analysis(
@@ -76,7 +78,7 @@ exe = EXE(
     argv_emulation=False,
     target_arch=None,
     codesign_identity=None,
-    entitlements_file=None,
+    entitlements_file=entitlements_path if os.path.exists(entitlements_path) else None,
     icon=icon_path,
 )
 
@@ -97,5 +99,11 @@ if sys.platform == 'darwin':
             'NSScreenCaptureUsageDescription': 'Chalk requires screen recording permission to synchronize slide transitions and support the screen snip tool during lectures.',
             'NSMicrophoneUsageDescription': 'Chalk requires microphone access to record professor lectures, in-room discussions, and student questions.',
             'NSAppleEventsUsageDescription': 'Chalk requires accessibility permissions for zero-token presentation text extraction from slide decks.',
+            'CFBundleURLTypes': [
+                {
+                    'CFBundleURLName': 'so.chalk.audio',
+                    'CFBundleURLSchemes': ['chalk-audio'],
+                }
+            ],
         },
     )

@@ -114,7 +114,78 @@ QSlider::handle:horizontal {
     margin: -3px 0;
     border-radius: 5px;
 }
+QFrame#playerPill {
+    background-color: rgba(22, 24, 30, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 12px;
+    padding: 3px 8px;
+}
+QPushButton#pillBtn {
+    background-color: rgba(35, 38, 48, 0.9);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 6px;
+    color: #F8FAFC;
+    padding: 3px 8px;
+    font-size: 11px;
+    font-weight: 600;
+}
+QPushButton#pillBtn:hover {
+    background-color: rgba(55, 60, 75, 0.95);
+    color: #FFFFFF;
+    border-color: rgba(255, 255, 255, 0.3);
+}
+QPushButton#pillCloseBtn {
+    background: transparent;
+    border: none;
+    color: #94A3B8;
+    font-size: 13px;
+    font-weight: 700;
+    padding: 2px 6px;
+}
+QPushButton#pillCloseBtn:hover {
+    color: #FFFFFF;
+}
 """
+
+
+def parse_audio_timestamp(url_or_str: str) -> float:
+    """
+    Parses 'chalk-audio://01:24:15', 'chalk-audio://24:15', 'chalk-audio://5055',
+    or raw timestamp strings into seconds as a float.
+    """
+    s = str(url_or_str).strip()
+    if s.lower().startswith("chalk-audio://"):
+        s = s[len("chalk-audio://"):]
+    s = s.strip("/")
+    if not s:
+        return 0.0
+
+    if ":" in s:
+        parts = s.split(":")
+        try:
+            if len(parts) == 3:
+                return float(int(parts[0]) * 3600 + int(parts[1]) * 60 + float(parts[2]))
+            elif len(parts) == 2:
+                return float(int(parts[0]) * 60 + float(parts[1]))
+            elif len(parts) == 1:
+                return float(parts[0])
+        except ValueError:
+            return 0.0
+    try:
+        return float(s)
+    except ValueError:
+        return 0.0
+
+
+def format_timestamp(seconds: float) -> str:
+    """Formats seconds into HH:MM:SS or MM:SS."""
+    total_sec = max(0, int(round(seconds)))
+    h = total_sec // 3600
+    m = (total_sec % 3600) // 60
+    s = total_sec % 60
+    if h > 0:
+        return f"{h:02d}:{m:02d}:{s:02d}"
+    return f"{m:02d}:{s:02d}"
 
 
 def find_local_obsidian_vault() -> Optional[str]:
@@ -643,36 +714,52 @@ class FloatingHUDWindow(QWidget):
         splitter.setSizes([330, 410])
         main_layout.addWidget(splitter)
 
-        # Mini-Audio Player Bar
-        player_frame = QFrame()
-        player_frame.setObjectName("playerBar")
-        player_layout = QHBoxLayout(player_frame)
-        player_layout.setContentsMargins(8, 4, 8, 4)
-        player_layout.setSpacing(10)
+        # Floating Mini-Player Pill ([⏮ -5s] [▶/⏸] [⏭ +5s] [01:24:15] ✕)
+        self.player_pill = QFrame()
+        self.player_pill.setObjectName("playerPill")
+        pill_layout = QHBoxLayout(self.player_pill)
+        pill_layout.setContentsMargins(10, 4, 10, 4)
+        pill_layout.setSpacing(8)
 
-        self.player_play_btn = QPushButton("▶ Play")
-        self.player_play_btn.setFixedSize(68, 28)
+        self.player_rewind_btn = QPushButton("⏮ -5s")
+        self.player_rewind_btn.setObjectName("pillBtn")
+        self.player_rewind_btn.setToolTip("5 Sekunden zurückspringen")
+        self.player_rewind_btn.clicked.connect(self._step_backward_5s)
+        pill_layout.addWidget(self.player_rewind_btn)
+
+        self.player_play_btn = QPushButton("▶")
+        self.player_play_btn.setObjectName("pillBtn")
+        self.player_play_btn.setFixedSize(36, 26)
+        self.player_play_btn.setToolTip("Wiedergabe starten/anhalten")
         self.player_play_btn.clicked.connect(self._toggle_audio_playback)
-        player_layout.addWidget(self.player_play_btn)
+        pill_layout.addWidget(self.player_play_btn)
 
-        self.player_status_lbl = QLabel("Audio-Scrubber: Bereit (Klicke auf Zeitstempel wie [01:14:20])")
-        self.player_status_lbl.setStyleSheet("font-size: 11px; color: #94A3B8;")
-        player_layout.addWidget(self.player_status_lbl)
+        self.player_forward_btn = QPushButton("⏭ +5s")
+        self.player_forward_btn.setObjectName("pillBtn")
+        self.player_forward_btn.setToolTip("5 Sekunden vorwärtsspringen")
+        self.player_forward_btn.clicked.connect(self._step_forward_5s)
+        pill_layout.addWidget(self.player_forward_btn)
 
-        player_layout.addStretch()
+        self.player_time_badge = QLabel("[00:00]")
+        self.player_time_badge.setStyleSheet(
+            "color: #FFFFFF; font-weight: 700; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11px;"
+        )
+        pill_layout.addWidget(self.player_time_badge)
 
-        self.player_slider = QSlider(Qt.Orientation.Horizontal)
-        self.player_slider.setRange(0, 100)
-        self.player_slider.setValue(0)
-        self.player_slider.setFixedWidth(120)
-        self.player_slider.sliderMoved.connect(self._on_slider_moved)
-        player_layout.addWidget(self.player_slider)
+        self.player_status_lbl = QLabel("20s Audio-Ausschnitt")
+        self.player_status_lbl.setStyleSheet("color: #94A3B8; font-size: 11px;")
+        pill_layout.addWidget(self.player_status_lbl)
 
-        self.player_time_lbl = QLabel("00:00")
-        self.player_time_lbl.setStyleSheet("font-size: 11px; font-family: ui-monospace, monospace; color: #CBD5E1;")
-        player_layout.addWidget(self.player_time_lbl)
+        pill_layout.addStretch()
 
-        main_layout.addWidget(player_frame)
+        self.player_close_btn = QPushButton("✕")
+        self.player_close_btn.setObjectName("pillCloseBtn")
+        self.player_close_btn.setToolTip("Mini-Player schließen")
+        self.player_close_btn.clicked.connect(self.hide_audio_player_pill)
+        pill_layout.addWidget(self.player_close_btn)
+
+        main_layout.addWidget(self.player_pill)
+        self.player_pill.hide()
 
     def get_scratchpad_content(self) -> str:
         """Returns the current student scratchpad text."""
@@ -968,43 +1055,82 @@ class FloatingHUDWindow(QWidget):
         rendered_html = render_markdown_with_katex(markdown_notes)
         self.notes_browser.setHtml(rendered_html)
 
-    # Audio Scrubbing & Playback
+    # Audio Scrubbing & Floating Mini-Player Playback
     def _on_anchor_clicked(self, url: QUrl):
         url_str = url.toString()
         if url_str.startswith("chalk-audio://"):
-            time_str = url_str.replace("chalk-audio://", "").strip("/")
-            parts = time_str.split(":")
-            sec = 0
-            if len(parts) == 3:
-                sec = int(parts[0]) * 3600 + int(parts[1]) * 60 + int(parts[2])
-            elif len(parts) == 2:
-                sec = int(parts[0]) * 60 + int(parts[1])
-            self.play_audio_scrub(offset_seconds=float(sec), duration=30.0)
-            self.chat_history.append(f"<i>[Audio-Scrubbing zu Zeitstempel {time_str}]</i>")
+            self.open_audio_url(url_str)
+            sec = parse_audio_timestamp(url_str)
+            self.chat_history.append(f"<i>[Audio-Scrubbing @ {format_timestamp(sec)}]</i>")
         else:
             QDesktopServices.openUrl(url)
 
-    def play_audio_scrub(self, offset_seconds: float = 0.0, duration: float = 30.0):
-        """Plays audio at given offset using sounddevice."""
+    def open_audio_url(self, url_or_str: str):
+        """Called when a chalk-audio:// URL is triggered via custom scheme or anchor click."""
+        sec = parse_audio_timestamp(url_or_str)
+        self.current_playback_offset = sec
+        self.player_time_badge.setText(f"[{format_timestamp(sec)}]")
+        self.player_pill.show()
+        self.play_audio_slice(offset_seconds=sec, duration=20.0)
+
+    def play_audio_slice(self, offset_seconds: float = 0.0, duration: float = 20.0):
+        """Plays a 20-second audio slice around offset_seconds via sounddevice/journal without freezing UI."""
         try:
             import sounddevice as sd
             import numpy as np
 
             audio = None
-            if self.recorder:
+            sr = 16000
+
+            # 1. Try disk journal if available
+            if self.recorder and hasattr(self.recorder, "journal") and self.recorder.journal:
+                audio, seg_sr = self.recorder.journal.get_audio_slice(
+                    target_timestamp_sec=offset_seconds, slice_duration=duration
+                )
+                if len(audio) > 0:
+                    sr = seg_sr
+
+            # 2. Fallback to recorder rewind buffer
+            if (audio is None or len(audio) == 0) and self.recorder:
                 audio = self.recorder.get_rewind_audio(seconds=int(duration + 10))
 
             if audio is not None and len(audio) > 0:
                 sd.stop()
-                sd.play(audio, 16000)
+                sd.play(audio, sr)
                 self.is_playing_audio = True
-                self.player_status_lbl.setText(f"▶ Wiedergabe @ {int(offset_seconds)}s (30s Snippet)")
-                self.player_status_lbl.setStyleSheet("color: #FFFFFF; font-size: 11px; font-weight: 600;")
-                self.player_play_btn.setText("■ Stop")
+                self.player_play_btn.setText("⏸")
+                self.player_status_lbl.setText("▶ Spielt 20s Ausschnitt")
+                self.player_status_lbl.setStyleSheet("color: #38BDF8; font-size: 11px;")
+
+                if hasattr(self, "_play_timer") and self._play_timer:
+                    self._play_timer.stop()
+                self._play_timer = QTimer(self)
+                self._play_timer.setSingleShot(True)
+                self._play_timer.timeout.connect(self._on_playback_completed)
+                self._play_timer.start(int((len(audio) / sr) * 1000) + 200)
             else:
                 self.player_status_lbl.setText("Kein Audio-Puffer verfügbar")
+                self.player_status_lbl.setStyleSheet("color: #F87171; font-size: 11px;")
+                self.player_play_btn.setText("▶")
+                self.is_playing_audio = False
         except Exception as e:
             logger.warning("Audio playback error: %s", e)
+            self.player_status_lbl.setText("Wiedergabefehler")
+            self.player_play_btn.setText("▶")
+            self.is_playing_audio = False
+
+    def play_audio_scrub(self, offset_seconds: float = 0.0, duration: float = 20.0):
+        """Backward-compatible alias for play_audio_slice."""
+        self.current_playback_offset = offset_seconds
+        self.player_time_badge.setText(f"[{format_timestamp(offset_seconds)}]")
+        self.player_pill.show()
+        self.play_audio_slice(offset_seconds=offset_seconds, duration=duration)
+
+    def _on_playback_completed(self):
+        self.is_playing_audio = False
+        self.player_play_btn.setText("▶")
+        self.player_status_lbl.setText("20s Snippet beendet")
+        self.player_status_lbl.setStyleSheet("color: #94A3B8; font-size: 11px;")
 
     def stop_audio_scrub(self):
         try:
@@ -1012,20 +1138,34 @@ class FloatingHUDWindow(QWidget):
             sd.stop()
         except Exception:
             pass
+        if hasattr(self, "_play_timer") and self._play_timer:
+            self._play_timer.stop()
         self.is_playing_audio = False
+        self.player_play_btn.setText("▶")
         self.player_status_lbl.setText("Wiedergabe angehalten")
-        self.player_play_btn.setText("▶ Play")
+        self.player_status_lbl.setStyleSheet("color: #94A3B8; font-size: 11px;")
 
     def _toggle_audio_playback(self):
         if self.is_playing_audio:
             self.stop_audio_scrub()
         else:
-            self.play_audio_scrub(offset_seconds=0.0, duration=30.0)
+            self.play_audio_slice(offset_seconds=getattr(self, "current_playback_offset", 0.0), duration=20.0)
 
-    def _on_slider_moved(self, value: int):
-        mins = int((time.time() - self.session_start_time) // 60)
-        target_sec = int((value / 100.0) * max(1, mins * 60))
-        self.play_audio_scrub(offset_seconds=float(target_sec), duration=20.0)
+    def _step_backward_5s(self):
+        cur = getattr(self, "current_playback_offset", 0.0)
+        self.current_playback_offset = max(0.0, cur - 5.0)
+        self.player_time_badge.setText(f"[{format_timestamp(self.current_playback_offset)}]")
+        self.play_audio_slice(offset_seconds=self.current_playback_offset, duration=20.0)
+
+    def _step_forward_5s(self):
+        cur = getattr(self, "current_playback_offset", 0.0)
+        self.current_playback_offset = cur + 5.0
+        self.player_time_badge.setText(f"[{format_timestamp(self.current_playback_offset)}]")
+        self.play_audio_slice(offset_seconds=self.current_playback_offset, duration=20.0)
+
+    def hide_audio_player_pill(self):
+        self.stop_audio_scrub()
+        self.player_pill.hide()
 
     # Note Export & Open Handlers
     def _get_active_notes_path(self) -> Optional[str]:

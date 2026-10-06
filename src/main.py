@@ -19,8 +19,33 @@ import threading
 import logging
 from typing import Optional
 
-from PyQt6.QtCore import Qt, QTimer, QThread, pyqtSignal, QObject
+from PyQt6.QtCore import Qt, QTimer, QThread, pyqtSignal, QObject, QEvent
 from PyQt6.QtWidgets import QApplication, QMessageBox
+
+
+class ChalkApplication(QApplication):
+    """
+    Custom QApplication subclass that intercepts macOS QFileOpenEvent
+    for custom URL scheme 'chalk-audio://...'.
+    """
+    url_opened = pyqtSignal(str)
+
+    def event(self, event: QEvent) -> bool:
+        if event.type() == QEvent.Type.FileOpen:
+            try:
+                url_str = ""
+                if hasattr(event, "url"):
+                    url_val = event.url()
+                    url_str = url_val.toString() if hasattr(url_val, "toString") else str(url_val)
+                if not url_str and hasattr(event, "file"):
+                    url_str = event.file()
+                if url_str:
+                    logger.info("ChalkApplication intercepted URL event: %s", url_str)
+                    self.url_opened.emit(url_str)
+                    return True
+            except Exception as e:
+                logger.warning("Error handling QFileOpenEvent: %s", e)
+        return super().event(event)
 
 # Module Imports
 from src.security.key_manager import has_api_key, get_api_key
@@ -464,6 +489,15 @@ class ChalkCoordinator(QObject):
             self.pipeline.reload_key()
             logger.info("API key reloaded in pipeline from settings modal.")
 
+    def handle_audio_url(self, url: str):
+        """Dispatches audio scrubbing URL to floating HUD."""
+        logger.info("Coordinator received audio URL: %s", url)
+        if not self.hud.isVisible():
+            self.hud.show()
+        self.hud.raise_()
+        self.hud.activateWindow()
+        self.hud.open_audio_url(url)
+
     def exit_application(self):
         logger.info("Shutting down Chalk daemon...")
         if hasattr(self, "hotkey_manager") and self.hotkey_manager:
@@ -478,7 +512,7 @@ class ChalkCoordinator(QObject):
 
 
 def main():
-    app = QApplication(sys.argv)
+    app = ChalkApplication(sys.argv)
     app.setQuitOnLastWindowClosed(False)  # Keep running in system tray
 
     # Step 1: Ensure BYOK API Key is configured in OS native vault
@@ -488,6 +522,13 @@ def main():
 
     # Step 2: Initialize Chalk Coordinator & Lifecycle
     coordinator = ChalkCoordinator(app)
+    app.url_opened.connect(coordinator.handle_audio_url)
+
+    # Check CLI arguments for chalk-audio:// URL
+    for arg in sys.argv[1:]:
+        if arg.startswith("chalk-audio://"):
+            QTimer.singleShot(400, lambda u=arg: coordinator.handle_audio_url(u))
+
     coordinator.start_session()
 
     # Step 3: Run Qt Event Loop
