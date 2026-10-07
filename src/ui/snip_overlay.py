@@ -36,11 +36,11 @@ class SnipOverlayWidget(QWidget):
         self.captured_pixmap: Optional[QPixmap] = None
 
     def start_snip(self):
-        """Freezes screen and opens overlay."""
-        # Grab current screen
-        pil_img = EventGatedScreenGrabber.capture_screenshot()
-        rgb_data = pil_img.convert("RGBA").tobytes("raw", "RGBA")
-        qimage = QImage(rgb_data, pil_img.width, pil_img.height, QImage.Format.Format_RGBA8888)
+        """Freezes screen and opens overlay with Retina/DPI awareness."""
+        # Grab master high-res screen
+        self._source_pil_img = EventGatedScreenGrabber.capture_screenshot()
+        rgb_data = self._source_pil_img.convert("RGBA").tobytes("raw", "RGBA")
+        qimage = QImage(rgb_data, self._source_pil_img.width, self._source_pil_img.height, QImage.Format.Format_RGBA8888)
         self.captured_pixmap = QPixmap.fromImage(qimage)
 
         # Set geometry to cover all screens
@@ -49,6 +49,11 @@ class SnipOverlayWidget(QWidget):
         for s in screens:
             total_rect = total_rect.united(s.geometry())
         self.setGeometry(total_rect)
+
+        # High-DPI scaling factors between logical points and physical pixels
+        self._scale_x = self._source_pil_img.width / max(1, total_rect.width())
+        self._scale_y = self._source_pil_img.height / max(1, total_rect.height())
+        self.captured_pixmap.setDevicePixelRatio(self._scale_x)
 
         self.start_point = None
         self.end_point = None
@@ -89,7 +94,7 @@ class SnipOverlayWidget(QWidget):
 
     def _finish_selection(self):
         self.hide()
-        if not self.start_point or not self.end_point or not self.captured_pixmap:
+        if not self.start_point or not self.end_point or not hasattr(self, "_source_pil_img") or not self._source_pil_img:
             self.snip_cancelled.emit()
             return
 
@@ -98,16 +103,19 @@ class SnipOverlayWidget(QWidget):
             self.snip_cancelled.emit()
             return
 
-        # Crop from pixmap
-        cropped_pixmap = self.captured_pixmap.copy(rect)
-        cropped_qimage = cropped_pixmap.toImage().convertToFormat(QImage.Format.Format_RGBA8888)
+        # Direct physical pixel crop from source image ensures 100% sharpness on Retina/4K displays
+        crop_x = int(rect.x() * self._scale_x)
+        crop_y = int(rect.y() * self._scale_y)
+        crop_w = int(rect.width() * self._scale_x)
+        crop_h = int(rect.height() * self._scale_y)
 
-        # Convert to PIL Image
-        width, height = cropped_qimage.width(), cropped_qimage.height()
-        ptr = cropped_qimage.bits()
-        ptr.setsize(height * width * 4)
-        pil_img = Image.frombuffer("RGBA", (width, height), bytes(ptr), "raw", "RGBA", 0, 1).convert("RGB")
-
+        crop_box = (
+            max(0, crop_x),
+            max(0, crop_y),
+            min(self._source_pil_img.width, crop_x + crop_w),
+            min(self._source_pil_img.height, crop_y + crop_h),
+        )
+        pil_img = self._source_pil_img.crop(crop_box).convert("RGB")
         self.snip_captured.emit(pil_img)
 
     def paintEvent(self, event):

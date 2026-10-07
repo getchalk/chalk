@@ -142,13 +142,17 @@ class SessionNotesManager:
     def _init_session_file(self):
         """Initializes the markdown notes file with header if new."""
         if not os.path.exists(self.session_file):
+            now_iso = datetime.now().astimezone().isoformat()
+            safe_topic = self.topic.replace('\\', '\\\\').replace('"', '\\"')
+            safe_sid = self.session_id.replace('\\', '\\\\').replace('"', '\\"')
             if self.is_obsidian:
                 header = (
                     f"---\n"
                     f"tags: [chalk, lecture, study]\n"
                     f"date: {self.session_date_str}\n"
-                    f'topic: "{self.topic}"\n'
-                    f'audio_session: "{self.session_id}"\n'
+                    f"created: {now_iso}\n"
+                    f'topic: "{safe_topic}"\n'
+                    f'audio_session: "{safe_sid}"\n'
                     f"---\n\n"
                     f"# Chalk Lecture Notes — {self.session_date_str}\n\n"
                     f"*Generated autonomously by Chalk Desktop Lecture Engine*\n\n"

@@ -151,14 +151,24 @@
       background-color: rgba(0, 0, 0, 0.05);
     }
 
-    /* KaTeX Zero-Flash Anti-Jitter Typography */
+    /* KaTeX Zero-Flash Anti-Jitter Typography & Offline Monospace Fallback */
     .render-math {
       opacity: 0;
       transition: opacity 0.12s ease-in;
     }
     .render-math.math-rendered,
+    .render-math.math-fallback,
     .render-math:has(.katex) {
       opacity: 1;
+    }
+    .render-math.math-fallback {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.85rem;
+      letter-spacing: -0.01em;
+      padding: 0.25rem 0.5rem;
+      border-radius: 0.375rem;
+      background: var(--surface-terminal);
+      border: 1px solid var(--chalk-border);
     }
   </style>
 </head>
@@ -700,7 +710,7 @@
   </footer>
 
   <!-- MODAL: Consolidated Legal Hub (§ 25 MedienG, DSGVO, § 120 StGB) -->
-  <div id="modal-legal-hub" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-md hidden items-center justify-center p-4">
+  <div id="modal-legal-hub" onclick="if(event.target === this) closeModal('modal-legal-hub')" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-md hidden items-center justify-center p-4">
     <div class="max-w-2xl w-full rounded-2xl border p-7 text-left space-y-4 shadow-2xl" style="background-color: var(--modal-bg); border-color: var(--chalk-border);">
       <div class="flex items-center justify-between border-b pb-3" style="border-color: var(--chalk-border);">
         <h3 class="text-sm font-bold font-mono uppercase tracking-wider" style="color: var(--chalk-white);" data-i18n="modal_legal_hub_title">Legal Information & Compliance Hub</h3>
@@ -902,6 +912,7 @@
     "legal_sec3_body": "Pursuant to § 120 Para. 1 of the Austrian Criminal Code (StGB) and comparable European legislation (§ 201 StGB Germany, wiretap consent statutes), recording non-public spoken words without prior authorization is unlawful. Always ensure all lecturers, presenters, and meeting participants have consented prior to activating recording.",
     "modal_recording_box_label": "Recommended notice for meeting chats / invites:",
     "modal_copy_notice_btn": "Copy Meeting Notice",
+    "modal_copied_notice_btn": "Notice Copied!",
     "modal_close": "Close"
   },
   "de": {
@@ -1025,6 +1036,7 @@
     "legal_sec3_body": "Gemäß § 120 Abs. 1 Strafgesetzbuch (StGB) Österreich und vergleichbaren europäischen Regelungen (§ 201 StGB Deutschland) ist die unbefugte Tonaufnahme des nicht-öffentlichen Wortes einer anderen Person strafbar. Stellen Sie vor jeder Aufzeichnung sicher, dass Dozenten, Vortragende und Gesprächsteilnehmer vorab informiert wurden und zugestimmt haben.",
     "modal_recording_box_label": "Empfohlener Hinweistext für Chat / Einladung:",
     "modal_copy_notice_btn": "Hinweistext kopieren",
+    "modal_copied_notice_btn": "Hinweistext kopiert!",
     "modal_close": "Schließen"
   },
   "fr": {
@@ -1148,6 +1160,7 @@
     "legal_sec3_body": "Conformément à l'article 120 alinéa 1 du Code pénal autrichien (StGB) et aux réglementations européennes comparables (§ 201 StGB Allemagne), l'enregistrement non autorisé de paroles non publiques est punissable par la loi. Veillez à toujours obtenir le consentement préalable de l'ensemble des participants.",
     "modal_recording_box_label": "Texte de notification recommandé pour le chat / l'invitation :",
     "modal_copy_notice_btn": "Copier la mention de réunion",
+    "modal_copied_notice_btn": "Mention copiée !",
     "modal_close": "Fermer"
   },
   "es": {
@@ -1271,6 +1284,7 @@
     "legal_sec3_body": "De conformidad con el § 120 párr. 1 del Código Penal austriaco (StGB) und normativas europeas análogas (§ 201 StGB Alemania), la grabación no consentida de la palabra no pública está penalizada. Asegúrese siempre de contar con el consentimiento previo de todos los participantes.",
     "modal_recording_box_label": "Aviso recomendado para chat / invitación:",
     "modal_copy_notice_btn": "Copiar aviso de reunión",
+    "modal_copied_notice_btn": "¡Aviso copiado!",
     "modal_close": "Cerrar"
   },
   "zh": {
@@ -1394,6 +1408,7 @@
     "legal_sec3_body": "根据奥地利刑法第 120 条第 1 款及相关国际法规（如德国刑法第 201 条），未经许可录制他人非公开言论属于违法行为。在启动 Chalk 录音前，请务必提前告知授课讲师与参会人员并取得知情同意。",
     "modal_recording_box_label": "推荐在会议聊天区或日程邀请中发送的告知文案：",
     "modal_copy_notice_btn": "复制会议告知文本",
+    "modal_copied_notice_btn": "已复制告知文本！",
     "modal_close": "关闭"
   }
 };
@@ -1509,10 +1524,11 @@
       renderHeroMath();
     }
 
-    // KaTeX Math Rendering in Mockup
+    // KaTeX Math Rendering in Mockup with Offline Fallback
+    let katexRetries = 0;
     function renderHeroMath() {
+      const heroCard = document.getElementById('hero-card');
       if (typeof renderMathInElement === 'function') {
-        const heroCard = document.getElementById('hero-card');
         if (heroCard) {
           renderMathInElement(heroCard, {
             delimiters: [
@@ -1526,7 +1542,17 @@
           });
         }
       } else {
-        setTimeout(renderHeroMath, 100);
+        katexRetries++;
+        if (katexRetries < 25) {
+          setTimeout(renderHeroMath, 100);
+        } else {
+          // Offline / CDN Blocked Fallback: Show raw formula cleanly in monospace container
+          if (heroCard) {
+            heroCard.querySelectorAll('.render-math').forEach(el => {
+              el.classList.add('math-fallback');
+            });
+          }
+        }
       }
     }
     window.addEventListener('load', renderHeroMath);
@@ -1681,7 +1707,8 @@
     function copyMeetingNotice(btn) {
       navigator.clipboard.writeText(MEETING_NOTICE).then(() => {
         const originalHtml = btn.innerHTML;
-        btn.innerHTML = `${checkSvg}<span>${translations[currentLang].btn_copied}</span>`;
+        const copiedText = (translations[currentLang] && translations[currentLang].modal_copied_notice_btn) || translations[currentLang].btn_copied;
+        btn.innerHTML = `${checkSvg}<span>${copiedText}</span>`;
         setTimeout(() => {
           btn.innerHTML = originalHtml;
         }, 2000);

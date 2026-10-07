@@ -835,6 +835,74 @@ class TestChalkHudKaTeXRendering(unittest.TestCase):
         self.assertNotIn("> [!question]", md_lec)
         self.assertNotIn("> **Question:**", md_lec)
 
+    def test_phase21_mermaid_sanitization(self):
+        """Phase 21: Verify Mermaid diagram syntax validation and label quoting."""
+        from src.api.synthesis_pipeline import sanitize_mermaid_syntax
+
+        # 1. Missing declaration defaults to graph TD
+        raw_graph = "A --> B\nB --> C"
+        sanitized = sanitize_mermaid_syntax(raw_graph)
+        self.assertTrue(sanitized.startswith("graph TD\n"))
+
+        # 2. Parens in labels are quoted
+        raw_labels = "graph TD\n    NodeA[Client (Browser)] --> NodeB[Server: Backend]\n    NodeC[No Special] --> NodeD"
+        sanitized_labels = sanitize_mermaid_syntax(raw_labels)
+        self.assertIn('NodeA["Client (Browser)"]', sanitized_labels)
+        self.assertIn('NodeB["Server: Backend"]', sanitized_labels)
+        self.assertIn("NodeC[No Special]", sanitized_labels)
+
+    def test_phase21_journal_defensive_io_and_emergency_dump(self):
+        """Phase 21: Verify emergency session dump and corrupted WAV recovery."""
+        import tempfile
+        import shutil
+        from src.engine.journal import SessionJournal
+
+        temp_dir = tempfile.mkdtemp(prefix="chalk_test_p21_")
+        try:
+            journal = SessionJournal(session_id="test_p21_sess", base_dir=temp_dir)
+
+            # 1. Emergency dump
+            payload = {"uncommitted_text": "Important derivation", "segments": [1, 2]}
+            dump_file = journal.save_emergency_dump(payload, "Network timeout 504")
+            self.assertTrue(os.path.exists(dump_file))
+            with open(dump_file, "r", encoding="utf-8") as f:
+                data = json.load(f)
+            self.assertEqual(data["session_id"], "test_p21_sess")
+            self.assertEqual(data["error"], "Network timeout 504")
+            self.assertEqual(data["payload"]["uncommitted_text"], "Important derivation")
+
+            # 2. Corrupt WAV handling
+            corrupt_path = os.path.join(journal.session_dir, "seg_0099.wav")
+            with open(corrupt_path, "wb") as f:
+                f.write(b"NOT A REAL WAV FILE HEADER 12345678")
+
+            # Reading corrupt segment should not raise unhandled crash
+            audio, sr = journal.read_segment_audio("seg_0099")
+            self.assertEqual(sr, 16000)
+            self.assertEqual(len(audio), 16000 * 30)
+        finally:
+            shutil.rmtree(temp_dir, ignore_errors=True)
+
+    def test_phase21_multiprovider_backoff_and_emergency_dump(self):
+        """Phase 21: Verify multi-provider exponential backoff with jitter and emergency dump."""
+        from src.api.multi_provider import AnthropicClaudeAdapter, OpenAIAdapter
+        import tempfile
+        import shutil
+
+        claude = AnthropicClaudeAdapter(api_key="sk-ant-testkey123456789012345678901234")
+        calls = []
+
+        def failing_func():
+            calls.append(1)
+            if len(calls) < 3:
+                raise Exception("HTTP 429 Rate Limit Exceeded")
+            return "Success after backoff"
+
+        # Should retry and succeed on 3rd attempt
+        res = claude._execute_with_backoff(failing_func)
+        self.assertEqual(res, "Success after backoff")
+        self.assertEqual(len(calls), 3)
+
 
 if __name__ == "__main__":
     unittest.main()

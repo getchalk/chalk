@@ -255,7 +255,13 @@ class _MacCarbonHotkeyBackend:
             ctypes.byref(ref),
         )
         if err != 0:
-            logger.warning("RegisterEventHotKey failed with error code: %d", err)
+            if err == -9868:
+                logger.warning(
+                    "Carbon hotkey collision: Shortcut (ID %d, keycode %d) is already reserved by another application or macOS system service.",
+                    hotkey_id, keycode
+                )
+            else:
+                logger.warning("RegisterEventHotKey failed with Carbon error code: %d", err)
         else:
             self._registered_refs[hotkey_id] = ref
             logger.debug("Registered Carbon hotkey ID %d (code=%d, mods=%d)", hotkey_id, keycode, modifiers)
@@ -413,7 +419,11 @@ class _WindowsHotkeyBackend:
                 if user32.RegisterHotKey(None, hid, mods, vk):
                     registered_ids.append(hid)
                 else:
-                    logger.warning("Failed to register Windows hotkey %d", hid)
+                    err_code = kernel32.GetLastError()
+                    logger.warning(
+                        "Windows hotkey collision: Shortcut ID %d (vk=0x%X, mods=0x%X) already registered by another application (WinError %d).",
+                        hid, vk, mods, err_code
+                    )
 
             msg = wintypes.MSG()
             while not self._stop_event.is_set():

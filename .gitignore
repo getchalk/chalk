@@ -6,9 +6,16 @@ __pycache__/
 *.py[cod]
 *$py.class
 
-# PyInstaller build artifacts
+# PyInstaller build artifacts & compiled binaries
+dist/
 build/
 *.spec.bak
+*.app/
+*.exe
+*.zip
+*.tar.gz
+*.pkg
+*.dmg
 
 # OS specific
 .DS_Store
@@ -18,17 +25,6 @@ Thumbs.db
 .pytest_cache/
 .coverage
 htmlcov/
-dist/
-build/
-.venv/
-venv/
-__pycache__/
-*.pyc
-.DS_Store
-dist/
-build/
-.venv/
-venv/
-__pycache__/
-*.pyc
-.DS_Store
+sessions/
+*.log
+

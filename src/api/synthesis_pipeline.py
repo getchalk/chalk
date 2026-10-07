@@ -240,10 +240,13 @@ KATEX_ALLOWED_COMMANDS = {
     # Delimiters & Sizing
     "left", "right", "bigl", "bigr", "Bigl", "Bigr", "biggl", "biggr", "Bigg", "middle",
     "big", "Big", "bigg",
-    # Environments & Spacing
+    # Environments, Multi-line structures & Matrices
     "begin", "end", "quad", "qquad", "phantom", "hphantom", "vphantom",
     "limits", "nolimits", "displaystyle", "textstyle", "scriptstyle", "scriptscriptstyle",
-    "over", "atop", "choose"
+    "over", "atop", "choose", "aligned", "cases", "matrix", "pmatrix", "bmatrix",
+    "Bmatrix", "vmatrix", "Vmatrix", "array", "gather", "gathered", "split",
+    "substack", "smallmatrix", "hline", "newline", "bmod", "pmod", "pod",
+    "therefore", "because", "intertext", "shortintertext"
 }
 
 
@@ -473,6 +476,45 @@ def validate_latex_syntax(latex_str: str) -> Tuple[bool, str]:
     return False, sanitized
 
 
+def sanitize_mermaid_syntax(mermaid_body: str) -> str:
+    """
+    Validates and sanitizes Mermaid diagram syntax:
+    1. Ensures valid diagram type declaration (graph TD, flowchart, sequenceDiagram, etc.)
+    2. Strips markdown fences.
+    3. Quotes node labels that contain parentheses, colons, or special characters to prevent parser breaks.
+    """
+    clean_lines = []
+    for line in mermaid_body.splitlines():
+        trimmed = line.strip()
+        if trimmed.startswith("```"):
+            continue
+        clean_lines.append(line)
+    text = "\n".join(clean_lines).strip()
+    if not text:
+        return 'graph TD\n    A["Start"] --> B["End"]'
+
+    lines = [l for l in text.splitlines() if l.strip()]
+    first_line = lines[0].strip() if lines else ""
+    valid_types = (
+        "graph ", "flowchart ", "sequenceDiagram", "classDiagram",
+        "stateDiagram", "erDiagram", "pie", "gantt", "gitGraph", "xychart-beta"
+    )
+    if not any(first_line.startswith(vt) for vt in valid_types):
+        text = "graph TD\n" + text
+
+    # Quote node labels containing parentheses, colons, or commas: e.g. A[Foo (Bar)] -> A["Foo (Bar)"]
+    def _quote_labels(match):
+        node_id = match.group(1)
+        label_content = match.group(2)
+        if not (label_content.startswith('"') and label_content.endswith('"')):
+            safe_content = label_content.replace('"', "'")
+            return f'{node_id}["{safe_content}"]'
+        return match.group(0)
+
+    text = re.sub(r'(\b[A-Za-z0-9_]+)\[([^"\]\n]*[\(\):,][^"\]\n]*)\]', _quote_labels, text)
+    return text
+
+
 # ==============================================================================
 # 3. Deterministic Markdown Renderer
 # ==============================================================================
@@ -512,14 +554,7 @@ def render_blocks_to_markdown(blocks: List[Union[Dict[str, Any], LectureNoteBloc
         # Special handling for visual architecture diagrams (Mermaid)
         if b_type == "diagram":
             mermaid_raw = latex.strip() or explanation.strip()
-            clean_lines = []
-            for m_line in mermaid_raw.splitlines():
-                if m_line.strip().startswith("```"):
-                    continue
-                clean_lines.append(m_line)
-            mermaid_body = "\n".join(clean_lines).strip()
-            if not mermaid_body:
-                mermaid_body = "graph TD\n    A[Start] --> B[End]"
+            mermaid_body = sanitize_mermaid_syntax(mermaid_raw)
 
             d_lines = []
             if title:

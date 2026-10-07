@@ -1,8 +1,8 @@
 ================================================================================
 CHALK — AMBIENT COGNITIVE PRESENCE ENGINE & WEB PORTAL
-STATUS-REPORT, ARCHITEKTUR-ÜBERSICHT UND ANMERKUNGEN (PHASEN 1–20)
+STATUS-REPORT, ARCHITEKTUR-ÜBERSICHT UND ANMERKUNGEN (PHASEN 1–21)
 ================================================================================
-Stand: 2026-10-06
+Stand: 2026-10-07
 Projektpfad (Desktop): /Users/user/Desktop/chalk/
 Projektpfad (Scratch): /Users/user/.gemini/antigravity/scratch/chalk/
 Slogan: "Let them talk. Chalk does the work."
@@ -29,8 +29,9 @@ Phase 16: KaTeX Math Rendering, Photo Re-Centering, Modal Consolidation & Privac
 Phase 18: Definitive Purist Polish & Final Production Target [ABGESCHLOSSEN]
 Phase 19: Multi-Speaker Diarization, Notarization Pipeline & 7h Soak Test [ABGESCHLOSSEN]
 Phase 20: Full Multi-OS Release (macOS arm64 + Windows x64), Purist Web & 1:1 Sync [ABGESCHLOSSEN]
+Phase 21: Autonomous Deep-Audit, Circuit Breakers, Multi-Provider & Git Hygiene [ABGESCHLOSSEN]
 
-- Unit- & Integrationstest-Suite: 34/34 TESTS BESTANDEN (2.3s - 5.8s).
+- Unit- & Integrationstest-Suite: 37/37 TESTS BESTANDEN (8.3s).
 - Multi-OS Release Parität: Standalone-Pipelines für macOS arm64 (.app Bundle & .zip) und Windows x64 (.exe Installer via scripts/build_windows.bat & .github/workflows/release.yml).
 - 1:1 Filesystem-Spiegelung: Vollständiger Sync zwischen /Users/user/.gemini/antigravity/scratch/chalk/ und /Users/user/Desktop/chalk/.
 - Multi-Speaker Diarization: Zero-Bloat Pydantic Schema mit Obsidian-Callouts (> [!question] Audience Question).
@@ -736,14 +737,82 @@ C. 1:1 DATEISYSTEM-SYNCHRONISATION & REGRESSIONSFREIHEIT
   [✓] Web-Validierung fehlerfrei: 0 verbotene Token, 0 Emojis, Titanium Theme (`./scripts/deploy_web.sh test`).
 
 
-17. ARTEFAKT- & PRÜFSUMMEN-ÜBERSICHT (dist/SHA256SUMS.txt)
+17. PHASE 21 DURCHGEFÜHRTE MASSNAHMEN (AUTONOMOUS RESILIENCE AUDIT, CIRCUIT BREAKERS & GIT HYGIENE)
+--------------------------------------------------------------------------------
+
+A. MULTI-MODEL API PIPELINE, CIRCUIT BREAKER & EMERGENCY SESSION DUMP (src/api/)
+  [✓] Exponential Backoff mit Jitter (3 Retries) bei transienten HTTP-Fehlern (429, 500, 502, 503, 504, Timeouts):
+      - Implementiert in `src/api/gemini_client.py` und `src/api/multi_provider.py`.
+      - Vermeidet Kaskadenüberlastungen durch randomisierten Jitter.
+  [✓] Zero-Data-Loss Emergency Session Dump (`emergency_dump_session()` & `save_emergency_dump()`):
+      - Bei kompletter Nichterreichbarkeit der APIs atomare Sicherung nach `~/.chalk/sessions/<ID>/emergency_dump.json`.
+      - Enthält Transkript, Folien, Audio-Segmente und Journal-Metadaten.
+  [✓] Deterministiche Google Files API Ressourcen-Bereinigung:
+      - Upload-Ressourcen werden getrackt und im `finally:`-Block via `client.files.delete` gelöscht.
+  [✓] Multi-Provider Architektur (`src/api/multi_provider.py`):
+      - `BaseLLMAdapter`: Abstraktes Standard-Interface mit Backoff-Schleife & Emergency Dump.
+      - `GeminiAdapter`: Standard-Adapter für `gemini-2.5-flash`.
+      - `AnthropicClaudeAdapter`: Vollständige Integration für `claude-3-7-sonnet`.
+      - `OpenAIAdapter`: Vollständige Integration für `gpt-4o`.
+      - Einheitliche `LLMSynthesisResponse` Datenstruktur.
+
+B. DISK-JOURNALING & AUDIO-RESILIENZ (src/engine/journal.py, src/audio/capture.py)
+  [✓] Defensive Disk-I/O & Disk-Full Handhabung:
+      - Abfangen von `OSError` (Disk full) mit detailliertem Logging und Erhaltung des Session-Zustands.
+  [✓] Korrupte & unvollständige WAV-Header (`wave.Error`):
+      - Graceful Recovery: Gibt ein unschädliches Silent-Audio-Fallback zurück, anstatt die Session abzustürzen.
+  [✓] Subprozess-Timeouts:
+      - `compress_audio_payload()` setzt `timeout=30` auf `afconvert` und `ffmpeg` Aufrufe zur Verhinderung von Deadlocks.
+
+C. MATHEMATISCHE SYNTHESE & DIAGRAMM-SANITIZING (src/api/synthesis_pipeline.py)
+  [✓] Erweiterte KaTeX-Syntax-Validierung:
+      - Volle Unterstützung für mehrzeilige LaTeX-Umgebungen: `aligned`, `cases`, `matrix`, `pmatrix`, `bmatrix`, `vmatrix`, `array`, `gather`, `split`.
+  [✓] Mermaid-Diagramm Validierung & Bereinigung (`sanitize_mermaid_syntax`):
+      - Stellt gültige Diagramm-Typdeklarationen (`graph TD`, `flowchart LR`, etc.) sicher.
+      - Maskiert automatisch runde Klammern und Doppelpunkte in Node-Labels zur Vermeidung von Syntaxfehlern.
+  [✓] Obsidian YAML Frontmatter:
+      - ISO-8601 Zeitstempel (`created: "YYYY-MM-DDTHH:MM:SS"`).
+      - Sicheres Quoting von Titeln und Erhaltung von `tags: [chalk, lecture, study]`.
+
+D. NATIVE OS & UI ERGONOMIE (src/security/hotkeys.py, src/ui/)
+  [✓] Native Hotkey Kollisionswarnungen:
+      - Carbon Error-Code -9868 (Bereits registrierter systemweiter Shortcut) wird explizit abgefangen und gemeldet.
+      - Win32 `GetLastError()` Logausgabe bei Tastenkombinationskonflikten.
+  [✓] Snip Overlay Retina / High-DPI Awareness (`src/ui/snip_overlay.py`):
+      - Dynamische Skalierung über `devicePixelRatio` / Verhältnis von physischen Pixeln zu logischen Punkten (`_scale_x`, `_scale_y`).
+      - Zuschnitt erfolgt verlustfrei und pixelgenau direkt aus dem unskalierten Master-Buffer (`_source_pil_img`).
+  [✓] Zero-Latency Audio-Wiedergabe im HUD Mini-Player (`src/ui/hud_window.py`):
+      - Sofortiges `sd.stop()` und Zurücksetzen des Abspiel-Timers vor dem Start eines neuen Snippets.
+
+E. PURIST WEB PORTAL & LEGAL HUB (web/index.html)
+  [✓] Monospace `.math-fallback` Styling bei offline oder blockiertem KaTeX CDN.
+  [✓] Graceful KaTeX Retry-Counter und Monospace-Fallback.
+  [✓] Escape-Taste & Backdrop-Klick zum Schließen des Rechts-Hub-Modals (`#modal-legal-hub`).
+  [✓] "Notice copied!" Feedback-Zustand für den Besprechungshinweis in allen 5 Sprachen (EN, DE, FR, ES, ZH).
+
+F. GIT-HYGIENE & GITHUB 100MB LIMIT PRÄVENTION
+  [✓] `.gitignore` umfassend gehärtet: `dist/`, `build/`, `*.app/`, `*.exe/`, `*.zip/`, `*.pkg/`, `*.dmg/`.
+  [✓] Alle 150MB PyInstaller-Artefakte restlos aus dem Git-Tracking entfernt (`git rm -r --cached dist/`).
+  [✓] 0 Dateien >50MB im Git Index getrackt. GitHub Push ist dauerhaft geschützt vor 100MB Blockaden.
+
+G. TEST-SUITE & QA-VERIFIKATION
+  [✓] Test-Suite von 34 auf 37 Tests erweitert:
+      - `test_mermaid_sanitization`
+      - `test_journal_defensive_io_and_corrupt_wav`
+      - `test_multi_provider_backoff_and_dump`
+  [✓] Alle 37/37 Tests grün (`unittest discover tests/`).
+  [✓] Soak-Test 840 Segmente (7 Stunden): 0.00 MB Memory Growth Delta, Peak RSS 25.55 MB (<180 MB Grenze).
+  [✓] `./scripts/deploy_web.sh test` -> PASS (0 verbotene Token, 0 Emojis, Titanium-Theme validiert).
+
+
+18. ARTEFAKT- & PRÜFSUMMEN-ÜBERSICHT (dist/SHA256SUMS.txt)
 --------------------------------------------------------------------------------
 Chalk (arm64 Binary)  : 5b261dab364e898d747d749b041285d2502d9d6e4afdad671cf5043547df25e0
 Chalk-macOS.zip       : 4f08c4e0f8a1459ec338ed8bbc64d2305196e50ad49942aec80546b4b7d1f169
 dist/Chalk.app        : Gebündelt mit Literal Chalk Icon (app.icns), Hardened Runtime Entitlements & Info.plist Berechtigungen
 
 
-18. PROJEKT-DATEIEN & STRUKTUR
+19. PROJEKT-DATEIEN & STRUKTUR
 --------------------------------------------------------------------------------
 chalk/
 ├── assets/
@@ -759,7 +828,7 @@ chalk/
 ├── dist/
 │   ├── Chalk                      # Standalone Executable (144 MB)
 │   ├── Chalk.app                  # macOS Application Bundle (144 MB)
-│   ├── Chalk-macOS.zip            # Release-Archiv (143.20 MB)
+│   ├── Chalk-macOS.zip            # Release-Archiv (143.25 MB)
 │   └── SHA256SUMS.txt             # Offizielle Release-Prüfsummen
 ├── Notes/
 │   └── Lecture_Simulation.md      # Synthetisierte LaTeX-Vorlesungsnotiz

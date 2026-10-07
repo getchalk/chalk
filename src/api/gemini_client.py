@@ -11,6 +11,8 @@ Integrates directly with Google AI Studio using the official google-genai SDK.
 import os
 import io
 import time
+import json
+import random
 import logging
 from typing import Optional, List, Tuple, Dict, Any
 import re
@@ -652,6 +654,42 @@ class GeminiLecturePipeline:
 
         return rendered_md, chunk_state, response_obj
 
+    @staticmethod
+    def emergency_dump_session(session_id: Optional[str], payload: Dict[str, Any], error_msg: str) -> str:
+        """
+        Atomically saves session buffer and state to ~/.chalk/sessions/<ID>/emergency_dump.json
+        if an irreparable connection drop or synthesis crash occurs, guaranteeing zero data loss.
+        """
+        sid = session_id or f"emergency_{int(time.time())}"
+        sessions_dir = os.path.expanduser("~/.chalk/sessions")
+        target_dir = os.path.join(sessions_dir, sid)
+        os.makedirs(target_dir, exist_ok=True)
+        dump_path = os.path.join(target_dir, "emergency_dump.json")
+        tmp_path = os.path.join(target_dir, f"emergency_dump.tmp.{os.getpid()}_{time.time_ns()}")
+        dump_data = {
+            "session_id": sid,
+            "timestamp": time.time(),
+            "iso_time": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+            "error": error_msg,
+            "payload": payload,
+        }
+        try:
+            with open(tmp_path, "w", encoding="utf-8") as f:
+                json.dump(dump_data, f, indent=2, default=str)
+                f.flush()
+                os.fsync(f.fileno())
+            os.replace(tmp_path, dump_path)
+            logger.critical("EMERGENCY DUMP ATOMICALLY SAVED AT %s: %s", dump_path, error_msg)
+            return dump_path
+        except Exception as e:
+            logger.error("Failed to write emergency dump to %s: %s", dump_path, e)
+            if os.path.exists(tmp_path):
+                try:
+                    os.remove(tmp_path)
+                except OSError:
+                    pass
+            return ""
+
     def _call_generate_content(
         self,
         client: genai.Client,
@@ -679,12 +717,47 @@ class GeminiLecturePipeline:
                 if item not in files_to_cleanup:
                     files_to_cleanup.append(item)
 
+        max_retries = 3
+        last_exception = None
+
         try:
-            return client.models.generate_content(
-                model=model,
-                contents=contents,
-                config=config,
-            )
+            for attempt in range(max_retries + 1):
+                try:
+                    return client.models.generate_content(
+                        model=model,
+                        contents=contents,
+                        config=config,
+                    )
+                except Exception as e:
+                    last_exception = e
+                    err_str = str(e).lower()
+                    is_transient = (
+                        "429" in err_str
+                        or "rate limit" in err_str
+                        or "quota" in err_str
+                        or "503" in err_str
+                        or "504" in err_str
+                        or "500" in err_str
+                        or "timeout" in err_str
+                        or "connection" in err_str
+                        or "network" in err_str
+                        or "resource_exhausted" in err_str
+                        or "unavailable" in err_str
+                    )
+                    if attempt < max_retries and is_transient:
+                        jitter = random.uniform(0.1, 0.8)
+                        backoff = min(8.0, (2 ** attempt) + jitter)
+                        logger.warning(
+                            "Transient LLM API error on %s (attempt %d/%d): %s. Retrying in %.2fs...",
+                            model, attempt + 1, max_retries, e, backoff
+                        )
+                        time.sleep(backoff)
+                    else:
+                        break
+
+            if last_exception:
+                raise last_exception
+
         finally:
             # Lifecycle Cleanup: Zero permanent cloud retention
             for f in files_to_cleanup:
@@ -695,4 +768,8 @@ class GeminiLecturePipeline:
                 except Exception as e:
                     logger.warning("Failed to delete Google Files API resource %s: %s", fname, e)
                 if f in self._tracked_files:
-                    self._tracked_files.remove(f)
+                    try:
+                        self._tracked_files.remove(f)
+                    except ValueError:
+                        pass
+

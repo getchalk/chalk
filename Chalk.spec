@@ -39,6 +39,9 @@ hidden_imports = [
     'torchaudio',
     'src.security.hotkeys',
     'src.engine.config',
+    'src.engine.journal',
+    'src.api.multi_provider',
+    'src.api.synthesis_pipeline',
 ]
 
 a = Analysis(

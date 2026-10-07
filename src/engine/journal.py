@@ -151,14 +151,25 @@ class SessionJournal:
             if start_wall_clock is None:
                 start_wall_clock = time.time()
 
-            # 2. Write WAV file atomically
+            # 2. Write WAV file atomically with disk-full protection
             tmp_filename = f"{filename}.tmp.{os.getpid()}_{time.time_ns()}"
             tmp_filepath = os.path.join(self.session_dir, tmp_filename)
-            with open(tmp_filepath, "wb") as f:
-                f.write(wav_bytes)
-                f.flush()
-                os.fsync(f.fileno())
-            os.replace(tmp_filepath, file_path)
+            try:
+                with open(tmp_filepath, "wb") as f:
+                    f.write(wav_bytes)
+                    f.flush()
+                    os.fsync(f.fileno())
+                os.replace(tmp_filepath, file_path)
+            except OSError as oe:
+                logger.critical("Disk write failed for segment %s (Disk full or I/O failure): %s", seg_id, oe)
+                self.manifest["status"] = "error"
+                self.manifest["error"] = f"Disk I/O error: {oe}"
+                if os.path.exists(tmp_filepath):
+                    try:
+                        os.remove(tmp_filepath)
+                    except OSError:
+                        pass
+                raise
 
             # 3. Create and append segment record
             segment_record = {
@@ -175,6 +186,37 @@ class SessionJournal:
 
             logger.info("Wrote journal segment %s (%s, %.1fs) to %s", seg_id, filename, duration_sec, self.session_dir)
             return dict(segment_record)
+
+    def save_emergency_dump(self, payload: Dict[str, Any], error_msg: str) -> str:
+        """
+        Atomically saves session buffer and state to emergency_dump.json inside this session directory.
+        """
+        with self._lock:
+            dump_path = os.path.join(self.session_dir, "emergency_dump.json")
+            tmp_path = os.path.join(self.session_dir, f"emergency_dump.tmp.{os.getpid()}_{time.time_ns()}")
+            data = {
+                "session_id": self.session_id,
+                "timestamp": time.time(),
+                "error": error_msg,
+                "manifest_snapshot": self.manifest,
+                "payload": payload,
+            }
+            try:
+                with open(tmp_path, "w", encoding="utf-8") as f:
+                    json.dump(data, f, indent=2, default=str)
+                    f.flush()
+                    os.fsync(f.fileno())
+                os.replace(tmp_path, dump_path)
+                logger.critical("Session emergency dump atomically saved to %s", dump_path)
+                return dump_path
+            except Exception as e:
+                logger.error("Failed to write session emergency dump to %s: %s", dump_path, e)
+                if os.path.exists(tmp_path):
+                    try:
+                        os.remove(tmp_path)
+                    except OSError:
+                        pass
+                return ""
 
     def update_segment_status(self, segment_id: str, status: str) -> bool:
         """Updates the status of a specific segment in the manifest."""
@@ -244,12 +286,16 @@ class SessionJournal:
         if not os.path.exists(file_path):
             raise FileNotFoundError(f"Segment audio file not found: {file_path}")
 
-        with wave.open(file_path, "rb") as wf:
-            n_channels = wf.getnchannels()
-            sample_rate = wf.getframerate()
-            sampwidth = wf.getsampwidth()
-            n_frames = wf.getnframes()
-            frames = wf.readframes(n_frames)
+        try:
+            with wave.open(file_path, "rb") as wf:
+                n_channels = wf.getnchannels()
+                sample_rate = wf.getframerate()
+                sampwidth = wf.getsampwidth()
+                n_frames = wf.getnframes()
+                frames = wf.readframes(n_frames)
+        except wave.Error as we:
+            logger.error("Corrupted WAV header in %s: %s. Returning silent audio fallback.", file_path, we)
+            return np.zeros((16000 * 30, 2), dtype=np.float32), 16000
 
         if sampwidth == 2:
             data = np.frombuffer(frames, dtype=np.int16).astype(np.float32) / 32768.0

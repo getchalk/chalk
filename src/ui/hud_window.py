@@ -1079,6 +1079,11 @@ class FloatingHUDWindow(QWidget):
             import sounddevice as sd
             import numpy as np
 
+            # Immediately stop existing stream and timer to eliminate overlapping audio and GUI lag
+            sd.stop()
+            if hasattr(self, "_play_timer") and self._play_timer:
+                self._play_timer.stop()
+
             audio = None
             sr = 16000
 
@@ -1095,7 +1100,6 @@ class FloatingHUDWindow(QWidget):
                 audio = self.recorder.get_rewind_audio(seconds=int(duration + 10))
 
             if audio is not None and len(audio) > 0:
-                sd.stop()
                 sd.play(audio, sr)
                 self.is_playing_audio = True
                 self.player_play_btn.setText("⏸")
