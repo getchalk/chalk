@@ -357,28 +357,12 @@
               </div>
             </div>
 
-            <!-- Dual-Input Split-Grid: Intelligent Recall & Whiteboard Phone Link -->
+            <!-- Dual-Input Split-Grid: Whiteboard Phone Link & Intelligent Recall -->
             <div class="grid grid-cols-1 sm:grid-cols-12 gap-3">
-              <!-- Sub-Col 1 (sm:col-span-7): Intelligent Recall -->
-              <div class="sm:col-span-7 rounded-xl border p-3.5 shadow-sm flex flex-col justify-between" style="background-color: var(--hud-card-bg); border-color: var(--chalk-border);">
-                <div>
-                  <div class="text-[11px] font-medium mb-2 truncate" style="color: var(--chalk-slate);" data-i18n="preview_recall_label">INTELLIGENT RECALL (Alt+Space)</div>
-                  <div class="flex items-center gap-1.5 rounded-lg border px-2.5 py-2 text-xs" style="background-color: var(--surface-terminal); border-color: var(--chalk-border);">
-                    <span class="font-mono text-[11px]" style="color: var(--chalk-muted);">></span>
-                    <span class="text-[11px] leading-snug line-clamp-2" style="color: var(--terminal-text);" data-i18n="preview_recall_query">How does beta behave during market volatility?</span>
-                  </div>
-                </div>
-                <div class="mt-2.5 text-[10px] flex items-center justify-between" style="color: var(--chalk-muted);">
-                  <span data-i18n="preview_recall_direct">Direct AI connection</span>
-                  <span class="opacity-40">•</span>
-                  <span data-i18n="preview_recall_private">100% Private</span>
-                </div>
-              </div>
-
-              <!-- Sub-Col 2 (sm:col-span-5): Whiteboard Cam / Phone Link -->
+              <!-- Sub-Col 1 (sm:col-span-5): Whiteboard Cam / Phone Link -->
               <div class="sm:col-span-5 rounded-xl border p-3 shadow-sm flex flex-col items-center justify-between text-center" style="background-color: var(--hud-card-bg); border-color: var(--chalk-border);">
                 <div class="w-full flex items-center justify-between text-[11px] font-medium mb-1.5" style="color: var(--chalk-slate);">
-                  <span class="truncate tracking-wide" data-i18n="preview_qr_label">PHONE LINK</span>
+                  <span class="tracking-wide" data-i18n="preview_qr_label">PHONE LINK</span>
                   <span class="w-1.5 h-1.5 rounded-full animate-pulse flex-shrink-0" style="background-color: #10B981;" title="LAN Ready"></span>
                 </div>
                 <div class="p-1 rounded-lg border shadow-inner flex items-center justify-center my-0.5" style="background-color: var(--surface-terminal); border-color: var(--chalk-border);">
@@ -387,8 +371,27 @@
                   </svg>
                 </div>
                 <div class="w-full mt-1.5 text-center">
-                  <div class="text-[10px] font-medium leading-tight truncate" style="color: var(--chalk-white);" data-i18n="preview_qr_action">Scan to snap board</div>
-                  <div class="text-[9px] font-mono leading-tight mt-0.5 truncate" style="color: var(--chalk-muted);" data-i18n="preview_qr_spec">Direct LAN • Zero Cloud</div>
+                  <div class="text-[10px] font-medium leading-tight" style="color: var(--chalk-white);" data-i18n="preview_qr_action">Scan to snap board</div>
+                  <div class="text-[9px] font-mono leading-tight mt-0.5" style="color: var(--chalk-muted);" data-i18n="preview_qr_spec">Direct LAN • Zero Cloud</div>
+                </div>
+              </div>
+
+              <!-- Sub-Col 2 (sm:col-span-7): Intelligent Recall -->
+              <div class="sm:col-span-7 rounded-xl border p-3.5 shadow-sm flex flex-col justify-between" style="background-color: var(--hud-card-bg); border-color: var(--chalk-border);">
+                <div>
+                  <div class="flex items-center justify-between mb-2">
+                    <span class="text-[11px] font-medium" style="color: var(--chalk-slate);" data-i18n="preview_recall_label">INTELLIGENT RECALL</span>
+                    <kbd class="text-[9px] font-mono px-1.5 py-0.5 rounded border leading-none" style="background-color: var(--surface-terminal); border-color: var(--chalk-border); color: var(--chalk-muted);">Alt+Space</kbd>
+                  </div>
+                  <div class="flex items-start gap-1.5 rounded-lg border px-2.5 py-2 text-xs" style="background-color: var(--surface-terminal); border-color: var(--chalk-border);">
+                    <span class="font-mono text-[11px] mt-0.5 flex-shrink-0" style="color: var(--chalk-muted);">></span>
+                    <span class="text-[11px] leading-snug" style="color: var(--terminal-text);" data-i18n="preview_recall_query">How does beta behave during market volatility?</span>
+                  </div>
+                </div>
+                <div class="mt-2.5 text-[10px] flex items-center justify-between" style="color: var(--chalk-muted);">
+                  <span data-i18n="preview_recall_direct">Direct AI</span>
+                  <span class="opacity-40">•</span>
+                  <span data-i18n="preview_recall_private">100% Private</span>
                 </div>
               </div>
             </div>
@@ -936,9 +939,9 @@
     "preview_screen_heading": "Capital Asset Pricing Model (CAPM)",
     "preview_screen_sync": "Screen Sync Active",
     "preview_slide_local": "Local detection",
-    "preview_recall_label": "INTELLIGENT RECALL (Alt+Space)",
+    "preview_recall_label": "INTELLIGENT RECALL",
     "preview_recall_query": "How does beta behave during market volatility?",
-    "preview_recall_direct": "Direct AI connection",
+    "preview_recall_direct": "Direct AI",
     "preview_recall_private": "100% Private",
     "preview_qr_label": "PHONE LINK",
     "preview_qr_action": "Scan to snap board",
@@ -1086,9 +1089,9 @@
     "preview_screen_heading": "Capital Asset Pricing Model (CAPM)",
     "preview_screen_sync": "Bildschirm-Sync aktiv",
     "preview_slide_local": "Lokale Erkennung",
-    "preview_recall_label": "INTELLIGENTE RÜCKFRAGE (Alt+Space)",
+    "preview_recall_label": "INTELLIGENTE RÜCKFRAGE",
     "preview_recall_query": "Wie verhält sich das Beta bei Marktvolatilität?",
-    "preview_recall_direct": "Direkte KI-Verbindung",
+    "preview_recall_direct": "Direkte KI",
     "preview_recall_private": "100 % Privat",
     "preview_qr_label": "HANDY-KOPPLUNG",
     "preview_qr_action": "Tafel fotografieren",
@@ -1236,9 +1239,9 @@
     "preview_screen_heading": "Capital Asset Pricing Model (CAPM)",
     "preview_screen_sync": "Sync écran active",
     "preview_slide_local": "Détection locale",
-    "preview_recall_label": "REQUÊTE INTELLIGENTE (Alt+Space)",
+    "preview_recall_label": "REQUÊTE INTELLIGENTE",
     "preview_recall_query": "Comment le bêta réagit-il à la volatilité du marché ?",
-    "preview_recall_direct": "Connexion directe à l'IA",
+    "preview_recall_direct": "IA directe",
     "preview_recall_private": "100 % Privé",
     "preview_qr_label": "LIEN MOBILE",
     "preview_qr_action": "Scanner pour tableau",
@@ -1386,9 +1389,9 @@
     "preview_screen_heading": "Capital Asset Pricing Model (CAPM)",
     "preview_screen_sync": "Sincronización de pantalla",
     "preview_slide_local": "Detección local",
-    "preview_recall_label": "CONSULTA INTELIGENTE (Alt+Space)",
+    "preview_recall_label": "CONSULTA INTELIGENTE",
     "preview_recall_query": "¿Cómo se comporta la beta ante la volatilidad del mercado?",
-    "preview_recall_direct": "Conexión directa a la IA",
+    "preview_recall_direct": "IA directa",
     "preview_recall_private": "100 % Privado",
     "preview_qr_label": "ENLACE MÓVIL",
     "preview_qr_action": "Escanear pizarra",
@@ -1536,9 +1539,9 @@
     "preview_screen_heading": "资本资产定价模型 (CAPM)",
     "preview_screen_sync": "实时画面同步",
     "preview_slide_local": "本地智能识别",
-    "preview_recall_label": "智能即时问答 (Alt+Space)",
+    "preview_recall_label": "智能即时问答",
     "preview_recall_query": "市场剧烈波动时贝塔系数如何变化？",
-    "preview_recall_direct": "直连大模型 API",
+    "preview_recall_direct": "直连 AI",
     "preview_recall_private": "100% 本地隐私",
     "preview_qr_label": "手机互联",
     "preview_qr_action": "扫码拍板书",

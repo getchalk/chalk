@@ -1033,6 +1033,15 @@ E. PRÄZISER FIX: TERMINAL QUICK-INSTALL OVERFLOW- & COLLISION-BESEITIGUNG
       - Der Befehl liegt darunter in einem eigenständigen Terminal-Block mit `block whitespace-nowrap` und dezentem, nicht mitkopiertem Shell-Prompt (`$ ` bzw. `> `).
       - Reaktivität & i18n: Volle Einbindung in alle 5 Sprachen (`cli_mac`, `cli_win`).
       - Micro-Interaktion: Reines SVG-Checkmark-Feedback bei Klick auf den Copy-Button.
+
+F. HERO MOCKUP DUAL-INPUT REVERSAL & ANTI-TRUNCATION POLISH
+  [✓] Positionstausch & Typografie-Perfektion (web/index.html):
+      - Phone Link (Whiteboard QR) wurde nach links platziert (`sm:col-span-5`), wodurch es direkt unter der Bildschirmaufnahme als symmetrischer visueller Anker fungiert.
+      - Intelligent Recall wurde nach rechts platziert (`sm:col-span-7`), wodurch die interaktive Frageingabe direkt an die Vorlesungsnotizen der rechten Spalte anschließt und einen nahtlosen mentalen Übergang von Prompt zu Notiz schafft.
+      - Vollständige Beseitigung unschöner Ellipsen-Abschneidungen (`...`):
+        * Tastenkürzel `Alt+Space` in ein separates, natives `<kbd>`-Element ausgelagert — `INTELLIGENT RECALL` wird in allen 5 Sprachen ohne Kürzung gerendert.
+        * Kompaktes `Direct AI` (statt mehrzeilig brechendem `Direct AI connection`) ermöglicht eine gestochen scharfe, einzeilige Footer-Zeile (`Direct AI • 100% Private`).
+        * Aufhebung restriktiver `truncate`-Klassen im Phone-Link-Modul garantiert voll lesbare Micro-Copy (`Scan to snap board` und `Direct LAN • Zero Cloud`).
 ================================================================================
 
 
