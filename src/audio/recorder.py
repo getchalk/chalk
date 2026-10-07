@@ -33,6 +33,21 @@ from src.audio.capture import compress_audio_payload, audio_to_wav_bytes, wav_by
 logger = logging.getLogger("chalk.audio")
 
 
+class _RollingRewindBufferProxy:
+    """Proxy providing backward-compatibility for direct .append() and len() on rewind buffer."""
+    def __init__(self, recorder: "DualChannelAudioRecorder"):
+        self._rec = recorder
+
+    def append(self, sample: Any):
+        s = np.asarray(sample, dtype=np.float32)
+        if s.ndim == 1:
+            s = s.reshape(1, -1)
+        self._rec._append_to_ring_locked(s)
+
+    def __len__(self) -> int:
+        return self._rec._ring_count
+
+
 class DualChannelAudioRecorder:
     """
     Simultaneous Dual-Channel Audio Recorder with Hardware Diarization and Persistent Disk Journal:
@@ -85,9 +100,12 @@ class DualChannelAudioRecorder:
         self._lock = threading.Lock()
 
         # Buffers:
-        # 1. Rolling circular buffer for rewind queries (trailing 90 seconds in RAM)
-        max_rewind_samples = self.sample_rate * self.rewind_buffer_seconds
-        self._rolling_rewind_buffer = deque(maxlen=max_rewind_samples)
+        # 1. Fixed pre-allocated circular ring buffer for rewind queries (90s x 16kHz x 2ch x 4B = 11.52 MB)
+        self._ring_capacity = self.sample_rate * self.rewind_buffer_seconds
+        self._ring_buffer = np.zeros((self._ring_capacity, 2), dtype=np.float32)
+        self._ring_head = 0
+        self._ring_count = 0
+        self._rolling_rewind_buffer = _RollingRewindBufferProxy(self)
 
         # 2. In-progress 30-second segment buffer (flushed to disk journal upon reaching 30s)
         self._current_segment_samples: List[np.ndarray] = []
@@ -100,6 +118,10 @@ class DualChannelAudioRecorder:
         # 4. Fallback in-memory list (only used when journal is disabled)
         self._fallback_active_chunk_samples: List[np.ndarray] = []
 
+        # 5. Non-blocking asynchronous disk writer queue & thread
+        self._disk_writer_queue = queue.Queue()
+        self._disk_writer_thread: Optional[threading.Thread] = None
+
         # Inter-thread audio queues
         self._mic_queue = queue.Queue(maxsize=200)
         self._loopback_queue = queue.Queue(maxsize=200)
@@ -109,10 +131,12 @@ class DualChannelAudioRecorder:
         self._loopback_thread: Optional[threading.Thread] = None
         self._mixer_thread: Optional[threading.Thread] = None
 
-        # Stats
+        # Stats & Watchdog
         self.total_frames_recorded = 0
         self.latest_speech_prob = 0.0
         self.is_conversational_pause = False
+        self.is_mic_silent_warning = False
+        self._last_mic_sound_time = time.time()
 
     @property
     def is_recording(self) -> bool:
@@ -141,7 +165,16 @@ class DualChannelAudioRecorder:
             if self.enable_journal and self.journal is None:
                 self.journal = SessionJournal(session_id=session_id or self.session_id, base_dir=self.journal_dir)
 
-        # 1. Start Mic Stream via sounddevice
+        # 1. Start background disk writer worker
+        if self._disk_writer_thread is None or not self._disk_writer_thread.is_alive():
+            self._disk_writer_thread = threading.Thread(
+                target=self._disk_writer_worker,
+                daemon=True,
+                name="ChalkDiskWriterWorker",
+            )
+            self._disk_writer_thread.start()
+
+        # 2. Start Mic Stream via sounddevice
         try:
             self._mic_stream = sd.InputStream(
                 samplerate=self.sample_rate,
@@ -156,7 +189,7 @@ class DualChannelAudioRecorder:
             logger.error("Failed to start sounddevice microphone stream: %s", e)
             self._mic_stream = None
 
-        # 2. Start Loopback capture thread
+        # 3. Start Loopback capture thread
         self._loopback_thread = threading.Thread(
             target=self._loopback_capture_worker,
             daemon=True,
@@ -164,7 +197,7 @@ class DualChannelAudioRecorder:
         )
         self._loopback_thread.start()
 
-        # 3. Start Stereo Mixer & VAD worker thread
+        # 4. Start Stereo Mixer & VAD worker thread
         self._mixer_thread = threading.Thread(
             target=self._mixer_and_vad_worker,
             daemon=True,
@@ -188,6 +221,7 @@ class DualChannelAudioRecorder:
         with self._lock:
             self._is_paused = False
             self._current_segment_start_wall_clock = time.time()
+            self._last_mic_sound_time = time.time()
             self.vad.reset_state()
             logger.info("Chalk audio recording resumed.")
 
@@ -208,18 +242,26 @@ class DualChannelAudioRecorder:
                 logger.debug("Error closing mic stream: %s", e)
             self._mic_stream = None
 
+        # Ensure disk writes are flushed
+        try:
+            self._disk_writer_queue.join()
+        except Exception:
+            pass
+
         logger.info("Chalk audio recording stopped.")
 
-    def _flush_current_segment_locked(self) -> Optional[Dict[str, Any]]:
-        """Flushes the currently accumulating buffer to a 30s disk journal segment."""
+    def _flush_current_segment_locked(self):
+        """Dispatches the currently accumulating buffer to asynchronous writer queue without blocking."""
         if not self._current_segment_samples or not self.journal:
-            return None
+            return
 
         segment_audio = np.concatenate(self._current_segment_samples, axis=0)
         duration_sec = float(len(segment_audio) / self.sample_rate)
         start_wall_clock = self._current_segment_start_wall_clock
 
-        try:
+        if self._disk_writer_thread is not None and self._disk_writer_thread.is_alive():
+            self._disk_writer_queue.put((segment_audio, start_wall_clock, duration_sec))
+        else:
             seg_info = self.journal.write_segment(
                 audio_data=segment_audio,
                 start_wall_clock=start_wall_clock,
@@ -228,15 +270,34 @@ class DualChannelAudioRecorder:
                 status="pending",
             )
             self._pending_chunk_segment_ids.append(seg_info["id"])
-            logger.debug("Flushed 30s segment %s to journal (%.1fs)", seg_info["id"], duration_sec)
-        except Exception as e:
-            logger.error("Failed to write segment to journal: %s", e)
-            seg_info = None
 
         self._current_segment_samples.clear()
         self._current_segment_sample_count = 0
         self._current_segment_start_wall_clock = time.time()
-        return seg_info
+
+    def _disk_writer_worker(self):
+        """Background worker thread writing audio segments to disk without blocking audio loop."""
+        while True:
+            try:
+                item = self._disk_writer_queue.get()
+                if item is None:
+                    break
+                segment_audio, start_wall_clock, duration_sec = item
+                if self.journal:
+                    seg_info = self.journal.write_segment(
+                        audio_data=segment_audio,
+                        start_wall_clock=start_wall_clock,
+                        duration_sec=duration_sec,
+                        sample_rate=self.sample_rate,
+                        status="pending",
+                    )
+                    with self._lock:
+                        self._pending_chunk_segment_ids.append(seg_info["id"])
+                    logger.debug("Asynchronously wrote segment %s (%.1fs)", seg_info["id"], duration_sec)
+            except Exception as e:
+                logger.error("Failed to write segment in background worker: %s", e)
+            finally:
+                self._disk_writer_queue.task_done()
 
     def _mic_callback(self, indata, frames, time_info, status):
         """Sounddevice input stream callback."""
@@ -333,7 +394,7 @@ class DualChannelAudioRecorder:
             # 3. Hardware Diarization: Merge into Stereo (Left=Mic, Right=Loopback)
             stereo_frame = np.stack([mic_chunk, loopback_chunk], axis=-1)  # Shape: (N, 2)
 
-            # 4. Local Silero VAD evaluation
+            # 4. Local Silero VAD evaluation & Microphone Watchdog
             combined_mono = 0.6 * mic_chunk + 0.4 * loopback_chunk
             duration_sec = min_len / self.sample_rate
             prob, is_pause, break_fired = self.vad.update(combined_mono, duration_sec)
@@ -341,11 +402,20 @@ class DualChannelAudioRecorder:
             self.latest_speech_prob = prob
             self.is_conversational_pause = is_pause
 
+            # Microphone silence watchdog (alert if RMS is zero for >10 seconds while recording)
+            mic_rms = float(np.sqrt(np.mean(mic_chunk**2) + 1e-12))
+            if mic_rms > 0.001:
+                self._last_mic_sound_time = time.time()
+                self.is_mic_silent_warning = False
+            elif not self._is_paused and (time.time() - self._last_mic_sound_time > 10.0):
+                if not self.is_mic_silent_warning:
+                    self.is_mic_silent_warning = True
+                    logger.warning("Microphone watchdog: silence detected for >10 seconds while recording!")
+
             # 5. Buffer Management
             with self._lock:
-                # Always append to rolling rewind buffer (trailing 90s in RAM)
-                for i in range(min_len):
-                    self._rolling_rewind_buffer.append(stereo_frame[i])
+                # Fast vectorized write into pre-allocated 11.5MB circular numpy array
+                self._append_to_ring_locked(stereo_frame)
 
                 # Active chunk accumulation
                 if not self._is_paused:
@@ -359,18 +429,42 @@ class DualChannelAudioRecorder:
                     else:
                         self._fallback_active_chunk_samples.append(stereo_frame)
 
+    def _append_to_ring_locked(self, stereo_frame: np.ndarray):
+        """Fast vectorized write into pre-allocated circular numpy array (O(1) memory)."""
+        N = len(stereo_frame)
+        if N >= self._ring_capacity:
+            self._ring_buffer[:] = stereo_frame[-self._ring_capacity:]
+            self._ring_head = 0
+            self._ring_count = self._ring_capacity
+        else:
+            end1 = min(self._ring_head + N, self._ring_capacity)
+            l1 = end1 - self._ring_head
+            self._ring_buffer[self._ring_head:end1] = stereo_frame[:l1]
+            if l1 < N:
+                l2 = N - l1
+                self._ring_buffer[0:l2] = stereo_frame[l1:]
+                self._ring_head = l2
+            else:
+                self._ring_head = (self._ring_head + N) % self._ring_capacity
+            self._ring_count = min(self._ring_count + N, self._ring_capacity)
+
     def get_rewind_audio(self, seconds: int = 90) -> np.ndarray:
         """
-        Extract the trailing audio buffer (default: trailing 90 seconds) from RAM.
-        Returns stereo numpy array shape (N, 2) at 16kHz float32.
+        Extract the trailing audio buffer (default: trailing 90 seconds) from pre-allocated RAM ring buffer.
+        Returns stereo numpy array shape (N, 2) at 16kHz float32 with O(1) performance and zero heap bloat.
         """
         with self._lock:
-            num_samples = min(len(self._rolling_rewind_buffer), int(seconds * self.sample_rate))
+            num_samples = min(self._ring_count, int(seconds * self.sample_rate))
             if num_samples == 0:
                 return np.zeros((0, 2), dtype=np.float32)
 
-            recent_frames = list(self._rolling_rewind_buffer)[-num_samples:]
-            return np.array(recent_frames, dtype=np.float32)
+            start_pos = (self._ring_head - num_samples) % self._ring_capacity
+            if start_pos + num_samples <= self._ring_capacity:
+                return self._ring_buffer[start_pos : start_pos + num_samples].copy()
+            else:
+                part1 = self._ring_buffer[start_pos:]
+                part2 = self._ring_buffer[: (start_pos + num_samples) % self._ring_capacity]
+                return np.concatenate([part1, part2], axis=0)
 
     def get_and_flush_active_chunk(
         self,
@@ -387,6 +481,13 @@ class DualChannelAudioRecorder:
             if self._current_segment_samples:
                 self._flush_current_segment_locked()
 
+        # Wait for any in-flight asynchronous segment disk writes to complete
+        try:
+            self._disk_writer_queue.join()
+        except Exception:
+            pass
+
+        with self._lock:
             # 2. Retrieve audio from disk journal or in-memory fallback
             if self.journal:
                 seg_ids = list(self._pending_chunk_segment_ids)
@@ -433,6 +534,19 @@ class DualChannelAudioRecorder:
             else:
                 total_samples = sum(len(c) for c in self._fallback_active_chunk_samples)
                 return (total_samples / self.sample_rate) + current_unflushed
+
+    def reinsert_segment_ids(self, seg_ids: List[str]):
+        """
+        Reinserts existing segment IDs into the pending chunk queue without duplicating
+        disk audio or losing offset-map alignment.
+        """
+        if not seg_ids:
+            return
+        with self._lock:
+            for sid in reversed(seg_ids):
+                if sid not in self._pending_chunk_segment_ids:
+                    self._pending_chunk_segment_ids.insert(0, sid)
+            logger.info("Re-queued %d segment IDs into active recording queue.", len(seg_ids))
 
     def reinsert_unprocessed_chunk(self, stereo_audio: np.ndarray):
         """

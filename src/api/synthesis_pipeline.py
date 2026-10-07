@@ -148,6 +148,11 @@ class LectureNoteBlock(BaseModel):
                 "example": "example",
                 "beispiel": "example",
                 "bsp": "example",
+                "exercise": "example",
+                "übung": "example",
+                "aufgabe": "example",
+                "summary": "remark",
+                "zusammenfassung": "remark",
                 "diagram": "diagram",
                 "diagramm": "diagram",
                 "flowchart": "diagram",
@@ -158,8 +163,8 @@ class LectureNoteBlock(BaseModel):
                 "zustandsdiagramm": "diagram",
                 "graph": "diagram",
             }
-            return synonyms.get(v_clean, v_clean)
-        return str(v)
+            return synonyms.get(v_clean, "remark")
+        return "remark"
 
 
 class NotationItem(BaseModel):
@@ -278,16 +283,19 @@ KATEX_ALLOWED_COMMANDS = {
     "mathbf", "mathit", "mathrm", "mathcal", "mathbb", "mathfrak", "mathsf", "mathtt",
     "text", "textbf", "textit", "textrm", "textsf", "texttt", "boldsymbol", "bm",
     "rm", "bf", "it", "cal", "bb", "sf", "tt",
-    # Delimiters & Sizing
+    # Delimiters, Sizing & Brackets
     "left", "right", "bigl", "bigr", "Bigl", "Bigr", "biggl", "biggr", "Bigg", "middle",
-    "big", "Big", "bigg",
-    # Environments, Multi-line structures & Matrices
+    "big", "Big", "bigg", "langle", "rangle", "lfloor", "rfloor", "lceil", "rceil", "Vert", "vert",
+    # Environments, Multi-line structures, Modulo & Accents
     "begin", "end", "quad", "qquad", "phantom", "hphantom", "vphantom",
     "limits", "nolimits", "displaystyle", "textstyle", "scriptstyle", "scriptscriptstyle",
     "over", "atop", "choose", "aligned", "cases", "matrix", "pmatrix", "bmatrix",
     "Bmatrix", "vmatrix", "Vmatrix", "array", "gather", "gathered", "split",
     "substack", "smallmatrix", "hline", "newline", "bmod", "pmod", "pod",
-    "therefore", "because", "intertext", "shortintertext"
+    "therefore", "because", "intertext", "shortintertext",
+    # Advanced Math, Logic, Binomial & Annotations
+    "binom", "wedge", "vee", "bigcup", "bigcap", "xrightarrow", "xleftarrow",
+    "overset", "underset", "boxed", "not"
 }
 
 
@@ -322,27 +330,18 @@ def fix_basic_escaping(latex_str: str) -> str:
 
 def sanitize_latex(latex_str: str) -> str:
     """
-    Sanitizes invalid LaTeX:
+    Sanitizes invalid LaTeX without corrupting valid mathematical operators:
     1. Fixes basic Python string escapes.
     2. Strips dangling trailing backslashes.
-    3. Converts unrecognized control sequences into \\text{...}.
-    4. Balances unmatched braces {}, brackets [], and parentheses ().
-    5. Repairs dangling \\frac (supplies missing arguments).
+    3. Balances unmatched braces {}, brackets [], and parentheses ().
+    4. Repairs dangling \\frac commands with [Lücke] placeholders.
+    5. Replaces unrecognized control sequences with \\text{...}.
     """
     s = fix_basic_escaping(latex_str)
 
     # Strip dangling trailing backslash
     while s.endswith("\\") and not s.endswith("\\\\"):
         s = s[:-1].rstrip()
-
-    # Convert unknown control sequences \unknown to \text{unknown}
-    def replace_unknown_cmd(match):
-        cmd = match.group(1)
-        if cmd not in KATEX_ALLOWED_COMMANDS:
-            return f"\\text{{{cmd}}}"
-        return f"\\{cmd}"
-
-    s = re.sub(r"\\([a-zA-Z]+)", replace_unknown_cmd, s)
 
     # Balance delimiters {}, [], ()
     for open_ch, close_ch in [("{", "}"), ("[", "]"), ("(", ")")]:
@@ -381,16 +380,20 @@ def sanitize_latex(latex_str: str) -> str:
                 if pos != -1:
                     s = s[:pos] + s[pos + 1:]
 
-    # Repair dangling fractions (no arguments or only 1 argument)
-    # Check for \frac at end of string with 1 argument: e.g. \frac{...}$
-    frac_one_arg = re.search(r"\\(frac|dfrac|tfrac|cfrac)(\{[^{}]*\})\s*$", s)
-    if frac_one_arg:
-        s = s.rstrip() + "{[Lücke]}"
-    else:
-        # Check for \frac without any arguments at end of string
-        frac_no_args = re.search(r"\\(frac|dfrac|tfrac|cfrac)\s*$", s)
-        if frac_no_args:
-            s = s.rstrip() + "{[Lücke]}{[Lücke]}"
+    # Repair dangling \frac
+    # 1. \frac without any arguments
+    s = re.sub(r"\\frac(?!\s*\{)", r"\\frac{[Lücke]}{[Lücke]}", s)
+    # 2. \frac with single argument
+    s = re.sub(r"(\\frac\s*\{[^{}]*\})(?!\s*\{)", r"\1{[Lücke]}", s)
+
+    # Replace unrecognized control sequences with \text{cmd}
+    def _replace_unknown(m):
+        cmd = m.group(1)
+        if cmd in KATEX_ALLOWED_COMMANDS:
+            return m.group(0)
+        return f"\\text{{{cmd}}}"
+
+    s = re.sub(r"\\([A-Za-z]+)", _replace_unknown, s)
 
     return s
 
@@ -398,7 +401,7 @@ def sanitize_latex(latex_str: str) -> str:
 def check_latex_syntax_internal(s: str) -> Tuple[bool, str]:
     """
     Internal strict checker for KaTeX syntax.
-    Returns (True, "") if completely valid, or (False, error_reason) if invalid.
+    Returns (True, "") if valid, or (False, error_reason) if invalid.
     """
     # 1. Check for raw escape characters
     for bad_char in ["\x0c", "\x08", "\x09", "\x07", "\x0b", "\x0d"]:
@@ -409,7 +412,7 @@ def check_latex_syntax_internal(s: str) -> Tuple[bool, str]:
     if s.endswith("\\") and not s.endswith("\\\\"):
         return False, "Dangling trailing backslash"
 
-    # 3. Check balanced delimiters {}, [], ()
+    # 3. Check balanced delimiters {}, [], () and unrecognized commands
     stack = []
     pairs = {"}": "{", "]": "[", ")": "("}
     opening = {"{", "[", "("}
@@ -428,9 +431,18 @@ def check_latex_syntax_internal(s: str) -> Tuple[bool, str]:
                 return False, "Dangling backslash at end of expression"
             next_c = s[i]
             if bs_count % 2 == 1:
-                # Escaped character (\{, \}, \[, \], etc.)
-                i += 1
-                continue
+                # Escaped character or command
+                if next_c.isalpha():
+                    cmd_start = i
+                    while i < n and s[i].isalpha():
+                        i += 1
+                    cmd_name = s[cmd_start:i]
+                    if cmd_name not in KATEX_ALLOWED_COMMANDS:
+                        return False, f"Unrecognized KaTeX command: \\{cmd_name}"
+                    continue
+                else:
+                    i += 1
+                    continue
             else:
                 c = next_c
 
@@ -445,55 +457,11 @@ def check_latex_syntax_internal(s: str) -> Tuple[bool, str]:
     if stack:
         return False, f"Unclosed delimiters remaining: {stack}"
 
-    # 4. Check valid fraction command structures (no dangling \frac without 2 arguments)
-    frac_pattern = re.compile(r"\\(frac|dfrac|tfrac|cfrac)\b")
-    for m in frac_pattern.finditer(s):
-        pos = m.end()
-        # Parse Argument 1
-        while pos < len(s) and s[pos].isspace():
-            pos += 1
-        if pos >= len(s):
-            return False, "Dangling fraction missing arguments"
-
-        if s[pos] == "{":
-            depth = 1
-            pos += 1
-            while pos < len(s) and depth > 0:
-                if s[pos] == "{" and (pos == 0 or s[pos - 1] != "\\"):
-                    depth += 1
-                elif s[pos] == "}" and (pos == 0 or s[pos - 1] != "\\"):
-                    depth -= 1
-                pos += 1
-            if depth > 0:
-                return False, "Unclosed brace in fraction numerator"
-        else:
-            pos += 1
-
-        # Parse Argument 2
-        while pos < len(s) and s[pos].isspace():
-            pos += 1
-        if pos >= len(s):
-            return False, "Dangling fraction missing denominator (2nd argument)"
-
-        if s[pos] == "{":
-            depth = 1
-            pos += 1
-            while pos < len(s) and depth > 0:
-                if s[pos] == "{" and (pos == 0 or s[pos - 1] != "\\"):
-                    depth += 1
-                elif s[pos] == "}" and (pos == 0 or s[pos - 1] != "\\"):
-                    depth -= 1
-                pos += 1
-            if depth > 0:
-                return False, "Unclosed brace in fraction denominator"
-        else:
-            pos += 1
-
-    # 5. Check control sequences against KaTeX allowed vocabulary
-    for m in re.finditer(r"\\([a-zA-Z]+)", s):
-        cmd = m.group(1)
-        if cmd not in KATEX_ALLOWED_COMMANDS:
-            return False, f"Invalid or unsupported KaTeX control sequence '\\{cmd}'"
+    # 4. Check for dangling \frac (missing arguments)
+    if re.search(r"\\frac(?!\s*\{)", s):
+        return False, "Dangling \\frac without arguments"
+    if re.search(r"\\frac\s*\{[^{}]*\}(?!\s*\{)", s):
+        return False, "Dangling \\frac with only one argument"
 
     return True, ""
 
@@ -992,26 +960,74 @@ class SynthesisPipeline:
         elif text.startswith("```") and text.endswith("```"):
             text = text[3:-3].strip()
 
+        data = None
         try:
             return LectureSynthesisResponse.model_validate_json(text)
         except Exception:
-            # Fallback to json.loads with relaxed parsing
             try:
                 data = json.loads(text)
                 return LectureSynthesisResponse.model_validate(data)
-            except Exception as e:
-                logger.warning("Could not parse strict JSON for synthesis: %s. Using fallback object.", e)
-                return LectureSynthesisResponse(
-                    topic="Synthesized Notes",
-                    blocks=[
-                        LectureNoteBlock(
-                            type="remark",
-                            title="Notes Summary",
-                            explanation=text[:1000],
-                            source="inferred",
+            except Exception:
+                pass
+
+        if isinstance(data, dict):
+            # Tolerant block-by-block parsing: recover every valid theorem/definition/proof
+            recovered_blocks = []
+            for b in data.get("blocks", []):
+                if isinstance(b, dict):
+                    try:
+                        recovered_blocks.append(LectureNoteBlock.model_validate(b))
+                    except Exception:
+                        recovered_blocks.append(
+                            LectureNoteBlock(
+                                type="remark",
+                                title=str(b.get("title", "Lecture Note")),
+                                latex=str(b.get("latex", "")),
+                                explanation=str(b.get("explanation", str(b))),
+                                source=str(b.get("source", "inferred")),
+                            )
                         )
-                    ],
+
+            recovered_notations = []
+            for n in data.get("notations", []):
+                if isinstance(n, dict):
+                    try:
+                        recovered_notations.append(NotationItem.model_validate(n))
+                    except Exception:
+                        pass
+
+            recovered_flashcards = []
+            for fc in data.get("flashcards", []):
+                if isinstance(fc, dict):
+                    try:
+                        recovered_flashcards.append(FlashcardItem.model_validate(fc))
+                    except Exception:
+                        pass
+
+            if recovered_blocks:
+                return LectureSynthesisResponse(
+                    topic=str(data.get("topic", "Synthesized Notes")),
+                    blocks=recovered_blocks,
+                    notations=recovered_notations,
+                    flashcards=recovered_flashcards,
+                    active_variables=list(data.get("active_variables", [])),
+                    unresolved_proofs=list(data.get("unresolved_proofs", [])),
+                    primary_speaker=str(data.get("primary_speaker", "Instructor")),
+                    socratic_questions=list(data.get("socratic_questions", [])),
                 )
+
+        logger.warning("Could not parse strict JSON for synthesis. Using fallback object.")
+        return LectureSynthesisResponse(
+            topic="Synthesized Notes",
+            blocks=[
+                LectureNoteBlock(
+                    type="remark",
+                    title="Notes Summary",
+                    explanation=text[:1000],
+                    source="inferred",
+                )
+            ],
+        )
 
     def process_and_render_synthesis(
         self,

@@ -102,11 +102,17 @@ class SessionNotesManager:
     ):
         from src.engine.config import get_obsidian_vault_path
 
+        now = datetime.now()
         self.session_id = session_id or "default"
-        self.session_date_str = datetime.now().strftime("%Y-%m-%d")
+        self.session_date_str = now.strftime("%Y-%m-%d")
+        self.session_time_str = now.strftime("%H%M")
         self.topic = topic or "Lecture Notes"
 
         vault_path = get_obsidian_vault_path()
+
+        # Resolve robust default notes directory (~/Documents/Chalk instead of CWD)
+        docs_dir = os.path.expanduser("~/Documents/Chalk")
+        fallback_dir = os.path.expanduser("~/.chalk/notes")
 
         if is_obsidian is not None:
             self.is_obsidian = is_obsidian
@@ -115,25 +121,33 @@ class SessionNotesManager:
             elif vault_path and os.path.isdir(vault_path):
                 self.notes_dir = os.path.join(vault_path, "Chalk")
             else:
-                self.notes_dir = os.path.abspath("Notes")
+                self.notes_dir = docs_dir
         elif notes_dir is not None:
             self.notes_dir = os.path.abspath(notes_dir)
-            # If user explicitly passed an obsidian vault or Chalk folder
             self.is_obsidian = bool(vault_path and (os.path.abspath(vault_path) in self.notes_dir))
         elif vault_path and os.path.isdir(vault_path):
             self.notes_dir = os.path.join(vault_path, "Chalk")
             self.is_obsidian = True
         else:
-            self.notes_dir = os.path.abspath("Notes")
+            self.notes_dir = docs_dir
             self.is_obsidian = False
 
-        os.makedirs(self.notes_dir, exist_ok=True)
+        try:
+            os.makedirs(self.notes_dir, exist_ok=True)
+        except Exception as dir_err:
+            logger.warning("Could not create notes directory %s (%s). Using fallback %s", self.notes_dir, dir_err, fallback_dir)
+            self.notes_dir = fallback_dir
+            os.makedirs(self.notes_dir, exist_ok=True)
 
         if self.is_obsidian:
             slug = slugify_topic(self.topic)
             self.session_file = os.path.join(self.notes_dir, f"{self.session_date_str}_{slug}.md")
         else:
-            self.session_file = os.path.join(self.notes_dir, f"Lecture_{self.session_date_str}.md")
+            if self.session_id and self.session_id != "default":
+                short_id = self.session_id[-8:] if len(self.session_id) > 8 else self.session_id
+                self.session_file = os.path.join(self.notes_dir, f"Lecture_{self.session_date_str}_{self.session_time_str}_{short_id}.md")
+            else:
+                self.session_file = os.path.join(self.notes_dir, f"Lecture_{self.session_date_str}_{self.session_time_str}.md")
 
         self.last_state = ChunkState()
         self.chunk_count = 0

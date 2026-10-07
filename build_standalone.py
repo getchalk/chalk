@@ -213,7 +213,7 @@ def build_binary():
     subprocess.check_call(cmd, cwd=PROJECT_ROOT)
 
     dist_dir = os.path.join(PROJECT_ROOT, "dist")
-    print(f"\n✓ Standalone build complete. Binaries located in: {dist_dir}")
+    print(f"\n[OK] Standalone build complete. Binaries located in: {dist_dir}")
 
 
 if __name__ == "__main__":

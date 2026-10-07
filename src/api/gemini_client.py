@@ -44,8 +44,17 @@ logger = logging.getLogger("chalk.api.gemini")
 
 DEFAULT_FLASH_MODEL = "gemini-2.5-flash"
 DEFAULT_PRO_MODEL = "gemini-2.5-pro"
-FALLBACK_FLASH_MODEL = "gemini-3.8-flash"
-FALLBACK_PRO_MODEL = "gemini-3.1-pro-preview"
+FALLBACK_FLASH_MODEL = "gemini-1.5-flash"
+FALLBACK_PRO_MODEL = "gemini-1.5-pro"
+
+
+def subsample_evenly(items: list, max_count: int) -> list:
+    """Evenly subsamples items across the temporal sequence instead of dropping items from the end."""
+    if not items or len(items) <= max_count:
+        return list(items)
+    n = len(items)
+    indices = [int(i * (n - 1) / (max_count - 1)) for i in range(max_count)]
+    return [items[i] for i in indices]
 
 
 class GeminiLecturePipeline:
@@ -56,13 +65,16 @@ class GeminiLecturePipeline:
     def __init__(
         self,
         api_key: Optional[str] = None,
-        flash_model: str = DEFAULT_FLASH_MODEL,
-        pro_model: str = DEFAULT_PRO_MODEL,
+        flash_model: Optional[str] = None,
+        pro_model: Optional[str] = None,
         quota_manager: Optional[QuotaManager] = None,
     ):
+        from src.security.key_manager import get_selected_model
+
         self.api_key = api_key or get_api_key()
-        self.flash_model = flash_model
-        self.pro_model = pro_model
+        user_model = get_selected_model()
+        self.flash_model = flash_model or (user_model if user_model else DEFAULT_FLASH_MODEL)
+        self.pro_model = pro_model or DEFAULT_PRO_MODEL
         self.quota_manager = quota_manager or QuotaManager()
         self._client: Optional[genai.Client] = None
         self._tracked_files: List[Any] = []
@@ -211,16 +223,32 @@ class GeminiLecturePipeline:
             f"{lang_note}\n"
         )
 
-        # 2. Add Audio Part (WAV)
+        # 2. Add Audio Part (with adaptive compression if > 18 MB)
         if len(stereo_audio) > 0:
             wav_bytes = DualChannelAudioRecorder.audio_to_wav_bytes(stereo_audio, sample_rate=16000)
             if wav_bytes:
-                audio_part = types.Part.from_bytes(data=wav_bytes, mime_type="audio/wav")
-                parts.append(audio_part)
-                logger.info("Attached stereo audio payload (%d bytes, %.1fs)", len(wav_bytes), len(stereo_audio) / 16000)
+                if len(wav_bytes) > 18 * 1024 * 1024:
+                    compressed_bytes, mime = DualChannelAudioRecorder.compress_audio(wav_bytes, target_kbps=32)
+                    if len(compressed_bytes) <= 18 * 1024 * 1024:
+                        audio_part = types.Part.from_bytes(data=compressed_bytes, mime_type=mime)
+                        parts.append(audio_part)
+                        logger.info("Attached compressed inline audio (%d -> %d bytes, %.1fs)", len(wav_bytes), len(compressed_bytes), len(stereo_audio) / 16000)
+                    else:
+                        bio = io.BytesIO(compressed_bytes)
+                        bio.name = "lecture_chunk.m4a"
+                        uploaded_file = self.upload_file(bio, mime_type=mime)
+                        if tracked_files is not None:
+                            tracked_files.append(uploaded_file)
+                        parts.append(uploaded_file)
+                        logger.info("Uploaded large audio to Google Files API (%d bytes)", len(compressed_bytes))
+                else:
+                    audio_part = types.Part.from_bytes(data=wav_bytes, mime_type="audio/wav")
+                    parts.append(audio_part)
+                    logger.info("Attached stereo audio payload (%d bytes, %.1fs)", len(wav_bytes), len(stereo_audio) / 16000)
 
-        # 3. Add Slide Keyframes (JPEG)
-        for idx, kf in enumerate(keyframes[:12]):  # Limit to 12 keyframes per chunk
+        # 3. Add Slide Keyframes evenly distributed across the chunk
+        sampled_keyframes = subsample_evenly(keyframes, 12)
+        for idx, kf in enumerate(sampled_keyframes):
             try:
                 jpg_bytes = kf.to_jpeg_bytes()
                 img_part = types.Part.from_bytes(data=jpg_bytes, mime_type="image/jpeg")
@@ -381,10 +409,26 @@ class GeminiLecturePipeline:
         if len(stereo_audio) > 0:
             wav_bytes = DualChannelAudioRecorder.audio_to_wav_bytes(stereo_audio, sample_rate=16000)
             if wav_bytes:
-                audio_part = types.Part.from_bytes(data=wav_bytes, mime_type="audio/wav")
-                parts.append(audio_part)
+                if len(wav_bytes) > 18 * 1024 * 1024:
+                    compressed_bytes, mime = DualChannelAudioRecorder.compress_audio(wav_bytes, target_kbps=32)
+                    if len(compressed_bytes) <= 18 * 1024 * 1024:
+                        audio_part = types.Part.from_bytes(data=compressed_bytes, mime_type=mime)
+                        parts.append(audio_part)
+                        logger.info("Attached compressed inline audio (%d -> %d bytes, %.1fs)", len(wav_bytes), len(compressed_bytes), len(stereo_audio) / 16000)
+                    else:
+                        bio = io.BytesIO(compressed_bytes)
+                        bio.name = "lecture_chunk.m4a"
+                        uploaded_file = self.upload_file(bio, mime_type=mime)
+                        if tracked_files is not None:
+                            tracked_files.append(uploaded_file)
+                        parts.append(uploaded_file)
+                        logger.info("Uploaded large audio to Google Files API (%d bytes)", len(compressed_bytes))
+                else:
+                    audio_part = types.Part.from_bytes(data=wav_bytes, mime_type="audio/wav")
+                    parts.append(audio_part)
 
-        for idx, kf in enumerate(keyframes[:12]):
+        sampled_keyframes = subsample_evenly(keyframes, 12)
+        for idx, kf in enumerate(sampled_keyframes):
             try:
                 jpg_bytes = kf.to_jpeg_bytes()
                 img_part = types.Part.from_bytes(data=jpg_bytes, mime_type="image/jpeg")
@@ -396,9 +440,10 @@ class GeminiLecturePipeline:
             except Exception as e:
                 logger.warning("Error encoding slide keyframe %d: %s", idx, e)
 
-        # Attach incoming physical chalkboard / whiteboard camera snapshots
+        # Attach incoming physical chalkboard / whiteboard camera snapshots evenly across chunk
         if whiteboard_photos:
-            for wb_idx, wb_item in enumerate(whiteboard_photos[:8]):
+            sampled_whiteboard = subsample_evenly(whiteboard_photos, 8)
+            for wb_idx, wb_item in enumerate(sampled_whiteboard):
                 try:
                     wb_bytes = None
                     ts_tag = "WHITEBOARD"
@@ -500,8 +545,8 @@ class GeminiLecturePipeline:
             f"{STRICT_MATH_SYNTHESIS_INSTRUCTION}\n\n"
             "REQUIREMENTS:\n"
             "1. EXECUTIVE SUMMARY: High-level academic synthesis of the core principles taught.\n"
-            "2. STANDARDIZED PROOF DERIVATIONS: Complete, rigorous mathematical derivations with unified LaTeX variables "
-            "   resolving all open proofs.\n"
+            "2. STANDARDIZED PROOF DERIVATIONS: Rigorous mathematical derivations with unified LaTeX variables consolidating what was presented. "
+            "   Do NOT invent missing derivation steps: strictly preserve '[Lücke]' for any unproved or omitted steps.\n"
             "3. ANKI STUDY DECK: A dedicated section formatted for direct Anki import using Cloze deletion syntax ({{c1::answer}}). "
             "   Create at least 8-15 high-yield cloze cards covering formulas, definitions, and key distinctions.\n"
             "4. HIGH-STAKES EXAM WARNINGS: Explicitly flag concepts that the instructor emphasized as testable or common pitfalls.\n"
@@ -611,42 +656,49 @@ class GeminiLecturePipeline:
             tools=CHALK_DESKTOP_TOOLS,
         )
 
-        response = client.models.generate_content(
-            model=self.flash_model,
-            contents=parts,
-            config=config,
-        )
+        conversation_history = list(parts)
 
-        # Check for function calls
-        if response.function_calls:
-            for call in response.function_calls:
-                fn_name = call.name
-                fn_args = call.args or {}
-                logger.info("Executing Copilot tool call: %s(%s)", fn_name, fn_args)
+        for _turn in range(5):
+            response = client.models.generate_content(
+                model=self.flash_model,
+                contents=conversation_history,
+                config=config,
+            )
 
-                # Match local tool function
-                tool_fn = next((f for f in CHALK_DESKTOP_TOOLS if f.__name__ == fn_name), None)
-                if tool_fn:
-                    try:
-                        tool_result = tool_fn(**fn_args)
-                    except Exception as err:
-                        tool_result = f"Tool execution failed: {err}"
-                else:
-                    tool_result = f"Unknown tool '{fn_name}'"
+            # Check for function calls
+            if response.function_calls:
+                # Append model's thought / tool invocation to conversation history
+                if response.candidates and response.candidates[0].content:
+                    conversation_history.append(response.candidates[0].content)
 
-                # Feed function result back
-                tool_content = [
-                    types.Part.from_function_response(
-                        name=fn_name,
-                        response={"result": tool_result},
+                tool_response_parts = []
+                for call in response.function_calls:
+                    fn_name = call.name
+                    fn_args = call.args or {}
+                    logger.info("Executing Copilot tool call: %s(%s)", fn_name, fn_args)
+
+                    tool_fn = next((f for f in CHALK_DESKTOP_TOOLS if f.__name__ == fn_name), None)
+                    if tool_fn:
+                        try:
+                            tool_result = tool_fn(**fn_args)
+                        except Exception as err:
+                            tool_result = f"Tool execution failed: {err}"
+                    else:
+                        tool_result = f"Unknown tool '{fn_name}'"
+
+                    tool_response_parts.append(
+                        types.Part.from_function_response(
+                            name=fn_name,
+                            response={"result": tool_result},
+                        )
                     )
-                ]
-                followup = client.models.generate_content(
-                    model=self.flash_model,
-                    contents=tool_content,
-                    config=config,
-                )
-                return followup.text or str(tool_result)
+
+                # Feed function results back in user role Content
+                conversation_history.append(types.Content(parts=tool_response_parts, role="user"))
+            else:
+                return response.text or "No response produced."
+
+        return response.text or "Interactive tool cycle completed."
 
         return response.text or "Ready."
 
@@ -797,11 +849,22 @@ class GeminiLecturePipeline:
         try:
             for attempt in range(max_retries + 1):
                 try:
-                    return client.models.generate_content(
+                    resp = client.models.generate_content(
                         model=model,
                         contents=contents,
                         config=config,
                     )
+                    # Verify candidate existence and safety finish_reason to eliminate silent data loss
+                    if not getattr(resp, "candidates", None):
+                        raise RuntimeError(f"Gemini API returned zero candidates on model {model}.")
+                    cand = resp.candidates[0]
+                    finish_reason = getattr(cand, "finish_reason", None)
+                    if finish_reason and str(finish_reason).upper() in ("SAFETY", "RECITATION", "BLOCKLIST", "PROHIBITED_CONTENT"):
+                        raise RuntimeError(f"Gemini API generation blocked by safety filters (finish_reason: {finish_reason}).")
+                    text = resp.text
+                    if not text or not text.strip() or text.strip() in ("{}", "[]"):
+                        raise RuntimeError(f"Gemini API returned empty text response (finish_reason: {finish_reason}).")
+                    return resp
                 except Exception as e:
                     last_exception = e
                     err_str = str(e).lower()

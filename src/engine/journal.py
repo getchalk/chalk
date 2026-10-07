@@ -10,6 +10,7 @@ Provides fault-tolerant session recording to disk:
 
 import os
 import io
+import re
 import time
 import json
 import uuid
@@ -71,21 +72,71 @@ class SessionJournal:
         return f"sess_{ts}_{rand_suffix}"
 
     def _read_manifest_file(self) -> Dict[str, Any]:
-        """Reads and parses the manifest JSON file from disk."""
+        """Reads and parses the manifest JSON file from disk with autonomous recovery on corruption."""
         try:
             with open(self.manifest_path, "r", encoding="utf-8") as f:
-                return json.load(f)
+                data = json.load(f)
+                if isinstance(data, dict) and "segments" in data:
+                    return data
         except Exception as e:
-            logger.error("Failed to read manifest at %s: %s", self.manifest_path, e)
-            return {
-                "session_id": self.session_id,
-                "created_at": time.time(),
-                "status": "recording",
-                "segments": [],
-            }
+            logger.warning("Failed to read or parse manifest at %s: %s. Rebuilding from disk segments...", self.manifest_path, e)
+
+        # Autonomously rebuild manifest from disk seg_*.wav files
+        return self._rebuild_manifest_from_disk_locked()
+
+    def _rebuild_manifest_from_disk_locked(self) -> Dict[str, Any]:
+        """Scans session directory for seg_*.wav files to reconstruct lost or corrupt manifest."""
+        reconstructed_segments = []
+        max_idx = 0
+
+        if os.path.isdir(self.session_dir):
+            wav_pattern = re.compile(r"^seg_(\d+)\.wav$")
+            try:
+                for fname in sorted(os.listdir(self.session_dir)):
+                    match = wav_pattern.match(fname)
+                    if match:
+                        idx = int(match.group(1))
+                        if idx > max_idx:
+                            max_idx = idx
+                        fpath = os.path.join(self.session_dir, fname)
+                        dur = 30.0
+                        try:
+                            with wave.open(fpath, "rb") as wf:
+                                dur = float(wf.getnframes() / max(1, wf.getframerate()))
+                        except Exception:
+                            # Estimate duration from file size
+                            sz = os.path.getsize(fpath)
+                            dur = max(0.1, float(sz - 44) / 64000.0)
+
+                        mtime = os.path.getmtime(fpath)
+                        reconstructed_segments.append({
+                            "id": f"seg_{idx:04d}",
+                            "file": fname,
+                            "start_wall_clock": mtime,
+                            "duration_sec": dur,
+                            "status": "pending",
+                        })
+            except Exception as scan_err:
+                logger.error("Error scanning disk segments in %s: %s", self.session_dir, scan_err)
+
+        manifest = {
+            "session_id": self.session_id,
+            "created_at": time.time(),
+            "status": "recording",
+            "segments": reconstructed_segments,
+        }
+        self.manifest = manifest
+        self.segment_counter = max_idx
+        try:
+            self._save_manifest_atomic_locked()
+            logger.info("Successfully rebuilt manifest with %d segments (counter=%d)", len(reconstructed_segments), max_idx)
+        except Exception as save_err:
+            logger.error("Could not persist rebuilt manifest: %s", save_err)
+
+        return manifest
 
     def _calculate_segment_counter(self) -> int:
-        """Finds highest segment index in existing manifest to avoid overwriting."""
+        """Finds highest segment index across manifest and disk files to avoid overwriting."""
         max_idx = 0
         for seg in self.manifest.get("segments", []):
             seg_id = seg.get("id", "")
@@ -96,6 +147,20 @@ class SessionJournal:
                         max_idx = idx
                 except ValueError:
                     pass
+
+        # Also inspect disk directory in case manifest was partially out of sync
+        if os.path.isdir(self.session_dir):
+            wav_pattern = re.compile(r"^seg_(\d+)\.wav$")
+            try:
+                for fname in os.listdir(self.session_dir):
+                    match = wav_pattern.match(fname)
+                    if match:
+                        idx = int(match.group(1))
+                        if idx > max_idx:
+                            max_idx = idx
+            except Exception:
+                pass
+
         return max_idx
 
     def _save_manifest_atomic_locked(self):
@@ -275,7 +340,7 @@ class SessionJournal:
         return os.path.join(self.session_dir, filename)
 
     def read_segment_audio(
-        self, segment_or_id: Union[str, Dict[str, Any]]
+        self, segment_or_id: Union[str, Dict[str, Any]], strict: bool = False
     ) -> Tuple[np.ndarray, int]:
         """
         Reads a segment WAV file from disk into a float32 numpy array.
@@ -293,8 +358,10 @@ class SessionJournal:
                 sampwidth = wf.getsampwidth()
                 n_frames = wf.getnframes()
                 frames = wf.readframes(n_frames)
-        except wave.Error as we:
-            logger.error("Corrupted WAV header in %s: %s. Returning silent audio fallback.", file_path, we)
+        except (wave.Error, Exception) as we:
+            logger.error("Corrupted WAV header in %s: %s.", file_path, we)
+            if strict:
+                raise ValueError(f"Corrupted WAV audio file in {file_path}: {we}")
             return np.zeros((16000 * 30, 2), dtype=np.float32), 16000
 
         if sampwidth == 2:
@@ -342,6 +409,7 @@ class SessionJournal:
         """
         Extracts a slice_duration audio snippet (default: 20s) centered on target_timestamp_sec
         from the session's recorded segments.
+        Uses segment start_wall_clock to maintain accurate alignment even across pauses or breaks.
         Returns (audio_array, sample_rate).
         """
         sr = 16000
@@ -357,12 +425,28 @@ class SessionJournal:
         if not segments:
             return np.zeros((0, 2), dtype=np.float32), sr
 
+        # Determine reference start time from earliest start_wall_clock
+        first_seg_start = None
+        for s in segments:
+            if s.get("start_wall_clock") is not None:
+                first_seg_start = float(s["start_wall_clock"])
+                break
+
         sliced_pieces = []
         cur_t = 0.0
 
         for seg in segments:
             seg_dur = float(seg.get("duration_sec", 30.0))
-            seg_start = cur_t
+            seg_wall = seg.get("start_wall_clock")
+
+            if seg_wall is not None and first_seg_start is not None:
+                if target_timestamp_sec > 1e8:
+                    seg_start = float(seg_wall)
+                else:
+                    seg_start = float(seg_wall) - first_seg_start
+            else:
+                seg_start = cur_t
+
             seg_end = seg_start + seg_dur
             cur_t = seg_end
 
@@ -513,3 +597,60 @@ def recover_unprocessed_sessions(base_dir: Optional[str] = None) -> List[Dict[st
 
     recovered_sessions.sort(key=lambda s: s.get("created_at", 0.0))
     return recovered_sessions
+
+
+def cleanup_old_sessions(
+    base_dir: Optional[str] = None,
+    max_age_days: int = 7,
+    keep_min_sessions: int = 3,
+) -> int:
+    """
+    Cleans up old completed sessions from ~/.chalk/sessions/ older than max_age_days
+    to prevent unbounded disk growth (~230MB/hr) while strictly preserving at least keep_min_sessions.
+    Returns the number of session directories removed.
+    """
+    sessions_path = os.path.abspath(os.path.expanduser(base_dir or DEFAULT_SESSIONS_DIR))
+    if not os.path.isdir(sessions_path):
+        return 0
+
+    now = time.time()
+    cutoff_time = now - (max_age_days * 86400)
+    purged_count = 0
+
+    try:
+        entries = sorted(os.listdir(sessions_path))
+    except OSError:
+        return 0
+
+    session_dirs = []
+    for entry in entries:
+        sess_dir = os.path.join(sessions_path, entry)
+        if os.path.isdir(sess_dir):
+            manifest_file = os.path.join(sess_dir, "manifest.json")
+            created_at = os.path.getmtime(sess_dir)
+            status = "unknown"
+            if os.path.isfile(manifest_file):
+                try:
+                    with open(manifest_file, "r", encoding="utf-8") as f:
+                        m_data = json.load(f)
+                        created_at = float(m_data.get("created_at", created_at))
+                        status = m_data.get("status", "unknown")
+                except Exception:
+                    pass
+            session_dirs.append((created_at, status, sess_dir))
+
+    session_dirs.sort(key=lambda x: x[0])  # Oldest first
+
+    # Ensure we never delete below keep_min_sessions
+    eligible_to_check = session_dirs[:-keep_min_sessions] if len(session_dirs) > keep_min_sessions else []
+
+    for c_time, status, s_dir in eligible_to_check:
+        if c_time < cutoff_time and status == "completed":
+            try:
+                shutil.rmtree(s_dir)
+                purged_count += 1
+                logger.info("Purged old completed session directory: %s", s_dir)
+            except Exception as e:
+                logger.warning("Could not delete old session %s: %s", s_dir, e)
+
+    return purged_count

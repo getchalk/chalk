@@ -36,7 +36,7 @@ def ensure_macos_zip():
                     full_path = os.path.join(root, file)
                     rel_path = os.path.relpath(full_path, DIST_DIR)
                     zipf.write(full_path, rel_path)
-        print(f"✓ Created {zip_path} ({os.path.getsize(zip_path) / (1024*1024):.2f} MB)")
+        print(f"[OK] Created {zip_path} ({os.path.getsize(zip_path) / (1024*1024):.2f} MB)")
 
 
 def generate_checksums():
@@ -75,7 +75,7 @@ def generate_checksums():
         f.write("\n".join(checksum_lines) + "\n")
 
     print("========================================================")
-    print(f"✓ Checksums successfully written to: {CHECKSUM_FILE}\n")
+    print(f"[OK] Checksums successfully written to: {CHECKSUM_FILE}\n")
 
 
 if __name__ == "__main__":

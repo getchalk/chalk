@@ -10,7 +10,7 @@ Exposes local executable tools to Gemini:
 import os
 import time
 import logging
-from typing import Optional, Callable
+from typing import Optional, Callable, Tuple, List, Dict, Any
 from PIL import Image
 
 logger = logging.getLogger("chalk.api.tools")
@@ -41,40 +41,103 @@ def register_tool_context(
     logger.info("Chalk desktop tools context registered.")
 
 
+FORBIDDEN_SYSTEM_PREFIXES = (
+    "/etc", "/var", "/bin", "/sbin", "/usr", "/System", "/Library",
+    "/private", "C:\\Windows", "C:\\Program Files", "C:\\ProgramData",
+)
+
+SENSITIVE_FILENAME_PATTERNS = (
+    ".env", ".ssh", ".aws", ".gnupg", ".git", ".config",
+    "id_rsa", "id_ed25519", "id_ecdsa", "id_dsa",
+    "credentials", "secrets", "keychain", ".bash_history", ".zsh_history"
+)
+
+
+def _is_path_allowed(real_path: str) -> Tuple[bool, str]:
+    """Validates realpath against sandbox restrictions."""
+    for prefix in FORBIDDEN_SYSTEM_PREFIXES:
+        if real_path == prefix or real_path.startswith(prefix + os.sep):
+            return False, f"Access denied: system path '{prefix}' is protected."
+
+    home = os.path.expanduser("~")
+    allowed_dirs = [
+        os.path.realpath(os.path.join(home, "Documents")),
+        os.path.realpath(os.path.join(home, "Desktop")),
+        os.path.realpath(os.path.join(home, "Downloads")),
+        os.path.realpath(os.path.join(home, ".chalk")),
+        os.path.realpath(os.getcwd()),
+    ]
+    if _NOTES_MANAGER_REF is not None and hasattr(_NOTES_MANAGER_REF, "notes_dir"):
+        allowed_dirs.append(os.path.realpath(_NOTES_MANAGER_REF.notes_dir))
+
+    matched_root = None
+    for ad in allowed_dirs:
+        if real_path == ad or real_path.startswith(ad + os.sep):
+            matched_root = ad
+            break
+
+    if matched_root is None:
+        return False, "Access denied: path is outside permitted student directories (Documents, Desktop, Downloads, Chalk notes)."
+
+    # Check path components inside the allowed directory
+    rel = os.path.relpath(real_path, matched_root)
+    if rel != ".":
+        parts = os.path.normpath(rel).split(os.sep)
+        for part in parts:
+            part_lower = part.lower()
+            for sens in SENSITIVE_FILENAME_PATTERNS:
+                if sens in part_lower:
+                    return False, f"Access denied: sensitive path component '{part}' is protected."
+            # Disallow hidden files or directories within permitted tree
+            if part.startswith(".") and part != ".chalk":
+                return False, f"Access denied: hidden directory or file '{part}' is protected."
+
+    return True, ""
+
+
 def read_local_file(path: str) -> str:
     """
     Reads and extracts text from a local file on the user's machine.
-    Supports PDF documents (.pdf), PowerPoint slides (.pptx), Markdown (.md),
-    plain text (.txt), and source code files.
+    Enforces realpath sandbox restrictions. Supports PDF documents (.pdf),
+    PowerPoint slides (.pptx), Markdown (.md), plain text (.txt), and source code files.
 
     Args:
         path: Absolute or relative file path to read.
     """
     clean_path = os.path.expanduser(os.path.expandvars(path.strip()))
-    if not os.path.exists(clean_path):
-        return f"Error: File not found at '{clean_path}'."
+    real_path = os.path.realpath(clean_path)
+
+    allowed, reason = _is_path_allowed(real_path)
+    if not allowed:
+        logger.warning("Security sandbox blocked file access to '%s': %s", real_path, reason)
+        return f"Security Error: {reason}"
+
+    if not os.path.exists(real_path):
+        return f"Error: File not found at '{real_path}'."
+    if os.path.isdir(real_path):
+        return f"Error: '{real_path}' is a directory, not a file."
 
     try:
-        lower = clean_path.lower()
+        lower = real_path.lower()
 
         # PDF extraction via pypdf
         if lower.endswith(".pdf"):
             import pypdf
 
-            reader = pypdf.PdfReader(clean_path)
+            reader = pypdf.PdfReader(real_path)
             total_pages = len(reader.pages)
             extracted = []
             for idx, page in enumerate(reader.pages[:40]):  # cap at 40 pages
                 text = page.extract_text()
                 if text:
                     extracted.append(f"--- Page {idx + 1} ---\n{text.strip()}")
-            return f"PDF Document: {os.path.basename(clean_path)} ({total_pages} pages)\n" + "\n\n".join(extracted)
+            return f"PDF Document: {os.path.basename(real_path)} ({total_pages} pages)\n" + "\n\n".join(extracted)
 
         # PPTX extraction via python-pptx
         elif lower.endswith((".pptx", ".ppt")):
             from pptx import Presentation
 
-            prs = Presentation(clean_path)
+            prs = Presentation(real_path)
             slide_texts = []
             for idx, slide in enumerate(prs.slides[:60]):
                 slide_content = []
@@ -83,17 +146,17 @@ def read_local_file(path: str) -> str:
                         slide_content.append(shape.text.strip())
                 if slide_content:
                     slide_texts.append(f"--- Slide {idx + 1} ---\n" + "\n".join(slide_content))
-            return f"PowerPoint Presentation: {os.path.basename(clean_path)}\n" + "\n\n".join(slide_texts)
+            return f"PowerPoint Presentation: {os.path.basename(real_path)}\n" + "\n\n".join(slide_texts)
 
         # Plain text / Markdown / Source files
         else:
-            with open(clean_path, "r", encoding="utf-8", errors="replace") as f:
+            with open(real_path, "r", encoding="utf-8", errors="replace") as f:
                 content = f.read(150_000)  # Read up to 150k characters
-                return f"File: {os.path.basename(clean_path)}\n{content}"
+                return f"File: {os.path.basename(real_path)}\n{content}"
 
     except Exception as e:
-        logger.error("Failed reading file '%s': %s", clean_path, e)
-        return f"Error reading file '{clean_path}': {str(e)}"
+        logger.error("Failed reading file '%s': %s", real_path, e)
+        return f"Error reading file '{real_path}': {str(e)}"
 
 
 def capture_active_screen() -> str:
@@ -161,17 +224,25 @@ def append_to_notes(heading: str, markdown_content: str) -> str:
         heading: Section header (e.g. 'Student Query: Convex Optimization')
         markdown_content: Formatted LaTeX markdown content to append.
     """
-    if _NOTES_MANAGER_REF is None:
+    if _NOTES_MANAGER_REF is None or not hasattr(_NOTES_MANAGER_REF, "session_file"):
         return "No active session notes manager initialized."
+
+    session_file = _NOTES_MANAGER_REF.session_file
+    if not session_file:
+        return "No active session file specified in notes manager."
+
+    clean_heading = " ".join(heading.split()).strip()[:150]
+    if not clean_heading:
+        clean_heading = "Lecture Note"
 
     try:
         timestamp_str = time.strftime("[%H:%M:%S]")
-        entry = f"#### {heading} {timestamp_str}\n\n{markdown_content.strip()}\n\n"
+        entry = f"#### {clean_heading} {timestamp_str}\n\n{markdown_content.strip()}\n\n"
 
-        with open(_NOTES_MANAGER_REF.session_file, "a", encoding="utf-8") as f:
+        with open(session_file, "a", encoding="utf-8") as f:
             f.write(entry)
 
-        return f"Successfully appended '{heading}' to session notes ({os.path.basename(_NOTES_MANAGER_REF.session_file)})."
+        return f"Successfully appended '{clean_heading}' to session notes ({os.path.basename(session_file)})."
     except Exception as e:
         logger.error("Append to notes tool error: %s", e)
         return f"Error writing to notes: {str(e)}"

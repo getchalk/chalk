@@ -227,8 +227,8 @@ class SileroVADDetector:
                     with torch.no_grad():
                         return float(self.model(tensor, self.sample_rate).item())
                 else:
-                    # Multi-window evaluation: take maximum speech probability across 512-sample windows
-                    step = 256
+                    # Multi-window evaluation: non-overlapping 512-sample frames to preserve model RNN state
+                    step = 512
                     max_prob = 0.0
                     for s in range(0, len(audio_chunk_mono) - target_len + 1, step):
                         window = audio_chunk_mono[s : s + target_len]
@@ -328,25 +328,52 @@ class SileroVADDetector:
             self.last_offset_map = passthrough_map
             return (stereo_audio, passthrough_map) if return_offset_map else stereo_audio
 
-        max_silent_frames = int(max_silence_sec / (frame_ms / 1000.0))
+        # Pre/Post-roll padding of at least 300ms (10 frames at 30ms)
+        min_padding_frames = max(10, int(0.300 / (frame_ms / 1000.0)))
+        max_silent_frames = max(min_padding_frames, int(max_silence_sec / (frame_ms / 1000.0)))
 
-        # Check speech on either channel (Mic or Loopback)
-        mono_mix = np.maximum(np.abs(stereo_audio[:, 0]), np.abs(stereo_audio[:, 1]))
+        # Evaluate vocal activity using combined mono stream
+        mono_mix = 0.5 * (stereo_audio[:, 0] + stereo_audio[:, 1])
+        n_frames = (total_samples + frame_samples - 1) // frame_samples
+        frame_active = [False] * n_frames
+        is_active_state = False
+
+        for f_idx in range(n_frames):
+            start = f_idx * frame_samples
+            end = min(start + frame_samples, total_samples)
+            frame_mono = mono_mix[start:end]
+            rms = float(np.sqrt(np.mean(frame_mono**2) + 1e-12))
+            prob = self.calculate_speech_prob(frame_mono)
+
+            # Hysteresis thresholding
+            if not is_active_state:
+                if prob > 0.35 or rms > 0.012:
+                    is_active_state = True
+            else:
+                if prob < 0.15 and rms < 0.004:
+                    is_active_state = False
+
+            frame_active[f_idx] = is_active_state
+
+        # Apply at least 300ms pre-roll and post-roll dilation to protect speech boundaries
+        dilated_active = list(frame_active)
+        for f_idx in range(n_frames):
+            if frame_active[f_idx]:
+                left_pad = max(0, f_idx - min_padding_frames)
+                right_pad = min(n_frames, f_idx + min_padding_frames + 1)
+                for p in range(left_pad, right_pad):
+                    dilated_active[p] = True
 
         retained_chunks = []
-        retained_intervals: List[List[int]] = []  # List of [start_sample, end_sample]
+        retained_intervals: List[List[int]] = []
         silent_frame_count = 0
 
-        for start in range(0, total_samples, frame_samples):
+        for f_idx in range(n_frames):
+            start = f_idx * frame_samples
             end = min(start + frame_samples, total_samples)
-            frame_mix = mono_mix[start:end]
             frame_stereo = stereo_audio[start:end]
 
-            # RMS of the frame
-            rms = np.sqrt(np.mean(frame_mix**2) + 1e-9)
-            has_sound = rms > 0.008  # Audio presence threshold
-
-            if has_sound:
+            if dilated_active[f_idx]:
                 silent_frame_count = 0
                 retained_chunks.append(frame_stereo)
                 if retained_intervals and retained_intervals[-1][1] == start:
@@ -356,7 +383,6 @@ class SileroVADDetector:
             else:
                 silent_frame_count += 1
                 if silent_frame_count <= max_silent_frames:
-                    # Keep padding up to max_silence_sec
                     retained_chunks.append(frame_stereo)
                     if retained_intervals and retained_intervals[-1][1] == start:
                         retained_intervals[-1][1] = end
@@ -367,7 +393,6 @@ class SileroVADDetector:
                     continue
 
         if not retained_chunks:
-            # Avoid returning completely empty array
             frame_end = min(frame_samples, total_samples)
             retained_chunks = [stereo_audio[:frame_end]]
             retained_intervals = [[0, frame_end]]

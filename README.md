@@ -13,7 +13,7 @@ Operating under a **True Zero-Knowledge Bring-Your-Own-Key (BYOK)** architecture
 ```
                                       ┌─────────────────────────────────────┐
                                       │           Chalk Tray Daemon         │
-                                      │   (🟢 Recording / 🟡 Break / 🔵 API) │
+                                      │   ([REC] Recording / [PAUSE] Break / [API] API) │
                                       └──────────────────┬──────────────────┘
                                                          │
                    ┌─────────────────────────────────────┼─────────────────────────────────────┐
@@ -54,7 +54,7 @@ Operating under a **True Zero-Knowledge Bring-Your-Own-Key (BYOK)** architecture
 
 ---
 
-## 🌟 Key Features
+##  Key Features
 
 1. **Dual-Channel Audio & Hardware Diarization:**
    - **Left Channel:** In-person lecturer & student acoustics via `sounddevice` (16kHz mono).
@@ -78,7 +78,7 @@ Operating under a **True Zero-Knowledge Bring-Your-Own-Key (BYOK)** architecture
    - Handles network dropouts and HTTP 429 rate limits by re-inserting audio and slides back into the active recording queue with a 5-minute backoff.
 
 5. **Hybrid Gemini Pipeline & Context Chaining:**
-   - **Live Chunks (Gemini Flash):** Synthesizes notes using student scratchpad shorthand as the primary outline anchor, routes student interruptions into `> ❓ Student Question [MM:SS]` callouts, formats math into clean LaTeX display blocks ($$...$$), and terminates with `<!-- CHUNK_STATE -->` blocks to ensure continuous mathematical continuity without drift.
+   - **Live Chunks (Gemini Flash):** Synthesizes notes using student scratchpad shorthand as the primary outline anchor, routes student interruptions into `> [Q] Student Question [MM:SS]` callouts, formats math into clean LaTeX display blocks ($$...$$), and terminates with `<!-- CHUNK_STATE -->` blocks to ensure continuous mathematical continuity without drift.
    - **Master Synthesis (Gemini Pro):** Generates executive session summaries, standardized derivations, high-stakes exam warnings, and Anki study decks with Cloze deletion syntax (`{{c1::answer}}`).
 
 6. **Interactive Copilot HUD & Local Desktop Tools:**
@@ -100,15 +100,15 @@ Operating under a **True Zero-Knowledge Bring-Your-Own-Key (BYOK)** architecture
 
 ---
 
-## 🚦 System Tray Status Indicators
+##  System Tray Status Indicators
 
-- 🟢 **Green:** Actively recording (Mic + System Loopback + Slides).
-- 🟡 **Yellow:** Paused (Autonomous Break detected via Silero VAD or manual standby).
-- 🔵 **Blue:** Processing chunk or running Master Synthesis via Gemini API worker.
+- [REC] **Green:** Actively recording (Mic + System Loopback + Slides).
+- [PAUSE] **Yellow:** Paused (Autonomous Break detected via Silero VAD or manual standby).
+- [API] **Blue:** Processing chunk or running Master Synthesis via Gemini API worker.
 
 ---
 
-## 🚀 Quickstart Guide
+##  Quickstart Guide
 
 ### 1. Prerequisites
 - Python 3.9+
@@ -134,7 +134,7 @@ On first launch, if no API key is detected in your OS native encrypted vault, Ch
 
 ---
 
-## 📦 Standalone Binary Compilation
+##  Standalone Binary Compilation
 
 To package Chalk into a standalone single-file executable with no console window and bundled multi-resolution application icons:
 
@@ -146,7 +146,7 @@ The resulting standalone executable will be located in `dist/Chalk` (or `dist/Ch
 
 ---
 
-## 🌐 Regulatory-Compliant Landing Page
+##  Regulatory-Compliant Landing Page
 
 The static web landing page is located at `web/index.html`. It contains:
 - Zero cookies, zero trackers, and zero external analytics.

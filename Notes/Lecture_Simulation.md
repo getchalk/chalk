@@ -14,8 +14,8 @@ Where systematic risk $\beta_i$ is standardized as:
 
 $$\beta_i = \frac{\mathrm{Cov}(R_i, R_m)}{\mathrm{Var}(R_m)} = \frac{\sigma_{im}}{\sigma_m^2}$$
 
-> ❓ **Student Question [00:18]:** "Does mean-variance optimization still hold if asset returns exhibit fat tails?"
-> 💡 **Instructor Clarification:** "No. Pure CAPM requires either normally distributed asset returns or quadratic investor utility functions. Fat tails violate quadratic optimization, requiring higher-order moment pricing."
+> [Q] **Student Question [00:18]:** "Does mean-variance optimization still hold if asset returns exhibit fat tails?"
+> [A] **Instructor Clarification:** "No. Pure CAPM requires either normally distributed asset returns or quadratic investor utility functions. Fat tails violate quadratic optimization, requiring higher-order moment pricing."
 
 <!-- CHUNK_STATE
 Topic: Capital Asset Pricing Model & SML

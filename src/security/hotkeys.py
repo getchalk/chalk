@@ -31,8 +31,8 @@ class _MacCarbonHotkeyBackend:
     Requires ZERO Accessibility and ZERO Input Monitoring permissions.
     """
 
-    # Carbon constants
-    kEventClassKeyboard = int.from_bytes(b"kbd ", byteorder="big")
+    # Carbon constants (CarbonEvents.h)
+    kEventClassKeyboard = int.from_bytes(b"keyb", byteorder="big")  # 'keyb' = 0x6B657962
     kEventHotKeyPressed = 5
     kEventParamDirectObject = int.from_bytes(b"----", byteorder="big")
     typeEventHotKeyID = int.from_bytes(b"hkid", byteorder="big")

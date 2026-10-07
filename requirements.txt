@@ -4,7 +4,6 @@ soundcard
 mss
 Pillow
 imagehash
-pynput
 pystray
 PyQt6
 torch

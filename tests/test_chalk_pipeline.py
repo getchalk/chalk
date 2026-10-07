@@ -1190,7 +1190,93 @@ $$x(t) = C e^{\\lambda t}$$
             self.assertEqual(len(session_emojis), 0, f"Emojis found in session file: {session_emojis}")
 
 
+class TestChalkHardeningAndForensics(unittest.TestCase):
+    """Targeted regression tests for Claude's forensic code review points."""
+
+    def test_sixteen_mathematical_formulas_preserved(self):
+        """Verify all 16 mathematical formulas pass KaTeX validation without corruption."""
+        from src.api.synthesis_pipeline import validate_latex_syntax
+
+        formulas = [
+            r"\langle x, y \rangle",
+            r"\binom{n}{k}",
+            r"\Vert x \Vert",
+            r"\lfloor x \rfloor",
+            r"\lceil x \rceil",
+            r"A \wedge B \vee C",
+            r"\bigcup_{i=1}^n A_i",
+            r"\bigcap_{i=1}^n B_i",
+            r"A \xrightarrow{f} B",
+            r"\overset{\mathrm{def}}{=}",
+            r"\boxed{E = mc^2}",
+            r"x \not= y",
+            r"\frac{a}{b}",
+            r"\int_{-\infty}^{\infty} e^{-x^2} dx = \sqrt{\pi}",
+            r"\sum_{k=0}^n \binom{n}{k} a^k b^{n-k}",
+            r"\lim_{x \to 0} \frac{\sin x}{x} = 1",
+        ]
+
+        for f in formulas:
+            is_valid, out = validate_latex_syntax(f)
+            self.assertTrue(is_valid, f"Formula '{f}' should be valid KaTeX syntax")
+            # Ensure none of the commands were mutilated into \text{cmd}
+            for cmd in ["langle", "rangle", "binom", "Vert", "lfloor", "rfloor", "lceil", "rceil", "wedge", "vee", "bigcup", "bigcap", "xrightarrow", "overset", "boxed"]:
+                self.assertNotIn(f"\\text{{{cmd}}}", out, f"Command \\{cmd} was improperly rewritten into \\text in '{out}'")
+
+    def test_read_local_file_sandbox_security(self):
+        """Verify path traversal and forbidden system directories are strictly blocked."""
+        from src.api.tools import read_local_file
+
+        # 1. System files
+        res1 = read_local_file("/etc/passwd")
+        self.assertIn("Security Error", res1)
+
+        res2 = read_local_file("/var/log/system.log")
+        self.assertIn("Security Error", res2)
+
+        # 2. Sensitive dotfiles
+        res3 = read_local_file("~/.ssh/id_rsa")
+        self.assertIn("Security Error", res3)
+
+        res4 = read_local_file("~/.bash_history")
+        self.assertIn("Security Error", res4)
+
+        # 3. Path traversal attempts
+        res5 = read_local_file("../../.env")
+        self.assertIn("Security Error", res5)
+
+    def test_chunk_quarantine_preserves_audio_and_meta(self):
+        """Verify chunk quarantine saves audio and JSON metadata without data loss."""
+        from src.main import ChalkCoordinator
+        import shutil
+
+        quarantine_root = os.path.expanduser("~/.chalk/quarantine")
+        test_audio = np.random.uniform(-0.1, 0.1, (16000, 2)).astype(np.float32)
+
+        # Create dummy coordinator with mocked app
+        class DummyApp:
+            def quit(self): pass
+        app = DummyApp()
+        coord = ChalkCoordinator.__new__(ChalkCoordinator)
+
+        try:
+            coord._quarantine_chunk(
+                audio_data=test_audio,
+                keyframes=[],
+                whiteboard_photos=[],
+                error_reason="Persistent API 500 error",
+            )
+            # Verify quarantine directory created
+            self.assertTrue(os.path.isdir(quarantine_root))
+            entries = os.listdir(quarantine_root)
+            self.assertTrue(len(entries) > 0)
+        finally:
+            # Clean up test quarantine
+            shutil.rmtree(quarantine_root, ignore_errors=True)
+
+
 if __name__ == "__main__":
     unittest.main()
+
 
 

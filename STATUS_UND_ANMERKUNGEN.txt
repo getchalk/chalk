@@ -68,50 +68,50 @@ Phase 26: Full 5-Language Desktop App i18n Parity (EN, DE, FR, ES, ZH) [ABGESCHL
 --------------------------------------------------------------------------------
 
 A. WORKER BEE 1: DE-HACKERIZATION & APPLE/NOTION ELEGANZ
-  [✓] Beseitigung von technischem Debug-Jargon in web/index.html (Hero Mockup):
+  [OK] Beseitigung von technischem Debug-Jargon in web/index.html (Hero Mockup):
       - Ersetzt `SLIDE FEED (pHash: a7f8c2) 0.05 FPS` durch `PRESENTATION SYNC` und `Active Slide 14`.
       - Ersetzt `Hamming Distance: Δ=14 (>10 Trigger)` durch `Automatic Slide Recognition • In Sync`.
       - Ersetzt `Tokens Ingested: 142,890 / 1,000,000` durch `Session Context: 14% used`.
       - Ersetzt `RPD Remaining: 48 / 50` durch `Status: Direct BYOK Connected`.
-  [✓] Universeller, ansprechender Inhalt:
+  [OK] Universeller, ansprechender Inhalt:
       - Folientitel: "Strategic Decision Frameworks & Value Creation" (Strategy & Decision Science).
       - Mathematische Formel: ROI_net = (Net Benefit - Capital Outlay) / Cost of Risk.
       - Notiz-Puffer: Klar strukturierte Notion-artige Zusammenfassung ("Executive Summary & Risk Allocation").
-  [✓] Warme Typografie & Geometrie:
+  [OK] Warme Typografie & Geometrie:
       - Durchgehend moderne serifenlose Typografie (SF Pro Display / Inter / system-ui).
       - Monospace-Schriftart strikt auf Formeln und Terminal-Befehle beschränkt.
       - Elegante abgerundete Kartenränder (rounded-xl, rounded-2xl) und dezente Schatten.
 
 B. WORKER BEE 2: PERMANENTES EXTERIOR SAFE-DOCKING DER ACTION-CHIPS
-  [✓] Vollständige Beseitigung von In-Card Prozentkoordinaten:
+  [OK] Vollständige Beseitigung von In-Card Prozentkoordinaten:
       - Die 3 Event-Chips wurden vollständig aus dem Karteninneren verbannt:
         * Chip 1 (LaTeX Proof): Sauber über der oberen linken Kante (-top-4 sm:-top-6 left-2 sm:left-6).
         * Chip 2 (Silence Detected): Sauber über der oberen rechten Kante (-top-4 sm:-top-6 right-2 sm:right-6).
         * Chip 3 (Slide Transition): Sauber unterhalb der unteren Kante (-bottom-4 sm:-bottom-6 left-1/2 -translate-x-1/2).
-  [✓] Absolute Überdeckungsfreiheit:
+  [OK] Absolute Überdeckungsfreiheit:
       - `pointer-events: none` und `z-20` auf allen Chips.
       - Unmögliche Verdeckung von Texten, Formeln oder Bedienelementen im Hero-Mockup.
-  [✓] Zero-Emoji-Politik aufrechterhalten:
+  [OK] Zero-Emoji-Politik aufrechterhalten:
       - Reine Vektor-SVGs (Pausenuhr, Terminalprompt, Schild) und Monospace-Tags ([SYNC], [BREAK], [OCR]).
 
 C. WORKER BEE 3: REPARATUR DES LIGHT-MODE KONTRASTS & LAG-FREIE THEMES
-  [✓] Behebung der pechschwarzen Terminal-Boxen im Light Mode:
+  [OK] Behebung der pechschwarzen Terminal-Boxen im Light Mode:
       - Dedizierte CSS-Variablen für beide Modi:
         * Dark Mode: --terminal-bg: #07080B, --terminal-text: #F8FAFC, --terminal-border: rgba(255,255,255,0.1)
         * Light Mode: --terminal-bg: #F1F5F9, --terminal-text: #0F172A, --terminal-border: #CBD5E1
       - Im Light Mode sind Terminal-Boxen nun hellgrau mit gestochen scharfer dunkelgrauer Schrift.
       - Auch Copy-Buttons adaptieren nahtlos (--terminal-btn-bg: #E2E8F0, --terminal-btn-text: #334155).
-  [✓] Beseitigung von Theme-Switching Lags:
+  [OK] Beseitigung von Theme-Switching Lags:
       - CSS-Transitions auf performante background-color und border-color beschränkt (0.2s ease).
       - OS Switcher auf dedizierte CSS-Klassen umgestellt (.os-tab-active, .os-tab-inactive);
         kein Reflow-Stottern oder Style-Konflikt mehr beim Wechsel zwischen Dark und Light Mode.
 
 D. WORKER BEE 4: QA-VERIFIKATION & DESKTOP-SYNCHRONISATION
-  [✓] Verifikationstests:
+  [OK] Verifikationstests:
       - ./scripts/deploy_web.sh test -> PASS (0 verbotene Token, alle Dateien intakt).
       - Emoji-Scan -> 0 verbotene Symbole im Web-Portal.
       - Unit-Test-Suite -> 9/9 Tests bestanden (1.48s).
-  [✓] 1:1 Spiegelung:
+  [OK] 1:1 Spiegelung:
       - Vollständig synchronisiert nach /Users/user/Desktop/chalk/.
       - SHA-256 Checksummen in dist/SHA256SUMS.txt intakt.
 
@@ -120,41 +120,41 @@ D. WORKER BEE 4: QA-VERIFIKATION & DESKTOP-SYNCHRONISATION
 --------------------------------------------------------------------------------
 
 A. WORKER BEE 1: WEB COPYWRITING & HERO DE-HACKERIZATION
-  [✓] Vollständige Beseitigung von interner Bibliotheks-Prahlerei:
+  [OK] Vollständige Beseitigung von interner Bibliotheks-Prahlerei:
       - Ersetzt "Dual-Channel Diarization / SoundCard & PyAudio" durch "Crystal-Clear Speaker Separation" (Autonome Trennung von Sprecher und Raumaudio ohne Konfiguration).
       - Ersetzt "Neural VAD & pHash Deduplication / Silero v4 Torch / Hamming Δ>10" durch "Respects Breaks & Silences" (Autonomer Standby bei Pausen schont Batterie und Kontingent).
       - Ersetzt "Pluggable Model Runtime (BYOK)" durch "Slide-Aware Synthesis" (Hintergrund-Folienerkennung synchronisiert visuelle Diagramme mit gesprochenen Herleitungen).
       - Ersetzt "KEYRING SECURITY PROTOCOL" durch "HARDWARE VAULT SECURITY".
       - Download-Beschreibungen bereinigt (Fokus auf lautlose Menüleisten-Integration statt interner Audio-Treiber).
-  [✓] Hero Mockup Veredelung:
+  [OK] Hero Mockup Veredelung:
       - Titelleiste: Beruhigtes `Recording (01:42)` Status-Badge; Verbannung des `DUAL-STREAM` Debug-Labels.
       - Foliensynchronisation: *"Modern Portfolio Theory & Factor Exposure"* mit $E(R_i) = R_f + \beta_i[E(R_m) - R_f]$.
       - Synthetisierte Notizen: `portfolio_theory.md` mit formeller CAPM-Derivation und klarer `Copy Markdown` Schaltfläche inkl. Zwischenablagen-Feedback.
       - 0 Emojis, 0 verbotene Lila/Indigo-Token, strikte Schwarz-Weiss/Schiefer-Palette.
 
 B. WORKER BEE 2 & 3: SPOTLIGHT/RAYCAST HUD & GRANOLA-STYLE SHORTHAND
-  [✓] Beseitigung von Quoten-Stress aus dem primären Sichtfeld:
+  [OK] Beseitigung von Quoten-Stress aus dem primären Sichtfeld:
       - `self.quota_pill` ("Quota: 50 RPD") aus der HUD-Kopfzeile entfernt für einen ruhigen, ablenkungsfreien Arbeitsbereich.
-  [✓] Granola-Style Shorthand Priority (`src/api/gemini_client.py`):
+  [OK] Granola-Style Shorthand Priority (`src/api/gemini_client.py`):
       - User Scratchpad im Zentrum: Stichpunktartige Notizen des Nutzers dienen als autoritativer Gliederungsanker.
       - Die Gemini-Pipeline reichert Nutzer-Notizen mit umgebenden Audio- und Folientexten an.
       - Zeitstempel-Verlinkung: Generiert interaktive Audio-Scrubbing-Links im Format `[HH:MM:SS](chalk-audio://HH:MM:SS)`.
-  [✓] Umfassende Schnellaktionsleiste (`src/ui/hud_window.py`):
-      - `📎 Attach Slides`: Folien und Dokumente per Dialog oder Drag-and-Drop verknüpfen.
-      - `✂️ Snip Screen (Alt+S)`: Bildschirmbereich markieren und an den Prompt anhängen.
-      - `⏮️ Rewind 90s`: Letzte 90 Sekunden Audio abrufen und transkribieren.
-      - `📋 Copy Notes`: Synthetisierte Notizen / Scratchpad direkt in die Zwischenablage kopieren (`_copy_notes_to_clipboard()`).
-      - `📓 Obsidian`: Notizen direkt über das `obsidian://open?path=...` Protokoll in Obsidian öffnen (`_open_in_obsidian()`).
+  [OK] Umfassende Schnellaktionsleiste (`src/ui/hud_window.py`):
+      - `[ATTACH] Attach Slides`: Folien und Dokumente per Dialog oder Drag-and-Drop verknüpfen.
+      - `[SNIP] Snip Screen (Alt+S)`: Bildschirmbereich markieren und an den Prompt anhängen.
+      - `<<️ Rewind 90s`: Letzte 90 Sekunden Audio abrufen und transkribieren.
+      - `[COPY] Copy Notes`: Synthetisierte Notizen / Scratchpad direkt in die Zwischenablage kopieren (`_copy_notes_to_clipboard()`).
+      - `[OBSIDIAN] Obsidian`: Notizen direkt über das `obsidian://open?path=...` Protokoll in Obsidian öffnen (`_open_in_obsidian()`).
       - `↗️ Editor`: Notizen im systemweiten Standard-Markdown-Editor öffnen (`_open_in_default_editor()`).
       - `Finish (F9)`: Vorlesung beenden und Master-Synthese starten.
 
 C. WORKER BEE 4: QA-VERIFIKATION & DESKTOP-SYNCHRONISATION
-  [✓] Pipeline-Tests:
+  [OK] Pipeline-Tests:
       - `./scripts/deploy_web.sh test` -> PASS (0 Fehler, 0 verbotene Token).
       - Python Unit-Tests: 9/9 Tests bestanden (1.22s).
       - Emoji-Scan web/index.html -> 0 gefundene Emojis.
       - PyQt6 HUD Instanziierungstest -> Erfolgreich verifiziert mit allen 8 Buttons.
-  [✓] Synchronisation:
+  [OK] Synchronisation:
       - Vollständige Spiegelung nach `/Users/user/Desktop/chalk/`.
 
 
@@ -162,45 +162,45 @@ C. WORKER BEE 4: QA-VERIFIKATION & DESKTOP-SYNCHRONISATION
 --------------------------------------------------------------------------------
 
 A. RADIKALES DE-SLOPPING DES WEB-PORTALS (web/index.html)
-  [✓] Vollständige Beseitigung von AI-Slop & Hacker-Gimmicks:
+  [OK] Vollständige Beseitigung von AI-Slop & Hacker-Gimmicks:
       - Entfernung aller künstlichen Oszilloskop-Canvas (#audio-visualizer), schwebenden Event-Chips,
         Maus-Taschenlampen (#torchlight), Matrix-Grün (bg-emerald-400, text-emerald-500) und bunter Glow-Effekte.
       - 100% ruhiges, modernes Apple / Notion / Things 3 Design mit warmer, natürlicher deutscher Sprache.
       - Neues Slogan-Paar: "Nie wieder hektisch mitschreiben. Chalk hört zu, sieht die Folien und schreibt deine Notizen."
-  [✓] Intuitives 3-Schritte-Prinzip:
+  [OK] Intuitives 3-Schritte-Prinzip:
       - 1. Chalk läuft lautlos mit (Ein Klick auf Start in der Menüleiste).
       - 2. Du hörst aktiv zu und verstehst (Kein geteilter Fokus mehr zwischen Tippen und Denken).
       - 3. Fertige Struktur in deinen Notizen (LaTeX-Formeln, Folienbezug, Obsidian-Synchronisation).
-  [✓] Reales Vorlesungs-Mockup:
+  [OK] Reales Vorlesungs-Mockup:
       - "Wirtschaftsuniversität Wien – Investitions- & Portfoliotheorie".
       - Gestochen scharfe Formeln ($E(R_i) = R_f + \beta_i[E(R_m) - R_f]$), verlinkte Folien-Referenzen und strukturierte Kernaussagen.
-  [✓] Downloads & Rechtliches:
+  [OK] Downloads & Rechtliches:
       - Zwei dominante Betriebssystem-Buttons (macOS Apple Silicon .zip & Windows x64 .exe) im Vordergrund.
       - Einzeiliger cURL-Befehl für Entwickler dezent im Terminal-Kasten.
       - 100% DSGVO- und rechtssicher nach österreichischem Recht (§ 25 MedienG, § 5 ECG, § 165 TKG, § 120 StGB Schulungs- & Hinweispflicht).
 
 B. DEEP DESKTOP-APP ENHANCEMENTS
-  [✓] 1-Click Obsidian-Anbindung & Standard-Editor Integration:
+  [OK] 1-Click Obsidian-Anbindung & Standard-Editor Integration:
       - Intelligente Vault-Erkennung in `src/ui/hud_window.py` (`find_local_obsidian_vault` scannt macOS/Win/Linux Konfigurationen und User-Ordner).
       - Öffnen über `obsidian://open?path=...` Protokoll oder Datei-Fallback.
       - Direkte Integration in Menüleiste / System-Tray (`src/ui/tray.py`) und Schnellaktionsleiste (`src/ui/hud_window.py`).
-  [✓] Interaktives Audio-Scrubbing (`chalk-audio://` Scheme):
+  [OK] Interaktives Audio-Scrubbing (`chalk-audio://` Scheme):
       - `QTextBrowser` mit benutzerdefiniertem URL-Handler: Klick auf Zeitstempel wie `[14:22](chalk-audio://14:22)` springt direkt zur Originalstelle.
       - Integrierter Mini-Player mit `sounddevice`-Wiedergabe (`sd.play` & `sd.stop`) direkt im HUD – keine externen Player erforderlich.
-  [✓] Multi-Model BYOK Runtime (Gemini, Claude, OpenAI):
+  [OK] Multi-Model BYOK Runtime (Gemini, Claude, OpenAI):
       - Erweiterung von `src/security/key_manager.py` zur sicheren Speicherung separater Schlüssel für `gemini`, `anthropic` und `openai` im OS-Schlüsselbund.
       - Modell-Auswahl-Persistenz (`gemini-2.5-flash`, `claude-3.7-sonnet`, `gpt-4o`).
       - Komplettes Monochrom-Redesign des Einstellungsdialogs (`src/ui/settings_dialog.py`): Null lila Verläufe, ruhige Schiefer-Optik, Token-freie Validierung.
 
 C. STANDALONE RE-BUILD & RELEASE-PIPELINE
-  [✓] Frische Kompilierung via `build_standalone.py`:
+  [OK] Frische Kompilierung via `build_standalone.py`:
       - PyInstaller Exit-Code 0.
       - Bundle-Pfad: `dist/Chalk.app` (144 MB) und Standalone-Binary `dist/Chalk`.
       - macOS Info.plist Berechtigungs-Strings (Mikrofon, Bildschirmaufnahme, Barrierefreiheit) intakt.
-  [✓] Release-Archiv & Checksummen:
+  [OK] Release-Archiv & Checksummen:
       - `scripts/generate_checksums.py` ausgeführt -> `dist/Chalk-macOS.zip` (143.21 MB).
       - `dist/SHA256SUMS.txt` mit SHA-256 Hashes neu generiert.
-  [✓] QA-Verifikation:
+  [OK] QA-Verifikation:
       - 9/9 Unit-Tests erfolgreich bestanden.
       - `./scripts/deploy_web.sh test` erfolgreich validiert (0 verbotene Token).
 
@@ -209,65 +209,65 @@ C. STANDALONE RE-BUILD & RELEASE-PIPELINE
 --------------------------------------------------------------------------------
 
 A. SUBAGENT 1: SYSTEMS, FAULT-TOLERANCE & STORAGE ENGINEER
-  [✓] Persistentes Disk-Journal (`src/engine/journal.py`):
+  [OK] Persistentes Disk-Journal (`src/engine/journal.py`):
       - Beseitigung der reinen RAM-Akkumulation für unterbrechungsfreie 7-Stunden-Sitzungen.
       - Fortlaufendes Schreiben von 30-Sekunden-Stereo-WAV-Segmenten unter `~/.chalk/sessions/<SESSION_ID>/`.
       - Atomares `manifest.json` via POSIX `os.replace` mit Segment-Tracking (`pending`, `uploaded`, `done`).
       - Startup-Recovery (`recover_unprocessed_sessions()`): Erkennt unfertige Sitzungen nach Laptop-Zuklappen
         oder Abstürzen und reaktiviert die Verarbeitungs-Queue automatisch.
-  [✓] Audio-Kompression unter 20 MB (`src/audio/capture.py` & `src/audio/recorder.py`):
+  [OK] Audio-Kompression unter 20 MB (`src/audio/capture.py` & `src/audio/recorder.py`):
       - Native macOS `afconvert`-Anbindung (`/usr/bin/afconvert -f m4af -d aac -b 32000 in.wav out.m4a`).
       - 45 Minuten Audio werden auf ~10.8 MB komprimiert (sicher unter Google AI Studios 20-MB-Inline-Limit).
       - Robuste plattformübergreifende Fallbacks (ffmpeg bzw. intelligentes Downmixing).
-  [✓] Cut-List Offset-Map (`src/audio/vad_detector.py`):
+  [OK] Cut-List Offset-Map (`src/audio/vad_detector.py`):
       - `AudioOffsetMap` mappt VAD-bereinigte Audio-Laufzeiten exakt auf reale Wanduhrzeit-Sekunden.
       - Zeitstempel-Links (`chalk-audio://HH:MM:SS`) springen nun sekundengenau an die Originalstelle.
 
 B. SUBAGENT 2: NATIVE OS, HARDWARE HOOKS & PERMISSIONS ENGINEER
-  [✓] Vollständige Beseitigung von `pynput` & Input-Monitoring:
+  [OK] Vollständige Beseitigung von `pynput` & Input-Monitoring:
       - `pynput` restlos aus dem Projekt entfernt. Keine verdächtigen Keylogger-Dialoge mehr unter macOS!
       - `src/security/hotkeys.py`: Nativer `_MacCarbonHotkeyBackend` via Carbon `RegisterEventHotKey` (ctypes).
         Arbeitet direkt auf WindowServer-Ebene und benötigt **0 Input-Monitoring-Rechte** und **0 Barrierefreiheit**!
       - Standard-Hotkeys konfliktfrei gesetzt: `Cmd+Shift+Space` (macOS) / `Ctrl+Shift+Space` (Windows).
-  [✓] In-Person Vorlesungs-Pfad via PDF Pre-Import (`src/ui/hud_window.py`):
+  [OK] In-Person Vorlesungs-Pfad via PDF Pre-Import (`src/ui/hud_window.py`):
       - Drag & Drop von Vorlesungs-PDFs auf das HUD.
       - Lokale Seiten-Extraktion mit `pypdf` (`self.imported_pdf_slides`).
-      - Visuelles Feedback im HUD (`📚 Folien bereit: X Seiten`).
+      - Visuelles Feedback im HUD (`[SLIDES] Folien bereit: X Seiten`).
       - Das LLM ordnet gesprochene Inhalte automatisch den Folienseiten zu, selbst wenn der Dozent seinen eigenen Beamer nutzt.
-  [✓] Transparenter Onboarding-Hinweis (`src/ui/settings_dialog.py`):
+  [OK] Transparenter Onboarding-Hinweis (`src/ui/settings_dialog.py`):
       - Klarer rechtlicher Hinweis über die Unterschiede von Google Free-Tier (mögliche Modellverbesserung)
         und Paid-Tier / Anthropic / OpenAI (keine Datennutzung für Training).
 
 C. SUBAGENT 3: MULTIMODAL AI & MATHEMATICAL SYNTHESIS ENGINEER
-  [✓] Typisierte JSON-Struktur & Structured Outputs (`src/api/synthesis_pipeline.py`):
+  [OK] Typisierte JSON-Struktur & Structured Outputs (`src/api/synthesis_pipeline.py`):
       - Pydantic-Schema `LectureSynthesisResponse` mit `LectureNoteBlock` (`theorem`, `definition`, `proof`, `remark`, `example`).
       - Structured Output-Erzwingung via `response_mime_type="application/json"` und `response_schema`.
       - Harte Prompt-Instruktion: Keine Beweisschritte erfinden! Unvollständige Herleitungen zwingend als `[Lücke]` kennzeichnen.
-  [✓] Lokale KaTeX-Syntax-Validierung & Deterministisches Rendering:
+  [OK] Lokale KaTeX-Syntax-Validierung & Deterministisches Rendering:
       - `validate_latex_syntax`: Prüft Klammer-Balance, validiert gegen 274 KaTeX-Befehle, repariert unvollständige Brüche.
       - `render_blocks_to_markdown`: Deterministische Obsidian-Callouts (`> [!theorem]`) mit sauberem `∎`-Beweisabschluss.
-  [✓] Google Files API Lifecycle Cleanup (`src/api/gemini_client.py`):
+  [OK] Google Files API Lifecycle Cleanup (`src/api/gemini_client.py`):
       - Explizites `client.files.delete()` in `finally:`-Blöcken unmittelbar nach der Synthese.
       - Garantiert 0 permanente Cloud-Datenspeicherung.
 
 D. SUBAGENT 4: FRONTEND, I18N & HUMAN DESIGN ENGINEER
-  [✓] Apple / Linear Dark Titanium Farbpalette (`web/index.html`):
+  [OK] Apple / Linear Dark Titanium Farbpalette (`web/index.html`):
       - Warmes Titanium-Dunkelgrau: `--bg-obsidian: #121317;`, `--surface-graphite: #1A1C23;`, `--surface-terminal: #15161B;`.
       - Perfekter Kontrast mit `#F8FAFC` und `#94A3B8`. Hellmodus (`#FBFBFD`) unverändert gestochen scharf.
-  [✓] I18N Multi-Language Engine (5 Sprachen ohne Seiten-Reload):
-      - Minimalistisches Sprachmenü in der Navigationsleiste (`🌐 EN ▾`).
+  [OK] I18N Multi-Language Engine (5 Sprachen ohne Seiten-Reload):
+      - Minimalistisches Sprachmenü in der Navigationsleiste (` EN ▾`).
       - English (EN - Standard), Deutsch (DE), Français (FR), Español (ES), 中文 (ZH).
       - Persistenz in `localStorage.getItem('chalk-lang')`.
-  [✓] Rechtliche Transparenz & Meeting-Hinweis:
+  [OK] Rechtliche Transparenz & Meeting-Hinweis:
       - Präzise Formulierung: "Local-First • Direct BYOK • No Chalk Servers".
       - "Hinweistext kopieren"-Button im Footer und im § 120 StGB Modal zur unkomplizierten Einbettung in Zoom/Einladungen.
 
 E. QA-VERIFIKATION & RELEASE-PIPELINE (PHASE 9)
-  [✓] Umfassende Test-Suite:
+  [OK] Umfassende Test-Suite:
       - `python -m unittest tests/test_chalk_pipeline.py`: **25/25 Tests bestanden** (2.38s).
       - `tests/test_live_simulation.py`: **5/5 Stages erfolgreich bestanden**.
       - `./scripts/deploy_web.sh test`: **0 verbotene Token, 0 Emojis, 100% bestanden**.
-  [✓] Frischer Standalone macOS-Build:
+  [OK] Frischer Standalone macOS-Build:
       - `build_standalone.py` mit PyInstaller erfolgreich abgeschlossen (Exit 0).
       - `scripts/generate_checksums.py` ausgeführt -> `dist/Chalk-macOS.zip` (143.24 MB).
 
@@ -276,26 +276,26 @@ E. QA-VERIFIKATION & RELEASE-PIPELINE (PHASE 9)
 --------------------------------------------------------------------------------
 
 A. TASK 1: DESKTOP HUD KATEX LIVE-RENDERING (`src/ui/hud_window.py`)
-  [✓] Robuste Mathematische HTML/KaTeX-Engine:
+  [OK] Robuste Mathematische HTML/KaTeX-Engine:
       - `latex_to_katex_html()` implementiert mit rekursiver `_extract_braced_arg()` Klammer-Balance-Logik.
       - Unterstützt beliebig tief geschachtelte Ausdrücke wie `\sigma = \sqrt{\frac{1}{N} \sum_{i=1}^N (x_i - \mu)^2}` ohne Regex-Bruch.
       - Konvertiert Brüche `\frac{A}{B}` in typografisch saubere HTML-Tabellen mit horizontaler Trennlinie.
       - Rendert Wurzeln `\sqrt{...}` mit `&radic;` und oberer Auszugslinie (`border-top`).
       - Volle Unterstützung für griechische Buchstaben (`\alpha`, `\beta`, `\sigma`, `\mu`, etc.), Indizes `_i` (`<sub>`), Exponenten `^2` (`<sup>`), mathematische Operatoren (`\sum`, `\int`, `\times`, `\pm`, `\approx`, etc.) und Delimiter (`\left(`, `\right)`).
-  [✓] Umfassendes Markdown-Rendering (`render_markdown_with_katex()`):
+  [OK] Umfassendes Markdown-Rendering (`render_markdown_with_katex()`):
       - Display-Math `$$...$$` wird in zentrierten Dark Titanium Karten (`background: #1A1C23; border: 1px solid #282C37`) dargestellt.
       - Inline-Math `$math$` wird nahtlos im Fließtext formatiert.
       - Obsidian-Callouts (`> [!theorem]`, `> [!definition]`, `> [!proof]`) mit Titanium-Farbkodierung.
       - Audio-Scrubbing-Links (`chalk-audio://HH:MM:SS`) und formale Beweisabschlüsse (`∎` / `&#8718;`).
-  [✓] Interaktive Ansichten-Umschaltung im Floating HUD:
+  [OK] Interaktive Ansichten-Umschaltung im Floating HUD:
       - `QStackedWidget` in der rechten Spalte integriert mit schnellem Segmented Control Toggle:
-        `[💬 Copilot & Verlauf]` vs. `[📐 Live KaTeX Notizen]`.
+        `[[COPILOT] Copilot & Verlauf]` vs. `[[KATEX] Live KaTeX Notizen]`.
       - Neues `notes_browser = QTextBrowser()` zeigt formatierte Vorlesungs- und Sitzungsnotizen mit Live-Formeln an.
       - Copilot- und Rewind-Ergebnisse rendern mathematische Formeln und Theoreme ab sofort in Echtzeit mit KaTeX-Layout.
       - Beibehaltung der Dark Titanium Palette (`#121317` / `#1A1C23`), des Obsidian-Export-Buttons und aller Systemsteuerungen.
 
 B. TASK 2: WEB IMAGE CONTAINERS & EDITORIAL ASSET SLOTS (`web/index.html`)
-  [✓] Bild-Generierung & Assets (`scripts/generate_web_assets.py` & `web/assets/img/`):
+  [OK] Bild-Generierung & Assets (`scripts/generate_web_assets.py` & `web/assets/img/`):
       - 6 hochauflösende, extrem schlanke WebP-Grafiken im Titanium-Stil generiert:
         * `obsidian_preview.webp` (800x480, 25.5 KB) — Exakte Obsidian-Notiz-Vorschau mit Formeln, Callouts & Audio-Links.
         * `usecase_lecture.webp` (640x360, 11.0 KB) — Hörsaal/Audimax-Szenario mit Folienprojektion und Tafel-Herleitung.
@@ -303,22 +303,22 @@ B. TASK 2: WEB IMAGE CONTAINERS & EDITORIAL ASSET SLOTS (`web/index.html`)
         * `usecase_boardroom.webp` (640x360, 17.7 KB) — Exekutives Strategie- und Boardroom-Meeting mit KPIs.
         * `usecase_webinar.webp` (640x360, 14.2 KB) — Remote-Webinar & Bildschirm-Audio-Erfassung.
         * `hero_desk_atmosphere.webp` (960x420, 24.2 KB) — Minimalistischer, ruhiger Arbeitsplatz mit Chalk im Hintergrund.
-  [✓] Nahtlose Web-Integration in `web/index.html`:
+  [OK] Nahtlose Web-Integration in `web/index.html`:
       - Schritt 3 ("Strukturierte Notizen in Obsidian"): Eleganter Bild-Container mit dezentem Titanium-Rahmen (`border-slate-800/80`) und Glow-Effekt.
       - Bento-Grid (4 Kernszenarien): Jede Karte mit spezifischem Editorial Visual (`aspect-video`, abgerundete Ecken, Hover-Zoom).
       - Hero-Sektion: Großflächiger Desk-Atmosphäre-Container unterhalb der Kernaktion.
-  [✓] Konformität & Integrität:
+  [OK] Konformität & Integrität:
       - 0 verbotene Farben (kein Lila/Indigo/Violett/Neongrün).
       - 0 Emojis (strikte Nutzung von SVG-Icons).
       - `./scripts/deploy_web.sh test` besteht fehlerfrei.
 
 C. QA-VERIFIKATION (PHASE 10)
-  [✓] Erweiterte Test-Suite (`tests/test_chalk_pipeline.py`):
+  [OK] Erweiterte Test-Suite (`tests/test_chalk_pipeline.py`):
       - Neuer Test-Case `TestChalkHudKaTeXRendering`:
         * `test_latex_to_katex_html_comprehensive`: Prüft Brüche, Wurzeln mit geschachtelten Brüchen, griechische Buchstaben und Subskripte.
         * `test_render_markdown_with_katex`: Validiert Display-Math Karten, Inline-Formeln, Obsidian-Callouts und Audio-Links.
       - **27/27 Tests bestanden** in 2.82s (100% grün).
-  [✓] End-to-End Dry-Run Simulation (`tests/test_live_simulation.py`):
+  [OK] End-to-End Dry-Run Simulation (`tests/test_live_simulation.py`):
       - **5/5 Stages bestanden** (Audio VAD, Slide pHash, Chunker, LaTeX-Synthese, Notes Ledger).
 
 
@@ -326,33 +326,33 @@ C. QA-VERIFIKATION (PHASE 10)
 --------------------------------------------------------------------------------
 
 A. TASK 1: RESTLOSE BEREINIGUNG UNNÖTIGER BILDER & PLATZHALTER (`web/index.html`)
-  [✓] Bento-Boxen (Use Cases):
+  [OK] Bento-Boxen (Use Cases):
       - Alle 4 Bild-Tags (`usecase_lecture.webp`, `usecase_architecture.webp`, `usecase_boardroom.webp`, `usecase_webinar.webp`) vollständig entfernt.
       - Die 4 Karten bleiben nun rein typografisch, ruhig und fokussiert mit den dezenten Ziffern (`01`, `02`, `03`, `04`) und Badges.
-  [✓] Schritt 3 (Obsidian Preview):
+  [OK] Schritt 3 (Obsidian Preview):
       - Bild-Container `obsidian_preview.webp` aus der Karte „3. Structured notes in Obsidian“ entfernt.
       - Vollständige Höhen- und Layout-Symmetrie zu Schritt 1 und Schritt 2 hergestellt.
-  [✓] Hero-Banner Bereinigung:
+  [OK] Hero-Banner Bereinigung:
       - Das Banner `hero_desk_atmosphere.webp` zwischen den CTAs und dem 3D-Mockup entfernt.
       - Die visuelle Hierarchie ist wiederhergestellt: Die CTAs leiten direkt zum interaktiven 3D-Mockup über, das als zentraler Star im Hero-Bereich fungiert.
-  [✓] Asset-Bereinigung (`web/assets/img/`):
+  [OK] Asset-Bereinigung (`web/assets/img/`):
       - Alle überflüssigen WebP-Dateien gelöscht; ausschließlich das authentische Foto `lecture_atmosphere.webp` verbleibt im Verzeichnis.
 
 B. TASK 2: ELEGANTE & DEZENTE EINBINDUNG DES HÖRSAAL-FOTOS (`lecture_atmosphere.webp`)
-  [✓] Maßvoller, zentrierter Rahmen:
+  [OK] Maßvoller, zentrierter Rahmen:
       - Platziert als eleganter visueller Übergang zwischen dem interaktiven 3D-Mockup und der Sektion „The 3-Step Principle / How it works“.
       - Begrenzte Höhe (`max-h-72 sm:max-h-80` mit `object-cover object-center`), sodass das Mockup und die Typografie die Hauptrolle behalten.
       - Schlichte Haarlinien-Umrandung (`border-color: var(--chalk-border)`), Hintergrund `var(--surface-terminal)` und abgerundete Ecken (`rounded-2xl`).
       - Bildet die reale physische Erdung im Vorlesungssaal (Laptop mit Kreidestück auf dem Holztisch).
-  [✓] Nahtlose Theme- & i18n-Konsistenz:
+  [OK] Nahtlose Theme- & i18n-Konsistenz:
       - Perfekte Integration in Dark Titanium und Light Mode.
       - Vollständig kompatibel mit dem Multi-Language-Switcher (EN, DE, FR, ES, ZH).
 
 C. QA-VERIFIKATION (PHASE 12)
-  [✓] Web-Portal Integrität:
+  [OK] Web-Portal Integrität:
       - `./scripts/deploy_web.sh test`: **0 Fehler / 0 verbotene Token / 100% bestanden**.
       - Regex-Audit: **0 Emojis / 0 verbotene Farben**.
-  [✓] Unit- & Integrationstest-Suite:
+  [OK] Unit- & Integrationstest-Suite:
       - `python -m unittest tests/test_chalk_pipeline.py`: **27/27 Tests bestanden** (3.12s).
 
 
@@ -360,38 +360,38 @@ C. QA-VERIFIKATION (PHASE 12)
 --------------------------------------------------------------------------------
 
 A. TASK 1: HERO & BILD-FRAMING OPTIMIERUNG (`web/index.html`)
-  [✓] Redundante Pille restlos gelöscht:
+  [OK] Redundante Pille restlos gelöscht:
       - Die Vorab-Pille `LOCAL-FIRST • DIRECT BYOK • NO CHALK SERVERS` über der Hauptüberschrift entfernt.
       - Die H1 („Never scramble to take notes again...“) rückt sauber nach oben und dient als primärer optischer Anker.
-  [✓] Foto-Fokussierung (`lecture_atmosphere.webp`):
+  [OK] Foto-Fokussierung (`lecture_atmosphere.webp`):
       - Bildausrichtung auf den unteren Arbeitsbereich zentriert (`object-position: 50% 82%;`): Tisch, Tastatur, Kaffeetasse und weißes Kreidestück stehen im Fokus.
       - Container-Höhe auf `max-h-80 sm:max-h-96` für ein sattes, filmisches Widescreen-Format angepasst.
 
 B. TASK 2: NATIVE APPLE TRAFFIC LIGHTS IM MOCKUP
-  [✓] Pixelgenaue macOS-Fensterbuttons im `#hero-card`-Header:
+  [OK] Pixelgenaue macOS-Fensterbuttons im `#hero-card`-Header:
       - Rot: `background-color: #FF5F56; border: 1px solid #E0443E;`
       - Gelb: `background-color: #FFBD2E; border: 1px solid #DEA123;`
       - Grün: `background-color: #27C93F; border: 1px solid #1AAB29;`
       - Feine Schatten und Abrundung (`w-3 h-3 rounded-full shadow-sm`).
 
 C. TASK 3: BRAND-LOGO SQUIRCLE & THEME-INVERTIERUNG
-  [✓] Bereinigter Squircle-Container:
+  [OK] Bereinigter Squircle-Container:
       - Doppelrahmen entfernt; Logo füllt die Squircle-Fläche harmonisch (`w-8 h-8 rounded-lg overflow-hidden flex items-center justify-center border shadow-sm`).
-  [✓] Dynamische CSS-Variablen-Invertierung:
+  [OK] Dynamische CSS-Variablen-Invertierung:
       - Dark Mode: Tiefschwarzer Squircle (`#121317`) mit weißem Kreidestift und Kreidestrich (`#F8FAFC`).
       - Light Mode: Reines Weiß (`#FFFFFF`) mit dezentem Haarlinien-Rand (`#E2E8F0`) und tiefdunklem Kreidesymbol (`#0F172A`).
 
 D. TASK 4: VOLLBILD-SKALIERUNG & CONTAINER-BREITE
-  [✓] Großzügige Widescreen-Architektur:
+  [OK] Großzügige Widescreen-Architektur:
       - Containerbreite in `nav`, `header`, `#how-it-works`, `#use-cases`, `#privacy`, `#download` und `footer` auf **`max-w-7xl`** angehoben.
       - Dynamische Screen-Paddings: `px-6 sm:px-10 lg:px-16`.
       - Der interaktive 3D-Mockup `#hero-card` öffnet sich auf `max-w-6xl mx-auto` für eine immersive Desktop-Erfahrung.
 
 E. TASK 5: STREAMLINED FOOTER & ECHTES IMPRESSUM
-  [✓] Ruhiger Footer-Zweizeiler:
+  [OK] Ruhiger Footer-Zweizeiler:
       - Klobige Pille links entfernt; ersetzt durch klaren 2-Zeiler mit integrierten Haarlinien-Badges:
         `CHALK • LOCAL LECTURE & MEETING SYNTHESIS` [NO COOKIES (§ 165 TKG)] [LOCAL BYOK].
-  [✓] Impressum-Modal (§ 25 MedienG & § 5 ECG) mit echten Betreiberangaben:
+  [OK] Impressum-Modal (§ 25 MedienG & § 5 ECG) mit echten Betreiberangaben:
       - Medieninhaber & Betreiber: **Volodymyr Gladkyy**
       - Standort / Sitz: **Wien, Österreich**
       - Kontakt-E-Mail: **volodyagladkyy@gmail.com**
@@ -399,10 +399,10 @@ E. TASK 5: STREAMLINED FOOTER & ECHTES IMPRESSUM
       - Vollständig synchronisiert in allen 5 Sprachen (EN, DE, FR, ES, ZH).
 
 F. QA-VERIFIKATION (PHASE 13)
-  [✓] Web-Portal Integrität:
+  [OK] Web-Portal Integrität:
       - `./scripts/deploy_web.sh test`: **0 Fehler / 0 verbotene Token / 100% bestanden**.
       - Regex-Audit: **0 Emojis / 0 verbotene Farben**.
-  [✓] Test-Suite:
+  [OK] Test-Suite:
       - `python -m unittest tests/test_chalk_pipeline.py`: **27/27 Tests bestanden** (3.39s).
 
 
@@ -410,25 +410,25 @@ F. QA-VERIFIKATION (PHASE 13)
 --------------------------------------------------------------------------------
 
 A. NATIVE `chalk-audio://` URL HANDLER & POPUP MINI-PLAYER
-  [✓] macOS URL Scheme Registrierung:
+  [OK] macOS URL Scheme Registrierung:
       - In `build_standalone.py` und `Chalk.spec` `CFBundleURLTypes` mit Scheme `chalk-audio` und Identifier `so.chalk.audio` verankert.
-  [✓] Native URL Event-Abfangung (`src/main.py`):
+  [OK] Native URL Event-Abfangung (`src/main.py`):
       - `ChalkApplication(QApplication)` implementiert `event()` und fängt `QFileOpenEvent` (`QEvent.Type.FileOpen`) auf macOS ab.
       - Übermittelt `url_opened` Signal an `ChalkCoordinator.handle_audio_url()`.
       - Liest ebenso CLI-Argumente (`sys.argv`) beim App-Start für externe Verlinkungen.
-  [✓] Floating Mini-Player Pill im Desktop HUD (`src/ui/hud_window.py`):
-      - Kompakte Steuerungs-Pille: `[⏮ -5s] [▶/⏸] [⏭ +5s] [HH:MM:SS]` mit Schließen-Button `✕`.
+  [OK] Floating Mini-Player Pill im Desktop HUD (`src/ui/hud_window.py`):
+      - Kompakte Steuerungs-Pille: `[<< -5s] [>/||] [>> +5s] [HH:MM:SS]` mit Schließen-Button `X`.
       - Spielt einen 20-Sekunden Audio-Ausschnitt um den Ziel-Zeitstempel via `sounddevice` und Disk-Journal (`get_audio_slice`), ohne das UI zu blockieren.
       - Robuste Zeitstempel-Parser (`parse_audio_timestamp` für `HH:MM:SS`, `MM:SS` und reine Sekunden) und Formatierer (`format_timestamp`).
-      - Schließt sich bei Klick auf `✕` oder läuft nach 20s automatisch aus.
+      - Schließt sich bei Klick auf `X` oder läuft nach 20s automatisch aus.
 
 B. DIRECT OBSIDIAN VAULT PICKER & AUTO-ORGANIZER
-  [✓] Vault-Auswahl in Einstellungen (`src/ui/settings_dialog.py`):
+  [OK] Vault-Auswahl in Einstellungen (`src/ui/settings_dialog.py`):
       - Neuer Verzeichnis-Picker mit `QFileDialog.getExistingDirectory`.
       - Persistente Speicherung in `~/.chalk/config.json` unter `"obsidian_vault_path"`.
-  [✓] Konfigurations-Manager (`src/engine/config.py`):
+  [OK] Konfigurations-Manager (`src/engine/config.py`):
       - Atomares Laden und Speichern von Benutzereinstellungen (`load_chalk_config`, `save_chalk_config`, `get_obsidian_vault_path`, `set_obsidian_vault_path`).
-  [✓] Intelligente Notiz- und Ordnerorganisation (`src/engine/session_state.py`):
+  [OK] Intelligente Notiz- und Ordnerorganisation (`src/engine/session_state.py`):
       - Automatische Erstellung des Unterordners `<Vault>/Chalk/`.
       - Standardisierte Dateinamen: `<YYYY-MM-DD>_<Topic_Slug>.md` (z. B. `2026-10-06_measure_theory.md`).
       - Obsidian YAML Frontmatter:
@@ -443,33 +443,33 @@ B. DIRECT OBSIDIAN VAULT PICKER & AUTO-ORGANIZER
       - Nahtloser Fallback auf `./Notes/Lecture_{YYYY-MM-DD}.md`, wenn kein Vault definiert ist.
 
 C. DIAGRAM-TO-MERMAID SYNTHESIS EXTENSION
-  [✓] Pydantic Schema-Erweiterung (`src/api/synthesis_pipeline.py`):
+  [OK] Pydantic Schema-Erweiterung (`src/api/synthesis_pipeline.py`):
       - `LectureNoteBlock.type`: `Literal["theorem", "definition", "proof", "remark", "example", "diagram"]`.
       - Normalisierung von Synonymen (`diagram`, `diagramm`, `flowchart`, `architecture`, `graph` -> `"diagram"`).
       - Prompt-Instruktion: Generiert validen Mermaid-Code bei Architekturen, State Machines, Flussdiagrammen oder Systemhierarchien.
-  [✓] Markdown-Renderer:
+  [OK] Markdown-Renderer:
       - Rendert Blöcke vom Typ `"diagram"` direkt als gefencte ````mermaid ... ```` Blöcke, die von Obsidian und GitHub nativ dargestellt werden.
 
 D. QA-VERIFIKATION & TEST SUITE (PHASE 14)
-  [✓] Erweiterte Unit-Test-Suite (`tests/test_chalk_pipeline.py`):
+  [OK] Erweiterte Unit-Test-Suite (`tests/test_chalk_pipeline.py`):
       - `test_chalk_audio_url_parsing`: Verifiziert HH:MM:SS, MM:SS, Sekunden und Formatierung.
       - `test_obsidian_vault_and_frontmatter`: Verifiziert Ordnererstellung, Slug, Benennung und Frontmatter.
       - `test_diagram_to_mermaid_synthesis_rendering`: Verifiziert Typ-Validierung und Mermaid-Fenced-Block Rendering.
       - `test_journal_get_audio_slice`: Verifiziert segmentübergreifendes Slicing aus dem Disk-Journal.
-  [✓] Testergebnis: **31/31 Tests bestanden** (100% grün).
+  [OK] Testergebnis: **31/31 Tests bestanden** (100% grün).
 
 
 10. PHASE 15 DURCHGEFÜHRTE MASSNAHMEN (FORMULA REPAIR, SCREEN PIVOT & FOOTER STREAMLINING)
 --------------------------------------------------------------------------------
 
 A. VOLLSTÄNDIGE FORMEL-REPARATUR (SLIDE- UND NOTIZEN-VORSCHAU)
-  [✓] Behebung von String-Escaping-Fehlern in web/index.html:
+  [OK] Behebung von String-Escaping-Fehlern in web/index.html:
       - Folien-Vorschau: `$$E(R_i) = R_f + \beta_i [E(R_m) - R_f]$$` (vorheriges ASCII-Backspace-Artefakt ` eta_i` restlos beseitigt).
       - Notizen-Vorschau: `$$E(R_i) = R_f + \beta_i \left[E(R_m) - R_f\right]$$` (vorheriger Zeilenumbruch und `ight]` durch sauberes Escaping repariert).
       - JavaScript-Wörterbuch `notesTranslations`: In allen 5 Sprachen auf `$$E(R_i) = R_f + \\beta_i \\left[E(R_m) - R_f\\right]$$` aktualisiert, sodass die Kopierfunktion syntaktisch einwandfreien LaTeX-Code in die Zwischenablage legt.
 
 B. TERMINOLOGIE-WECHSEL IN ALLEN 5 SPRACHEN: "SLIDES" -> "SCREEN"
-  [✓] Präzise Anpassung des Core-Claims:
+  [OK] Präzise Anpassung des Core-Claims:
       - EN: "Chalk listens, sees the screen, and writes your notes."
       - DE: "Chalk hört zu, sieht den Bildschirm und schreibt deine Notizen."
       - FR: "Chalk écoute, regarde l'écran et rédige vos notes."
@@ -478,25 +478,25 @@ B. TERMINOLOGIE-WECHSEL IN ALLEN 5 SPRACHEN: "SLIDES" -> "SCREEN"
       - Aktualisiert in `<meta name="description">`, Hauptüberschrift `h1` und dem Client-Side i18n-System (`translations`).
 
 C. HERO CTA REDESIGN & DYNAMISCHE BETRIEBSSYSTEM-ERKENNUNG
-  [✓] Konsolidierter Download-Button mit automatischer OS-Erkennung:
+  [OK] Konsolidierter Download-Button mit automatischer OS-Erkennung:
       - Erkennt via `navigator.userAgent` Mac vs. Windows.
       - Primärer Button: `#hero-primary-download-btn` mit dynamischem Label (`Download for macOS (Apple Silicon)` bzw. `Download for Windows (x64)`).
       - Sekundärer Button: `#hero-explore-btn` ("Explore Live Session ↓") mit Smooth-Scroll zum interaktiven Mockup `#hero-card`.
       - Mikro-Typografie: `v1.0.0 • 100% Local • Free Standalone` mit interaktivem Umschalter `(Switch to Windows / Mac)`.
 
 D. APPLE LIVE RECORDING INDICATOR & REAL-TIME TIMER
-  [✓] Realistischer Session-Header im interaktiven Mockup:
+  [OK] Realistischer Session-Header im interaktiven Mockup:
       - Roter pulsierender Live-Punkt (`bg-red-500 animate-pulse shadow-[0_0_8px_rgba(239,68,68,0.7)]`).
       - Status-Label: `<span data-i18n="preview_status_label">Recording active</span> (<span id="live-timer">01:42</span>)`.
       - JavaScript-Intervalltimer: Startet bei 102s (01:42) und inkrementiert jede Sekunde im MM:SS Format.
 
 E. EDITORIAL FOTO-FOKUS
-  [✓] Perfektionierte Bildzentrierung:
+  [OK] Perfektionierte Bildzentrierung:
       - `assets/img/lecture_atmosphere.webp` von `object-position: 50% 82%` auf `object-position: center 68%` justiert.
       - Laptop, Tastatur, Kaffeetasse und Kreidestück stehen nun harmonisch im goldenen Schnitt.
 
 F. FOOTER STREAMLINING & MODAL-KONSOLIDIERUNG
-  [✓] Schlanker, einzeiliger Footer:
+  [OK] Schlanker, einzeiliger Footer:
       - Entfernung aller überflüssigen Badges und redundanten Hinweistext-Buttons aus der Fußzeile.
       - Links: `CHALK • Local Presence & Synthesis`.
       - Rechts: Zwei aufgeräumte Modal-Links:
@@ -508,36 +508,36 @@ F. FOOTER STREAMLINING & MODAL-KONSOLIDIERUNG
 --------------------------------------------------------------------------------
 
 A. LIVE KATEX RENDERING IM MOCKUP (KILL RAW $$ STRINGS)
-  [✓] KaTeX CDN Integration:
+  [OK] KaTeX CDN Integration:
       - Leichtgewichtige KaTeX Stylesheet- und Script-Tags (`katex.min.css`, `katex.min.js`, `auto-render.min.js`) in `<head>` eingebunden.
-  [✓] Typografische Formel-Container:
+  [OK] Typografische Formel-Container:
       - Folien-Vorschau (links) & Notizen-Vorschau (rechts): Monospace-Codeboxen ersetzt durch zentrierte Math-Container:
         `<div class="render-math py-2 text-sm sm:text-base text-center font-serif" style="color: var(--chalk-white);">$$E(R_i) = R_f + \beta_i [E(R_m) - R_f]$$</div>`
       - Vollautomatisches Math-Rendering via `renderHeroMath()` beim Laden und bei jedem dynamischen Sprachwechsel via `renderMathInElement()`.
       - Keine rohen `$$`-Artefakte mehr im Mockup; gestochen scharfe mathematische Buch-Typografie.
 
 B. BILD-FOKUS: MACBOOK & KREIDE IM ZENTRUM (lecture_atmosphere.webp)
-  [✓] Präzise Bildgeometrie:
+  [OK] Präzise Bildgeometrie:
       - Bild-Styling auf `style="object-position: center 92%;"` justiert.
       - Umgebender Rahmen auf `max-h-72 sm:max-h-84 overflow-hidden rounded-2xl border` angepasst.
       - Oberer leerer Raum des Hörsaals beschnitten; MacBook, Tastatur, Kaffeetasse und Kreidestück stehen exakt im optischen Mittelpunkt.
 
 C. LIVE-SITZUNG ERKUNDEN: PERFEKTE BILDSCHIRMMITTE (#hero-explore-btn)
-  [✓] Smooth-Scroll Interaktion:
+  [OK] Smooth-Scroll Interaktion:
       - Button mit `id="hero-explore-btn"` versehen.
       - Event-Listener verhindert Default-Sprung und zentriert das Mockup-Fenster (#hero-card) vertikal im Viewport:
         `heroCard.scrollIntoView({ behavior: 'smooth', block: 'center' });`.
 
 D. AUSBALANCIERTES 12-SPALTEN PRIVACY GRID (#privacy)
-  [✓] Vollwertiges 2-Spalten-Layout:
+  [OK] Vollwertiges 2-Spalten-Layout:
       - Linke Spalte (7 Cols): Local-First Privacy Badge, Hauptaussage ("Deine Daten gehören dir. Keine Mittelsmänner. Keine Server."), Beschreibung und 100%-Privat-Pill-Box.
       - Rechte Spalte (5 Cols): 3 kompakte Architektur-Karten (Nativer Hardware-Tresor, Direkte TLS 1.3 Verbindung, Zero-Knowledge Garantie).
       - Perfekte Ausnutzung des Weißraums bei Wahrung des Dark Titanium / Light System-Themes.
 
 E. KOMBINIERTES ALL-IN-ONE RECHTS-MODAL (#modal-legal-hub)
-  [✓] Konsolidierter Footer-Link:
+  [OK] Konsolidierter Footer-Link:
       - Nur noch ein einziger dezenter Button: `Rechtliches & Datenschutz (§ 25 MedienG, DSGVO, § 120 StGB)` (`data-i18n="link_legal_hub"`).
-  [✓] All-in-One Modal (#modal-legal-hub):
+  [OK] All-in-One Modal (#modal-legal-hub):
       - 3 nummerierte Abschnitte:
         1. Impressum (§ 25 Abs. 5 MedienG & § 5 ECG) — Medieninhaber Volodymyr Gladkyy, Wien.
         2. Datenschutz (DSGVO & § 165 Abs. 3 TKG 2021) — Zero Cookies, Local-First, BYOK TLS 1.3.
@@ -545,75 +545,75 @@ E. KOMBINIERTES ALL-IN-ONE RECHTS-MODAL (#modal-legal-hub)
       - Veraltete separate Modals `#modal-legal` und `#modal-recording` vollständig konsolidiert.
 
 F. VOLLSTÄNDIGE I18N-SYNCHRONISATION & SPRACHUNTERSTÜTZUNG
-  [✓] Sämtliche neuen Elemente in allen 5 Sprachen (EN, DE, FR, ES, ZH) im Client-Dictionary synchronisiert.
-  [✓] Null Unicode Emojis (strikte SVG-Vektoren).
-  [✓] Null verbotene Farbklassen (strikte Einhaltung des Monochrome/Titanium Design-Tokensystems).
+  [OK] Sämtliche neuen Elemente in allen 5 Sprachen (EN, DE, FR, ES, ZH) im Client-Dictionary synchronisiert.
+  [OK] Null Unicode Emojis (strikte SVG-Vektoren).
+  [OK] Null verbotene Farbklassen (strikte Einhaltung des Monochrome/Titanium Design-Tokensystems).
 
 G. QA-VERIFIKATION
-  [✓] deploy_web.sh test -> PASS (0 verbotene Token, alle Pflichtdateien vorhanden).
-  [✓] 31/31 Python Unit- & Integrationstests bestanden (100% grün).
+  [OK] deploy_web.sh test -> PASS (0 verbotene Token, alle Pflichtdateien vorhanden).
+  [OK] 31/31 Python Unit- & Integrationstests bestanden (100% grün).
 
 
 12. PHASE 17 DURCHGEFÜHRTE MASSNAHMEN (FINAL PIXEL-PERFECT WEB FINISHING & SYSTEM AUDIT)
 --------------------------------------------------------------------------------
 
 A. FOTO-AUSSCHNITT UMKEHREN: MACBOOK & KREIDE IM ZENTRUM (lecture_atmosphere.webp)
-  [✓] Perfektionierte Bildzentrierung:
+  [OK] Perfektionierte Bildzentrierung:
       - `object-position: center 25%;` (Container `max-h-72 sm:max-h-84 overflow-hidden rounded-2xl border shadow-xl`).
       - Der vorher abgeschnittene Tischbereich wandert ins Zentrum: Laptop, Tastatur, Kaffeetasse und Kreidestück liegen nun glasklar im Blickfeld.
 
 B. HARMONISIERTES PRIVACY-LAYOUT (#privacy)
-  [✓] Vollständige visuelle Angleichung an `#how-it-works` und `#use-cases`:
+  [OK] Vollständige visuelle Angleichung an `#how-it-works` und `#use-cases`:
       - Zentrierter Header-Bereich über der Karte mit Tag (`privacy_tag`), H2 (`privacy_title`) und Untertitel (`privacy_subtitle`).
       - Anker-Sprungmarke mit `scroll-mt-24` für sauberes Scroll-Verhalten unter die fixierte Navigationsleiste.
       - Bereinigtes 2-Spalten-Layout (7 Spalten links für ruhige Narrative mit dezentem `privacy_micro_note`; 5 Spalten rechts für 3 kompakte Architekturkarten).
       - Entfernung der sperrigen Doppel-Rahmen-Box für maximale Leichtigkeit.
 
 C. SLICK MEETING NOTICE SNIPPET CONTAINER (#modal-legal-hub)
-  [✓] Bereinigung des Aufnahme-Hinweistext-Containers in Sektion 03:
+  [OK] Bereinigung des Aufnahme-Hinweistext-Containers in Sektion 03:
       - Ersetzung von harten `bg-black/20`- und `text-slate-400`-Tailwind-Klassen durch konsistente Design-Token (`var(--surface-elevated)`, `var(--surface-terminal)`, `var(--chalk-muted)`).
       - Prominenter, cleaner Apple-Style Kopier-Button (`var(--chalk-white)` Hintergrund mit `var(--bg-obsidian)` Text).
 
 D. 3D TILT HOVER PHYSICS PERFEKTIONIERUNG (#hero-card)
-  [✓] Ruckelfreie Physik & sanfte Dämpfung:
+  [OK] Ruckelfreie Physik & sanfte Dämpfung:
       - Ruckartiges Einlenken bei `mouseenter` eliminiert: sanftes Ramping über `enterProgress` (0.0 -> 1.0).
       - Reduzierte Neigung von +/-5 Grad auf subtile, elegante +/-3.5 Grad.
       - LERP-Dämpfungsfaktor auf ultra-glattes 0.05 verfeinert.
       - Beim `mouseleave` sanftes Ausblenden zurück zur Ruheposition.
 
 E. SYNCHRONE KATEX ZERO-FLASH INITIALISIERUNG
-  [✓] Keine sichtbaren rohen $$-Strings während des Pageloads:
+  [OK] Keine sichtbaren rohen $$-Strings während des Pageloads:
       - KaTeX Scripts ohne `defer` synchron im `<head>` geladen.
       - CSS Anti-Jitter Rule: `.render-math { opacity: 0; transition: opacity 0.12s ease-in; } .render-math.math-rendered, .render-math:has(.katex) { opacity: 1; }`.
       - Sofortiges Script direkt nach dem `#hero-card`-DOM-Knoten rendert Formeln vor dem ersten Paint.
 
 F. VOLLSTÄNDIGE I18N-SYNCHRONISATION (5 SPRACHEN)
-  [✓] Alle 5 Sprach-Dictionaries (EN, DE, FR, ES, ZH) für `privacy_tag`, `privacy_title`, `privacy_subtitle`, `privacy_p1`, `privacy_p2`, `privacy_micro_note` synchronisiert.
+  [OK] Alle 5 Sprach-Dictionaries (EN, DE, FR, ES, ZH) für `privacy_tag`, `privacy_title`, `privacy_subtitle`, `privacy_p1`, `privacy_p2`, `privacy_micro_note` synchronisiert.
 
 G. QA-VERIFIKATION & ZERO-REGRESSION
-  [✓] `./scripts/deploy_web.sh test` -> PASS (0 verbotene Token, 0 Unicode-Emojis).
-  [✓] 31/31 Python Unit-Tests grün (`test_chalk_pipeline.py`).
+  [OK] `./scripts/deploy_web.sh test` -> PASS (0 verbotene Token, 0 Unicode-Emojis).
+  [OK] 31/31 Python Unit-Tests grün (`test_chalk_pipeline.py`).
 
 
 13. PHASE 18 DURCHGEFÜHRTE MASSNAHMEN (DEFINITIVE PURIST POLISH & FINAL PRODUCTION TARGET)
 --------------------------------------------------------------------------------
 
 A. ALLE BILDER RESTLOS ENTFERNT (PURE SLEEK WEB)
-  [✓] Vollständige Entfernung des Bildcontainers:
+  [OK] Vollständige Entfernung des Bildcontainers:
       - `<div class="max-w-6xl mx-auto ... lecture_atmosphere.webp ...">` restlos gelöscht.
       - 0 `<img>`-Tags im gesamten Web-Portal.
       - Direkter, puristischer Übergang vom interaktiven Hero-Mockup (#hero-card mit KaTeX & Live-Timer) zur Sektion `#how-it-works`.
       - Ultra-schnelle Ladezeit, keine visuellen Ablenkungen, reine typografische und funktionale Eleganz.
 
 B. PRIVACY-SEKTION GESTRAFFT & DUPLIKATE BESEITIGT (#privacy)
-  [✓] Beseitigung redundanter TLS-Hinweise:
+  [OK] Beseitigung redundanter TLS-Hinweise:
       - `privacy_micro_note` restlos entfernt (da "Direct TLS 1.3 Connection" bereits als Kachel rechts existiert).
-  [✓] Zusammenführung des linken Textblocks:
+  [OK] Zusammenführung des linken Textblocks:
       - Vorher getrennte Absätze (`privacy_p1` & `privacy_p2`) zu einem einzigen harmonischen Fließtextblock zusammengefasst.
       - Veraltetes `privacy_p2` aus allen 5 Sprach-Dictionaries gelöscht.
 
 C. FOOTER-HYPERLINK VEREINFACHT: "LEGAL & PRIVACY"
-  [✓] Schlanker, unaufdringlicher Link-Text ohne Paragrafen-Klammern:
+  [OK] Schlanker, unaufdringlicher Link-Text ohne Paragrafen-Klammern:
       - EN: `Legal & Privacy`
       - DE: `Rechtliches & Datenschutz`
       - FR: `Mentions légales & Confidentialité`
@@ -622,35 +622,35 @@ C. FOOTER-HYPERLINK VEREINFACHT: "LEGAL & PRIVACY"
       - Öffnet weiterhin das vollwertige 3-teilige `#modal-legal-hub`.
 
 D. DOPPELTE NUMMERIERUNG ENTFERNT (KARTEN & MODAL)
-  [✓] Schritt-Karten (`#how-it-works`):
+  [OK] Schritt-Karten (`#how-it-works`):
       - Redundante "1. ", "2. ", "3. " aus den Titeln entfernt (da visuelle Badges `01`, `02`, `03` vorhanden sind).
       - HTML & Dictionaries aktualisiert: `Chalk runs silently`, `You listen actively`, `Structured notes in Obsidian`.
-  [✓] Legal-Modal (`#modal-legal-hub`):
+  [OK] Legal-Modal (`#modal-legal-hub`):
       - Redundante "1. ", "2. ", "3. " aus den Sektions-Headings entfernt (da Badges `01`, `02`, `03` vorangestellt sind).
       - HTML & Dictionaries aktualisiert: `Legal Disclosure (§ 25 MedienG, § 5 ECG)`, `Privacy Policy (GDPR / § 165 TKG 2021)`, `Recording Compliance (§ 120 StGB Austria / European Law)`.
 
 E. QA-VERIFIKATION & ZERO-REGRESSION
-  [✓] `./scripts/deploy_web.sh test` -> PASS (0 verbotene Token, 0 Emojis, 0 Bilder).
-  [✓] 31/31 Python Unit-Tests grün (`test_chalk_pipeline.py`).
+  [OK] `./scripts/deploy_web.sh test` -> PASS (0 verbotene Token, 0 Emojis, 0 Bilder).
+  [OK] 31/31 Python Unit-Tests grün (`test_chalk_pipeline.py`).
 
 
 14. SURGICAL FIXES (ACTIVE WORKSPACE HERO & BOLD USE-CASE BADGES)
 --------------------------------------------------------------------------------
 
 A. ACTIVE WORKSPACE & SCREEN CAPTURE MOCKUP
-  [✓] Hero-Card Header: "SLIDE PREVIEW" durch "SCREEN CAPTURE" ersetzt.
-  [✓] Multi-OS Monospace Status Badge: "Display 1 • 60 Hz" / "Active Window".
-  [✓] Mini-Window Chrome: 3 Micro-Dots (Traffic Lights) im Screen-Header.
-  [✓] Fenster-Kontext: "Asset_Pricing_Lecture_04.pdf", "1080p", "Screen Sync Active".
+  [OK] Hero-Card Header: "SLIDE PREVIEW" durch "SCREEN CAPTURE" ersetzt.
+  [OK] Multi-OS Monospace Status Badge: "Display 1 • 60 Hz" / "Active Window".
+  [OK] Mini-Window Chrome: 3 Micro-Dots (Traffic Lights) im Screen-Header.
+  [OK] Fenster-Kontext: "Asset_Pricing_Lecture_04.pdf", "1080p", "Screen Sync Active".
 
 B. USE-CASE BADGES TYPOGRAFISCHE HARMONISIERUNG (#use-cases)
-  [✓] Zahlen-Badges `01`, `02`, `03`, `04` mit `font-bold` versehen:
+  [OK] Zahlen-Badges `01`, `02`, `03`, `04` mit `font-bold` versehen:
       - Von `font-mono text-xs mb-4` auf `font-mono text-xs font-bold mb-4` umgestellt.
       - 100% visuelle Harmonie mit den vorangehenden Zahlen-Badges der Sektion `#how-it-works` (`font-bold`).
-  [✓] Zero-Color & Zero-Emoji Regressionsprüfung bestanden (0 verbotene Token).
+  [OK] Zero-Color & Zero-Emoji Regressionsprüfung bestanden (0 verbotene Token).
 
 C. PRIVACY-BOX VISUELLE BALANCE & ARCHITEKTUR-METRIKEN (#privacy)
-  [✓] Linke Spalte harmonisiert & mit visueller Struktur angereichert:
+  [OK] Linke Spalte harmonisiert & mit visueller Struktur angereichert:
       - Monospace Architektur-Pill: `STRICT LOCAL-FIRST ARCHITECTURE` (mit dezentem Dot).
       - Prominente, kräftige H3-Überschrift (`text-xl sm:text-2xl font-bold tracking-tight`):
         "Zero cloud relays. Absolute data sovereignty." / "Keine Cloud-Relays. Absolute Datenhoheit."
@@ -658,107 +658,107 @@ C. PRIVACY-BOX VISUELLE BALANCE & ARCHITEKTUR-METRIKEN (#privacy)
         * Audio & Screen: `100% On-Device` (DE: `100% Auf dem Rechner`)
         * Cloud Relays: `Zero Servers` (DE: `0 Zwischenstationen`)
         * Telemetry: `0 KB Collected` (DE: `0 KB Erfasst`)
-  [✓] Vollständige 5-Sprachen-Übersetzung (EN, DE, FR, ES, ZH) im clientseitigen Dictionary.
-  [✓] Perfekte Höhen-Balance zwischen linker Erklärungsspalte und den 3 Architektur-Karten rechts.
+  [OK] Vollständige 5-Sprachen-Übersetzung (EN, DE, FR, ES, ZH) im clientseitigen Dictionary.
+  [OK] Perfekte Höhen-Balance zwischen linker Erklärungsspalte und den 3 Architektur-Karten rechts.
 
 
 15. PHASE 19 DURCHGEFÜHRTE MASSNAHMEN (MULTI-SPEAKER DIARIZATION, NOTARIZATION & 7H SOAK TEST)
 --------------------------------------------------------------------------------
 
 A. MULTI-SPEAKER DIARIZATION VIA STRUCTURED OUTPUT SCHEMA (ZERO BINARY BLOAT)
-  [✓] Pydantic Schema-Erweiterung in src/api/synthesis_pipeline.py:
+  [OK] Pydantic Schema-Erweiterung in src/api/synthesis_pipeline.py:
       - LectureNoteBlock um Feld `speaker: Optional[Literal["Lecturer", "Audience Question", "Meeting Host", "Discussion Participant"]]` erweitert.
       - Intelligente Vorvalidierung & Normalisierung deutscher und englischer Sprechersynonyme ("student", "zuhörer", "dozent", "host", etc.).
-  [✓] System-Prompts synchronisiert (src/api/synthesis_pipeline.py & src/api/gemini_client.py):
+  [OK] System-Prompts synchronisiert (src/api/synthesis_pipeline.py & src/api/gemini_client.py):
       - Trennung akustischer Kanäle ([MIC] vs. [LOOPBACK]), Erkennung von Frage- und Diskussionsdynamiken.
-  [✓] Deterministisches Markdown-Callout Rendering:
+  [OK] Deterministisches Markdown-Callout Rendering:
       - Bei `speaker == "Audience Question"` automatische Generierung von:
         > [!question] Audience Question @ HH:MM:SS
         > **Question:** <Fragetext / Diskussionsbeitrag>
         >
         > **Response / Derivation:** <Antwort / Mathematische Einordnung>
       - Dozenten-Vorträge (`speaker == "Lecturer"` oder None) behalten die reguläre elegante Notizenstruktur ohne Overhead.
-  [✓] Unit-Tests: `test_multi_speaker_diarization_callouts` in tests/test_chalk_pipeline.py bestanden.
+  [OK] Unit-Tests: `test_multi_speaker_diarization_callouts` in tests/test_chalk_pipeline.py bestanden.
 
 B. PRODUCTION APPLE CODE-SIGNING & NOTARIZATION PIPELINE
-  [✓] `assets/entitlements.plist` erstellt:
+  [OK] `assets/entitlements.plist` erstellt:
       - Hardened Runtime Ausnahmen für Mikrofon, Audio-Hardware, Python JIT & dynamic library loading.
-  [✓] `scripts/notarize_macos.sh` erstellt & ausführbar:
+  [OK] `scripts/notarize_macos.sh` erstellt & ausführbar:
       - Automatisches codesign mit `--options runtime` und `--entitlements assets/entitlements.plist`.
       - Integration mit `xcrun notarytool submit` (--keychain-profile "AC_PASSWORD" oder Env-Variablen) und `xcrun stapler staple`.
       - Saubere Fallback-Logik für lokale Entwicklung (Ad-Hoc Signing & Gatekeeper-Check mit klaren Hinweisen).
-  [✓] PyInstaller Spec-Injektion:
+  [OK] PyInstaller Spec-Injektion:
       - `build_standalone.py` bindet `assets/entitlements.plist` automatisch in den EXE-Schritt ein.
 
 C. AUTOMATISIERTER 7-STUNDEN SOAK-STRESSTEST (tests/test_soak_session.py)
-  [✓] 840 fortlaufende 30-Sekunden-Audio-Segmente (420 Minuten = 7 Stunden) simuliert.
-  [✓] Dauerhaftes Disk-Journaling mit atomarem `manifest.json`.
-  [✓] Speicher-Monitoring:
+  [OK] 840 fortlaufende 30-Sekunden-Audio-Segmente (420 Minuten = 7 Stunden) simuliert.
+  [OK] Dauerhaftes Disk-Journaling mit atomarem `manifest.json`.
+  [OK] Speicher-Monitoring:
       - RSS-Speicherverbrauch bleibt bei 25.6 MB – meilenweit unter der 180 MB Obergrenze.
-  [✓] Abrupter Systemabsturz nach Stunde 4 (480 Segmente):
+  [OK] Abrupter Systemabsturz nach Stunde 4 (480 Segmente):
       - `recover_unprocessed_sessions()` findet die Session, wechselt Status auf "recovering", alle 480 Segmente unversehrt.
       - Session wird nahtlos ab Segment 481 bis 840 fortgesetzt.
-  [✓] Alle 840 Segmente vollständig auf Disk und im Manifest als "completed" validiert.
+  [OK] Alle 840 Segmente vollständig auf Disk und im Manifest als "completed" validiert.
 
 D. ARTEFAKT-REBUILD & CHECKSUMMEN
-  [✓] Standalone Binary & App Bundle frisch gebaut: `dist/Chalk.app` (144 MB arm64).
-  [✓] Release-Archiv erstellt: `dist/Chalk-macOS.zip` (143.25 MB).
-  [✓] Checksummen aktualisiert in `dist/SHA256SUMS.txt`.
+  [OK] Standalone Binary & App Bundle frisch gebaut: `dist/Chalk.app` (144 MB arm64).
+  [OK] Release-Archiv erstellt: `dist/Chalk-macOS.zip` (143.25 MB).
+  [OK] Checksummen aktualisiert in `dist/SHA256SUMS.txt`.
 
 
 16. PHASE 20 DURCHGEFÜHRTE MASSNAHMEN (MULTI-OS RELEASE, WINDOWS PIPELINE & 1:1 MIRRORING)
 --------------------------------------------------------------------------------
 
 A. DUAL-OS RELEASE & WINDOWS BUILD PIPELINE (scripts/build_windows.bat & .github/workflows/release.yml)
-  [✓] 1-Click Windows Batch-Script (`scripts/build_windows.bat`):
+  [OK] 1-Click Windows Batch-Script (`scripts/build_windows.bat`):
       - Automatische Erkennung der Python-Installation (3.10+).
       - Isolierte `.venv`-Erstellung und Dependency-Installation (`requirements.txt` + `pyinstaller`).
       - Automatisierter Testlauf (`tests/test_chalk_pipeline.py`) vor Kompilierungsbeginn.
       - Standalone-Kompilierung über `build_standalone.py` mit Einbettung des Windows-Icons (`assets/app.ico`).
       - Automatische Duplizierung und Bereitstellung von `dist\Chalk-Setup.exe` und `dist\Chalk-Windows.exe`.
-  [✓] Multi-OS CI/CD Pipeline (`.github/workflows/release.yml`):
+  [OK] Multi-OS CI/CD Pipeline (`.github/workflows/release.yml`):
       - Parallele Matrix-Builds auf `macos-latest` (Apple Silicon/Intel) und `windows-latest` (x64).
       - Automatisches Zippen des macOS `.app`-Bundles (`Chalk-macOS.zip`).
       - Automatisches Bereitstellen von `Chalk-Setup.exe` und `Chalk-Windows.exe` für Windows.
       - Konsistente SHA-256 Prüfsummen-Generierung (`SHA256SUMS.txt`) und Veröffentlichung auf GitHub Releases.
-  [✓] Web-Portal Download-Parität (`web/index.html`):
+  [OK] Web-Portal Download-Parität (`web/index.html`):
       - Direkte Download-Links für macOS (`Chalk-macOS.zip`) und Windows (`Chalk-Setup.exe`).
       - Intelligente OS-Erkennung mit dynamischem Primär-CTA und manuellem Umschalter ("Switch to Windows" / "Switch to Mac").
       - Terminal Quick-Install für Entwickler: `brew install chalk-notes/tap/chalk` & `winget install Chalk.Notes`.
 
 B. DEFINITIVE FRONTEND-PERFEKTION (web/index.html)
-  [✓] Vollständige Bild-Befreiung (Pure Sleek Typography):
+  [OK] Vollständige Bild-Befreiung (Pure Sleek Typography):
       - 0 `<img>`-Tags im gesamten Dokument für ablenkungsfreie, sofortige Ladezeit und maximale typografische Ruhe.
-  [✓] Screen Capture Hero Mockup:
+  [OK] Screen Capture Hero Mockup:
       - Header & Badges: `SCREEN CAPTURE` und `Display 1 • 60 Hz` (bzw. `Active Window`).
       - Fenster-Chromatik mit 3 Punkten, 1080p Badge und Titel `Asset_Pricing_Lecture_04.pdf`.
       - Live KaTeX-Rendering: $$E(R_i) = R_f + \beta_i [E(R_m) - R_f]$$.
       - Live Running Recording Timer: sekündlich inkrementierend ab `01:42`.
-  [✓] Nummerierungs-Harmonisierung & Footer-Streamlining:
+  [OK] Nummerierungs-Harmonisierung & Footer-Streamlining:
       - Entfernung redundanter "1.", "2.", "3." Präfixe in dynamisch übersetzten Texten.
       - Fette Ziffern (01, 02, 03, 04) als visuelle Ankerpunkte.
       - Minimalistischer Footer-Button "Legal & Privacy" / "Rechtliches & Datenschutz" mit konsolidiertem Rechts-Hub-Modal (§ 25 MedienG, DSGVO, § 120 StGB, Impressum Volodymyr Gladkyy, Wien).
-  [✓] Vollständige 5-Sprachen-Übersetzung (EN, DE, FR, ES, ZH) über clientseitiges Dictionary.
+  [OK] Vollständige 5-Sprachen-Übersetzung (EN, DE, FR, ES, ZH) über clientseitiges Dictionary.
 
 C. 1:1 DATEISYSTEM-SYNCHRONISATION & REGRESSIONSFREIHEIT
-  [✓] 100% spiegelgleicher Stand zwischen `/Users/user/.gemini/antigravity/scratch/chalk/` und `/Users/user/Desktop/chalk/`.
-  [✓] 34/34 Unit- und Soak-Tests grün (`unittest discover tests/`).
-  [✓] Web-Validierung fehlerfrei: 0 verbotene Token, 0 Emojis, Titanium Theme (`./scripts/deploy_web.sh test`).
+  [OK] 100% spiegelgleicher Stand zwischen `/Users/user/.gemini/antigravity/scratch/chalk/` und `/Users/user/Desktop/chalk/`.
+  [OK] 34/34 Unit- und Soak-Tests grün (`unittest discover tests/`).
+  [OK] Web-Validierung fehlerfrei: 0 verbotene Token, 0 Emojis, Titanium Theme (`./scripts/deploy_web.sh test`).
 
 
 17. PHASE 21 DURCHGEFÜHRTE MASSNAHMEN (AUTONOMOUS RESILIENCE AUDIT, CIRCUIT BREAKERS & GIT HYGIENE)
 --------------------------------------------------------------------------------
 
 A. MULTI-MODEL API PIPELINE, CIRCUIT BREAKER & EMERGENCY SESSION DUMP (src/api/)
-  [✓] Exponential Backoff mit Jitter (3 Retries) bei transienten HTTP-Fehlern (429, 500, 502, 503, 504, Timeouts):
+  [OK] Exponential Backoff mit Jitter (3 Retries) bei transienten HTTP-Fehlern (429, 500, 502, 503, 504, Timeouts):
       - Implementiert in `src/api/gemini_client.py` und `src/api/multi_provider.py`.
       - Vermeidet Kaskadenüberlastungen durch randomisierten Jitter.
-  [✓] Zero-Data-Loss Emergency Session Dump (`emergency_dump_session()` & `save_emergency_dump()`):
+  [OK] Zero-Data-Loss Emergency Session Dump (`emergency_dump_session()` & `save_emergency_dump()`):
       - Bei kompletter Nichterreichbarkeit der APIs atomare Sicherung nach `~/.chalk/sessions/<ID>/emergency_dump.json`.
       - Enthält Transkript, Folien, Audio-Segmente und Journal-Metadaten.
-  [✓] Deterministiche Google Files API Ressourcen-Bereinigung:
+  [OK] Deterministiche Google Files API Ressourcen-Bereinigung:
       - Upload-Ressourcen werden getrackt und im `finally:`-Block via `client.files.delete` gelöscht.
-  [✓] Multi-Provider Architektur (`src/api/multi_provider.py`):
+  [OK] Multi-Provider Architektur (`src/api/multi_provider.py`):
       - `BaseLLMAdapter`: Abstraktes Standard-Interface mit Backoff-Schleife & Emergency Dump.
       - `GeminiAdapter`: Standard-Adapter für `gemini-2.5-flash`.
       - `AnthropicClaudeAdapter`: Vollständige Integration für `claude-3-7-sonnet`.
@@ -766,101 +766,101 @@ A. MULTI-MODEL API PIPELINE, CIRCUIT BREAKER & EMERGENCY SESSION DUMP (src/api/)
       - Einheitliche `LLMSynthesisResponse` Datenstruktur.
 
 B. DISK-JOURNALING & AUDIO-RESILIENZ (src/engine/journal.py, src/audio/capture.py)
-  [✓] Defensive Disk-I/O & Disk-Full Handhabung:
+  [OK] Defensive Disk-I/O & Disk-Full Handhabung:
       - Abfangen von `OSError` (Disk full) mit detailliertem Logging und Erhaltung des Session-Zustands.
-  [✓] Korrupte & unvollständige WAV-Header (`wave.Error`):
+  [OK] Korrupte & unvollständige WAV-Header (`wave.Error`):
       - Graceful Recovery: Gibt ein unschädliches Silent-Audio-Fallback zurück, anstatt die Session abzustürzen.
-  [✓] Subprozess-Timeouts:
+  [OK] Subprozess-Timeouts:
       - `compress_audio_payload()` setzt `timeout=30` auf `afconvert` und `ffmpeg` Aufrufe zur Verhinderung von Deadlocks.
 
 C. MATHEMATISCHE SYNTHESE & DIAGRAMM-SANITIZING (src/api/synthesis_pipeline.py)
-  [✓] Erweiterte KaTeX-Syntax-Validierung:
+  [OK] Erweiterte KaTeX-Syntax-Validierung:
       - Volle Unterstützung für mehrzeilige LaTeX-Umgebungen: `aligned`, `cases`, `matrix`, `pmatrix`, `bmatrix`, `vmatrix`, `array`, `gather`, `split`.
-  [✓] Mermaid-Diagramm Validierung & Bereinigung (`sanitize_mermaid_syntax`):
+  [OK] Mermaid-Diagramm Validierung & Bereinigung (`sanitize_mermaid_syntax`):
       - Stellt gültige Diagramm-Typdeklarationen (`graph TD`, `flowchart LR`, etc.) sicher.
       - Maskiert automatisch runde Klammern und Doppelpunkte in Node-Labels zur Vermeidung von Syntaxfehlern.
-  [✓] Obsidian YAML Frontmatter:
+  [OK] Obsidian YAML Frontmatter:
       - ISO-8601 Zeitstempel (`created: "YYYY-MM-DDTHH:MM:SS"`).
       - Sicheres Quoting von Titeln und Erhaltung von `tags: [chalk, lecture, study]`.
 
 D. NATIVE OS & UI ERGONOMIE (src/security/hotkeys.py, src/ui/)
-  [✓] Native Hotkey Kollisionswarnungen:
+  [OK] Native Hotkey Kollisionswarnungen:
       - Carbon Error-Code -9868 (Bereits registrierter systemweiter Shortcut) wird explizit abgefangen und gemeldet.
       - Win32 `GetLastError()` Logausgabe bei Tastenkombinationskonflikten.
-  [✓] Snip Overlay Retina / High-DPI Awareness (`src/ui/snip_overlay.py`):
+  [OK] Snip Overlay Retina / High-DPI Awareness (`src/ui/snip_overlay.py`):
       - Dynamische Skalierung über `devicePixelRatio` / Verhältnis von physischen Pixeln zu logischen Punkten (`_scale_x`, `_scale_y`).
       - Zuschnitt erfolgt verlustfrei und pixelgenau direkt aus dem unskalierten Master-Buffer (`_source_pil_img`).
-  [✓] Zero-Latency Audio-Wiedergabe im HUD Mini-Player (`src/ui/hud_window.py`):
+  [OK] Zero-Latency Audio-Wiedergabe im HUD Mini-Player (`src/ui/hud_window.py`):
       - Sofortiges `sd.stop()` und Zurücksetzen des Abspiel-Timers vor dem Start eines neuen Snippets.
 
 E. PURIST WEB PORTAL & LEGAL HUB (web/index.html)
-  [✓] Monospace `.math-fallback` Styling bei offline oder blockiertem KaTeX CDN.
-  [✓] Graceful KaTeX Retry-Counter und Monospace-Fallback.
-  [✓] Escape-Taste & Backdrop-Klick zum Schließen des Rechts-Hub-Modals (`#modal-legal-hub`).
-  [✓] "Notice copied!" Feedback-Zustand für den Besprechungshinweis in allen 5 Sprachen (EN, DE, FR, ES, ZH).
+  [OK] Monospace `.math-fallback` Styling bei offline oder blockiertem KaTeX CDN.
+  [OK] Graceful KaTeX Retry-Counter und Monospace-Fallback.
+  [OK] Escape-Taste & Backdrop-Klick zum Schließen des Rechts-Hub-Modals (`#modal-legal-hub`).
+  [OK] "Notice copied!" Feedback-Zustand für den Besprechungshinweis in allen 5 Sprachen (EN, DE, FR, ES, ZH).
 
 F. GIT-HYGIENE & GITHUB 100MB LIMIT PRÄVENTION
-  [✓] `.gitignore` umfassend gehärtet: `dist/`, `build/`, `*.app/`, `*.exe/`, `*.zip/`, `*.pkg/`, `*.dmg/`.
-  [✓] Alle 150MB PyInstaller-Artefakte restlos aus dem Git-Tracking entfernt (`git rm -r --cached dist/`).
-  [✓] 0 Dateien >50MB im Git Index getrackt. GitHub Push ist dauerhaft geschützt vor 100MB Blockaden.
+  [OK] `.gitignore` umfassend gehärtet: `dist/`, `build/`, `*.app/`, `*.exe/`, `*.zip/`, `*.pkg/`, `*.dmg/`.
+  [OK] Alle 150MB PyInstaller-Artefakte restlos aus dem Git-Tracking entfernt (`git rm -r --cached dist/`).
+  [OK] 0 Dateien >50MB im Git Index getrackt. GitHub Push ist dauerhaft geschützt vor 100MB Blockaden.
 
 G. TEST-SUITE & QA-VERIFIKATION
-  [✓] Test-Suite von 34 auf 37 Tests erweitert:
+  [OK] Test-Suite von 34 auf 37 Tests erweitert:
       - `test_mermaid_sanitization`
       - `test_journal_defensive_io_and_corrupt_wav`
       - `test_multi_provider_backoff_and_dump`
-  [✓] Alle 37/37 Tests grün (`unittest discover tests/`).
-  [✓] Soak-Test 840 Segmente (7 Stunden): 0.00 MB Memory Growth Delta, Peak RSS 25.55 MB (<180 MB Grenze).
-  [✓] `./scripts/deploy_web.sh test` -> PASS (0 verbotene Token, 0 Emojis, Titanium-Theme validiert).
+  [OK] Alle 37/37 Tests grün (`unittest discover tests/`).
+  [OK] Soak-Test 840 Segmente (7 Stunden): 0.00 MB Memory Growth Delta, Peak RSS 25.55 MB (<180 MB Grenze).
+  [OK] `./scripts/deploy_web.sh test` -> PASS (0 verbotene Token, 0 Emojis, Titanium-Theme validiert).
 
 
 18. PHASE 22 DURCHGEFÜHRTE MASSNAHMEN (WHITEBOARD-KAMERA VIA QR-CODE & ZERO-CLOUD COMPANION)
 --------------------------------------------------------------------------------
 
 A. ULTRA-LEICHTE SMARTPHONE-WEB-APP (100% INLINE HTML/CSS/JS, ZERO CLOUD)
-  [✓] Single-Page Web App (`src/companion/server.py`):
+  [OK] Single-Page Web App (`src/companion/server.py`):
       - 100% inline HTML/CSS/JS ohne externe CDNs oder Tracker im Dark Titanium Theme (`#121317`).
       - Zentraler nativer Kamera-Auslöser: `<input type="file" accept="image/*" capture="environment">`.
       - Client-seitige Canvas-Skalierung auf max. 1920px (Full HD) vor Übertragung zur Minimierung des Datenvolumens.
-      - Sofortiger POST `/upload-photo` mit transientem 1-Sekunden Bestätigungshäkchen ("Gesendet ✓").
+      - Sofortiger POST `/upload-photo` mit transientem 1-Sekunden Bestätigungshäkchen ("Gesendet ").
       - Sub-Sekunden-Übertragung (<850ms) über lokales WLAN oder iPhone/Android-Hotspot.
 
 B. PURE-PYTHON ZERO-DEPENDENCY QR-CODE GENERATOR (src/companion/qr_generator.py)
-  [✓] Eigenständige QR-Engine ohne externe Abhängigkeiten (kein `qrcode`, kein `PIL`-Zwang):
+  [OK] Eigenständige QR-Engine ohne externe Abhängigkeiten (kein `qrcode`, kein `PIL`-Zwang):
       - Versionen 1 bis 6 mit dynamischer Größenanpassung (Version 4 = 33x33 Matrix für URLs).
       - Byte-Mode Kodierung und Galois Field GF(2^8) Reed-Solomon Fehlerkorrektur (Level L & M).
       - Format-Information BCH(15,5) und 8 standardkonforme Maskierungsmuster nach ISO/IEC 18004.
       - Multi-Format Exporte: SVG, PIL Image, PNG-Binärdaten, Base64 Data URI und native PyQt6 `QPixmap`.
 
 C. THREAD-SAFE PYQT6 SIGNAL-BRIDGE & HTTP DAEMON (src/companion/bridge.py & server.py)
-  [✓] Thread-sichere Signalbrücke (`CompanionBridge`):
+  [OK] Thread-sichere Signalbrücke (`CompanionBridge`):
       - Hintergrund-HTTP-Threads übergeben Fotos race-condition-frei an die GUI (`pyqtSignal(str, str)`).
       - Direkte Python-Callbacks als Fallback für Headless- und Testumgebungen.
-  [✓] Lokaler HTTP-Daemon (`CompanionDaemon`):
+  [OK] Lokaler HTTP-Daemon (`CompanionDaemon`):
       - Startet im Hintergrund-Thread mit Einmal-Token-Authentifizierung (`secrets.token_urlsafe(16)`).
       - 403 Forbidden Schutz gegen unberechtigte Anfragen.
       - Automatische Port-Erkennung ab Port 8765.
       - Speichert Tafel-Fotos atomar unter `~/.chalk/sessions/<ID>/companion/<timestamp>.jpg`.
 
 D. DESKTOP HUD INTEGRATION & TAFEL-MODAL (src/ui/hud_window.py)
-  [✓] Neuer Schnellaktions-Button `📱 Tafel-Kamera` in der Aktionsleiste.
-  [✓] Scharfer Retina QR-Code Dialog (`WhiteboardCamDialog`) mit kopierbarem Fallback-Link und Live-Status.
-  [✓] Visuelle Rückmeldung bei Fotoempfang:
-      - Status-Pill: `📷 TAFEL-FOTO ERFASST (HH:MM:SS)` leuchtet grün auf.
-      - Anhangs-Banner: `📱 Tafel-Fotos: X erfasst`.
+  [OK] Neuer Schnellaktions-Button `[MOBILE] Tafel-Kamera` in der Aktionsleiste.
+  [OK] Scharfer Retina QR-Code Dialog (`WhiteboardCamDialog`) mit kopierbarem Fallback-Link und Live-Status.
+  [OK] Visuelle Rückmeldung bei Fotoempfang:
+      - Status-Pill: `[PHOTO] TAFEL-FOTO ERFASST (HH:MM:SS)` leuchtet grün auf.
+      - Anhangs-Banner: `[MOBILE] Tafel-Fotos: X erfasst`.
 
 E. VORLESUNGS-SYNTHESE MIT HÖCHSTER TAFEL-PRIORITÄT (src/api/ & src/main.py)
-  [✓] System-Prompts priorisieren Tafelbilder (`whiteboard_photos`) für mathematische Formeln und Skizzen.
-  [✓] Attribuierung als `source="whiteboard"` mit normalisierten Synonymen ("tafel", "chalkboard").
-  [✓] Zero-Data-Loss Pufferung: Chunk-Worker übernimmt Fotos aus dem HUD; bei Rate-Limits oder Fehlern werden sie verlustfrei in die Queue zurückgestellt.
+  [OK] System-Prompts priorisieren Tafelbilder (`whiteboard_photos`) für mathematische Formeln und Skizzen.
+  [OK] Attribuierung als `source="whiteboard"` mit normalisierten Synonymen ("tafel", "chalkboard").
+  [OK] Zero-Data-Loss Pufferung: Chunk-Worker übernimmt Fotos aus dem HUD; bei Rate-Limits oder Fehlern werden sie verlustfrei in die Queue zurückgestellt.
 
 F. PURISTISCHES WEB-PORTAL FEATURE SPOTLIGHT (web/index.html)
-  [✓] Neuer Case 5 Bento-Grid Showcase für die Whiteboard-Kamera in allen 5 Sprachen (EN, DE, FR, ES, ZH).
-  [✓] 0 verbotene Token, 0 Emojis, striktes Dark Titanium Theme.
+  [OK] Neuer Case 5 Bento-Grid Showcase für die Whiteboard-Kamera in allen 5 Sprachen (EN, DE, FR, ES, ZH).
+  [OK] 0 verbotene Token, 0 Emojis, striktes Dark Titanium Theme.
 
 G. TEST-SUITE & QA-VERIFIKATION (tests/test_companion_pipeline.py)
-  [✓] 8 neue Unit-Tests: QR-Matrix-Geometrie, Finder-Muster, Exporter, Bridge-Dispatch, HTTP 403 Schutz, End-to-End Foto-Upload.
-  [✓] Komplette Test-Suite: 45/45 Tests bestanden (100% grün).
+  [OK] 8 neue Unit-Tests: QR-Matrix-Geometrie, Finder-Muster, Exporter, Bridge-Dispatch, HTTP 403 Schutz, End-to-End Foto-Upload.
+  [OK] Komplette Test-Suite: 45/45 Tests bestanden (100% grün).
 
 
 19. ARTEFAKT- & PRÜFSUMMEN-ÜBERSICHT (dist/SHA256SUMS.txt)
@@ -955,67 +955,67 @@ chalk/
 --------------------------------------------------------------------------------
 
 A. KRITISCHE PRODUKTIONS- & ARTEFAKT-FIXES
-  [✓] Release- & Download-URLs (web/index.html):
+  [OK] Release- & Download-URLs (web/index.html):
       - Alle GitHub-Download-Links korrigiert auf `volodyagladkyy/Chalk/releases/latest/download/` (Chalk-macOS.zip und Chalk-Setup.exe).
       - Terminal-Schnellinstallationsbox bereinigt: Saubere curl -L -O Direkt-Downloads statt fiktiver Paketmanager.
       - Hero-Mockup mit reaktivem "Phone Cam: Ready" Badge im Header neben Timer in allen 5 Sprachen (EN, DE, FR, ES, ZH).
-  [✓] PyInstaller Mach-O & macOS TCC Permission Hardening (build_standalone.py):
+  [OK] PyInstaller Mach-O & macOS TCC Permission Hardening (build_standalone.py):
       - UPX-Kompression deaktiviert (upx=False), um Mach-O Page-Alignment-Beschädigungen und Kernel-SIGKILLs auf Apple Silicon (arm64) vollständig zu verhindern.
       - Sauberes Onedir-COLLECT + BUNDLE Layout: Dynamische Bibliotheken verbleiben persistent in `Chalk.app/Contents/Frameworks/`, wodurch macOS TCC Berechtigungen (Mikrofon, Bildschirmaufnahme) dauerhaft über App-Neustarts hinweg erhalten bleiben.
-  [✓] Bulletproof LAN/Hotspot IP-Discovery (src/companion/server.py):
+  [OK] Bulletproof LAN/Hotspot IP-Discovery (src/companion/server.py):
       - Mehrstufige IP-Ermittlung über UDP-Sockets (`10.255.255.255`, `8.8.8.8`), macOS `ipconfig getifaddr en0..en5` und Interface-Enumeration. Verhindert 127.0.0.1 Fallbacks bei iPhone-Hotspots (172.20.10.x) und Universitäts-WLANs.
 
 B. ADVANCED ACADEMIC & POWER-USER SUITE
-  [✓] Anki & Spaced Repetition Flashcard Generator (src/api/synthesis_pipeline.py):
+  [OK] Anki & Spaced Repetition Flashcard Generator (src/api/synthesis_pipeline.py):
       - Pydantic-Schema `FlashcardItem(question, answer_latex, reference_timestamp)` in `LectureSynthesisResponse`.
       - Automatische Generierung von Obsidian Spaced-Repetition-Blöcken (`## Exam Flashcards & Key Concepts \n Question #flashcard \n ? \n Answer`).
       - Tab-getrennter TSV-Export (`export_flashcards_to_tsv`) und Parser (`extract_flashcards_from_markdown`).
       - HUD-Button "Export Anki (.tsv)" mit 1-Klick-Export nach `~/Documents/`.
-  [✓] Standalone Akademischer Vektor-PDF-Druck (src/export/pdf_exporter.py):
+  [OK] Standalone Akademischer Vektor-PDF-Druck (src/export/pdf_exporter.py):
       - Eigenständiger PDF-Export via PyQt6 `QTextDocument` + `QPdfWriter` (A4, 300 DPI, 15mm Margins).
       - Mathematische Formeln, Obsidian-Callout-Boxen und strukturierte Metadaten werden gestochen scharf ohne externe Abhängigkeiten gerendert.
       - HUD-Button "Export PDF" speichert direkt nach `~/Documents/Chalk_Notes_<ID>.pdf`.
-  [✓] Audio-Scrubber Geschwindigkeits-Controller (src/ui/hud_window.py):
+  [OK] Audio-Scrubber Geschwindigkeits-Controller (src/ui/hud_window.py):
       - Mini-Player Tempo-Selector `[1.0x | 1.25x | 1.5x | 2.0x]` im Audio-Pill.
       - Anpassung der Sample-Rate `int(sr * speed)` in `sounddevice.play()` ohne CPU-Overhead.
-  [✓] Cross-Linguale Notizen-Synthese (src/engine/config.py & src/ui/settings_dialog.py):
+  [OK] Cross-Linguale Notizen-Synthese (src/engine/config.py & src/ui/settings_dialog.py):
       - Konfigurierbare Synthese-Sprache (Auto, Deutsch, English, Français, Español, 中文) in `~/.chalk/config.json`.
       - LLM-Prompt hält Fachbegriffe zweisprachig und formuliert Erklärungen in der Zielsprache.
-  [✓] Lokale Volltext- & Formel-Archivsuche (src/ui/search_dialog.py):
+  [OK] Lokale Volltext- & Formel-Archivsuche (src/ui/search_dialog.py):
       - Spotlight-Modal `SessionArchiveSearchDialog` via `Alt+F` / `Ctrl+F` über `~/.chalk/sessions/`, `Notes/` und Obsidian-Vault.
       - Echtzeit-Filterung, Formel-Matching und direkter Sprung zu verlinktem Audio-Zeitstempel.
-  [✓] Radikales UI-De-Emojifying:
+  [OK] Radikales UI-De-Emojifying:
       - Strikt 0 Emojis im gesamten UI-, Web- und Code-Bereich. Ausschließlich Vektor-SVGs und saubere Typografie.
 
 C. WEB-PORTAL ERWEITERUNG (web/index.html)
-  [✓] Bento-Karten 05 (Spaced Repetition & Anki) und 06 (Standalone PDF & Archivsuche) integriert.
-  [✓] Vollständige Lokalisierung in allen 5 Sprachen (EN, DE, FR, ES, ZH).
-  [✓] 100% Grüner Deploy-Test: `./scripts/deploy_web.sh test` (0 verbotene Farbtokens, 0 Emojis).
+  [OK] Bento-Karten 05 (Spaced Repetition & Anki) und 06 (Standalone PDF & Archivsuche) integriert.
+  [OK] Vollständige Lokalisierung in allen 5 Sprachen (EN, DE, FR, ES, ZH).
+  [OK] 100% Grüner Deploy-Test: `./scripts/deploy_web.sh test` (0 verbotene Farbtokens, 0 Emojis).
 
 D. QUALITÄTSSICHERUNG & ARTEFAKT-ERSTELLUNG
-  [✓] Vollständige Test-Suite: 50 von 50 Tests grün (100% Bestanden).
-  [✓] Standalone Release-Build: `dist/Chalk.app` & `dist/Chalk-macOS.zip` (313.52 MB).
-  [✓] SHA-256 Prüfsummen neu generiert in `dist/SHA256SUMS.txt`.
-  [✓] 1:1 Spiegelung nach `/Users/user/Desktop/chalk/`.
+  [OK] Vollständige Test-Suite: 50 von 50 Tests grün (100% Bestanden).
+  [OK] Standalone Release-Build: `dist/Chalk.app` & `dist/Chalk-macOS.zip` (313.52 MB).
+  [OK] SHA-256 Prüfsummen neu generiert in `dist/SHA256SUMS.txt`.
+  [OK] 1:1 Spiegelung nach `/Users/user/Desktop/chalk/`.
 ================================================================================
 
 21. PHASE 23C DURCHGEFÜHRTE MASSNAHMEN (HERO MOCKUP WHITEBOARD QR INTEGRATION & VISUAL DUAL-INPUT)
 --------------------------------------------------------------------------------
 
 A. DUAL-INPUT SPLIT-GRID IM HERO-MOCKUP (web/index.html)
-  [✓] Responsive 2-Spalten-Teilung (grid grid-cols-1 sm:grid-cols-12 gap-3) im unteren Bereich der linken Spalte:
+  [OK] Responsive 2-Spalten-Teilung (grid grid-cols-1 sm:grid-cols-12 gap-3) im unteren Bereich der linken Spalte:
       - Spalte 1 (sm:col-span-7): "INTELLIGENT RECALL (Alt+Space)" mit Eingabeprompt "> How does beta behave during market volatility?" und Footer "Direct AI connection • 100% Private".
       - Spalte 2 (sm:col-span-5): "PHONE LINK" Whiteboard Cam Bridge mit animiertem grünen Status-Dot (#10B981 animate-pulse).
       - Reines, gestochen scharfes Inline-Vektor-SVG des QR-Codes (64x64 px, viewBox="0 0 27 27", Dark Titanium Styling, shape-rendering="crispEdges", 173 Segmente, 0 externe Ressourcen).
       - Typografische Beschriftung unter dem QR-Code: "Scan to snap board" und "Direct LAN • Zero Cloud".
 
 B. TITELLEISTEN-STATUSINDIKATOR (#hero-card)
-  [✓] Reaktiver Verbindungsindikator in der macOS-Window-Chrome neben dem Aufnahme-Timer:
+  [OK] Reaktiver Verbindungsindikator in der macOS-Window-Chrome neben dem Aufnahme-Timer:
       - Status-Badge mit pulsierendem grünen Indikator-Punkt (animate-pulse) und Lokalisierungsattribut `data-i18n="preview_phone_status"`.
       - Textanzeige: "Phone Link: Ready" (bzw. "Handy-Kopplung: Bereit").
 
 C. VOLLSTÄNDIGE MULTI-LINGUALE LOKALISIERUNG (5 SPRACHEN)
-  [✓] Konsistente Erweiterung des clientseitigen Übersetzungs-Wörterbuchs (translations) in web/index.html für alle 5 Sprachen:
+  [OK] Konsistente Erweiterung des clientseitigen Übersetzungs-Wörterbuchs (translations) in web/index.html für alle 5 Sprachen:
       - EN: preview_phone_status ("Phone Link: Ready"), preview_qr_label ("PHONE LINK"), preview_qr_action ("Scan to snap board"), preview_qr_spec ("Direct LAN • Zero Cloud")
       - DE: preview_phone_status ("Handy-Kopplung: Bereit"), preview_qr_label ("HANDY-KOPPLUNG"), preview_qr_action ("Tafel fotografieren"), preview_qr_spec ("Direktes LAN • 0% Cloud")
       - FR: preview_phone_status ("Liaison mobile: Prête"), preview_qr_label ("LIEN MOBILE"), preview_qr_action ("Scanner pour tableau"), preview_qr_spec ("LAN direct • Sans cloud")
@@ -1023,14 +1023,14 @@ C. VOLLSTÄNDIGE MULTI-LINGUALE LOKALISIERUNG (5 SPRACHEN)
       - ZH: preview_phone_status ("手机链路: 就绪"), preview_qr_label ("手机互联"), preview_qr_action ("扫码拍板书"), preview_qr_spec ("局域网直连 • 零云端")
 
 D. DESIGN-, BRANDING- & VERIFIKATIONS-AUDIT
-  [✓] 100% Konformität mit dem Dark Titanium Farbschema (var(--surface-terminal), var(--chalk-border), var(--chalk-white), var(--chalk-slate)).
-  [✓] Strikte Zero-Emoji-Politik eingehalten (0 Emojis, 100% Vektor-SVGs und saubere Typografie).
-  [✓] Web Deployment Suite: `./scripts/deploy_web.sh test` erfolgreich mit 0 verbotenen Farbtokens bestanden.
-  [✓] Gesamte Test-Suite: 50/50 Tests grün (100% Bestanden).
-  [✓] 1:1 Spiegelung nach `/Users/user/Desktop/chalk/`.
+  [OK] 100% Konformität mit dem Dark Titanium Farbschema (var(--surface-terminal), var(--chalk-border), var(--chalk-white), var(--chalk-slate)).
+  [OK] Strikte Zero-Emoji-Politik eingehalten (0 Emojis, 100% Vektor-SVGs und saubere Typografie).
+  [OK] Web Deployment Suite: `./scripts/deploy_web.sh test` erfolgreich mit 0 verbotenen Farbtokens bestanden.
+  [OK] Gesamte Test-Suite: 50/50 Tests grün (100% Bestanden).
+  [OK] 1:1 Spiegelung nach `/Users/user/Desktop/chalk/`.
 
 E. PRÄZISER FIX: TERMINAL QUICK-INSTALL OVERFLOW- & COLLISION-BESEITIGUNG
-  [✓] Überlappungs-Befreiung der Quick-Install-Boxen (web/index.html):
+  [OK] Überlappungs-Befreiung der Quick-Install-Boxen (web/index.html):
       - Ursachenanalyse: Die 85 Zeichen langen `curl -L -O ...` URLs besaßen als unteilbare Zeichenketten eine minimale Intrinsic-Breite von >460px. In `sm:grid-cols-2` ohne `min-w-0` erzwang dies einen Spalten-Überlauf, wodurch der Copy-Button der linken Box direkt auf den Rahmen der rechten Box überlappte und der rechte Button aus der Karte ragte.
       - Clean Architecture Redesign: Saubere vertikale Entkopplung von Header und Code. Beide Quick-Install-Boxen (macOS und Windows) sind nun direkt untereinander gestapelt (`space-y-3.5`), sodass jeder Link die volle Breite des Containers nutzt und auf Standard-Bildschirmen gestochen scharf ohne Scrollbalken angezeigt wird.
       - Jede Box besitzt eine eigene Header-Zeile mit Plattform-Badge (`macOS` / `Windows`), Typo-Untertitel (`Terminal (curl)` / `PowerShell / CMD`) und rechtsbündigem Copy-Button mit Vektor-SVG-Icon (`flex-shrink-0`).
@@ -1039,7 +1039,7 @@ E. PRÄZISER FIX: TERMINAL QUICK-INSTALL OVERFLOW- & COLLISION-BESEITIGUNG
       - Micro-Interaktion: Reines SVG-Checkmark-Feedback bei Klick auf den Copy-Button.
 
 F. HERO MOCKUP DUAL-INPUT REVERSAL & ANTI-TRUNCATION POLISH
-  [✓] Positionstausch & Typografie-Perfektion (web/index.html):
+  [OK] Positionstausch & Typografie-Perfektion (web/index.html):
       - Phone Link (Whiteboard QR) wurde nach links platziert (`sm:col-span-5`), wodurch es direkt unter der Bildschirmaufnahme als symmetrischer visueller Anker fungiert.
       - Intelligent Recall wurde nach rechts platziert (`sm:col-span-7`), wodurch die interaktive Frageingabe direkt an die Vorlesungsnotizen der rechten Spalte anschließt und einen nahtlosen mentalen Übergang von Prompt zu Notiz schafft.
       - Vollständige Beseitigung unschöner Ellipsen-Abschneidungen (`...`):
@@ -1048,7 +1048,7 @@ F. HERO MOCKUP DUAL-INPUT REVERSAL & ANTI-TRUNCATION POLISH
         * Aufhebung restriktiver `truncate`-Klassen im Phone-Link-Modul garantiert voll lesbare Micro-Copy (`Scan to snap board` und `Direct LAN • Zero Cloud`).
 
 G. NAVIGATION SCROLL-ANCHOR ALIGNMENT (#privacy)
-  [✓] Präzise Ausrichtung des Scroll-Ziels für "Privacy" (web/index.html):
+  [OK] Präzise Ausrichtung des Scroll-Ziels für "Privacy" (web/index.html):
       - Ursachenanalyse: Das `<section id="privacy">`-Element enthielt noch die Tailwind-Klasse `scroll-mt-24` (Scroll-Margin-Top von 96px). Während `#how-it-works` und `#use-cases` keine Scroll-Margin besaßen und der Browser exakt an der oberen Trennlinie (`border-t`) stoppte, sprang der Browser bei Klick auf "Privacy" 96px zu tief in die Sektion hinein.
       - Fix: Entfernung von `scroll-mt-24` auf `<section id="privacy">`. Alle vier Hauptsektionen (`#how-it-works`, `#use-cases`, `#privacy`, `#download`) weisen nun identische Klassen auf und landen beim Navigieren pixelgenau auf der feinen Trennlinie (`style="border-color: var(--chalk-border);"`).
 ================================================================================
@@ -1057,7 +1057,7 @@ G. NAVIGATION SCROLL-ANCHOR ALIGNMENT (#privacy)
 --------------------------------------------------------------------------------
 
 A. RESTLOSES CODEBASE-WEITES DE-EMOJIFYING (0 UNICODE EMOJIS)
-  [✓] Python Backend & UI vollständig de-emojified:
+  [OK] Python Backend & UI vollständig de-emojified:
       - src/main.py: Entfernung aller Status-Emojis ("Recording active: Mic + Loopback + Slides.", "Master Synthesis Completed.", "[SYNC] Chunk Synthesized").
       - src/engine/session_state.py: Bereinigung von Segment- & Master-Headern ("### [Segment {chunk_count:02d}]:", "# Master Synthesis & Exam Preparation").
       - src/api/synthesis_pipeline.py: Bereinigung der Spaced Repetition Headers ("## Exam Flashcards & Spaced Repetition") und neutraler Typografie.
@@ -1077,16 +1077,16 @@ A. RESTLOSES CODEBASE-WEITES DE-EMOJIFYING (0 UNICODE EMOJIS)
       - src/ui/tray.py: De-emojified Docstrings und Status-Dot Dokumentation ([REC], [PAUSE], [PROC]).
       - src/ui/settings_dialog.py: Saubere ASCII-Tags ("[OK]", "[ERR]") für Validierungsergebnisse.
       - src/diagnostics.py: Saubere Terminal-Ausgaben ("[OK]", "[FAIL]") bei Pre-Flight Checks.
-  [✓] Vollständige Verifikation: Python AST Regex-Scan über alle Dateien in `src/` bestätigt exakt 0 verbleibende Emojis.
+  [OK] Vollständige Verifikation: Python AST Regex-Scan über alle Dateien in `src/` bestätigt exakt 0 verbleibende Emojis.
 
 B. MATHEMATICAL NOTATION & VARIABLE LEDGER
-  [✓] Pydantic Schema-Erweiterung (src/api/synthesis_pipeline.py):
+  [OK] Pydantic Schema-Erweiterung (src/api/synthesis_pipeline.py):
       - Modell `NotationItem`:
         * `symbol`: LaTeX-Symbol / Variable (z. B. `\\beta_i`, `R_f`).
         * `definition`: Strenge semantische und fachliche Definition im Vorlesungskontext.
         * `introduced_in_segment`: Exakter Segment- oder Zeitstempel-Ursprung (z. B. `Segment 01 [00:14:20]`).
       - Feld `notations: List[NotationItem]` in `LectureSynthesisResponse`.
-  [✓] Deterministisches Markdown Tabellen-Rendering (`render_notations_to_markdown`):
+  [OK] Deterministisches Markdown Tabellen-Rendering (`render_notations_to_markdown`):
       - Rendert gestochen scharfe GFM-Tabelle:
         ### Mathematical Notation & Variable Ledger
         | Symbol | Conceptual Definition | Context / Segment |
@@ -1094,11 +1094,11 @@ B. MATHEMATICAL NOTATION & VARIABLE LEDGER
         | $\\beta_i$ | Asset return sensitivity relative to market benchmark | Segment 01 [00:14:20] |
       - Automatische LaTeX-Display-Kapselung (`$symbol$`) und Sanitization.
       - Einbindung vor den inhaltlichen Notizblöcken in `render_synthesis_to_markdown()`.
-  [✓] Master Synthesis Konsolidierung (src/api/gemini_client.py):
+  [OK] Master Synthesis Konsolidierung (src/api/gemini_client.py):
       - System-Instruction für Master-Synthese instruiert das Modell, sämtliche über die gesamte Vorlesung hinweg definierten Variablen symbolgetreu im Notations-Register zu konsolidieren.
 
 C. SOCRATIC ACTIVE RECALL DRILL (F9 DEBRIEF)
-  [✓] Modell- & Synthese-Erweiterung (src/api/synthesis_pipeline.py):
+  [OK] Modell- & Synthese-Erweiterung (src/api/synthesis_pipeline.py):
       - Feld `socratic_questions: List[str]` in `LectureSynthesisResponse`.
       - System-Prompt fordert 3 gezielte Debrief-Fragen zu:
         1. Theoretische Kern-Herleitung / Invariante.
@@ -1106,36 +1106,36 @@ C. SOCRATIC ACTIVE RECALL DRILL (F9 DEBRIEF)
         3. Häufige Klausurfalle oder Fehlinterpretation.
       - Deterministisches Rendering (`render_socratic_to_markdown`):
         Callout `> [!question] Socratic Active Recall` mit durchnummerierten Fragen am Notizen-Ende.
-  [✓] HUD Modal Debrief Drawer (src/ui/hud_window.py & src/main.py):
+  [OK] HUD Modal Debrief Drawer (src/ui/hud_window.py & src/main.py):
       - Methode `FloatingHUDWindow.show_socratic_debrief(source)`:
       - Extrahiert Fragen aus der Synthese oder nutzt hochkarätige didaktische Fallbacks.
       - Rendert eine elegante Titanium-Debrief-Karte direkt im Copilot-Feed beim Vorlesungsabschluss (F9).
       - Hängt das Callout automatisch an die finale Notizendatei an, falls noch nicht vorhanden.
 
 D. QUALITÄTSSICHERUNG & SYSTEM-VERIFIKATION
-  [✓] Test-Suite Erweiterung (tests/test_chalk_pipeline.py):
+  [OK] Test-Suite Erweiterung (tests/test_chalk_pipeline.py):
       - `test_phase25_notation_ledger_schema_and_rendering`: Pydantic Validierung & GFM Tabellen-Syntax verifiziert.
       - `test_phase25_socratic_recall_drill`: Reihenfolge-Konsistenz (Notations -> Blocks -> Socratic) verifiziert.
       - `test_phase25_zero_emojis_in_synthesis_and_markdown`: Rigoroser Regex-Check bestätigt 0 Emojis im Output.
-  [✓] 100% Grüne Test-Suite: 53 von 53 Tests bestanden (inkl. aller 420-Minuten Soak-Tests).
-  [✓] Web Deployment Suite: `./scripts/deploy_web.sh test` erfolgreich (0 verbotene Farbtokens, 0 Emojis).
-  [✓] Standalone Release-Build: `dist/Chalk.app` & `dist/Chalk-macOS.zip` neu kompiliert.
-  [✓] SHA-256 Prüfsummen aktualisiert in `dist/SHA256SUMS.txt`.
-  [✓] 1:1 Spiegelung nach `/Users/user/Desktop/chalk/`.
-  [✓] Desktop Review-Export aktualisiert: `/Users/user/Desktop/CHALK_FULL_CODEBASE.txt`.
+  [OK] 100% Grüne Test-Suite: 53 von 53 Tests bestanden (inkl. aller 420-Minuten Soak-Tests).
+  [OK] Web Deployment Suite: `./scripts/deploy_web.sh test` erfolgreich (0 verbotene Farbtokens, 0 Emojis).
+  [OK] Standalone Release-Build: `dist/Chalk.app` & `dist/Chalk-macOS.zip` neu kompiliert.
+  [OK] SHA-256 Prüfsummen aktualisiert in `dist/SHA256SUMS.txt`.
+  [OK] 1:1 Spiegelung nach `/Users/user/Desktop/chalk/`.
+  [OK] Desktop Review-Export aktualisiert: `/Users/user/Desktop/CHALK_FULL_CODEBASE.txt`.
 
 ================================================================================
 20. PHASE 26 DURCHGEFÜHRTE MASSNAHMEN (FULL 5-LANGUAGE DESKTOP APP I18N PARITY)
 --------------------------------------------------------------------------------
 
 A. ZENTRALES DESKTOP-I18N-MODUL (`src/ui/i18n.py`)
-  [✓] Zero-Pip-Bloat Übersetzungs-Architektur:
+  [OK] Zero-Pip-Bloat Übersetzungs-Architektur:
       - Leichtgewichtige `I18nManager` Engine mit Singleton-Zugriff `tr(key, lang=None, **kwargs)`.
       - Parität über alle 5 Sprachen des Web-Portals: Englisch (`en`, Default), Deutsch (`de`), Französisch (`fr`), Spanisch (`es`), Chinesisch (`zh`).
       - Automatische Erkennung der Systemsprache via `QLocale.system().name()` beim Erststart, mit manuellem Override in `~/.chalk/config.json` (`"ui_language"`).
       - Graceful Fallback auf Englisch bei unbekannten Keys oder Parametern.
       - 100% Zero-Emoji-Konformität im gesamten Wörterbuch (ausschließlich Vektor-Icons und typografische Monospace-Tags).
-  [✓] Vollständige Abdeckung aller Desktop-Knoten:
+  [OK] Vollständige Abdeckung aller Desktop-Knoten:
       - HUD Header & Status (Recording active, Paused, Processing, Standby, Direct BYOK Connected, Slides ready, Photos ready).
       - Aktions-Buttons & Tooltips (Attach Slides, Snip Screen, Whiteboard Camera, Rewind 90s, Search Archive, Export Anki, Export PDF, Copy Notes, Obsidian, Editor, Finish).
       - User Scratchpad (Label & dynamischer Prompt-Anker-Placeholder).
@@ -1149,44 +1149,44 @@ A. ZENTRALES DESKTOP-I18N-MODUL (`src/ui/i18n.py`)
       - Sokratisches Debriefing (Aktiver Abruf, Invariante, Randbedingungen, Klausurfalle).
 
 B. INTEGRATION IN DIE UI- UND LIFECYCLE-KOMPONENTEN
-  [✓] Einstellungsdialog (`src/ui/settings_dialog.py` & `src/engine/config.py`):
+  [OK] Einstellungsdialog (`src/ui/settings_dialog.py` & `src/engine/config.py`):
       - Logisch saubere Trennung von:
         * `ui_language`: Sprache der Desktop-Bedienoberfläche (`get_ui_language()` / `set_ui_language()`).
         * `output_language`: Zielsprache für generierte Vorlesungsnotizen (`get_output_language()` / `set_output_language()`).
       - Dropdown für Interface-Sprache (English, Deutsch, Français, Español, 中文) mit Live-Aktualisierung.
       - Signal `language_changed = pyqtSignal(str)` zur Laufzeit emittiert beim Speichern.
-  [✓] Floating HUD (`src/ui/hud_window.py`):
+  [OK] Floating HUD (`src/ui/hud_window.py`):
       - Methode `FloatingHUDWindow.retranslate_ui()`:
         * Aktualisiert dynamisch alle Buttons, Tooltips, Tabs, Placeholders, Status-Pills und Anhänge ohne App-Neustart.
       - `WhiteboardCamDialog.retranslate_ui()`:
         * Aktualisiert Dialog-Titel, Hinweistexte und Verbindungsstatus in Echtzeit.
-  [✓] System Tray (`src/ui/tray.py`):
+  [OK] System Tray (`src/ui/tray.py`):
       - Methode `ChalkSystemTray.retranslate_menu()`:
         * Dynamische Rekonstruktion des Kontextmenüs via `_build_menu()` in der aktiven Nutzersprache.
-  [✓] Archiv- & Formelsuche (`src/ui/search_dialog.py`):
+  [OK] Archiv- & Formelsuche (`src/ui/search_dialog.py`):
       - Methode `SessionArchiveSearchDialog.retranslate_ui()`:
         * Header, Hinweistext, Suchplatzhalter, Trefferanzahl und Aktionsschaltflächen übersetzt.
-  [✓] PDF-Exporter (`src/export/pdf_exporter.py`):
+  [OK] PDF-Exporter (`src/export/pdf_exporter.py`):
       - Akademische HTML-Generierung nutzt `tr("pdf_default_title")` und `tr("pdf_header_exported")`.
-  [✓] Koordinator & System-Notifications (`src/main.py`):
+  [OK] Koordinator & System-Notifications (`src/main.py`):
       - `ChalkCoordinator._on_language_changed()` verdrahtet `settings_dialog.language_changed` direkt mit `hud.retranslate_ui()` und `tray.retranslate_menu()`.
       - Alle Betriebssystem-Notifications verwenden `tr()` der konfigurierten UI-Sprache.
 
 C. QUALITÄTSSICHERUNG & SYSTEM-VERIFIKATION
-  [✓] Neue Unit-Test Suite (`tests/test_i18n.py`):
+  [OK] Neue Unit-Test Suite (`tests/test_i18n.py`):
       - Test aller 5 Sprachen auf 100% Vollständigkeit der Übersetzungsschlüssel.
       - Strenger Regex-Test auf 0 Emojis in allen Übersetzungsstrings.
       - Fallback-Verhalten (Sprach-Fallback auf EN, unbekannte Keys auf Raw-String).
       - Parameter-Interpolation (`{count}`, `{time}`, `{duration}`, `{provider}`).
       - Persistenz & Umschaltung in `~/.chalk/config.json`.
       - Live-Retranslation Tests für HUD, Search Modal, Settings Dialog und Tray Menu.
-  [✓] 100% Grüne Test-Suite: 60 von 60 Tests bestanden (inkl. aller 420-Minuten Soak-Tests).
-  [✓] Web Deployment Suite: `./scripts/deploy_web.sh test` erfolgreich (0 verbotene Farbtokens, 0 Emojis).
-  [✓] Zero-Emoji-Audit: Rigoroser Regex-Scan bestätigt 0 Unicode-Emojis in allen `.py`-Dateien in `src/` und `tests/`.
-  [✓] Standalone Release-Build: `dist/Chalk.app` & `dist/Chalk-macOS.zip` neu kompiliert.
-  [✓] SHA-256 Prüfsummen aktualisiert in `dist/SHA256SUMS.txt`.
-  [✓] 1:1 Spiegelung nach `/Users/user/Desktop/chalk/`.
-  [✓] Desktop Review-Export aktualisiert: `/Users/user/Desktop/CHALK_FULL_CODEBASE.txt`.
+  [OK] 100% Grüne Test-Suite: 60 von 60 Tests bestanden (inkl. aller 420-Minuten Soak-Tests).
+  [OK] Web Deployment Suite: `./scripts/deploy_web.sh test` erfolgreich (0 verbotene Farbtokens, 0 Emojis).
+  [OK] Zero-Emoji-Audit: Rigoroser Regex-Scan bestätigt 0 Unicode-Emojis in allen `.py`-Dateien in `src/` und `tests/`.
+  [OK] Standalone Release-Build: `dist/Chalk.app` & `dist/Chalk-macOS.zip` neu kompiliert.
+  [OK] SHA-256 Prüfsummen aktualisiert in `dist/SHA256SUMS.txt`.
+  [OK] 1:1 Spiegelung nach `/Users/user/Desktop/chalk/`.
+  [OK] Desktop Review-Export aktualisiert: `/Users/user/Desktop/CHALK_FULL_CODEBASE.txt`.
 ================================================================================
 
 ================================================================================
@@ -1194,24 +1194,58 @@ C. QUALITÄTSSICHERUNG & SYSTEM-VERIFIKATION
 --------------------------------------------------------------------------------
 
 A. PRÄZISE AUSRICHTUNG ALLER SCROLL-ZIELE AN DEN ABSCHNITTSBALKEN
-  [✓] Ursachenanalyse:
+  [OK] Ursachenanalyse:
       - Die Hauptnavigationsleiste (<nav>) ist mit sticky top-0 am oberen Fensterrand fixiert (gerenderte Höhe: 67px).
       - Wenn der Nutzer auf Navigationslinks (#how-it-works, #use-cases, #privacy, #download) oder den Hero-Download-Button klickte, scrollte der Browser standardmäßig bis Y=0 des Zielelements.
       - Dadurch wurde der obere Trennbalken (border-t) jeder Sektion unter die 67px hohe Sticky-Navigationsleiste geschoben ('ging über den Balken nach unten hinaus'), wodurch der Trennbalken verdeckt und der obere Bereich gestaucht wurde.
-  [✓] Behebung & Technische Umsetzung (web/index.html):
+  [OK] Behebung & Technische Umsetzung (web/index.html):
       - Definition der CSS-Variable --nav-height: 67px; in :root.
       - Globale Scroll-Margin-Regel im <style>-Block:
         section[id] {
           scroll-margin-top: var(--nav-height, 67px);
         }
       - Dynamische JavaScript-Synchronisation syncNavHeight(), die nav.offsetHeight auf Fenster-Resize und Responsive-Breakpoints überwacht und --nav-height live synchronisiert.
-  [✓] Verifikation & Visuelle Qualitätskontrolle:
+  [OK] Verifikation & Visuelle Qualitätskontrolle:
       - Headless-Chrome Messung: Alle 4 Hauptsektionen (#how-it-works, #use-cases, #privacy, #download) stoppen auf den Subpixel genau (Abweichung < 0.39px) an der Unterkante der Navigationsleiste.
       - Screenshot-Audits bestätigen: Der Trennbalken (border-t) sitzt pixelgenau bündig unter der Navigationsleiste. Voller vertikaler Rhythmus (py-24) bleibt erhalten.
       - Deployment-Test ./scripts/deploy_web.sh test erfolgreich bestanden.
-  [✓] Feinjustierung #privacy (1px Doppelstrich-Eliminierung):
+  [OK] Feinjustierung #privacy (1px Doppelstrich-Eliminierung):
       - Durch Subpixel-Rundung bei Retina-Displays (scale: 2x) lag der obere Rand von #privacy minimal unterhalb des Nav-Randes, sodass der Trennstrich doppelt erschien.
       - Durch Kalibrierung via '#privacy { scroll-margin-top: calc(var(--nav-height, 67px) - 1px); }' scrollt der Browser exakt 1px weiter, sodass der Sektionstrennstrich vollständig und nahtlos unter dem unteren Rand der Navigationsleiste verschwindet.
       - Ergebnis: Gestochen scharfe, einzelne Begrenzungslinie ohne Doppellinien-Artefakt.
 ================================================================================
 
+
+================================================================================
+22. PHASE 27 DURCHGEFÜHRTE MASSNAHMEN (CLAUDES FORENSISCHES AUDIT & RUNTIME HARDENING)
+--------------------------------------------------------------------------------
+Nach dem unabhängigen Review des Monolithen wurden sämtliche Befunde von Claude
+vollständig und forensisch behoben:
+
+A. LAUFZEIT-STABILITÄT (P0)
+  [OK] src/main.py Importabsturz behoben: from typing import Optional, List, Tuple, Dict, Any.
+       Neuer Smoke-Test tests/test_smoke_main.py importiert src.main isoliert und verifiziert fehlerfreien Import.
+  [OK] SessionNotesManager robust gemacht: Standardpfad ~/Documents/Chalk statt relativem CWD.
+       Zeitstempel + Session-ID im Dateinamen verhindern Überschreibungskollisionen.
+  [OK] O(1) Audio-Ringpuffer: _RollingRewindBufferProxy mit vorallokiertem 11.5 MB Ringpuffer (90s x 16kHz float32)
+       ersetzt unbeschränkte Listen-Akkumulation in RAM. Soak-Test (7h Vorlesung) verifiziert +0.00 MB Delta.
+  [OK] Audio-Kompression & Quota: AAC 32 kbps Kompression (afconvert/ffmpeg) reduziert 45min Audio auf ~10.8 MB.
+       Automatische Google Files API Übergabe bei >18 MB mit garantierter Löschung im finally:-Block.
+  [OK] Journal Defensiv-Modus: read_segment_audio liefert bei defekten Dateien Stille statt Absturz.
+       Automatische Manifest-Rekonstruktion aus WAV-Dateien bei korrupter JSON-Datei.
+
+B. SICHERHEIT & COMPLIANCE (P1)
+  [OK] Vollständige Entfernung von pynput aus Quellcode und requirements.txt.
+       Native macOS Carbon RegisterEventHotKey API via ctypes (FourCharCode 0x6B657962 'keyb')
+       benötigt weder Input-Monitoring noch Accessibility Berechtigungen.
+  [OK] Sandboxing in src/api/tools.py: realpath-Prüfung gegen erlaubte Wurzeln, Blockierung von System- und Key-Dateien.
+  [OK] HUD & Benachrichtigungen: html.escape() gegen Injection, Anchor-Klicks beschränkt auf sichere Schemas.
+  [OK] Nomenklatur-Korrektur: Begriff 'Zero-Knowledge' durch 'Local-First BYOK Direct API' ersetzt.
+
+C. MATHEMATISCHE SYNTHESE & PACKAGING (P2 / P3)
+  [OK] KaTeX-Validator repariert: 16 mathematische Operatoren ergänzt, Delimiter-Balancing vor Bruch-Reparatur.
+  [OK] Modell-IDs & Quota: Offizielle gemini-2.5-flash / gemini-2.5-pro IDs, 5-Stufen Retry mit Quarantäne-Ordner.
+  [OK] macOS Notarisierung: Inside-Out Signierung aller Frameworks/dylibs mit Timestamp vor App-Signierung.
+  [OK] Testsuite: 64/64 Tests grün in 10.0s.
+
+================================================================================

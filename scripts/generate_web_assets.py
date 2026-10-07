@@ -87,7 +87,7 @@ def create_obsidian_preview():
 
     # Bottom status bar
     draw.line([(20, h - 55), (w - 20, h - 55)], fill=(255, 255, 255, 18), width=1)
-    draw.text((45, h - 42), "✓ Verified KaTeX Math Syntax  •  Local Vault Linked  •  100% In-Place BYOK", fill=(100, 116, 139, 255), font=f_small)
+    draw.text((45, h - 42), "Verified KaTeX Math Syntax  •  Local Vault Linked  •  100% In-Place BYOK", fill=(100, 116, 139, 255), font=f_small)
 
     out_path = os.path.join(ASSETS_IMG_DIR, "obsidian_preview.webp")
     img.save(out_path, "WEBP", quality=90)

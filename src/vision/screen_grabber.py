@@ -1,35 +1,42 @@
 """
-src/vision/screen_grabber.py - Event-Gated Screen Capture & Visual Pipeline.
-Listens for presentation navigation events (Right Arrow, Page Down, Space, Mouse Scroll)
-via pynput and falls back to a 5-second polling timer using mss.
-Integrates Accessibility Tree Bypass (Zero-Token OCR) and pHash deduplication.
+src/vision/screen_grabber.py - Privacy-Preserving Screen Capture & Visual Pipeline.
+Uses zero global keyloggers (zero pynput, zero Input Monitoring permissions).
+Samples primary monitor periodically (default: 4s) or via explicit manual triggers,
+evaluating perceptual dHash to detect genuine slide transitions.
+Integrates Accessibility Tree Text Extraction and sensitive-app exclusions.
 """
 
 import time
 import threading
 import logging
-from typing import Optional, List, Callable
+from typing import Optional, List, Callable, Tuple
 from PIL import Image
 import mss
-from pynput import keyboard, mouse
 
 from src.vision.accessibility import AccessibilityTextExtractor
 from src.vision.slide_filter import PerceptualSlideFilter, SlideKeyframe
 
 logger = logging.getLogger("chalk.vision.grabber")
 
+# Sensitive applications that should never have their screens scraped
+SENSITIVE_APP_KEYWORDS = (
+    "1password", "bitwarden", "keychain", "keepass", "vault",
+    "banking", "finanzonline", "signal", "whatsapp", "telegram"
+)
+
 
 class EventGatedScreenGrabber:
     """
-    Orchestrates screen capture triggered by keyboard/mouse navigation events
-    and 5-second fallback polling.
+    Orchestrates screen capture triggered by periodic sampling (default: 4s)
+    and perceptual hash slide deduplication.
+    Zero Input Monitoring permissions required.
     """
 
     def __init__(
         self,
         slide_filter: Optional[PerceptualSlideFilter] = None,
         accessibility_extractor: Optional[AccessibilityTextExtractor] = None,
-        fallback_interval_sec: float = 5.0,
+        fallback_interval_sec: float = 4.0,
         on_slide_advanced: Optional[Callable[[SlideKeyframe], None]] = None,
     ):
         self.slide_filter = slide_filter or PerceptualSlideFilter()
@@ -46,18 +53,20 @@ class EventGatedScreenGrabber:
         # Accumulated keyframes for current chunk
         self._active_chunk_keyframes: List[SlideKeyframe] = []
 
-        # Worker threads & input listeners
+        # Worker thread & manual trigger event
         self._worker_thread: Optional[threading.Thread] = None
-        self._keyboard_listener: Optional[keyboard.Listener] = None
-        self._mouse_listener: Optional[mouse.Listener] = None
         self._capture_trigger_event = threading.Event()
 
     @property
     def is_running(self) -> bool:
         return self._is_running
 
+    def trigger_manual_capture(self):
+        """Manually triggers an immediate screen sampling pass."""
+        self._capture_trigger_event.set()
+
     def start(self, session_start_time: Optional[float] = None):
-        """Starts screen sampling and event listeners."""
+        """Starts screen sampling worker loop."""
         with self._lock:
             if self._is_running:
                 return
@@ -67,22 +76,6 @@ class EventGatedScreenGrabber:
             self._active_chunk_keyframes.clear()
             self.slide_filter.reset()
 
-        # Start pynput keyboard listener
-        try:
-            self._keyboard_listener = keyboard.Listener(on_press=self._on_key_press)
-            self._keyboard_listener.daemon = True
-            self._keyboard_listener.start()
-        except Exception as e:
-            logger.warning("Could not initialize keyboard listener: %s", e)
-
-        # Start pynput mouse scroll listener
-        try:
-            self._mouse_listener = mouse.Listener(on_scroll=self._on_mouse_scroll)
-            self._mouse_listener.daemon = True
-            self._mouse_listener.start()
-        except Exception as e:
-            logger.warning("Could not initialize mouse scroll listener: %s", e)
-
         # Start background capture loop
         self._worker_thread = threading.Thread(
             target=self._capture_loop,
@@ -90,7 +83,7 @@ class EventGatedScreenGrabber:
             name="ChalkScreenGrabberWorker",
         )
         self._worker_thread.start()
-        logger.info("Event-gated screen grabber started.")
+        logger.info("Screen grabber started (perceptual diff mode, 0 input monitoring).")
 
     def pause(self):
         """Pauses visual sampling."""
@@ -104,67 +97,31 @@ class EventGatedScreenGrabber:
             self._capture_trigger_event.set()
 
     def stop(self):
-        """Stops visual sampling and cleans up listeners."""
+        """Stops visual sampling and terminates worker thread."""
         with self._lock:
             self._is_running = False
             self._is_paused = False
             self._capture_trigger_event.set()
 
-        if self._keyboard_listener:
-            try:
-                self._keyboard_listener.stop()
-            except Exception:
-                pass
-            self._keyboard_listener = None
-
-        if self._mouse_listener:
-            try:
-                self._mouse_listener.stop()
-            except Exception:
-                pass
-            self._mouse_listener = None
+        if self._worker_thread and self._worker_thread.is_alive():
+            self._worker_thread.join(timeout=1.0)
+            self._worker_thread = None
 
         logger.info("Screen grabber stopped.")
 
-    def _on_key_press(self, key):
-        """Presentation navigation key detector."""
-        if not self._is_running or self._is_paused:
-            return
-
-        is_nav_key = False
-        try:
-            # Check arrow keys and page down/space
-            if key in (
-                keyboard.Key.right,
-                keyboard.Key.page_down,
-                keyboard.Key.space,
-                keyboard.Key.down,
-                keyboard.Key.enter,
-                keyboard.Key.left,
-                keyboard.Key.page_up,
-            ):
-                is_nav_key = True
-        except Exception:
-            pass
-
-        if is_nav_key:
-            logger.debug("Presentation nav key pressed -> triggering screen sample")
-            self._capture_trigger_event.set()
-
-    def _on_mouse_scroll(self, x, y, dx, dy):
-        """Trigger capture on significant mouse scroll."""
-        if not self._is_running or self._is_paused:
-            return
-        # Debounce: only trigger on vertical scroll
-        if abs(dy) >= 1:
-            self._capture_trigger_event.set()
+    def _is_sensitive_window_active(self, ocr_text: Optional[str]) -> bool:
+        """Checks if the active window or extracted text contains sensitive keywords."""
+        if not ocr_text:
+            return False
+        lower = ocr_text[:500].lower()
+        return any(kw in lower for kw in SENSITIVE_APP_KEYWORDS)
 
     def _capture_loop(self):
-        """Main worker loop: waits for event trigger or 5s fallback timeout."""
+        """Main worker loop: samples screen periodically or on manual trigger."""
         with mss.mss() as sct:
             while self._is_running:
-                # Wait up to fallback_interval_sec for an input event
-                triggered = self._capture_trigger_event.wait(timeout=self.fallback_interval_sec)
+                # Wait up to fallback_interval_sec for manual trigger or timeout
+                self._capture_trigger_event.wait(timeout=self.fallback_interval_sec)
                 self._capture_trigger_event.clear()
 
                 if not self._is_running or self._is_paused:
@@ -179,9 +136,14 @@ class EventGatedScreenGrabber:
                 except Exception as e:
                     logger.debug("Zero-token OCR error: %s", e)
 
+                # Privacy check: skip capture if sensitive app is frontmost
+                if self._is_sensitive_window_active(ocr_text):
+                    logger.info("Active window appears sensitive. Skipping screen capture for privacy.")
+                    continue
+
                 # 2. Screen Grab via mss
                 try:
-                    # Capture primary monitor
+                    # Capture primary presentation monitor
                     monitor = sct.monitors[1] if len(sct.monitors) > 1 else sct.monitors[0]
                     sct_img = sct.grab(monitor)
                     pil_img = Image.frombytes("RGB", sct_img.size, sct_img.bgra, "raw", "BGRX")
@@ -201,6 +163,11 @@ class EventGatedScreenGrabber:
                     if keyframe is not None:
                         with self._lock:
                             self._active_chunk_keyframes.append(keyframe)
+                        logger.info(
+                            "New unique slide keyframe detected at %s (OCR length: %d)",
+                            keyframe.timestamp_str,
+                            len(keyframe.ocr_text or ""),
+                        )
                         if self.on_slide_advanced:
                             self.on_slide_advanced(keyframe)
 
@@ -223,7 +190,7 @@ class EventGatedScreenGrabber:
             self._active_chunk_keyframes = keyframes + self._active_chunk_keyframes
 
     @staticmethod
-    def capture_screenshot(bbox: Optional[tuple] = None) -> Image.Image:
+    def capture_screenshot(bbox: Optional[Tuple[int, int, int, int]] = None) -> Image.Image:
         """
         Instant screen capture helper for Snip Tool or active screen queries.
         bbox format: (left, top, right, bottom)

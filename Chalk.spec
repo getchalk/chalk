@@ -3,11 +3,11 @@ import sys
 import os
 
 block_cipher = None
-project_root = r"/Users/user/.gemini/antigravity/scratch/chalk"
-assets_dir = r"/Users/user/.gemini/antigravity/scratch/chalk/assets"
-entry_point = r"/Users/user/.gemini/antigravity/scratch/chalk/src/main.py"
-icon_path = r"/Users/user/.gemini/antigravity/scratch/chalk/assets/app.icns"
-entitlements_path = r"/Users/user/.gemini/antigravity/scratch/chalk/assets/entitlements.plist"
+project_root = SPECPATH
+assets_dir = os.path.join(SPECPATH, "assets")
+entry_point = os.path.join(SPECPATH, "src", "main.py")
+icon_path = os.path.join(assets_dir, "app.icns")
+entitlements_path = os.path.join(assets_dir, "entitlements.plist")
 
 added_datas = [
     (assets_dir, 'assets'),
@@ -111,6 +111,7 @@ if sys.platform == 'darwin':
             'NSHighResolutionCapable': True,
             'NSScreenCaptureUsageDescription': 'Chalk requires screen recording permission to synchronize slide transitions and support the screen snip tool during lectures.',
             'NSMicrophoneUsageDescription': 'Chalk requires microphone access to record professor lectures, in-room discussions, and student questions.',
+            'NSAudioCaptureUsageDescription': 'Chalk requires audio capture permissions for microphone and system loopback recording.',
             'NSAppleEventsUsageDescription': 'Chalk requires accessibility permissions for zero-token presentation text extraction from slide decks.',
             'CFBundleURLTypes': [
                 {

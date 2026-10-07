@@ -396,6 +396,9 @@ def render_markdown_with_katex(md_text: str) -> str:
 
     text = re.sub(r"(?<!\\)\$(.+?)(?<!\\)\$", repl_inline, text)
 
+    # Escape HTML to prevent arbitrary tag/script injection
+    text = html.escape(text)
+
     # Convert audio timestamp links [HH:MM:SS](chalk-audio://HH:MM:SS)
     text = re.sub(
         r"\[([0-9:]+)\]\(chalk-audio://([0-9:]+)\)",
@@ -423,7 +426,7 @@ def render_markdown_with_katex(md_text: str) -> str:
         "example": ("#38BDF8", "BEISPIEL / EXAMPLE"),
     }
     for ctype, (color, label) in callout_colors.items():
-        pat = re.compile(rf"^>\s*\[!{ctype}\]\s*(.*?)$", flags=re.MULTILINE | re.IGNORECASE)
+        pat = re.compile(rf"^(?:&gt;|>)\s*\[!{ctype}\]\s*(.*?)$", flags=re.MULTILINE | re.IGNORECASE)
         text = pat.sub(
             rf'<div style="background:#1A1C23; border:1px solid rgba(255,255,255,0.12); '
             rf'border-left:4px solid {color}; border-radius:6px; padding:8px 12px; margin:8px 0;">'
@@ -431,7 +434,7 @@ def render_markdown_with_katex(md_text: str) -> str:
             text
         )
 
-    text = text.replace("\n> ", "\n<br>")
+    text = re.sub(r"\n(?:&gt;|>)\s?", "\n<br>", text)
     text = text.replace("∎", '<span style="float:right; color:#94A3B8; font-size:14px;">&#8718;</span><div style="clear:both;"></div>')
 
     # Convert newlines to breaks
@@ -1321,7 +1324,8 @@ class FloatingHUDWindow(QWidget):
         if not prompt or not self.pipeline:
             return
 
-        self.chat_history.append(f"<b>Du:</b> {prompt}")
+        escaped_prompt = html.escape(prompt)
+        self.chat_history.append(f"<b>Du:</b> {escaped_prompt}")
         self.prompt_input.clear()
         self.send_btn.setEnabled(False)
 
@@ -1393,8 +1397,10 @@ class FloatingHUDWindow(QWidget):
             self.open_audio_url(url_str)
             sec = parse_audio_timestamp(url_str)
             self.chat_history.append(f"<i>[Audio-Scrubbing @ {format_timestamp(sec)}]</i>")
-        else:
+        elif url_str.startswith(("http://", "https://")):
             QDesktopServices.openUrl(url)
+        else:
+            logger.warning("Blocked potentially unsafe URL schema in HUD anchor click: %s", url_str)
 
     def open_audio_url(self, url_or_str: str):
         """Called when a chalk-audio:// URL is triggered via custom scheme or anchor click."""
