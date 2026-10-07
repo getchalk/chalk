@@ -96,9 +96,20 @@ def send_desktop_notification(title: str, message: str):
 class ChunkSynthesisWorker(QThread):
     """Background worker for live Gemini Flash chunk synthesis."""
     success = pyqtSignal(str, object, str, str)  # markdown, chunk_state, start_time_str, end_time_str
-    failed = pyqtSignal(Exception, object, object)  # error, audio_data, keyframes
+    failed = pyqtSignal(Exception, object, object, list)  # error, audio_data, keyframes, whiteboard_photos
 
-    def __init__(self, pipeline: GeminiLecturePipeline, audio_data, keyframes, scratchpad: str, doc_text: Optional[str], prev_state: Optional[ChunkState], start_t: str, end_t: str):
+    def __init__(
+        self,
+        pipeline: GeminiLecturePipeline,
+        audio_data,
+        keyframes,
+        scratchpad: str,
+        doc_text: Optional[str],
+        prev_state: Optional[ChunkState],
+        start_t: str,
+        end_t: str,
+        whiteboard_photos: Optional[List[Any]] = None,
+    ):
         super().__init__()
         self.pipeline = pipeline
         self.audio_data = audio_data
@@ -108,6 +119,7 @@ class ChunkSynthesisWorker(QThread):
         self.prev_state = prev_state
         self.start_t = start_t
         self.end_t = end_t
+        self.whiteboard_photos = whiteboard_photos or []
 
     def run(self):
         try:
@@ -119,10 +131,12 @@ class ChunkSynthesisWorker(QThread):
                 previous_chunk_state=self.prev_state,
                 start_time_str=self.start_t,
                 end_time_str=self.end_t,
+                use_structured_output=True,
+                whiteboard_photos=self.whiteboard_photos,
             )
             self.success.emit(markdown, state, self.start_t, self.end_t)
         except Exception as e:
-            self.failed.emit(e, self.audio_data, self.keyframes)
+            self.failed.emit(e, self.audio_data, self.keyframes, self.whiteboard_photos)
 
 
 class MasterSynthesisWorker(QThread):
@@ -311,9 +325,12 @@ class ChalkCoordinator(QObject):
 
         audio = self.recorder.get_and_flush_active_chunk(strip_silence=True)
         keyframes = self.screen_grabber.get_and_flush_keyframes()
+        whiteboard_photos = []
+        if hasattr(self.hud, "pop_unprocessed_whiteboard_photos"):
+            whiteboard_photos = self.hud.pop_unprocessed_whiteboard_photos()
 
         # If completely empty, skip
-        if len(audio) == 0 and len(keyframes) == 0:
+        if len(audio) == 0 and len(keyframes) == 0 and len(whiteboard_photos) == 0:
             return
 
         now_sec = time.time() - self.session_start_time
@@ -323,7 +340,14 @@ class ChalkCoordinator(QObject):
         end_str = f"[{end_m:02d}:{end_s:02d}]"
         self.current_chunk_start_sec = now_sec
 
-        logger.info("Dispatching chunk %s to %s (%d audio samples, %d slides)", start_str, end_str, len(audio), len(keyframes))
+        logger.info(
+            "Dispatching chunk %s to %s (%d audio samples, %d slides, %d whiteboard photos)",
+            start_str,
+            end_str,
+            len(audio),
+            len(keyframes),
+            len(whiteboard_photos),
+        )
 
         # UI state -> Blue (Processing)
         self.tray.set_status("blue")
@@ -345,6 +369,7 @@ class ChalkCoordinator(QObject):
             prev_state=prev_state,
             start_t=start_str,
             end_t=end_str,
+            whiteboard_photos=whiteboard_photos,
         )
         self._active_chunk_worker.success.connect(self._on_chunk_success)
         self._active_chunk_worker.failed.connect(self._on_chunk_failed)
@@ -370,14 +395,18 @@ class ChalkCoordinator(QObject):
             self.tray.set_status("green")
             self.hud.set_daemon_status("recording")
 
-    def _on_chunk_failed(self, error: Exception, audio_data, keyframes):
+    def _on_chunk_failed(self, error: Exception, audio_data, keyframes, whiteboard_photos=None):
         self._active_chunk_worker = None
         err_msg = str(error)
         logger.error("Chunk synthesis encountered error: %s", err_msg)
 
-        # Reinsert audio and slides back into queue to avoid data loss
+        # Reinsert audio, slides, and whiteboard photos back into queue to avoid data loss
         self.recorder.reinsert_unprocessed_chunk(audio_data)
         self.screen_grabber.reinsert_unprocessed_keyframes(keyframes)
+        if whiteboard_photos and hasattr(self.hud, "whiteboard_photos"):
+            self.hud.whiteboard_photos.extend(whiteboard_photos)
+            if hasattr(self.hud, "_update_attachment_banner"):
+                self.hud._update_attachment_banner()
 
         # Check for HTTP 429
         if "429" in err_msg or "RESOURCE_EXHAUSTED" in err_msg or "quota" in err_msg.lower():

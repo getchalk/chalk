@@ -81,6 +81,10 @@ hidden_imports = [
     'src.engine.journal',
     'src.api.multi_provider',
     'src.api.synthesis_pipeline',
+    'src.companion',
+    'src.companion.qr_generator',
+    'src.companion.bridge',
+    'src.companion.server',
 ]
 
 a = Analysis(

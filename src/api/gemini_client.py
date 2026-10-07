@@ -141,11 +141,12 @@ class GeminiLecturePipeline:
         end_time_str: str = "[15:00]",
         use_structured_output: bool = False,
         tracked_files: Optional[List[Any]] = None,
+        whiteboard_photos: Optional[List[Any]] = None,
     ) -> Tuple[str, ChunkState]:
         """
         Synthesizes a live lecture chunk using Gemini Flash:
-        Ingests stereo audio (Left=Mic, Right=Loopback), slide keyframes, user notes,
-        and context chaining state.
+        Ingests stereo audio (Left=Mic, Right=Loopback), slide keyframes, whiteboard photos,
+        user notes, and context chaining state.
         """
         if use_structured_output:
             md, state, _ = self.process_live_chunk_structured(
@@ -157,6 +158,7 @@ class GeminiLecturePipeline:
                 start_time_str=start_time_str,
                 end_time_str=end_time_str,
                 tracked_files=tracked_files,
+                whiteboard_photos=whiteboard_photos,
             )
             return md, state
 
@@ -309,12 +311,14 @@ class GeminiLecturePipeline:
         start_time_str: str = "[00:00]",
         end_time_str: str = "[15:00]",
         tracked_files: Optional[List[Any]] = None,
+        whiteboard_photos: Optional[List[Any]] = None,
     ) -> Tuple[str, ChunkState, LectureSynthesisResponse]:
         """
         Synthesizes a live lecture chunk with typed JSON Structured Outputs (Pydantic schema).
         Enforces:
         - Structured JSON output conforming to LectureSynthesisResponse
         - Strict prompt instruction against hallucinated derivation steps
+        - Highest synthesis priority for physical chalkboard/whiteboard camera snapshots
         - Local KaTeX syntax validation and repairing on all LaTeX formulas
         - Deterministic Obsidian/GitHub callout rendering
         - Google Files API lifecycle deletion in finally block
@@ -326,9 +330,17 @@ class GeminiLecturePipeline:
             "You are Chalk, an ambient cognitive presence engine and rigorous mathematical synthesis partner.\n\n"
             "STRICT MATHEMATICAL INTEGRITY RULE:\n"
             f"{STRICT_MATH_SYNTHESIS_INSTRUCTION}\n\n"
+            "WHITEBOARD & CHALKBOARD CAMERA PRIORITY:\n"
+            "Photos labeled '[WHITEBOARD_CAM @ HH:MM:SS]' are captured directly from the physical chalkboard, "
+            "whiteboard, or room projection by the user's mobile camera.\n"
+            "1. Handwritten mathematical formulas, equations, geometric sketches, and step-by-step proofs "
+            "from physical chalkboard photos MUST BE GIVEN HIGHEST SYNTHESIS PRIORITY.\n"
+            "2. If the presenter sketches or writes a derivation on the physical board that was not in the prepared digital slides, "
+            "transcribe it meticulously into LaTeX display blocks ($$...$$) or Mermaid diagram blocks.\n"
+            "3. Set source='whiteboard' for blocks derived from these physical chalkboard captures.\n\n"
             "Synthesize this lecture segment into structured note blocks. "
             "For any theorem, definition, proof, remark, or example, populate the schema. "
-            "Defer notation strictly to the presentation slides to prevent variable drift. "
+            "Defer notation strictly to the presentation slides and whiteboard photos to prevent variable drift. "
             "Proofs must be step-by-step; unverified steps must be explicitly flagged as '[Lücke]'.\n\n"
             "MULTI-SPEAKER & ACOUSTIC DIARIZATION:\n"
             "Differentiate speakers based on audio channel tags ([MIC] for room audio vs. [LOOPBACK] for system audio), "
@@ -354,6 +366,32 @@ class GeminiLecturePipeline:
                 parts.append(label_text)
             except Exception as e:
                 logger.warning("Error encoding slide keyframe %d: %s", idx, e)
+
+        # Attach incoming physical chalkboard / whiteboard camera snapshots
+        if whiteboard_photos:
+            for wb_idx, wb_item in enumerate(whiteboard_photos[:8]):
+                try:
+                    wb_bytes = None
+                    ts_tag = "WHITEBOARD"
+                    if isinstance(wb_item, str) and os.path.exists(wb_item):
+                        with open(wb_item, "rb") as f:
+                            wb_bytes = f.read()
+                        ts_tag = time.strftime("%H:%M:%S", time.localtime(os.path.getmtime(wb_item)))
+                    elif hasattr(wb_item, "to_jpeg_bytes"):
+                        wb_bytes = wb_item.to_jpeg_bytes()
+                        ts_tag = getattr(wb_item, "timestamp_str", "WHITEBOARD")
+                    elif isinstance(wb_item, bytes):
+                        wb_bytes = wb_item
+
+                    if wb_bytes:
+                        wb_part = types.Part.from_bytes(data=wb_bytes, mime_type="image/jpeg")
+                        parts.append(wb_part)
+                        parts.append(
+                            f"[WHITEBOARD_CAM @ {ts_tag}]\n"
+                            f"Physical chalkboard/whiteboard photo capture #{wb_idx + 1}."
+                        )
+                except Exception as wb_err:
+                    logger.warning("Error encoding whiteboard capture #%d: %s", wb_idx, wb_err)
 
         if previous_chunk_state:
             parts.append(f"PREVIOUS SEGMENT CONTEXT:\n{previous_chunk_state.to_markdown_block()}\n\n")

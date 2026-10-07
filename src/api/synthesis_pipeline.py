@@ -77,12 +77,26 @@ class LectureNoteBlock(BaseModel):
     )
     source: str = Field(
         default="inferred",
-        description="Source of this block: slide | speech | inferred"
+        description="Source of this block: slide | speech | whiteboard | inferred"
     )
     speaker: Optional[Literal["Lecturer", "Audience Question", "Meeting Host", "Discussion Participant"]] = Field(
         default=None,
         description="Identified speaker: Lecturer | Audience Question | Meeting Host | Discussion Participant"
     )
+
+    @field_validator("source", mode="before")
+    @classmethod
+    def normalize_source(cls, v: Any) -> str:
+        if isinstance(v, str):
+            v_clean = v.strip().lower()
+            if any(term in v_clean for term in ("whiteboard", "tafel", "chalkboard", "board")):
+                return "whiteboard"
+            if "slide" in v_clean or "folie" in v_clean:
+                return "slide"
+            if "speech" in v_clean or "audio" in v_clean or "ton" in v_clean:
+                return "speech"
+            return v.strip()
+        return "inferred"
 
     @field_validator("speaker", mode="before")
     @classmethod
@@ -143,16 +157,6 @@ class LectureNoteBlock(BaseModel):
             }
             return synonyms.get(v_clean, v_clean)
         return str(v)
-
-    @field_validator("source", mode="before")
-    @classmethod
-    def normalize_source(cls, v: Any) -> str:
-        if isinstance(v, str):
-            v_clean = v.strip().lower()
-            if v_clean in ("slide", "speech", "inferred"):
-                return v_clean
-            return "inferred"
-        return "inferred"
 
 
 class LectureSynthesisResponse(BaseModel):
@@ -703,7 +707,8 @@ def render_blocks_to_markdown(blocks: List[Union[Dict[str, Any], LectureNoteBloc
         if speaker and speaker not in ("Lecturer", "Audience Question"):
             meta_items.append(f"Sprecher: {speaker}")
         if source and source != "inferred":
-            meta_items.append(f"Quelle: {source}")
+            src_label = "Tafelbild (Whiteboard)" if source == "whiteboard" else source
+            meta_items.append(f"Quelle: {src_label}")
         if segment_id:
             meta_items.append(f"Segment: {segment_id}")
         if meta_items:

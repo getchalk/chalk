@@ -15,7 +15,7 @@ import time
 import subprocess
 import logging
 import re
-from typing import Optional
+from typing import Optional, List, Dict, Any, Tuple
 from PIL import Image
 
 from PyQt6.QtCore import Qt, QThread, pyqtSignal, QTimer, QPoint, QUrl
@@ -23,6 +23,7 @@ from PyQt6.QtGui import QFont, QIcon, QColor, QPainter, QBrush, QPen, QPixmap, Q
 from PyQt6.QtWidgets import (
     QApplication,
     QWidget,
+    QDialog,
     QVBoxLayout,
     QHBoxLayout,
     QLabel,
@@ -41,6 +42,9 @@ from PyQt6.QtWidgets import (
 
 from src.ui.snip_overlay import SnipOverlayWidget
 from src.api.tools import read_local_file
+from src.companion.bridge import CompanionBridge
+from src.companion.server import CompanionDaemon
+from src.companion.qr_generator import QRCode
 
 logger = logging.getLogger("chalk.ui.hud")
 
@@ -476,6 +480,143 @@ class RewindWorker(QThread):
             self.finished.emit(f"Rewind transcription error: {str(e)}")
 
 
+class WhiteboardCamDialog(QDialog):
+    """
+    Modal dialog displaying the Whiteboard Camera QR code and pairing info.
+    Allows students/attendees to scan the QR code and snap physical chalkboards.
+    """
+
+    def __init__(self, parent=None, daemon: Optional[CompanionDaemon] = None):
+        super().__init__(parent)
+        self.daemon = daemon
+        self.setWindowTitle("Chalk — Tafel-Kamera via QR-Code")
+        self.setFixedSize(420, 540)
+        self.setStyleSheet("""
+            QDialog {
+                background-color: #121317;
+                color: #F8FAFC;
+                border: 1px solid rgba(255, 255, 255, 0.15);
+                border-radius: 16px;
+            }
+            QLabel {
+                color: #F8FAFC;
+            }
+            QPushButton {
+                background-color: #1A1C23;
+                border: 1px solid rgba(255, 255, 255, 0.15);
+                border-radius: 8px;
+                color: #F8FAFC;
+                padding: 8px 14px;
+                font-weight: 600;
+                font-size: 12px;
+            }
+            QPushButton:hover {
+                background-color: #22252F;
+                border-color: rgba(255, 255, 255, 0.3);
+            }
+            QPushButton#doneBtn {
+                background-color: #2A2E3B;
+                padding: 10px;
+                font-size: 13px;
+            }
+            QPushButton#doneBtn:hover {
+                background-color: #373C4D;
+            }
+        """)
+
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(24, 20, 24, 20)
+        layout.setSpacing(12)
+
+        # Header Title
+        title_lbl = QLabel("📱 Tafel-Kamera Kopplung")
+        title_lbl.setStyleSheet("font-size: 16px; font-weight: 700; color: #FFFFFF;")
+        title_lbl.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        layout.addWidget(title_lbl)
+
+        sub_lbl = QLabel("Scanne den Code mit deinem Smartphone. Fotos der physischen Tafel fließen lautlos in die Notizen ein.")
+        sub_lbl.setStyleSheet("font-size: 12px; color: #94A3B8; line-height: 1.4;")
+        sub_lbl.setWordWrap(True)
+        sub_lbl.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        layout.addWidget(sub_lbl)
+
+        # QR Code Display
+        qr_frame = QFrame()
+        qr_frame.setStyleSheet("background-color: #FFFFFF; border-radius: 14px; padding: 12px;")
+        qr_inner_layout = QVBoxLayout(qr_frame)
+        qr_inner_layout.setContentsMargins(8, 8, 8, 8)
+        qr_inner_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        self.qr_label = QLabel()
+        self.qr_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        url = self.daemon.get_url() if self.daemon else "http://127.0.0.1:8765"
+        if self.daemon:
+            qr = self.daemon.get_qr_code()
+            if qr:
+                pix = qr.to_qpixmap(border=2, scale=5)
+                self.qr_label.setPixmap(pix)
+        qr_inner_layout.addWidget(self.qr_label)
+        layout.addWidget(qr_frame, alignment=Qt.AlignmentFlag.AlignCenter)
+
+        # URL Input & Copy Button
+        url_layout = QHBoxLayout()
+        url_layout.setSpacing(6)
+        self.url_edit = QLineEdit(url)
+        self.url_edit.setReadOnly(True)
+        self.url_edit.setStyleSheet("""
+            QLineEdit {
+                background-color: #1A1C23;
+                border: 1px solid rgba(255, 255, 255, 0.12);
+                border-radius: 8px;
+                color: #94A3B8;
+                padding: 6px 10px;
+                font-family: ui-monospace, Menlo, monospace;
+                font-size: 11px;
+            }
+        """)
+        url_layout.addWidget(self.url_edit)
+
+        self.copy_btn = QPushButton("Kopieren")
+        self.copy_btn.clicked.connect(self._copy_link)
+        url_layout.addWidget(self.copy_btn)
+        layout.addLayout(url_layout)
+
+        # Live Status
+        self.live_status = QLabel("Warte auf Fotos...")
+        self.live_status.setStyleSheet("font-size: 11px; color: #10B981; font-weight: 600;")
+        self.live_status.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        layout.addWidget(self.live_status)
+
+        # Info bullet
+        info_lbl = QLabel("100% lokales Netzwerk &bull; Kein App-Download &bull; Höchste Synthese-Priorität")
+        info_lbl.setStyleSheet("font-size: 10px; color: #64748B;")
+        info_lbl.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        layout.addWidget(info_lbl)
+
+        # Done button
+        done_btn = QPushButton("Schließen")
+        done_btn.setObjectName("doneBtn")
+        done_btn.clicked.connect(self.accept)
+        layout.addWidget(done_btn)
+
+        if self.daemon and self.daemon.bridge:
+            self.daemon.bridge.photo_received.connect(self._on_photo_received)
+            self.daemon.bridge.client_connected.connect(self._on_client_connected)
+
+    def _copy_link(self):
+        QApplication.clipboard().setText(self.url_edit.text())
+        self.copy_btn.setText("Kopiert ✓")
+        QTimer.singleShot(2000, lambda: self.copy_btn.setText("Kopieren"))
+
+    def _on_photo_received(self, path: str, ts: str):
+        count = self.daemon.bridge.upload_count if self.daemon and self.daemon.bridge else 1
+        self.live_status.setText(f"✓ {count} Tafel-Foto{'s' if count > 1 else ''} empfangen ({ts})")
+
+    def _on_client_connected(self, ip: str):
+        self.live_status.setText(f"Smartphone verbunden ({ip})")
+
+
 class FloatingHUDWindow(QWidget):
     """
     Floating Agent HUD window triggered via Alt + Space.
@@ -497,6 +638,16 @@ class FloatingHUDWindow(QWidget):
         self.attached_snip_image: Optional[Image.Image] = None
         self.imported_pdf_slides = []  # List of dicts: {"page": int, "text": str}
         self.imported_pdf_name: Optional[str] = None
+
+        # Whiteboard Camera & Mobile Companion
+        self.whiteboard_photos: List[str] = []
+        self.companion_bridge = CompanionBridge(self)
+        self.companion_bridge.photo_received.connect(self._on_whiteboard_photo_received)
+        sess_id = getattr(self.notes_manager, "session_id", None) or f"sess_{int(time.time())}"
+        self.companion_daemon = CompanionDaemon(
+            bridge=self.companion_bridge,
+            session_id=sess_id,
+        )
 
         # State
         self.session_start_time = time.time()
@@ -592,6 +743,11 @@ class FloatingHUDWindow(QWidget):
         self.snip_btn.setToolTip(f"Bildschirmbereich zuschneiden ({snip_shortcut} / Alt+S)")
         self.snip_btn.clicked.connect(self.trigger_screen_snip)
         actions_bar.addWidget(self.snip_btn)
+
+        self.cam_btn = QPushButton("📱 Tafel-Kamera")
+        self.cam_btn.setToolTip("Smartphone via QR-Code verbinden, um Tafel-Fotos direkt einzubinden")
+        self.cam_btn.clicked.connect(self._open_whiteboard_cam_dialog)
+        actions_bar.addWidget(self.cam_btn)
 
         self.rewind_btn = QPushButton("⏮️ Rewind 90s")
         self.rewind_btn.setToolTip("Letzte 90 Sekunden Audio abrufen, abspielen und transkribieren")
@@ -955,6 +1111,9 @@ class FloatingHUDWindow(QWidget):
             tags.append(f"📄 {self.attached_document_name}")
         if self.attached_snip_image:
             tags.append(f"✂️ Screen Snip ({self.attached_snip_image.width}x{self.attached_snip_image.height})")
+        if self.whiteboard_photos:
+            n_wb = len(self.whiteboard_photos)
+            tags.append(f"📱 Tafel-Fotos: {n_wb} erfasst")
 
         if tags:
             self.attachment_label.setText(" | ".join(tags))
@@ -967,6 +1126,51 @@ class FloatingHUDWindow(QWidget):
             self.attachment_label.show()
         else:
             self.attachment_label.hide()
+
+    def _open_whiteboard_cam_dialog(self):
+        """Starts the companion daemon if not running, and opens the QR modal."""
+        if not self.companion_daemon.is_running:
+            try:
+                self.companion_daemon.start()
+            except Exception as e:
+                logger.error("Could not start CompanionDaemon: %s", e)
+        dialog = WhiteboardCamDialog(self, daemon=self.companion_daemon)
+        dialog.exec()
+
+    def _on_whiteboard_photo_received(self, image_path: str, timestamp_str: str):
+        """Triggered on GUI main thread when phone uploads a chalkboard photo."""
+        self.whiteboard_photos.append(image_path)
+        logger.info("Whiteboard photo registered in HUD: %s", image_path)
+
+        # 1. Subtle transient confirmation badge on status pill
+        self.status_pill.setText(f"📷 TAFEL-FOTO ERFASST ({timestamp_str})")
+        self.status_pill.setStyleSheet(
+            "background-color: rgba(16, 185, 129, 0.2); border: 1px solid #10B981;"
+            "color: #10B981; font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 12px;"
+        )
+        QTimer.singleShot(3500, self._restore_pill_status)
+
+        # 2. Update attachment label
+        self._update_attachment_banner()
+
+        # 3. Add to chat history
+        n_photos = len(self.whiteboard_photos)
+        self.chat_history.append(
+            f"<span style='color:#10B981;'><b>📷 Tafel-Kamera:</b> Foto #{n_photos} erfasst ({timestamp_str}). Fließt mit höchster Priorität in die nächsten Notizen ein.</span><br>"
+        )
+
+    def _restore_pill_status(self):
+        self.status_pill.setStyleSheet(
+            "background-color: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.18);"
+            "color: #FFFFFF; font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 12px;"
+        )
+
+    def pop_unprocessed_whiteboard_photos(self) -> List[str]:
+        """Pops and returns all pending whiteboard photos for live chunk synthesis."""
+        photos = list(self.whiteboard_photos)
+        self.whiteboard_photos.clear()
+        self._update_attachment_banner()
+        return photos
 
     def _trigger_audio_rewind(self):
         if not self.recorder or not self.pipeline:
@@ -1309,3 +1513,8 @@ class FloatingHUDWindow(QWidget):
         if event.buttons() == Qt.MouseButton.LeftButton:
             self.move(event.globalPosition().toPoint() - self.drag_position)
             event.accept()
+
+    def closeEvent(self, event):
+        if hasattr(self, "companion_daemon") and self.companion_daemon:
+            self.companion_daemon.stop()
+        super().closeEvent(event)
