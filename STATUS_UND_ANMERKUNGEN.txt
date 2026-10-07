@@ -1,6 +1,6 @@
 ================================================================================
 CHALK — AMBIENT COGNITIVE PRESENCE ENGINE & WEB PORTAL
-STATUS-REPORT, ARCHITEKTUR-ÜBERSICHT UND ANMERKUNGEN (PHASEN 1–22)
+STATUS-REPORT, ARCHITEKTUR-ÜBERSICHT UND ANMERKUNGEN (PHASEN 1–23C)
 ================================================================================
 Stand: 2026-10-07
 Projektpfad (Desktop): /Users/user/Desktop/chalk/
@@ -31,8 +31,11 @@ Phase 19: Multi-Speaker Diarization, Notarization Pipeline & 7h Soak Test [ABGES
 Phase 20: Full Multi-OS Release (macOS arm64 + Windows x64), Purist Web & 1:1 Sync [ABGESCHLOSSEN]
 Phase 21: Autonomous Deep-Audit, Circuit Breakers, Multi-Provider & Git Hygiene [ABGESCHLOSSEN]
 Phase 22: Ultra-leichte Whiteboard-Kamera via QR-Code (Zero-Friction & Zero-Cloud) [ABGESCHLOSSEN]
+Phase 23 & 24: Production Hardening, Artifact Fixes & Advanced Academic Suite [ABGESCHLOSSEN]
+Phase 23C: Hero Mockup Whiteboard QR Integration & Visual Dual-Input [ABGESCHLOSSEN]
 
-- Unit- & Integrationstest-Suite: 45/45 TESTS BESTANDEN (9.8s).
+- Unit- & Integrationstest-Suite: 50/50 TESTS BESTANDEN (8.8s).
+- Hero-Mockup Dual-Input & Whiteboard QR: Responsives Split-Grid (Intelligent Recall + Phone Link mit 64x64 SVG QR-Code), reaktiver Titelleisten-Indikator, 5-Sprachen i18n.
 - Whiteboard-Kamera & Mobile Companion: 100% Inline Single-Page Web App, Pure-Python QR-Code Generator (0 Abhängigkeiten), Direct LAN/Hotspot (<850ms), höchste Synthese-Priorität für Tafelbilder.
 - Multi-OS Release Parität: Standalone-Pipelines für macOS arm64 (.app Bundle & .zip) und Windows x64 (.exe Installer via scripts/build_windows.bat & .github/workflows/release.yml).
 - 1:1 Filesystem-Spiegelung: Vollständiger Sync zwischen /Users/user/.gemini/antigravity/scratch/chalk/ und /Users/user/Desktop/chalk/.
@@ -991,4 +994,36 @@ D. QUALITÄTSSICHERUNG & ARTEFAKT-ERSTELLUNG
   [✓] SHA-256 Prüfsummen neu generiert in `dist/SHA256SUMS.txt`.
   [✓] 1:1 Spiegelung nach `/Users/user/Desktop/chalk/`.
 ================================================================================
+
+21. PHASE 23C DURCHGEFÜHRTE MASSNAHMEN (HERO MOCKUP WHITEBOARD QR INTEGRATION & VISUAL DUAL-INPUT)
+--------------------------------------------------------------------------------
+
+A. DUAL-INPUT SPLIT-GRID IM HERO-MOCKUP (web/index.html)
+  [✓] Responsive 2-Spalten-Teilung (grid grid-cols-1 sm:grid-cols-12 gap-3) im unteren Bereich der linken Spalte:
+      - Spalte 1 (sm:col-span-7): "INTELLIGENT RECALL (Alt+Space)" mit Eingabeprompt "> How does beta behave during market volatility?" und Footer "Direct AI connection • 100% Private".
+      - Spalte 2 (sm:col-span-5): "PHONE LINK" Whiteboard Cam Bridge mit animiertem grünen Status-Dot (#10B981 animate-pulse).
+      - Reines, gestochen scharfes Inline-Vektor-SVG des QR-Codes (64x64 px, viewBox="0 0 27 27", Dark Titanium Styling, shape-rendering="crispEdges", 173 Segmente, 0 externe Ressourcen).
+      - Typografische Beschriftung unter dem QR-Code: "Scan to snap board" und "Direct LAN • Zero Cloud".
+
+B. TITELLEISTEN-STATUSINDIKATOR (#hero-card)
+  [✓] Reaktiver Verbindungsindikator in der macOS-Window-Chrome neben dem Aufnahme-Timer:
+      - Status-Badge mit pulsierendem grünen Indikator-Punkt (animate-pulse) und Lokalisierungsattribut `data-i18n="preview_phone_status"`.
+      - Textanzeige: "Phone Link: Ready" (bzw. "Handy-Kopplung: Bereit").
+
+C. VOLLSTÄNDIGE MULTI-LINGUALE LOKALISIERUNG (5 SPRACHEN)
+  [✓] Konsistente Erweiterung des clientseitigen Übersetzungs-Wörterbuchs (translations) in web/index.html für alle 5 Sprachen:
+      - EN: preview_phone_status ("Phone Link: Ready"), preview_qr_label ("PHONE LINK"), preview_qr_action ("Scan to snap board"), preview_qr_spec ("Direct LAN • Zero Cloud")
+      - DE: preview_phone_status ("Handy-Kopplung: Bereit"), preview_qr_label ("HANDY-KOPPLUNG"), preview_qr_action ("Tafel fotografieren"), preview_qr_spec ("Direktes LAN • 0% Cloud")
+      - FR: preview_phone_status ("Liaison mobile: Prête"), preview_qr_label ("LIEN MOBILE"), preview_qr_action ("Scanner pour tableau"), preview_qr_spec ("LAN direct • Sans cloud")
+      - ES: preview_phone_status ("Enlace móvil: Listo"), preview_qr_label ("ENLACE MÓVIL"), preview_qr_action ("Escanear pizarra"), preview_qr_spec ("LAN directa • Cero nube")
+      - ZH: preview_phone_status ("手机链路: 就绪"), preview_qr_label ("手机互联"), preview_qr_action ("扫码拍板书"), preview_qr_spec ("局域网直连 • 零云端")
+
+D. DESIGN-, BRANDING- & VERIFIKATIONS-AUDIT
+  [✓] 100% Konformität mit dem Dark Titanium Farbschema (var(--surface-terminal), var(--chalk-border), var(--chalk-white), var(--chalk-slate)).
+  [✓] Strikte Zero-Emoji-Politik eingehalten (0 Emojis, 100% Vektor-SVGs und saubere Typografie).
+  [✓] Web Deployment Suite: `./scripts/deploy_web.sh test` erfolgreich mit 0 verbotenen Farbtokens bestanden.
+  [✓] Gesamte Test-Suite: 50/50 Tests grün (100% Bestanden).
+  [✓] 1:1 Spiegelung nach `/Users/user/Desktop/chalk/`.
+================================================================================
+
 

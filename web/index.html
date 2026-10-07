@@ -305,8 +305,8 @@
           <!-- Apple Live Recording Indicator & Real-Time Timer -->
           <div class="flex items-center gap-2">
             <div class="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-mono border" style="background-color: var(--surface-terminal); border-color: var(--chalk-border); color: var(--chalk-muted);">
-              <span class="w-1.5 h-1.5 rounded-full" style="background-color: #10B981;"></span>
-              <span data-i18n="preview_phone_cam_badge">Phone Cam: Ready</span>
+              <span class="w-1.5 h-1.5 rounded-full animate-pulse" style="background-color: #10B981;"></span>
+              <span data-i18n="preview_phone_status">Phone Link: Ready</span>
             </div>
             <div class="flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium" style="background-color: var(--pill-bg); border: 1px solid var(--pill-border); color: var(--chalk-white);">
               <span class="w-2 h-2 rounded-full bg-red-500 animate-pulse shadow-[0_0_8px_rgba(239,68,68,0.7)]"></span>
@@ -357,16 +357,39 @@
               </div>
             </div>
 
-            <!-- Intelligent Recall Query Card -->
-            <div class="rounded-xl border p-4 shadow-sm" style="background-color: var(--hud-card-bg); border-color: var(--chalk-border);">
-              <div class="text-xs font-medium mb-2" style="color: var(--chalk-slate);" data-i18n="preview_recall_label">INTELLIGENT RECALL (Alt+Space)</div>
-              <div class="flex items-center gap-2 rounded-lg border px-3 py-2.5 text-xs" style="background-color: var(--surface-terminal); border-color: var(--chalk-border);">
-                <span class="font-mono" style="color: var(--chalk-muted);">></span>
-                <span style="color: var(--terminal-text);" data-i18n="preview_recall_query">How does beta behave during market volatility?</span>
+            <!-- Dual-Input Split-Grid: Intelligent Recall & Whiteboard Phone Link -->
+            <div class="grid grid-cols-1 sm:grid-cols-12 gap-3">
+              <!-- Sub-Col 1 (sm:col-span-7): Intelligent Recall -->
+              <div class="sm:col-span-7 rounded-xl border p-3.5 shadow-sm flex flex-col justify-between" style="background-color: var(--hud-card-bg); border-color: var(--chalk-border);">
+                <div>
+                  <div class="text-[11px] font-medium mb-2 truncate" style="color: var(--chalk-slate);" data-i18n="preview_recall_label">INTELLIGENT RECALL (Alt+Space)</div>
+                  <div class="flex items-center gap-1.5 rounded-lg border px-2.5 py-2 text-xs" style="background-color: var(--surface-terminal); border-color: var(--chalk-border);">
+                    <span class="font-mono text-[11px]" style="color: var(--chalk-muted);">></span>
+                    <span class="text-[11px] leading-snug line-clamp-2" style="color: var(--terminal-text);" data-i18n="preview_recall_query">How does beta behave during market volatility?</span>
+                  </div>
+                </div>
+                <div class="mt-2.5 text-[10px] flex items-center justify-between" style="color: var(--chalk-muted);">
+                  <span data-i18n="preview_recall_direct">Direct AI connection</span>
+                  <span class="opacity-40">•</span>
+                  <span data-i18n="preview_recall_private">100% Private</span>
+                </div>
               </div>
-              <div class="mt-2 text-[11px] flex justify-between" style="color: var(--chalk-muted);">
-                <span data-i18n="preview_recall_direct">Direct AI connection</span>
-                <span data-i18n="preview_recall_private">100% Private</span>
+
+              <!-- Sub-Col 2 (sm:col-span-5): Whiteboard Cam / Phone Link -->
+              <div class="sm:col-span-5 rounded-xl border p-3 shadow-sm flex flex-col items-center justify-between text-center" style="background-color: var(--hud-card-bg); border-color: var(--chalk-border);">
+                <div class="w-full flex items-center justify-between text-[11px] font-medium mb-1.5" style="color: var(--chalk-slate);">
+                  <span class="truncate tracking-wide" data-i18n="preview_qr_label">PHONE LINK</span>
+                  <span class="w-1.5 h-1.5 rounded-full animate-pulse flex-shrink-0" style="background-color: #10B981;" title="LAN Ready"></span>
+                </div>
+                <div class="p-1 rounded-lg border shadow-inner flex items-center justify-center my-0.5" style="background-color: var(--surface-terminal); border-color: var(--chalk-border);">
+                  <svg class="w-16 h-16" viewBox="0 0 27 27" fill="currentColor" shape-rendering="crispEdges" style="color: var(--chalk-white);" role="img" aria-label="Phone Link QR Code">
+                    <path d="M1 1h7v1h-7zM9 1h1v1h-1zM11 1h4v1h-4zM17 1h1v1h-1zM19 1h7v1h-7zM1 2h1v1h-1zM7 2h1v1h-1zM15 2h3v1h-3zM19 2h1v1h-1zM25 2h1v1h-1zM1 3h1v1h-1zM3 3h3v1h-3zM7 3h1v1h-1zM9 3h1v1h-1zM11 3h3v1h-3zM16 3h1v1h-1zM19 3h1v1h-1zM21 3h3v1h-3zM25 3h1v1h-1zM1 4h1v1h-1zM3 4h3v1h-3zM7 4h1v1h-1zM9 4h2v1h-2zM12 4h1v1h-1zM14 4h1v1h-1zM16 4h1v1h-1zM19 4h1v1h-1zM21 4h3v1h-3zM25 4h1v1h-1zM1 5h1v1h-1zM3 5h3v1h-3zM7 5h1v1h-1zM9 5h1v1h-1zM11 5h1v1h-1zM13 5h3v1h-3zM17 5h1v1h-1zM19 5h1v1h-1zM21 5h3v1h-3zM25 5h1v1h-1zM1 6h1v1h-1zM7 6h1v1h-1zM9 6h1v1h-1zM13 6h2v1h-2zM16 6h2v1h-2zM19 6h1v1h-1zM25 6h1v1h-1zM1 7h7v1h-7zM9 7h1v1h-1zM11 7h1v1h-1zM13 7h1v1h-1zM15 7h1v1h-1zM17 7h1v1h-1zM19 7h7v1h-7zM11 8h1v1h-1zM3 9h6v1h-6zM10 9h3v1h-3zM14 9h1v1h-1zM16 9h1v1h-1zM20 9h4v1h-4zM25 9h1v1h-1zM4 10h1v1h-1zM10 10h2v1h-2zM13 10h3v1h-3zM17 10h1v1h-1zM20 10h1v1h-1zM24 10h1v1h-1zM2 11h2v1h-2zM5 11h3v1h-3zM9 11h1v1h-1zM11 11h2v1h-2zM16 11h2v1h-2zM19 11h1v1h-1zM22 11h1v1h-1zM24 11h2v1h-2zM1 12h1v1h-1zM3 12h2v1h-2zM9 12h1v1h-1zM11 12h1v1h-1zM13 12h1v1h-1zM17 12h3v1h-3zM21 12h1v1h-1zM25 12h1v1h-1zM1 13h1v1h-1zM3 13h1v1h-1zM5 13h1v1h-1zM7 13h8v1h-8zM18 13h2v1h-2zM21 13h1v1h-1zM23 13h3v1h-3zM1 14h1v1h-1zM4 14h3v1h-3zM9 14h1v1h-1zM11 14h1v1h-1zM15 14h1v1h-1zM17 14h1v1h-1zM20 14h1v1h-1zM22 14h1v1h-1zM24 14h1v1h-1zM1 15h1v1h-1zM4 15h4v1h-4zM10 15h1v1h-1zM12 15h5v1h-5zM18 15h1v1h-1zM20 15h3v1h-3zM24 15h2v1h-2zM1 16h1v1h-1zM3 16h4v1h-4zM8 16h1v1h-1zM11 16h2v1h-2zM15 16h3v1h-3zM19 16h1v1h-1zM22 16h1v1h-1zM25 16h1v1h-1zM1 17h1v1h-1zM3 17h2v1h-2zM6 17h2v1h-2zM10 17h1v1h-1zM12 17h1v1h-1zM14 17h1v1h-1zM17 17h5v1h-5zM23 17h1v1h-1zM9 18h3v1h-3zM13 18h1v1h-1zM15 18h3v1h-3zM21 18h3v1h-3zM1 19h7v1h-7zM9 19h1v1h-1zM14 19h2v1h-2zM17 19h1v1h-1zM19 19h1v1h-1zM21 19h5v1h-5zM1 20h1v1h-1zM7 20h1v1h-1zM9 20h3v1h-3zM13 20h1v1h-1zM17 20h1v1h-1zM21 20h2v1h-2zM24 20h1v1h-1zM1 21h1v1h-1zM3 21h3v1h-3zM7 21h1v1h-1zM9 21h1v1h-1zM13 21h2v1h-2zM16 21h10v1h-10zM1 22h1v1h-1zM3 22h3v1h-3zM7 22h1v1h-1zM9 22h3v1h-3zM15 22h5v1h-5zM21 22h1v1h-1zM23 22h3v1h-3zM1 23h1v1h-1zM3 23h3v1h-3zM7 23h1v1h-1zM9 23h1v1h-1zM12 23h2v1h-2zM15 23h1v1h-1zM17 23h1v1h-1zM20 23h1v1h-1zM23 23h1v1h-1zM25 23h1v1h-1zM1 24h1v1h-1zM7 24h1v1h-1zM12 24h1v1h-1zM15 24h3v1h-3zM20 24h3v1h-3zM25 24h1v1h-1zM1 25h7v1h-7zM10 25h1v1h-1zM12 25h2v1h-2zM16 25h1v1h-1zM18 25h1v1h-1zM20 25h6v1h-6z"/>
+                  </svg>
+                </div>
+                <div class="w-full mt-1.5 text-center">
+                  <div class="text-[10px] font-medium leading-tight truncate" style="color: var(--chalk-white);" data-i18n="preview_qr_action">Scan to snap board</div>
+                  <div class="text-[9px] font-mono leading-tight mt-0.5 truncate" style="color: var(--chalk-muted);" data-i18n="preview_qr_spec">Direct LAN • Zero Cloud</div>
+                </div>
               </div>
             </div>
           </div>
@@ -884,6 +907,7 @@
     "preview_title": "Lecture: Financial Markets & Risk — Chalk",
     "preview_status": "Recording active (01:42)",
     "preview_status_label": "Recording active",
+    "preview_phone_status": "Phone Link: Ready",
     "preview_phone_cam_badge": "Phone Cam: Ready",
     "preview_screen_label": "SCREEN CAPTURE",
     "preview_screen_badge": "Display 1",
@@ -895,6 +919,9 @@
     "preview_recall_query": "How does beta behave during market volatility?",
     "preview_recall_direct": "Direct AI connection",
     "preview_recall_private": "100% Private",
+    "preview_qr_label": "PHONE LINK",
+    "preview_qr_action": "Scan to snap board",
+    "preview_qr_spec": "Direct LAN • Zero Cloud",
     "preview_notes_label": "LECTURE NOTES",
     "preview_copy_btn": "Copy notes",
     "preview_notes_h1": "# Capital Market Line & Systematic Risk",
@@ -1028,6 +1055,7 @@
     "preview_title": "Vorlesung: Finanzmärkte & Risiko — Chalk",
     "preview_status": "Aufnahme aktiv (01:42)",
     "preview_status_label": "Aufnahme aktiv",
+    "preview_phone_status": "Handy-Kopplung: Bereit",
     "preview_phone_cam_badge": "Tafel-Kamera: Bereit",
     "preview_screen_label": "BILDSCHIRMAUFNAHME",
     "preview_screen_badge": "Display 1",
@@ -1039,6 +1067,9 @@
     "preview_recall_query": "Wie verhält sich das Beta bei Marktvolatilität?",
     "preview_recall_direct": "Direkte KI-Verbindung",
     "preview_recall_private": "100 % Privat",
+    "preview_qr_label": "HANDY-KOPPLUNG",
+    "preview_qr_action": "Tafel fotografieren",
+    "preview_qr_spec": "Direktes LAN • 0% Cloud",
     "preview_notes_label": "VORLESUNGSNOTIZEN",
     "preview_copy_btn": "Notizen kopieren",
     "preview_notes_h1": "# Kapitalmarktlinie & Systematisches Risiko",
@@ -1172,6 +1203,7 @@
     "preview_title": "Cours : Marchés financiers et risque — Chalk",
     "preview_status": "Enregistrement en cours (01:42)",
     "preview_status_label": "Enregistrement en cours",
+    "preview_phone_status": "Liaison mobile: Prête",
     "preview_phone_cam_badge": "Caméra tableau : Prête",
     "preview_screen_label": "CAPTURE D'ÉCRAN",
     "preview_screen_badge": "Display 1",
@@ -1183,6 +1215,9 @@
     "preview_recall_query": "Comment le bêta réagit-il à la volatilité du marché ?",
     "preview_recall_direct": "Connexion directe à l'IA",
     "preview_recall_private": "100 % Privé",
+    "preview_qr_label": "LIEN MOBILE",
+    "preview_qr_action": "Scanner pour tableau",
+    "preview_qr_spec": "LAN direct • Sans cloud",
     "preview_notes_label": "NOTES DE COURS",
     "preview_copy_btn": "Copier les notes",
     "preview_notes_h1": "# Droite de marché et risque systématique",
@@ -1316,6 +1351,7 @@
     "preview_title": "Clase: Mercados financieros y riesgo — Chalk",
     "preview_status": "Grabación activa (01:42)",
     "preview_status_label": "Grabación activa",
+    "preview_phone_status": "Enlace móvil: Listo",
     "preview_phone_cam_badge": "Cámara pizarra: Lista",
     "preview_screen_label": "CAPTURA DE PANTALLA",
     "preview_screen_badge": "Display 1",
@@ -1327,6 +1363,9 @@
     "preview_recall_query": "¿Cómo se comporta la beta ante la volatilidad del mercado?",
     "preview_recall_direct": "Conexión directa a la IA",
     "preview_recall_private": "100 % Privado",
+    "preview_qr_label": "ENLACE MÓVIL",
+    "preview_qr_action": "Escanear pizarra",
+    "preview_qr_spec": "LAN directa • Cero nube",
     "preview_notes_label": "NOTAS DE CLASE",
     "preview_copy_btn": "Copiar notas",
     "preview_notes_h1": "# Línea del mercado de capitales y riesgo sistemático",
@@ -1460,6 +1499,7 @@
     "preview_title": "讲座：金融市场与风险分析 — Chalk",
     "preview_status": "录音采集中 (01:42)",
     "preview_status_label": "正在录制",
+    "preview_phone_status": "手机链路: 就绪",
     "preview_phone_cam_badge": "手机白板相机：就绪",
     "preview_screen_label": "屏幕画面捕获",
     "preview_screen_badge": "主显示屏",
@@ -1471,6 +1511,9 @@
     "preview_recall_query": "市场剧烈波动时贝塔系数如何变化？",
     "preview_recall_direct": "直连大模型 API",
     "preview_recall_private": "100% 本地隐私",
+    "preview_qr_label": "手机互联",
+    "preview_qr_action": "扫码拍板书",
+    "preview_qr_spec": "局域网直连 • 零云端",
     "preview_notes_label": "课堂精要笔记",
     "preview_copy_btn": "复制笔记",
     "preview_notes_h1": "# 资本市场线与系统性风险",
