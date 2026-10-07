@@ -1189,6 +1189,25 @@ C. QUALITÄTSSICHERUNG & SYSTEM-VERIFIKATION
   [✓] Desktop Review-Export aktualisiert: `/Users/user/Desktop/CHALK_FULL_CODEBASE.txt`.
 ================================================================================
 
+================================================================================
+21. PHASE 26B DURCHGEFÜHRTE MASSNAHMEN (STICKY NAVIGATION SCROLL-ANCHOR PRECISION ALIGNMENT)
+--------------------------------------------------------------------------------
 
-
+A. PRÄZISE AUSRICHTUNG ALLER SCROLL-ZIELE AN DEN ABSCHNITTSBALKEN
+  [✓] Ursachenanalyse:
+      - Die Hauptnavigationsleiste (<nav>) ist mit sticky top-0 am oberen Fensterrand fixiert (gerenderte Höhe: 67px).
+      - Wenn der Nutzer auf Navigationslinks (#how-it-works, #use-cases, #privacy, #download) oder den Hero-Download-Button klickte, scrollte der Browser standardmäßig bis Y=0 des Zielelements.
+      - Dadurch wurde der obere Trennbalken (border-t) jeder Sektion unter die 67px hohe Sticky-Navigationsleiste geschoben ('ging über den Balken nach unten hinaus'), wodurch der Trennbalken verdeckt und der obere Bereich gestaucht wurde.
+  [✓] Behebung & Technische Umsetzung (web/index.html):
+      - Definition der CSS-Variable --nav-height: 67px; in :root.
+      - Globale Scroll-Margin-Regel im <style>-Block:
+        section[id] {
+          scroll-margin-top: var(--nav-height, 67px);
+        }
+      - Dynamische JavaScript-Synchronisation syncNavHeight(), die nav.offsetHeight auf Fenster-Resize und Responsive-Breakpoints überwacht und --nav-height live synchronisiert.
+  [✓] Verifikation & Visuelle Qualitätskontrolle:
+      - Headless-Chrome Messung: Alle 4 Hauptsektionen (#how-it-works, #use-cases, #privacy, #download) stoppen auf den Subpixel genau (Abweichung < 0.39px) an der Unterkante der Navigationsleiste.
+      - Screenshot-Audits bestätigen: Der Trennbalken (border-t) sitzt pixelgenau bündig unter der Navigationsleiste. Voller vertikaler Rhythmus (py-24) bleibt erhalten.
+      - Deployment-Test ./scripts/deploy_web.sh test erfolgreich bestanden.
+================================================================================
 

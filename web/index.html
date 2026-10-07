@@ -42,6 +42,7 @@
       --logo-bg: #121317;
       --logo-border: rgba(255, 255, 255, 0.12);
       --logo-chalk: #F8FAFC;
+      --nav-height: 67px;
     }
 
     html.theme-light {
@@ -169,6 +170,11 @@
       border-radius: 0.375rem;
       background: var(--surface-terminal);
       border: 1px solid var(--chalk-border);
+    }
+
+    /* Precision Scroll Anchor Alignment for Sticky Navigation */
+    section[id] {
+      scroll-margin-top: var(--nav-height, 67px);
     }
   </style>
 </head>
@@ -1991,6 +1997,17 @@
         });
       }
     });
+
+    // Precision Sticky Navigation Height Synchronization
+    function syncNavHeight() {
+      const nav = document.querySelector('nav');
+      if (nav) {
+        document.documentElement.style.setProperty('--nav-height', `${nav.offsetHeight}px`);
+      }
+    }
+    window.addEventListener('resize', syncNavHeight);
+    window.addEventListener('DOMContentLoaded', syncNavHeight);
+    syncNavHeight();
   </script>
 </body>
 </html>
