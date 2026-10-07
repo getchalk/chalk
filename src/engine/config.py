@@ -61,3 +61,23 @@ def set_obsidian_vault_path(path: Optional[str]) -> bool:
     else:
         cfg.pop("obsidian_vault_path", None)
     return save_chalk_config(cfg)
+
+
+def get_output_language() -> str:
+    """Retrieves configured target synthesis output language (default 'auto')."""
+    cfg = load_chalk_config()
+    lang = cfg.get("output_language", "auto")
+    if isinstance(lang, str) and lang.strip():
+        return lang.strip().lower()
+    return "auto"
+
+
+def set_output_language(language_code: Optional[str]) -> bool:
+    """Sets target synthesis output language ('auto', 'de', 'en', 'fr', 'es', 'zh')."""
+    cfg = load_chalk_config()
+    clean_code = (language_code or "auto").strip().lower()
+    if clean_code in ("auto", "original", "none"):
+        cfg["output_language"] = "auto"
+    else:
+        cfg["output_language"] = clean_code
+    return save_chalk_config(cfg)

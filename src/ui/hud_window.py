@@ -19,7 +19,7 @@ from typing import Optional, List, Dict, Any, Tuple
 from PIL import Image
 
 from PyQt6.QtCore import Qt, QThread, pyqtSignal, QTimer, QPoint, QUrl
-from PyQt6.QtGui import QFont, QIcon, QColor, QPainter, QBrush, QPen, QPixmap, QDesktopServices
+from PyQt6.QtGui import QFont, QIcon, QColor, QPainter, QBrush, QPen, QPixmap, QDesktopServices, QKeySequence, QShortcut
 from PyQt6.QtWidgets import (
     QApplication,
     QWidget,
@@ -45,6 +45,9 @@ from src.api.tools import read_local_file
 from src.companion.bridge import CompanionBridge
 from src.companion.server import CompanionDaemon
 from src.companion.qr_generator import QRCode
+from src.export.pdf_exporter import export_notes_to_pdf
+from src.api.synthesis_pipeline import export_flashcards_to_tsv, extract_flashcards_from_markdown
+from src.ui.search_dialog import SessionArchiveSearchDialog
 
 logger = logging.getLogger("chalk.ui.hud")
 
@@ -731,40 +734,55 @@ class FloatingHUDWindow(QWidget):
 
         # Quick Actions Bar
         actions_bar = QHBoxLayout()
-        actions_bar.setSpacing(8)
+        actions_bar.setSpacing(6)
 
-        self.attach_doc_btn = QPushButton("📎 Folien anhängen")
+        self.attach_doc_btn = QPushButton("Folien anhängen")
         self.attach_doc_btn.setToolTip("Folien oder Skript einbinden (.pdf, .pptx)")
         self.attach_doc_btn.clicked.connect(self._open_document_dialog)
         actions_bar.addWidget(self.attach_doc_btn)
 
         snip_shortcut = "Cmd+Shift+S" if sys.platform == "darwin" else "Ctrl+Shift+S"
-        self.snip_btn = QPushButton(f"✂️ Snip ({snip_shortcut})")
+        self.snip_btn = QPushButton(f"Snip ({snip_shortcut})")
         self.snip_btn.setToolTip(f"Bildschirmbereich zuschneiden ({snip_shortcut} / Alt+S)")
         self.snip_btn.clicked.connect(self.trigger_screen_snip)
         actions_bar.addWidget(self.snip_btn)
 
-        self.cam_btn = QPushButton("📱 Tafel-Kamera")
+        self.cam_btn = QPushButton("Tafel-Kamera")
         self.cam_btn.setToolTip("Smartphone via QR-Code verbinden, um Tafel-Fotos direkt einzubinden")
         self.cam_btn.clicked.connect(self._open_whiteboard_cam_dialog)
         actions_bar.addWidget(self.cam_btn)
 
-        self.rewind_btn = QPushButton("⏮️ Rewind 90s")
+        self.rewind_btn = QPushButton("Rewind 90s")
         self.rewind_btn.setToolTip("Letzte 90 Sekunden Audio abrufen, abspielen und transkribieren")
         self.rewind_btn.clicked.connect(self._trigger_audio_rewind)
         actions_bar.addWidget(self.rewind_btn)
 
-        self.copy_notes_btn = QPushButton("📋 Notizen kopieren")
+        self.search_btn = QPushButton("Suche (Alt+F)")
+        self.search_btn.setToolTip("Volltext- und Formel-Archivsuche über alle Vorlesungen (Alt+F)")
+        self.search_btn.clicked.connect(self._open_archive_search)
+        actions_bar.addWidget(self.search_btn)
+
+        self.anki_export_btn = QPushButton("Export Anki (.tsv)")
+        self.anki_export_btn.setToolTip("Generierte Spaced-Repetition Karteikarten für Anki exportieren")
+        self.anki_export_btn.clicked.connect(self._export_anki_flashcards)
+        actions_bar.addWidget(self.anki_export_btn)
+
+        self.pdf_export_btn = QPushButton("Export PDF")
+        self.pdf_export_btn.setToolTip("Notizen direkt als akademisches Vektor-PDF drucken")
+        self.pdf_export_btn.clicked.connect(self._export_notes_pdf)
+        actions_bar.addWidget(self.pdf_export_btn)
+
+        self.copy_notes_btn = QPushButton("Notizen kopieren")
         self.copy_notes_btn.setToolTip("Notizen und Gliederung in Zwischenablage kopieren")
         self.copy_notes_btn.clicked.connect(self._copy_notes_to_clipboard)
         actions_bar.addWidget(self.copy_notes_btn)
 
-        self.obsidian_btn = QPushButton("📓 Obsidian")
+        self.obsidian_btn = QPushButton("Obsidian")
         self.obsidian_btn.setToolTip("Notizen direkt in Obsidian öffnen")
         self.obsidian_btn.clicked.connect(self._open_in_obsidian)
         actions_bar.addWidget(self.obsidian_btn)
 
-        self.editor_btn = QPushButton("↗️ Editor")
+        self.editor_btn = QPushButton("Editor")
         self.editor_btn.setToolTip("Notizen im Standard-Markdown-Editor öffnen")
         self.editor_btn.clicked.connect(self._open_in_default_editor)
         actions_bar.addWidget(self.editor_btn)
@@ -778,6 +796,12 @@ class FloatingHUDWindow(QWidget):
         actions_bar.addWidget(self.synth_btn)
 
         main_layout.addLayout(actions_bar)
+
+        # Keyboard shortcuts for archive search
+        self.search_shortcut = QShortcut(QKeySequence("Alt+F"), self)
+        self.search_shortcut.activated.connect(self._open_archive_search)
+        self.search_shortcut_cmd = QShortcut(QKeySequence("Ctrl+F"), self)
+        self.search_shortcut_cmd.activated.connect(self._open_archive_search)
 
         # Attachments Banner (if doc or snip attached)
         self.attachment_label = QLabel("")
@@ -795,7 +819,7 @@ class FloatingHUDWindow(QWidget):
         left_layout.setContentsMargins(0, 0, 6, 0)
         left_layout.setSpacing(6)
 
-        scratchpad_label = QLabel("📝 User Scratchpad (Shorthand & Outline Anchor):")
+        scratchpad_label = QLabel("User Scratchpad (Shorthand & Outline Anchor):")
         scratchpad_label.setStyleSheet("font-size: 11px; font-weight: 600; color: #94A3B8;")
         left_layout.addWidget(scratchpad_label)
 
@@ -815,16 +839,16 @@ class FloatingHUDWindow(QWidget):
         right_layout.setContentsMargins(6, 0, 0, 0)
         right_layout.setSpacing(6)
 
-        # Right Column Header Switcher: [💬 Copilot & Verlauf] [📐 Live KaTeX Notizen]
+        # Right Column Header Switcher: [Copilot & Verlauf] [Live KaTeX Notizen]
         switcher_row = QHBoxLayout()
         switcher_row.setSpacing(6)
 
-        self.btn_view_chat = QPushButton("💬 Copilot & Verlauf")
+        self.btn_view_chat = QPushButton("Copilot & Verlauf")
         self.btn_view_chat.setStyleSheet("background-color: rgba(255, 255, 255, 0.16); color: #FFFFFF; font-weight: 600; padding: 4px 10px; font-size: 11px;")
         self.btn_view_chat.clicked.connect(self._show_chat_view)
         switcher_row.addWidget(self.btn_view_chat)
 
-        self.btn_view_notes = QPushButton("📐 Live KaTeX Notizen")
+        self.btn_view_notes = QPushButton("Live KaTeX Notizen")
         self.btn_view_notes.setStyleSheet("background-color: rgba(26, 28, 35, 0.85); color: #94A3B8; font-weight: 500; padding: 4px 10px; font-size: 11px;")
         self.btn_view_notes.clicked.connect(self._show_notes_view)
         switcher_row.addWidget(self.btn_view_notes)
@@ -905,6 +929,14 @@ class FloatingHUDWindow(QWidget):
         self.player_status_lbl = QLabel("20s Audio-Ausschnitt")
         self.player_status_lbl.setStyleSheet("color: #94A3B8; font-size: 11px;")
         pill_layout.addWidget(self.player_status_lbl)
+
+        self.player_speed = 1.0
+        self.player_speed_btn = QPushButton("1.0x")
+        self.player_speed_btn.setObjectName("pillBtn")
+        self.player_speed_btn.setFixedSize(42, 26)
+        self.player_speed_btn.setToolTip("Wiedergabegeschwindigkeit umschalten (1.0x, 1.25x, 1.5x, 2.0x)")
+        self.player_speed_btn.clicked.connect(self._cycle_playback_speed)
+        pill_layout.addWidget(self.player_speed_btn)
 
         pill_layout.addStretch()
 
@@ -1304,10 +1336,12 @@ class FloatingHUDWindow(QWidget):
                 audio = self.recorder.get_rewind_audio(seconds=int(duration + 10))
 
             if audio is not None and len(audio) > 0:
-                sd.play(audio, sr)
+                speed = getattr(self, "player_speed", 1.0)
+                playback_sr = int(sr * speed)
+                sd.play(audio, playback_sr)
                 self.is_playing_audio = True
                 self.player_play_btn.setText("⏸")
-                self.player_status_lbl.setText("▶ Spielt 20s Ausschnitt")
+                self.player_status_lbl.setText(f"▶ Spielt 20s Ausschnitt ({speed}x)")
                 self.player_status_lbl.setStyleSheet("color: #38BDF8; font-size: 11px;")
 
                 if hasattr(self, "_play_timer") and self._play_timer:
@@ -1315,7 +1349,8 @@ class FloatingHUDWindow(QWidget):
                 self._play_timer = QTimer(self)
                 self._play_timer.setSingleShot(True)
                 self._play_timer.timeout.connect(self._on_playback_completed)
-                self._play_timer.start(int((len(audio) / sr) * 1000) + 200)
+                duration_ms = int(((len(audio) / sr) / speed) * 1000) + 200
+                self._play_timer.start(duration_ms)
             else:
                 self.player_status_lbl.setText("Kein Audio-Puffer verfügbar")
                 self.player_status_lbl.setStyleSheet("color: #F87171; font-size: 11px;")
@@ -1374,6 +1409,107 @@ class FloatingHUDWindow(QWidget):
     def hide_audio_player_pill(self):
         self.stop_audio_scrub()
         self.player_pill.hide()
+
+    def _cycle_playback_speed(self):
+        """Cycles playback speed between 1.0x -> 1.25x -> 1.5x -> 2.0x."""
+        speeds = [1.0, 1.25, 1.5, 2.0]
+        cur = getattr(self, "player_speed", 1.0)
+        try:
+            next_idx = (speeds.index(cur) + 1) % len(speeds)
+        except ValueError:
+            next_idx = 0
+        self.player_speed = speeds[next_idx]
+        self.player_speed_btn.setText(f"{self.player_speed}x")
+        if getattr(self, "is_playing_audio", False):
+            self.play_audio_slice(offset_seconds=getattr(self, "current_playback_offset", 0.0), duration=20.0)
+
+    def _export_anki_flashcards(self):
+        """Exports high-yield Spaced Repetition flashcards from current notes to .tsv file."""
+        notes_path = self._get_active_notes_path()
+        content = ""
+        if notes_path and os.path.exists(notes_path):
+            try:
+                with open(notes_path, "r", encoding="utf-8") as f:
+                    content = f.read()
+            except Exception:
+                content = ""
+
+        if not content.strip():
+            content = self.get_scratchpad_content().strip()
+
+        cards = extract_flashcards_from_markdown(content)
+        if not cards:
+            self.chat_history.append("<i>[Keine Karteikarten im aktuellen Notizabschnitt gefunden. Generiere Karteikarten bei nächster Synthese.]</i>")
+            return
+
+        export_dir = os.path.expanduser("~/Documents")
+        os.makedirs(export_dir, exist_ok=True)
+        today_str = time.strftime("%Y%m%d_%H%M%S")
+        tsv_path = os.path.join(export_dir, f"Chalk_Flashcards_{today_str}.tsv")
+
+        success = export_flashcards_to_tsv(cards, tsv_path)
+        if success:
+            orig_text = self.anki_export_btn.text()
+            self.anki_export_btn.setText("✓ Exportiert!")
+            QTimer.singleShot(2500, lambda: self.anki_export_btn.setText(orig_text))
+            self.chat_history.append(f"<b>[Anki TSV Export]</b> {len(cards)} Karteikarten exportiert nach: <code>{tsv_path}</code>")
+        else:
+            self.chat_history.append("<span style='color: #F87171;'>Fehler beim Exportieren der Anki-Karteikarten.</span>")
+
+    def _export_notes_pdf(self):
+        """Exports current lecture notes directly to academic vector PDF via QPdfWriter."""
+        notes_path = self._get_active_notes_path()
+        content = ""
+        if notes_path and os.path.exists(notes_path):
+            try:
+                with open(notes_path, "r", encoding="utf-8") as f:
+                    content = f.read()
+            except Exception:
+                content = ""
+
+        if not content.strip():
+            content = self.get_scratchpad_content().strip()
+            if not content:
+                content = "# Chalk Notizen\n\n*(Keine Inhalte zum Exportieren verfügbar)*\n"
+
+        export_dir = os.path.expanduser("~/Documents")
+        os.makedirs(export_dir, exist_ok=True)
+        today_str = time.strftime("%Y%m%d_%H%M%S")
+        pdf_path = os.path.join(export_dir, f"Chalk_Notes_{today_str}.pdf")
+
+        title = "Chalk Vorlesungsnotizen"
+        if notes_path:
+            title = os.path.splitext(os.path.basename(notes_path))[0].replace("_", " ")
+
+        success = export_notes_to_pdf(content, pdf_path, title=title)
+        if success:
+            orig_text = self.pdf_export_btn.text()
+            self.pdf_export_btn.setText("✓ PDF Fertig!")
+            QTimer.singleShot(2500, lambda: self.pdf_export_btn.setText(orig_text))
+            self.chat_history.append(f"<b>[PDF Export]</b> Akademisches Skript gespeichert: <code>{pdf_path}</code>")
+        else:
+            self.chat_history.append("<span style='color: #F87171;'>Fehler beim Generieren des PDFs.</span>")
+
+    def _open_archive_search(self):
+        """Opens the spotlight-style archive & formula search modal."""
+        dialog = SessionArchiveSearchDialog(self)
+        dialog.result_selected.connect(self._on_search_result_selected)
+        dialog.exec()
+
+    def _on_search_result_selected(self, file_path: str, timestamp_sec: float):
+        """Handles selection of a note from archive search."""
+        if os.path.exists(file_path):
+            try:
+                with open(file_path, "r", encoding="utf-8", errors="ignore") as f:
+                    content = f.read()
+                self.notes_browser.setHtml(f"<div style='font-family: -apple-system, sans-serif; color: #F8FAFC;'><pre>{content}</pre></div>")
+                self._show_notes_view()
+                self.chat_history.append(f"<i>[Geladene Notiz aus Archiv: {os.path.basename(file_path)}]</i>")
+            except Exception as e:
+                logger.warning("Failed to preview search file: %s", e)
+
+        if timestamp_sec > 0:
+            self.open_audio_url(f"chalk-audio://{int(timestamp_sec)}")
 
     # Note Export & Open Handlers
     def _get_active_notes_path(self) -> Optional[str]:

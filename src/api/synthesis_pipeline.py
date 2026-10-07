@@ -10,6 +10,7 @@ Provides:
 5. High-level SynthesisPipeline coordinator.
 """
 
+import os
 import re
 import json
 import logging
@@ -159,6 +160,17 @@ class LectureNoteBlock(BaseModel):
         return str(v)
 
 
+class FlashcardItem(BaseModel):
+    """
+    Standardized flashcard item for spaced-repetition and Anki integration.
+    """
+    model_config = ConfigDict(extra="ignore")
+
+    question: str = Field(..., description="Targeted exam question or concept prompt")
+    answer_latex: str = Field(..., description="Precise mathematical formula, derivation, or concise core takeaway")
+    reference_timestamp: Optional[str] = Field(default=None, description="Timestamp link e.g. [01:14:20]")
+
+
 class LectureSynthesisResponse(BaseModel):
     """
     Complete structured response schema for lecture chunk synthesis.
@@ -184,6 +196,10 @@ class LectureSynthesisResponse(BaseModel):
     primary_speaker: str = Field(
         default="Instructor",
         description="Acoustic and pedagogical observations of primary speaker"
+    )
+    flashcards: List[FlashcardItem] = Field(
+        default_factory=list,
+        description="Exam flashcards and active recall concepts generated from this lecture chunk"
     )
 
     def to_chunk_state(self, chunk_index: int = 0, timestamp_range: str = "[00:00 - 15:00]") -> ChunkState:
@@ -721,13 +737,109 @@ def render_blocks_to_markdown(blocks: List[Union[Dict[str, Any], LectureNoteBloc
     return "\n\n".join(callout_sections)
 
 
+def render_flashcards_to_markdown(flashcards: List[Union[Dict[str, Any], FlashcardItem]]) -> str:
+    """
+    Renders flashcard items into standardized Obsidian Spaced Repetition plugin format:
+    ## Exam Flashcards & Key Concepts
+    What is the core derivation of factor beta? #flashcard
+    ?
+    $$E(R_i) = R_f + \beta_i [E(R_m) - R_f]$$
+    Beta reflects asset return sensitivity to broad market variance.
+    """
+    if not flashcards:
+        return ""
+
+    cards_out = ["## Exam Flashcards & Key Concepts"]
+    for item in flashcards:
+        if hasattr(item, "model_dump"):
+            d = item.model_dump()
+        elif isinstance(item, dict):
+            d = item
+        else:
+            d = getattr(item, "__dict__", {})
+
+        q = str(d.get("question", "")).strip()
+        ans = str(d.get("answer_latex", "")).strip()
+        ts = str(d.get("reference_timestamp", "")).strip() if d.get("reference_timestamp") else ""
+
+        if not q or not ans:
+            continue
+
+        ts_suffix = f" {ts}" if ts and ts not in q else ""
+        cards_out.append(f"{q}{ts_suffix} #flashcard\n?\n{ans}")
+
+    if len(cards_out) == 1:
+        return ""
+    return "\n\n".join(cards_out)
+
+
+def export_flashcards_to_tsv(
+    flashcards: List[Union[Dict[str, Any], FlashcardItem]],
+    output_path: str,
+) -> str:
+    """
+    Exports flashcards to Anki-importable TSV format (Front \\t Back \\t Deck/Tags).
+    """
+    rows = []
+    for item in flashcards:
+        if hasattr(item, "model_dump"):
+            d = item.model_dump()
+        elif isinstance(item, dict):
+            d = item
+        else:
+            d = getattr(item, "__dict__", {})
+
+        q = str(d.get("question", "")).strip()
+        ans = str(d.get("answer_latex", "")).strip()
+        ts = str(d.get("reference_timestamp", "")).strip() if d.get("reference_timestamp") else ""
+        if not q or not ans:
+            continue
+
+        q_clean = q.replace("\t", " ")
+        if ts and ts not in q_clean:
+            q_clean = f"{q_clean} <small><i>{ts}</i></small>"
+
+        ans_clean = ans.replace("\t", " ").replace("\n", "<br>")
+        rows.append(f"{q_clean}\t{ans_clean}\tChalk::Exam")
+
+    os.makedirs(os.path.dirname(os.path.abspath(output_path)), exist_ok=True)
+    with open(output_path, "w", encoding="utf-8") as f:
+        f.write("\n".join(rows) + "\n")
+    return output_path
+
+
+def extract_flashcards_from_markdown(markdown_text: str) -> List[FlashcardItem]:
+    """
+    Extracts Obsidian spaced repetition flashcard blocks (#flashcard / ?) from markdown text.
+    """
+    flashcards: List[FlashcardItem] = []
+    if not markdown_text:
+        return flashcards
+
+    pattern = re.compile(
+        r"^([^\n]+?)\s*#flashcard\s*\n\?\s*\n(.*?)(?=\n\n[^\n]+?#flashcard|\n## |\n<!-- CHUNK_STATE|\Z)",
+        re.MULTILINE | re.DOTALL,
+    )
+    for match in pattern.finditer(markdown_text):
+        q = match.group(1).strip()
+        ans = match.group(2).strip()
+        if q and ans:
+            ts_m = re.search(r"\[?(\d{1,2}:\d{2}(?::\d{2})?)\]?", q)
+            ts = None
+            if ts_m:
+                ts = ts_m.group(1)
+                q = re.sub(r"\s*\[?" + re.escape(ts) + r"\]?\s*$", "", q).strip()
+            flashcards.append(FlashcardItem(question=q, answer_latex=ans, reference_timestamp=ts))
+    return flashcards
+
+
 def render_synthesis_to_markdown(
     synthesis: Union[Dict[str, Any], LectureSynthesisResponse],
     timestamp_range: str = "[00:00 - 15:00]",
 ) -> str:
     """
     Renders full lecture synthesis output including title header, callout blocks,
-    and <!-- CHUNK_STATE --> context chain block.
+    exam flashcards, and <!-- CHUNK_STATE --> context chain block.
     """
     if hasattr(synthesis, "model_dump"):
         data = synthesis.model_dump()
@@ -741,8 +853,10 @@ def render_synthesis_to_markdown(
     active_vars = data.get("active_variables", [])
     unresolved = data.get("unresolved_proofs", [])
     speaker = data.get("primary_speaker", "Instructor")
+    flashcards = data.get("flashcards", [])
 
     rendered_callouts = render_blocks_to_markdown(blocks)
+    rendered_flashcards = render_flashcards_to_markdown(flashcards)
 
     state = ChunkState(
         topic=topic,
@@ -755,6 +869,7 @@ def render_synthesis_to_markdown(
     parts = [
         f"## {topic} {timestamp_range}\n",
         rendered_callouts,
+        rendered_flashcards,
         "\n" + state.to_markdown_block(),
     ]
     return "\n\n".join(p for p in parts if p.strip())

@@ -303,9 +303,15 @@
           </div>
 
           <!-- Apple Live Recording Indicator & Real-Time Timer -->
-          <div class="flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium" style="background-color: var(--pill-bg); border: 1px solid var(--pill-border); color: var(--chalk-white);">
-            <span class="w-2 h-2 rounded-full bg-red-500 animate-pulse shadow-[0_0_8px_rgba(239,68,68,0.7)]"></span>
-            <span data-i18n="preview_status_label">Recording active</span> (<span id="live-timer" class="font-mono">01:42</span>)
+          <div class="flex items-center gap-2">
+            <div class="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-mono border" style="background-color: var(--surface-terminal); border-color: var(--chalk-border); color: var(--chalk-muted);">
+              <span class="w-1.5 h-1.5 rounded-full" style="background-color: #10B981;"></span>
+              <span data-i18n="preview_phone_cam_badge">Phone Cam: Ready</span>
+            </div>
+            <div class="flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium" style="background-color: var(--pill-bg); border: 1px solid var(--pill-border); color: var(--chalk-white);">
+              <span class="w-2 h-2 rounded-full bg-red-500 animate-pulse shadow-[0_0_8px_rgba(239,68,68,0.7)]"></span>
+              <span data-i18n="preview_status_label">Recording active</span> (<span id="live-timer" class="font-mono">01:42</span>)
+            </div>
           </div>
         </div>
 
@@ -557,7 +563,41 @@
         </div>
       </div>
 
-      <!-- Case 5 / Feature Spotlight: Physical Whiteboard & Blackboard Camera -->
+      <!-- Case 5: Spaced Repetition & Anki -->
+      <div class="rounded-2xl border p-7 transition flex flex-col justify-between shadow-sm" style="background-color: var(--surface-graphite); border-color: var(--chalk-border);">
+        <div>
+          <div class="w-9 h-9 rounded-lg border flex items-center justify-center font-mono text-xs font-bold mb-4" style="background-color: var(--surface-elevated); border-color: var(--chalk-border); color: var(--chalk-white);">
+            05
+          </div>
+          <h3 class="text-lg font-bold mb-2" style="color: var(--chalk-white);" data-i18n="case_anki_title">Exam Prep: Spaced Repetition & Anki</h3>
+          <p class="text-sm leading-relaxed mb-4" style="color: var(--chalk-slate);" data-i18n="case_anki_desc">
+            High-yield flashcards generated automatically from core theorems, formulas, and definitions. 1-click export to Anki (.tsv) or Obsidian Spaced Repetition.
+          </p>
+        </div>
+        <div class="pt-4 border-t text-xs flex justify-between" style="border-color: var(--chalk-border); color: var(--chalk-muted);">
+          <span data-i18n="case_anki_tag1">Audience: STEM Students & Candidates</span>
+          <span data-i18n="case_anki_tag2">Output: Anki .tsv & Flashcard Blocks</span>
+        </div>
+      </div>
+
+      <!-- Case 6: Standalone Vector PDF & Archive Search -->
+      <div class="rounded-2xl border p-7 transition flex flex-col justify-between shadow-sm" style="background-color: var(--surface-graphite); border-color: var(--chalk-border);">
+        <div>
+          <div class="w-9 h-9 rounded-lg border flex items-center justify-center font-mono text-xs font-bold mb-4" style="background-color: var(--surface-elevated); border-color: var(--chalk-border); color: var(--chalk-white);">
+            06
+          </div>
+          <h3 class="text-lg font-bold mb-2" style="color: var(--chalk-white);" data-i18n="case_pdf_title">Standalone Academic PDF & Archive Search</h3>
+          <p class="text-sm leading-relaxed mb-4" style="color: var(--chalk-slate);" data-i18n="case_pdf_desc">
+            Print publication-grade vector scripts with LaTeX formulas directly to PDF with zero dependencies. Lightning-fast Alt+F fulltext and formula search across all historical sessions.
+          </p>
+        </div>
+        <div class="pt-4 border-t text-xs flex justify-between" style="border-color: var(--chalk-border); color: var(--chalk-muted);">
+          <span data-i18n="case_pdf_tag1">Engine: Local PyQt6 Vector PDF</span>
+          <span data-i18n="case_pdf_tag2">Search: Real-Time Alt+F Formula Index</span>
+        </div>
+      </div>
+
+      <!-- Case 7 / Feature Spotlight: Physical Whiteboard & Blackboard Camera -->
       <div class="md:col-span-2 rounded-2xl border p-7 transition flex flex-col justify-between shadow-sm" style="background-color: var(--surface-graphite); border-color: var(--chalk-border);">
         <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
           <div class="md:col-span-8">
@@ -671,7 +711,7 @@
           </p>
         </div>
         <div>
-          <a href="https://github.com/chalk-notes/chalk/releases/latest/download/Chalk-macOS.zip" class="w-full py-4 px-5 rounded-xl font-semibold text-center transition flex items-center justify-center gap-2 text-sm shadow-md" style="background-color: var(--chalk-white); color: var(--bg-obsidian);">
+          <a href="https://github.com/volodyagladkyy/Chalk/releases/latest/download/Chalk-macOS.zip" class="w-full py-4 px-5 rounded-xl font-semibold text-center transition flex items-center justify-center gap-2 text-sm shadow-md" style="background-color: var(--chalk-white); color: var(--bg-obsidian);">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
             <span data-i18n="mac_btn">Download for macOS (Apple Silicon)</span>
           </a>
@@ -692,7 +732,7 @@
           </p>
         </div>
         <div>
-          <a href="https://github.com/chalk-notes/chalk/releases/latest/download/Chalk-Setup.exe" class="w-full py-4 px-5 rounded-xl font-semibold text-center transition flex items-center justify-center gap-2 text-sm shadow-md" style="background-color: var(--chalk-white); color: var(--bg-obsidian);">
+          <a href="https://github.com/volodyagladkyy/Chalk/releases/latest/download/Chalk-Setup.exe" class="w-full py-4 px-5 rounded-xl font-semibold text-center transition flex items-center justify-center gap-2 text-sm shadow-md" style="background-color: var(--chalk-white); color: var(--bg-obsidian);">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
             <span data-i18n="win_btn">Download for Windows (x64)</span>
           </a>
@@ -706,14 +746,14 @@
       <div class="text-xs font-semibold mb-3" style="color: var(--chalk-slate);" data-i18n="cli_title">Optional for developers (Terminal Quick-Install):</div>
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
         <div class="mono-terminal rounded-xl p-3 flex items-center justify-between shadow-sm">
-          <code class="select-all" style="color: var(--terminal-text);">brew install chalk-notes/tap/chalk</code>
-          <button onclick="copyCommand(this, 'brew install chalk-notes/tap/chalk')" class="text-xs px-2.5 py-1 rounded border font-medium transition" style="background-color: var(--terminal-btn-bg); border-color: var(--terminal-btn-border); color: var(--terminal-btn-text);">
+          <code class="select-all" style="color: var(--terminal-text);">curl -L -O https://github.com/volodyagladkyy/Chalk/releases/latest/download/Chalk-macOS.zip</code>
+          <button onclick="copyCommand(this, 'curl -L -O https://github.com/volodyagladkyy/Chalk/releases/latest/download/Chalk-macOS.zip')" class="text-xs px-2.5 py-1 rounded border font-medium transition" style="background-color: var(--terminal-btn-bg); border-color: var(--terminal-btn-border); color: var(--terminal-btn-text);">
             <span data-i18n="btn_copy">Copy</span>
           </button>
         </div>
         <div class="mono-terminal rounded-xl p-3 flex items-center justify-between shadow-sm">
-          <code class="select-all" style="color: var(--terminal-text);">winget install Chalk.Notes</code>
-          <button onclick="copyCommand(this, 'winget install Chalk.Notes')" class="text-xs px-2.5 py-1 rounded border font-medium transition" style="background-color: var(--terminal-btn-bg); border-color: var(--terminal-btn-border); color: var(--terminal-btn-text);">
+          <code class="select-all" style="color: var(--terminal-text);">curl -L -O https://github.com/volodyagladkyy/Chalk/releases/latest/download/Chalk-Setup.exe</code>
+          <button onclick="copyCommand(this, 'curl -L -O https://github.com/volodyagladkyy/Chalk/releases/latest/download/Chalk-Setup.exe')" class="text-xs px-2.5 py-1 rounded border font-medium transition" style="background-color: var(--terminal-btn-bg); border-color: var(--terminal-btn-border); color: var(--terminal-btn-text);">
             <span data-i18n="btn_copy">Copy</span>
           </button>
         </div>
@@ -844,6 +884,7 @@
     "preview_title": "Lecture: Financial Markets & Risk — Chalk",
     "preview_status": "Recording active (01:42)",
     "preview_status_label": "Recording active",
+    "preview_phone_cam_badge": "Phone Cam: Ready",
     "preview_screen_label": "SCREEN CAPTURE",
     "preview_screen_badge": "Display 1",
     "preview_screen_topic": "Portfolio Theory & Risk Modeling",
@@ -908,6 +949,14 @@
     "case5_spec_cloud_val": "0% (Zero Cloud)",
     "case5_tag1": "Audience: In-Person Lectures & Brainstorming",
     "case5_tag2": "Input: Environment Camera • Local P2P",
+    "case_anki_title": "Exam Prep: Spaced Repetition & Anki",
+    "case_anki_desc": "High-yield flashcards generated automatically from core theorems, formulas, and definitions. 1-click export to Anki (.tsv) or Obsidian Spaced Repetition.",
+    "case_anki_tag1": "Audience: STEM Students & Candidates",
+    "case_anki_tag2": "Output: Anki .tsv & Flashcard Blocks",
+    "case_pdf_title": "Standalone Academic PDF & Archive Search",
+    "case_pdf_desc": "Print publication-grade vector scripts with LaTeX formulas directly to PDF with zero dependencies. Lightning-fast Alt+F fulltext and formula search across all historical sessions.",
+    "case_pdf_tag1": "Engine: Local PyQt6 Vector PDF",
+    "case_pdf_tag2": "Search: Real-Time Alt+F Formula Index",
     "privacy_tag": "LOCAL-FIRST PRIVACY",
     "privacy_title": "Your data belongs to you.<br>No middlemen. No servers.",
     "privacy_subtitle": "Unlike cloud meeting bots, Chalk processes audio and screen captures exclusively locally on your hardware.",
@@ -979,6 +1028,7 @@
     "preview_title": "Vorlesung: Finanzmärkte & Risiko — Chalk",
     "preview_status": "Aufnahme aktiv (01:42)",
     "preview_status_label": "Aufnahme aktiv",
+    "preview_phone_cam_badge": "Tafel-Kamera: Bereit",
     "preview_screen_label": "BILDSCHIRMAUFNAHME",
     "preview_screen_badge": "Display 1",
     "preview_screen_topic": "Portfoliotheorie & Risikomodellierung",
@@ -1043,6 +1093,14 @@
     "case5_spec_cloud_val": "0% (Zero Cloud)",
     "case5_tag1": "Zielgruppe: Präsenz-Vorlesungen & Seminare",
     "case5_tag2": "Eingabe: Umgebungs-Kamera • Lokales P2P",
+    "case_anki_title": "Klausurvorbereitung: Spaced Repetition & Anki",
+    "case_anki_desc": "Automatisch generierte Karteikarten für zentrale Theoreme, Definitionen und Rechenschritte. 1-Klick-Export für Anki (.tsv) und Obsidian Spaced Repetition.",
+    "case_anki_tag1": "Zielgruppe: MINT-Studierende & Examenskandidaten",
+    "case_anki_tag2": "Ausgabe: Anki .tsv & Karteikarten-Blöcke",
+    "case_pdf_title": "Eigenständiger PDF-Druck & Formel-Archivsuche",
+    "case_pdf_desc": "Druckt akademische Skripte mit LaTeX-Formeln direkt als Vektor-PDF ohne externe Compiler. Blitzschnelle Alt+F Volltext- und Formelsuche über alle vergangenen Vorlesungen.",
+    "case_pdf_tag1": "Engine: Lokaler PyQt6 Vektor-PDF-Druck",
+    "case_pdf_tag2": "Suche: Echtzeit Alt+F Formel-Index",
     "privacy_tag": "LOCAL-FIRST DATENSCHUTZ",
     "privacy_title": "Deine Daten gehören dir.<br>Keine Mittelsmänner. Keine Server.",
     "privacy_subtitle": "Im Gegensatz zu Cloud-Meeting-Bots verarbeitet Chalk Ton und Bildschirmaufnahmen ausschließlich lokal auf deiner Hardware.",
@@ -1114,6 +1172,7 @@
     "preview_title": "Cours : Marchés financiers et risque — Chalk",
     "preview_status": "Enregistrement en cours (01:42)",
     "preview_status_label": "Enregistrement en cours",
+    "preview_phone_cam_badge": "Caméra tableau : Prête",
     "preview_screen_label": "CAPTURE D'ÉCRAN",
     "preview_screen_badge": "Display 1",
     "preview_screen_topic": "Théorie du portefeuille & Risque",
@@ -1178,6 +1237,14 @@
     "case5_spec_cloud_val": "0% (Zéro Cloud)",
     "case5_tag1": "Public : Cours en présentiel & Séminaires",
     "case5_tag2": "Entrée : Caméra environnementale • P2P local",
+    "case_anki_title": "Révision d'examens : Répétition espacée & Anki",
+    "case_anki_desc": "Génération automatique de fiches de mémorisation pour théorèmes, définitions et calculs clés. Export en 1 clic pour Anki (.tsv) et Obsidian Spaced Repetition.",
+    "case_anki_tag1": "Public : Étudiants STEM & candidats",
+    "case_anki_tag2": "Format : Decks Anki (.tsv) & blocs mémoire",
+    "case_pdf_title": "Impression PDF académique autonome & Recherche d'archives",
+    "case_pdf_desc": "Générez des polycopiés vectoriels de haute qualité avec formules LaTeX directement en PDF sans dépendances externes. Recherche instantanée Alt+F dans toutes vos archives.",
+    "case_pdf_tag1": "Moteur : PDF vectoriel PyQt6 local",
+    "case_pdf_tag2": "Recherche : Index formules Alt+F",
     "privacy_tag": "CONFIDENTIALITÉ 100 % LOCALE",
     "privacy_title": "Vos données vous appartiennent.<br>Aucun intermédiaire. Aucun serveur.",
     "privacy_subtitle": "Contrairement aux assistants cloud, Chalk traite le son et les captures d'écran exclusivement en local sur votre matériel.",
@@ -1249,6 +1316,7 @@
     "preview_title": "Clase: Mercados financieros y riesgo — Chalk",
     "preview_status": "Grabación activa (01:42)",
     "preview_status_label": "Grabación activa",
+    "preview_phone_cam_badge": "Cámara pizarra: Lista",
     "preview_screen_label": "CAPTURA DE PANTALLA",
     "preview_screen_badge": "Display 1",
     "preview_screen_topic": "Teoría de carteras y riesgo",
@@ -1313,6 +1381,14 @@
     "case5_spec_cloud_val": "0% (Cero Nube)",
     "case5_tag1": "Audiencia: Clases presenciales y Seminarios",
     "case5_tag2": "Entrada: Cámara de entorno • P2P local",
+    "case_anki_title": "Preparación de exámenes: Repetición espaciada y Anki",
+    "case_anki_desc": "Generación automática de tarjetas de memoria para teoremas, definiciones y fórmulas clave. Exportación en 1 clic para Anki (.tsv) y Obsidian Spaced Repetition.",
+    "case_anki_tag1": "Público: Estudiantes STEM y opositores",
+    "case_anki_tag2": "Salida: Decks Anki (.tsv) y bloques de estudio",
+    "case_pdf_title": "Exportación PDF académico independiente y Búsqueda en archivo",
+    "case_pdf_desc": "Imprima apuntes vectoriales de calidad académica con fórmulas LaTeX directamente en PDF sin dependencias externas. Búsqueda instantánea Alt+F de texto y fórmulas en todas sus sesiones.",
+    "case_pdf_tag1": "Motor: Impresión vectorial PyQt6 local",
+    "case_pdf_tag2": "Búsqueda: Índice de fórmulas Alt+F",
     "privacy_tag": "PRIVACIDAD LOCAL-FIRST",
     "privacy_title": "Tus datos te pertenecen.<br>Sin intermediarios. Sin servidores.",
     "privacy_subtitle": "A diferencia de los bots en la nube, Chalk procesa el audio y las capturas de pantalla exclusivamente en local en tu hardware.",
@@ -1384,6 +1460,7 @@
     "preview_title": "讲座：金融市场与风险分析 — Chalk",
     "preview_status": "录音采集中 (01:42)",
     "preview_status_label": "正在录制",
+    "preview_phone_cam_badge": "手机白板相机：就绪",
     "preview_screen_label": "屏幕画面捕获",
     "preview_screen_badge": "主显示屏",
     "preview_screen_topic": "投资组合理论与风险建模",
@@ -1448,6 +1525,14 @@
     "case5_spec_cloud_val": "0%（无云端依赖）",
     "case5_tag1": "受众：线下高校讲座与学术研讨",
     "case5_tag2": "采集源：手机后置相机 • 本地P2P",
+    "case_anki_title": "考前冲刺：间隔重复记忆卡与 Anki 导出",
+    "case_anki_desc": "自动提炼讲座核心定理、定义与关键公式为高频考点记忆卡。支持一键导出至 Anki (.tsv) 及 Obsidian 间隔重复插件。",
+    "case_anki_tag1": "适用人群：理工医科生与应试考生",
+    "case_anki_tag2": "输出：Anki .tsv 与双面闪卡区块",
+    "case_pdf_title": "独立学术级 PDF 导出与公式档案极速检索",
+    "case_pdf_desc": "零依赖将包含真实 LaTeX 数学公式的笔记直接渲染为高精矢量 PDF 文档。支持 Alt+F 快捷键实时检索历史所有讲座的文本与数学公式。",
+    "case_pdf_tag1": "引擎：本地 PyQt6 高精矢量排版",
+    "case_pdf_tag2": "检索：Alt+F 实时公式索引",
     "privacy_tag": "本地优先隐私保护",
     "privacy_title": "数据资产完全归你所有。<br>无中介。无中转服务器。",
     "privacy_subtitle": "与云端会议机器人不同，Chalk 仅在你的本地硬件上离线处理音频与屏幕画面。",

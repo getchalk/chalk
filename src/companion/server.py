@@ -8,6 +8,7 @@ Zero external CDNs, zero cloud storage, zero tracking.
 """
 
 import os
+import sys
 import time
 import json
 import socket
@@ -392,21 +393,59 @@ COMPANION_HTML_TEMPLATE = """<!DOCTYPE html>
 def get_local_ip() -> str:
     """
     Detects the machine's primary local IP address across Wi-Fi or iPhone Hotspot.
-    Uses UDP probe to non-routable address to discover outbound network interface.
+    Uses UDP probe to non-routable address to discover outbound network interface,
+    with multi-tier fallback (UDP probe -> route probe -> interface scan).
+    Guarantees returning a non-loopback IP (e.g. 192.168.x.x, 10.x.x.x, 172.20.10.x)
+    whenever any network adapter is active.
     """
-    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    try:
-        # Does not actually transmit any network packets
-        s.connect(("10.255.255.255", 1))
-        ip = s.getsockname()[0]
-    except Exception:
+    # 1. Primary UDP socket probe (does not transmit any packets over the wire)
+    probe_targets = [
+        ("10.255.255.255", 1),
+        ("172.31.255.255", 1),
+        ("192.168.255.255", 1),
+        ("8.8.8.8", 80),
+        ("1.1.1.1", 80),
+    ]
+    for host, port in probe_targets:
         try:
-            ip = socket.gethostbyname(socket.gethostname())
+            s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+            s.connect((host, port))
+            ip = s.getsockname()[0]
+            s.close()
+            if ip and not ip.startswith("127.") and ip != "0.0.0.0":
+                return ip
         except Exception:
-            ip = "127.0.0.1"
-    finally:
-        s.close()
-    return ip
+            continue
+
+    # 2. macOS specific interface inspection (ipconfig getifaddr en0/en1/bridge0/pdp_ip0)
+    if sys.platform == "darwin":
+        import subprocess
+        for iface in ("en0", "en1", "en2", "bridge0", "pdp_ip0", "en5"):
+            try:
+                res = subprocess.run(
+                    ["ipconfig", "getifaddr", iface],
+                    capture_output=True,
+                    text=True,
+                    timeout=1.0,
+                )
+                if res.returncode == 0:
+                    candidate = res.stdout.strip()
+                    if candidate and not candidate.startswith("127."):
+                        return candidate
+            except Exception:
+                pass
+
+    # 3. Socket interface enumeration
+    try:
+        hostname = socket.gethostname()
+        for info in socket.getaddrinfo(hostname, None, socket.AF_INET):
+            candidate = info[4][0]
+            if candidate and not candidate.startswith("127.") and candidate != "0.0.0.0":
+                return candidate
+    except Exception:
+        pass
+
+    return "127.0.0.1"
 
 
 # ==============================================================================

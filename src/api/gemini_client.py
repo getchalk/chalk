@@ -25,6 +25,7 @@ from google.genai.errors import APIError
 
 from src.security.key_manager import get_api_key
 from src.engine.quota_manager import QuotaManager
+from src.engine.config import get_output_language
 from src.engine.session_state import ChunkState
 from src.vision.slide_filter import SlideKeyframe
 from src.audio.recorder import DualChannelAudioRecorder
@@ -142,6 +143,7 @@ class GeminiLecturePipeline:
         use_structured_output: bool = False,
         tracked_files: Optional[List[Any]] = None,
         whiteboard_photos: Optional[List[Any]] = None,
+        output_language: Optional[str] = None,
     ) -> Tuple[str, ChunkState]:
         """
         Synthesizes a live lecture chunk using Gemini Flash:
@@ -159,6 +161,7 @@ class GeminiLecturePipeline:
                 end_time_str=end_time_str,
                 tracked_files=tracked_files,
                 whiteboard_photos=whiteboard_photos,
+                output_language=output_language,
             )
             return md, state
 
@@ -166,6 +169,14 @@ class GeminiLecturePipeline:
         parts = []
 
         # 1. System Prompt & Instructions (Granola-Style Augmented Shorthand & Interactive Audio Scrub)
+        lang_note = ""
+        if output_language and output_language.lower() != "auto":
+            lang_note = (
+                f"\n\nOUTPUT LANGUAGE ENFORCEMENT ({output_language.upper()}):\n"
+                f"Draft all synthesized notes, explanations, callouts, and summaries in {output_language}. "
+                "Keep core technical terms bilingual where appropriate (e.g. 'Eigenwert (Eigenvalue)')."
+            )
+
         system_instruction = (
             "You are Chalk, an ambient cognitive presence engine and rigorous note synthesis partner. "
             "You capture and synthesize university lectures, technical architecture reviews, and high-velocity strategy meetings in real time.\n\n"
@@ -196,7 +207,8 @@ class GeminiLecturePipeline:
             "Active_Variables: [<comma-separated defined mathematical variables>]\n"
             "Unresolved_Proofs: [<open questions or derivations left unfinished in this segment>]\n"
             "Primary_Speaker: <tone / speaker observations>\n"
-            "-->\n"
+            "-->"
+            f"{lang_note}\n"
         )
 
         # 2. Add Audio Part (WAV)
@@ -312,6 +324,7 @@ class GeminiLecturePipeline:
         end_time_str: str = "[15:00]",
         tracked_files: Optional[List[Any]] = None,
         whiteboard_photos: Optional[List[Any]] = None,
+        output_language: Optional[str] = None,
     ) -> Tuple[str, ChunkState, LectureSynthesisResponse]:
         """
         Synthesizes a live lecture chunk with typed JSON Structured Outputs (Pydantic schema).
@@ -319,12 +332,23 @@ class GeminiLecturePipeline:
         - Structured JSON output conforming to LectureSynthesisResponse
         - Strict prompt instruction against hallucinated derivation steps
         - Highest synthesis priority for physical chalkboard/whiteboard camera snapshots
+        - High-yield Anki flashcard generation for exam prep
+        - Cross-lingual synthesis if output_language is configured
         - Local KaTeX syntax validation and repairing on all LaTeX formulas
         - Deterministic Obsidian/GitHub callout rendering
         - Google Files API lifecycle deletion in finally block
         """
         client = self._get_active_client()
         parts = []
+
+        lang_instruction = ""
+        if output_language and output_language.lower() != "auto":
+            lang_instruction = (
+                f"\n\nOUTPUT LANGUAGE ENFORCEMENT ({output_language.upper()}):\n"
+                f"Draft all explanations, theorem titles, derivations, student clarifications, and flashcards in {output_language}. "
+                "Keep core technical terms bilingual where helpful for exam prep (e.g. 'Eigenwert (Eigenvalue)'). "
+                "Retain standard mathematical notation intact."
+            )
 
         system_instruction = (
             "You are Chalk, an ambient cognitive presence engine and rigorous mathematical synthesis partner.\n\n"
@@ -342,11 +366,16 @@ class GeminiLecturePipeline:
             "For any theorem, definition, proof, remark, or example, populate the schema. "
             "Defer notation strictly to the presentation slides and whiteboard photos to prevent variable drift. "
             "Proofs must be step-by-step; unverified steps must be explicitly flagged as '[Lücke]'.\n\n"
+            "SPACED REPETITION FLASHCARDS (ANKI):\n"
+            "Generate 2-5 high-yield exam flashcards in the `flashcards` field of the schema for crucial theorems, definitions, "
+            "formulas, or exam pitfalls covered in this segment. Formulate a clear, direct question, a precise LaTeX/conceptual answer, "
+            "and reference timestamp.\n\n"
             "MULTI-SPEAKER & ACOUSTIC DIARIZATION:\n"
             "Differentiate speakers based on audio channel tags ([MIC] for room audio vs. [LOOPBACK] for system audio), "
             "acoustic transitions, questions, and conversational dynamics.\n"
             "Assign the appropriate speaker to each note block: 'Lecturer', 'Audience Question', 'Meeting Host', or 'Discussion Participant'.\n"
             "Student questions or audience interjections MUST strictly be flagged as speaker='Audience Question' or speaker='Discussion Participant'."
+            f"{lang_instruction}"
         )
 
         if len(stereo_audio) > 0:

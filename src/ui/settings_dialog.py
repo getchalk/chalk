@@ -34,6 +34,8 @@ from src.security.key_manager import (
 from src.engine.config import (
     get_obsidian_vault_path,
     set_obsidian_vault_path,
+    get_output_language,
+    set_output_language,
 )
 
 MONOCHROME_STYLESHEET = """
@@ -144,7 +146,7 @@ class SettingsDialog(QDialog):
         super().__init__(parent)
         self.is_initial_setup = is_initial_setup
         self.setWindowTitle("Chalk — Settings & BYOK Security")
-        self.setFixedSize(560, 640)
+        self.setFixedSize(560, 740)
         self.setStyleSheet(MONOCHROME_STYLESHEET)
         self.setWindowFlags(self.windowFlags() | Qt.WindowType.WindowStaysOnTopHint)
 
@@ -154,7 +156,7 @@ class SettingsDialog(QDialog):
     def _setup_ui(self):
         layout = QVBoxLayout(self)
         layout.setContentsMargins(26, 24, 26, 24)
-        layout.setSpacing(14)
+        layout.setSpacing(13)
 
         # Header Section
         header_layout = QHBoxLayout()
@@ -243,8 +245,8 @@ class SettingsDialog(QDialog):
         self.gemini_input.setEchoMode(QLineEdit.EchoMode.Password)
         gemini_row.addWidget(self.gemini_input)
 
-        self.toggle_gemini_eye = QPushButton("👁️")
-        self.toggle_gemini_eye.setFixedSize(36, 36)
+        self.toggle_gemini_eye = QPushButton("Show")
+        self.toggle_gemini_eye.setFixedSize(54, 36)
         self.toggle_gemini_eye.setObjectName("secondaryButton")
         self.toggle_gemini_eye.clicked.connect(lambda: self._toggle_echo(self.gemini_input, self.toggle_gemini_eye))
         gemini_row.addWidget(self.toggle_gemini_eye)
@@ -261,8 +263,8 @@ class SettingsDialog(QDialog):
         self.anthropic_input.setEchoMode(QLineEdit.EchoMode.Password)
         anthropic_row.addWidget(self.anthropic_input)
 
-        self.toggle_ant_eye = QPushButton("👁️")
-        self.toggle_ant_eye.setFixedSize(36, 36)
+        self.toggle_ant_eye = QPushButton("Show")
+        self.toggle_ant_eye.setFixedSize(54, 36)
         self.toggle_ant_eye.setObjectName("secondaryButton")
         self.toggle_ant_eye.clicked.connect(lambda: self._toggle_echo(self.anthropic_input, self.toggle_ant_eye))
         anthropic_row.addWidget(self.toggle_ant_eye)
@@ -279,8 +281,8 @@ class SettingsDialog(QDialog):
         self.openai_input.setEchoMode(QLineEdit.EchoMode.Password)
         openai_row.addWidget(self.openai_input)
 
-        self.toggle_oai_eye = QPushButton("👁️")
-        self.toggle_oai_eye.setFixedSize(36, 36)
+        self.toggle_oai_eye = QPushButton("Show")
+        self.toggle_oai_eye.setFixedSize(54, 36)
         self.toggle_oai_eye.setObjectName("secondaryButton")
         self.toggle_oai_eye.clicked.connect(lambda: self._toggle_echo(self.openai_input, self.toggle_oai_eye))
         openai_row.addWidget(self.toggle_oai_eye)
@@ -301,6 +303,20 @@ class SettingsDialog(QDialog):
         self.obsidian_browse_btn.clicked.connect(self._browse_obsidian_vault)
         obsidian_row.addWidget(self.obsidian_browse_btn)
         layout.addLayout(obsidian_row)
+
+        # 6. Output Synthesis Language
+        lang_label = QLabel("Synthese-Sprache (Notizen & Karteikarten):")
+        lang_label.setStyleSheet("font-weight: 500; color: #94A3B8; font-size: 12px;")
+        layout.addWidget(lang_label)
+
+        self.lang_combo = QComboBox()
+        self.lang_combo.addItem("Auto / Original (Vorlesungssprache)", "auto")
+        self.lang_combo.addItem("Deutsch (German)", "de")
+        self.lang_combo.addItem("English (US/UK)", "en")
+        self.lang_combo.addItem("Français (French)", "fr")
+        self.lang_combo.addItem("Español (Spanish)", "es")
+        self.lang_combo.addItem("中文 (Mandarin)", "zh")
+        layout.addWidget(self.lang_combo)
 
         # Status Label
         self.status_label = QLabel("")
@@ -369,6 +385,12 @@ class SettingsDialog(QDialog):
         if vault_path:
             self.obsidian_input.setText(vault_path)
 
+        # Load output language
+        target_lang = get_output_language()
+        lang_idx = self.lang_combo.findData(target_lang)
+        if lang_idx >= 0:
+            self.lang_combo.setCurrentIndex(lang_idx)
+
         if gemini_key or ant_key or oai_key or vault_path:
             self.status_label.setText("Einstellungen und Schlüssel geladen.")
             self.status_label.setStyleSheet("color: #FFFFFF; font-size: 12px;")
@@ -392,10 +414,10 @@ class SettingsDialog(QDialog):
     def _toggle_echo(self, line_edit: QLineEdit, button: QPushButton):
         if line_edit.echoMode() == QLineEdit.EchoMode.Password:
             line_edit.setEchoMode(QLineEdit.EchoMode.Normal)
-            button.setText("🔒")
+            button.setText("Hide")
         else:
             line_edit.setEchoMode(QLineEdit.EchoMode.Password)
-            button.setText("👁️")
+            button.setText("Show")
 
     def _open_ai_studio(self):
         QDesktopServices.openUrl(QUrl("https://aistudio.google.com/app/apikey"))
@@ -406,9 +428,11 @@ class SettingsDialog(QDialog):
         ant_key = self.anthropic_input.text().strip()
         oai_key = self.openai_input.text().strip()
         obsidian_vault = self.obsidian_input.text().strip()
+        selected_lang = self.lang_combo.currentData()
 
-        # Save Obsidian vault path
+        # Save Obsidian vault path & language
         set_obsidian_vault_path(obsidian_vault if obsidian_vault else None)
+        set_output_language(selected_lang)
 
         # Save keys
         if gemini_key:

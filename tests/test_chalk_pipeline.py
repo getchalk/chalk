@@ -904,6 +904,155 @@ class TestChalkHudKaTeXRendering(unittest.TestCase):
         self.assertEqual(len(calls), 3)
 
 
+class TestPhase23And24AcademicSuite(unittest.TestCase):
+    """Phase 23 & 24: Test suite for Academic Power-User Suite, PDF, Anki, and Search."""
+
+    def test_flashcard_pydantic_and_markdown_rendering(self):
+        """Test FlashcardItem, rendering to markdown, extraction, and Anki TSV export."""
+        import tempfile
+        from src.api.synthesis_pipeline import (
+            FlashcardItem,
+            render_flashcards_to_markdown,
+            extract_flashcards_from_markdown,
+            export_flashcards_to_tsv,
+        )
+
+        item1 = FlashcardItem(
+            question="Was besagt der Satz von Bayes?",
+            answer_latex=r"P(A|B) = \frac{P(B|A)P(A)}{P(B)}",
+            reference_timestamp="14:20",
+        )
+        item2 = FlashcardItem(
+            question="Welche Eigenschaft zeichnet orthogonale Matrizen aus?",
+            answer_latex=r"Q^T Q = I",
+            reference_timestamp=None,
+        )
+
+        md = render_flashcards_to_markdown([item1, item2])
+        self.assertIn("## Exam Flashcards & Key Concepts", md)
+        self.assertIn("Was besagt der Satz von Bayes?", md)
+        self.assertIn("#flashcard", md)
+        self.assertIn("?", md)
+
+        # Extraction from markdown
+        extracted = extract_flashcards_from_markdown(md)
+        self.assertEqual(len(extracted), 2)
+        self.assertEqual(extracted[0].question, "Was besagt der Satz von Bayes?")
+        self.assertIn("P(A|B)", extracted[0].answer_latex)
+
+        # Anki TSV export
+        with tempfile.NamedTemporaryFile(suffix=".tsv", delete=False) as tmp:
+            tmp_tsv = tmp.name
+
+        try:
+            ok = export_flashcards_to_tsv([item1, item2], tmp_tsv)
+            self.assertTrue(ok)
+            self.assertTrue(os.path.exists(tmp_tsv))
+            with open(tmp_tsv, "r", encoding="utf-8") as f:
+                content = f.read()
+            lines = [l for l in content.splitlines() if l.strip()]
+            self.assertEqual(len(lines), 2)
+            self.assertIn("\t", lines[0])  # Tab separated
+            self.assertIn("Satz von Bayes", lines[0])
+            self.assertIn("P(A|B)", lines[0])
+        finally:
+            if os.path.exists(tmp_tsv):
+                os.remove(tmp_tsv)
+
+    def test_pdf_export_qpdfwriter(self):
+        """Test standalone academic PDF generation via QTextDocument and QPdfWriter."""
+        import tempfile
+        from src.export.pdf_exporter import export_notes_to_pdf, markdown_to_academic_html
+
+        sample_notes = """# Höhere Mathematik II: Lineare Differentialgleichungen
+
+> [!theorem] Existenz- und Eindeutigkeitssatz von Picard-Lindelöf
+> Sei $f(t, x)$ stetig und bzgl. $x$ lokal Lipschitz-stetig. Dann existiert genau eine Lösung des AWP.
+
+- Wichtige Formel besprochen um [09:45](chalk-audio://09:45)
+- Standardansatz für homogene DGL:
+$$x(t) = C e^{\\lambda t}$$
+"""
+        html = markdown_to_academic_html(sample_notes, title="HM II")
+        self.assertIn("Picard-Lindelöf", html)
+        self.assertIn("callout-theorem", html)
+        self.assertIn("math-block", html)
+
+        with tempfile.NamedTemporaryFile(suffix=".pdf", delete=False) as tmp:
+            tmp_pdf = tmp.name
+
+        try:
+            ok = export_notes_to_pdf(sample_notes, tmp_pdf, title="HM II")
+            self.assertTrue(ok)
+            self.assertTrue(os.path.exists(tmp_pdf))
+            self.assertGreater(os.path.getsize(tmp_pdf), 1000)
+            with open(tmp_pdf, "rb") as f:
+                header = f.read(5)
+            self.assertEqual(header, b"%PDF-")
+        finally:
+            if os.path.exists(tmp_pdf):
+                os.remove(tmp_pdf)
+
+    def test_session_archive_search(self):
+        """Test local fulltext and formula archive search."""
+        import tempfile
+        import shutil
+        from src.ui.search_dialog import search_archive
+
+        temp_dir = tempfile.mkdtemp(prefix="chalk_test_search_")
+        try:
+            note_path = os.path.join(temp_dir, "Quantum_Computing.md")
+            with open(note_path, "w", encoding="utf-8") as f:
+                f.write(
+                    "# Quantenalgorithmen\n\n"
+                    "## Shors Algorithmus\n"
+                    "Shors Algorithmus faktorisiert Zahlen in polynomieller Zeit [18:45](chalk-audio://18:45).\n"
+                    "Die diskrete Fourier-Transformation bildet den Kernschritt.\n"
+                )
+
+            # Search for keyword "Shor"
+            results = search_archive("Shor", extra_dirs=[temp_dir])
+            self.assertGreaterEqual(len(results), 1)
+            ts_matches = [r for r in results if r.timestamp_sec is not None]
+            self.assertGreaterEqual(len(ts_matches), 1)
+            first = ts_matches[0]
+            self.assertEqual(first.session_title, "Quantenalgorithmen")
+            self.assertIn("polynomieller Zeit", first.match_snippet)
+            self.assertEqual(first.timestamp_str, "18:45")
+            self.assertEqual(first.timestamp_sec, 18 * 60 + 45.0)
+        finally:
+            shutil.rmtree(temp_dir, ignore_errors=True)
+
+    def test_output_language_config(self):
+        """Test persistent target output synthesis language setting."""
+        from src.engine.config import get_output_language, set_output_language
+
+        orig_lang = get_output_language()
+        try:
+            set_output_language("de")
+            self.assertEqual(get_output_language(), "de")
+
+            set_output_language("en")
+            self.assertEqual(get_output_language(), "en")
+
+            set_output_language("auto")
+            self.assertEqual(get_output_language(), "auto")
+        finally:
+            set_output_language(orig_lang)
+
+    def test_bulletproof_local_ip_discovery(self):
+        """Test multi-tier LAN/Hotspot IP discovery."""
+        from src.companion.server import get_local_ip
+
+        ip = get_local_ip()
+        self.assertIsInstance(ip, str)
+        parts = ip.split(".")
+        self.assertEqual(len(parts), 4)
+        for part in parts:
+            self.assertTrue(part.isdigit())
+            self.assertTrue(0 <= int(part) <= 255)
+
+
 if __name__ == "__main__":
     unittest.main()
 
