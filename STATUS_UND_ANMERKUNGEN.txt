@@ -1209,5 +1209,9 @@ A. PRÄZISE AUSRICHTUNG ALLER SCROLL-ZIELE AN DEN ABSCHNITTSBALKEN
       - Headless-Chrome Messung: Alle 4 Hauptsektionen (#how-it-works, #use-cases, #privacy, #download) stoppen auf den Subpixel genau (Abweichung < 0.39px) an der Unterkante der Navigationsleiste.
       - Screenshot-Audits bestätigen: Der Trennbalken (border-t) sitzt pixelgenau bündig unter der Navigationsleiste. Voller vertikaler Rhythmus (py-24) bleibt erhalten.
       - Deployment-Test ./scripts/deploy_web.sh test erfolgreich bestanden.
+  [✓] Feinjustierung #privacy (1px Doppelstrich-Eliminierung):
+      - Durch Subpixel-Rundung bei Retina-Displays (scale: 2x) lag der obere Rand von #privacy minimal unterhalb des Nav-Randes, sodass der Trennstrich doppelt erschien.
+      - Durch Kalibrierung via '#privacy { scroll-margin-top: calc(var(--nav-height, 67px) - 1px); }' scrollt der Browser exakt 1px weiter, sodass der Sektionstrennstrich vollständig und nahtlos unter dem unteren Rand der Navigationsleiste verschwindet.
+      - Ergebnis: Gestochen scharfe, einzelne Begrenzungslinie ohne Doppellinien-Artefakt.
 ================================================================================
 
