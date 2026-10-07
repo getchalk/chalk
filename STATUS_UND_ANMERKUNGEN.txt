@@ -1042,6 +1042,12 @@ F. HERO MOCKUP DUAL-INPUT REVERSAL & ANTI-TRUNCATION POLISH
         * Tastenkürzel `Alt+Space` in ein separates, natives `<kbd>`-Element ausgelagert — `INTELLIGENT RECALL` wird in allen 5 Sprachen ohne Kürzung gerendert.
         * Kompaktes `Direct AI` (statt mehrzeilig brechendem `Direct AI connection`) ermöglicht eine gestochen scharfe, einzeilige Footer-Zeile (`Direct AI • 100% Private`).
         * Aufhebung restriktiver `truncate`-Klassen im Phone-Link-Modul garantiert voll lesbare Micro-Copy (`Scan to snap board` und `Direct LAN • Zero Cloud`).
+
+G. NAVIGATION SCROLL-ANCHOR ALIGNMENT (#privacy)
+  [✓] Präzise Ausrichtung des Scroll-Ziels für "Privacy" (web/index.html):
+      - Ursachenanalyse: Das `<section id="privacy">`-Element enthielt noch die Tailwind-Klasse `scroll-mt-24` (Scroll-Margin-Top von 96px). Während `#how-it-works` und `#use-cases` keine Scroll-Margin besaßen und der Browser exakt an der oberen Trennlinie (`border-t`) stoppte, sprang der Browser bei Klick auf "Privacy" 96px zu tief in die Sektion hinein.
+      - Fix: Entfernung von `scroll-mt-24` auf `<section id="privacy">`. Alle vier Hauptsektionen (`#how-it-works`, `#use-cases`, `#privacy`, `#download`) weisen nun identische Klassen auf und landen beim Navigieren pixelgenau auf der feinen Trennlinie (`style="border-color: var(--chalk-border);"`).
 ================================================================================
+
 
 
