@@ -1028,8 +1028,9 @@ D. DESIGN-, BRANDING- & VERIFIKATIONS-AUDIT
 E. PRÄZISER FIX: TERMINAL QUICK-INSTALL OVERFLOW- & COLLISION-BESEITIGUNG
   [✓] Überlappungs-Befreiung der Quick-Install-Boxen (web/index.html):
       - Ursachenanalyse: Die 85 Zeichen langen `curl -L -O ...` URLs besaßen als unteilbare Zeichenketten eine minimale Intrinsic-Breite von >460px. In `sm:grid-cols-2` ohne `min-w-0` erzwang dies einen Spalten-Überlauf, wodurch der Copy-Button der linken Box direkt auf den Rahmen der rechten Box überlappte und der rechte Button aus der Karte ragte.
-      - Clean Architecture Redesign: Saubere vertikale Entkopplung von Header und Code. Jede Box besitzt nun eine eigene obere Header-Zeile mit Plattform-Badge (`macOS` / `Windows`), Typo-Untertitel (`Terminal (curl)` / `PowerShell / CMD`) und rechtsbündigem Copy-Button mit Vektor-SVG-Icon (`flex-shrink-0`).
-      - Der Befehl liegt darunter in einem eigenständigen Terminal-Block mit `overflow-x-auto min-w-0 block whitespace-nowrap` und dezentem, nicht mitkopiertem Shell-Prompt (`$ ` bzw. `> `).
+      - Clean Architecture Redesign: Saubere vertikale Entkopplung von Header und Code. Beide Quick-Install-Boxen (macOS und Windows) sind nun direkt untereinander gestapelt (`space-y-3.5`), sodass jeder Link die volle Breite des Containers nutzt und auf Standard-Bildschirmen gestochen scharf ohne Scrollbalken angezeigt wird.
+      - Jede Box besitzt eine eigene Header-Zeile mit Plattform-Badge (`macOS` / `Windows`), Typo-Untertitel (`Terminal (curl)` / `PowerShell / CMD`) und rechtsbündigem Copy-Button mit Vektor-SVG-Icon (`flex-shrink-0`).
+      - Der Befehl liegt darunter in einem eigenständigen Terminal-Block mit `block whitespace-nowrap` und dezentem, nicht mitkopiertem Shell-Prompt (`$ ` bzw. `> `).
       - Reaktivität & i18n: Volle Einbindung in alle 5 Sprachen (`cli_mac`, `cli_win`).
       - Micro-Interaktion: Reines SVG-Checkmark-Feedback bei Klick auf den Copy-Button.
 ================================================================================
