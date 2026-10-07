@@ -40,6 +40,8 @@ SYNTHESIS_SYSTEM_INSTRUCTION = (
     "- Defer mathematical notation strictly to the presentation slides to prevent variable drift.\n"
     "- Every mathematical formula must be valid KaTeX.\n"
     "- Proofs must be structured step-by-step. If a step was omitted by the instructor, denote it explicitly with [Lücke].\n"
+    "- Record all introduced variables, symbols, and mathematical operators in 'notations' with clear definitions.\n"
+    "- Provide exactly 3 rapid active-recall debrief questions in 'socratic_questions' testing core derivation, primary assumption, and exam pitfall.\n"
     "- When visual architectures, state machines, flowcharts, or system hierarchies are discussed or displayed on slides, "
     "generate valid Mermaid diagram syntax in the block explanation or latex field with type='diagram'.\n"
     "- MULTI-SPEAKER & ACOUSTIC DIARIZATION:\n"
@@ -160,6 +162,17 @@ class LectureNoteBlock(BaseModel):
         return str(v)
 
 
+class NotationItem(BaseModel):
+    """
+    Structured mathematical symbol or variable ledger entry.
+    """
+    model_config = ConfigDict(extra="ignore")
+
+    symbol: str = Field(..., description="LaTeX symbol or variable, e.g. \\beta_i")
+    definition: str = Field(..., description="Rigorous definition in context of this lecture")
+    introduced_in_segment: str = Field(default="", description="Segment or timestamp where introduced")
+
+
 class FlashcardItem(BaseModel):
     """
     Standardized flashcard item for spaced-repetition and Anki integration.
@@ -185,6 +198,10 @@ class LectureSynthesisResponse(BaseModel):
         default="Lecture Content",
         description="Primary topic or subject of this segment"
     )
+    notations: List[NotationItem] = Field(
+        default_factory=list,
+        description="Defined variables and mathematical operators"
+    )
     active_variables: List[str] = Field(
         default_factory=list,
         description="Currently active mathematical variables and notations"
@@ -200,6 +217,10 @@ class LectureSynthesisResponse(BaseModel):
     flashcards: List[FlashcardItem] = Field(
         default_factory=list,
         description="Exam flashcards and active recall concepts generated from this lecture chunk"
+    )
+    socratic_questions: List[str] = Field(
+        default_factory=list,
+        description="3 rapid active-recall questions testing core derivation, primary assumption, and exam pitfall"
     )
 
     def to_chunk_state(self, chunk_index: int = 0, timestamp_range: str = "[00:00 - 15:00]") -> ChunkState:
@@ -539,6 +560,50 @@ def sanitize_mermaid_syntax(mermaid_body: str) -> str:
 # 3. Deterministic Markdown Renderer
 # ==============================================================================
 
+def render_notations_to_markdown(notations: List[Union[Dict[str, Any], NotationItem]]) -> str:
+    """
+    Renders defined variables and mathematical operators into a crisp Markdown table:
+    ### Mathematical Notation & Variable Ledger
+    | Symbol | Conceptual Definition | Context / Segment |
+    | :--- | :--- | :--- |
+    | $\beta_i$ | Asset return sensitivity relative to market benchmark | Segment 01 [00:14:20] |
+    """
+    if not notations:
+        return ""
+
+    rows = [
+        "### Mathematical Notation & Variable Ledger",
+        "| Symbol | Conceptual Definition | Context / Segment |",
+        "| :--- | :--- | :--- |",
+    ]
+
+    for item in notations:
+        if hasattr(item, "model_dump"):
+            d = item.model_dump()
+        elif isinstance(item, dict):
+            d = item
+        else:
+            d = getattr(item, "__dict__", {})
+
+        sym = str(d.get("symbol", "")).strip()
+        defn = str(d.get("definition", "")).strip().replace("\n", " ").replace("|", "\\|")
+        seg = str(d.get("introduced_in_segment", "")).strip().replace("\n", " ").replace("|", "\\|")
+
+        if not sym or not defn:
+            continue
+
+        if not sym.startswith("$"):
+            sym = f"${sym}$"
+
+        seg_val = seg if seg else "General"
+        rows.append(f"| {sym} | {defn} | {seg_val} |")
+
+    if len(rows) <= 3:
+        return ""
+
+    return "\n".join(rows)
+
+
 def render_blocks_to_markdown(blocks: List[Union[Dict[str, Any], LectureNoteBlock]]) -> str:
     """
     Renders structured note blocks to Obsidian and GitHub Flavored Markdown callouts:
@@ -740,7 +805,7 @@ def render_blocks_to_markdown(blocks: List[Union[Dict[str, Any], LectureNoteBloc
 def render_flashcards_to_markdown(flashcards: List[Union[Dict[str, Any], FlashcardItem]]) -> str:
     """
     Renders flashcard items into standardized Obsidian Spaced Repetition plugin format:
-    ## Exam Flashcards & Key Concepts
+    ## Exam Flashcards & Spaced Repetition
     What is the core derivation of factor beta? #flashcard
     ?
     $$E(R_i) = R_f + \beta_i [E(R_m) - R_f]$$
@@ -749,7 +814,7 @@ def render_flashcards_to_markdown(flashcards: List[Union[Dict[str, Any], Flashca
     if not flashcards:
         return ""
 
-    cards_out = ["## Exam Flashcards & Key Concepts"]
+    cards_out = ["## Exam Flashcards & Spaced Repetition"]
     for item in flashcards:
         if hasattr(item, "model_dump"):
             d = item.model_dump()
@@ -771,6 +836,25 @@ def render_flashcards_to_markdown(flashcards: List[Union[Dict[str, Any], Flashca
     if len(cards_out) == 1:
         return ""
     return "\n\n".join(cards_out)
+
+
+def render_socratic_to_markdown(questions: List[str]) -> str:
+    """
+    Renders 3 rapid active-recall debrief questions into Obsidian callout format:
+    > [!question] Socratic Active Recall
+    > 1. Question 1
+    > 2. Question 2
+    > 3. Question 3
+    """
+    if not questions:
+        return ""
+    valid_qs = [str(q).strip() for q in questions if str(q).strip()]
+    if not valid_qs:
+        return ""
+    lines = ["> [!question] Socratic Active Recall"]
+    for idx, q in enumerate(valid_qs, 1):
+        lines.append(f"> {idx}. {q}")
+    return "\n".join(lines)
 
 
 def export_flashcards_to_tsv(
@@ -838,8 +922,8 @@ def render_synthesis_to_markdown(
     timestamp_range: str = "[00:00 - 15:00]",
 ) -> str:
     """
-    Renders full lecture synthesis output including title header, callout blocks,
-    exam flashcards, and <!-- CHUNK_STATE --> context chain block.
+    Renders full lecture synthesis output including title header, mathematical notation ledger,
+    callout blocks, exam flashcards, socratic active recall debrief, and <!-- CHUNK_STATE --> context chain block.
     """
     if hasattr(synthesis, "model_dump"):
         data = synthesis.model_dump()
@@ -850,13 +934,17 @@ def render_synthesis_to_markdown(
 
     topic = data.get("topic", "Lecture Synthesis")
     blocks = data.get("blocks", [])
+    notations = data.get("notations", [])
     active_vars = data.get("active_variables", [])
     unresolved = data.get("unresolved_proofs", [])
     speaker = data.get("primary_speaker", "Instructor")
     flashcards = data.get("flashcards", [])
+    socratic_questions = data.get("socratic_questions", [])
 
+    rendered_notations = render_notations_to_markdown(notations)
     rendered_callouts = render_blocks_to_markdown(blocks)
     rendered_flashcards = render_flashcards_to_markdown(flashcards)
+    rendered_socratic = render_socratic_to_markdown(socratic_questions)
 
     state = ChunkState(
         topic=topic,
@@ -868,8 +956,10 @@ def render_synthesis_to_markdown(
 
     parts = [
         f"## {topic} {timestamp_range}\n",
+        rendered_notations,
         rendered_callouts,
         rendered_flashcards,
+        rendered_socratic,
         "\n" + state.to_markdown_block(),
     ]
     return "\n\n".join(p for p in parts if p.strip())

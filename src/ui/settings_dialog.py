@@ -474,11 +474,11 @@ class SettingsDialog(QDialog):
         self.save_btn.setEnabled(True)
 
         if is_valid:
-            self.status_label.setText("✓ " + message)
+            self.status_label.setText("[OK] " + message)
             self.status_label.setStyleSheet("color: #FFFFFF; font-weight: 600; font-size: 12px;")
             self.accept()
         else:
-            self.status_label.setText("✗ " + message)
+            self.status_label.setText("[ERR] " + message)
             self.status_label.setStyleSheet("color: #F87171; font-size: 12px;")
 
     def _quit_application(self):

@@ -327,22 +327,22 @@ def handle_loopback_install():
 
     brew_path = shutil.which("brew")
     if not brew_path:
-        print("✗ Homebrew ('brew') was not detected in your PATH.")
+        print("[FAIL] Homebrew ('brew') was not detected in your PATH.")
         print("  Please install BlackHole 2ch manually from:")
         print("  https://github.com/ExistentialAudio/BlackHole/releases\n")
         sys.exit(1)
 
-    print(f"✓ Detected Homebrew at: {brew_path}")
+    print(f"[OK] Detected Homebrew at: {brew_path}")
     print("Installing BlackHole 2ch driver ('brew install blackhole-2ch')...\n")
     try:
         subprocess.check_call([brew_path, "install", "blackhole-2ch"])
         print("\n" + "-" * 76)
-        print("✓ BlackHole 2ch successfully installed!")
+        print("[OK] BlackHole 2ch successfully installed!")
         print("  System audio loopback is now available for Zoom, Teams, and presentation media.")
         print("-" * 76 + "\n")
         sys.exit(0)
     except subprocess.CalledProcessError as e:
-        print(f"\n✗ Homebrew installation exited with error code {e.returncode}.")
+        print(f"\n[FAIL] Homebrew installation exited with error code {e.returncode}.")
         sys.exit(e.returncode)
 
 
@@ -354,10 +354,10 @@ def main():
     diag = PreFlightDiagnostics()
     success = diag.run_all()
     if success:
-        print("✓ All critical pre-flight checks passed! Chalk is ready for lecture recording.\n")
+        print("[OK] All critical pre-flight checks passed! Chalk is ready for lecture recording.\n")
         sys.exit(0)
     else:
-        print("✗ One or more critical system permissions are missing. Please resolve them using the paths above.\n")
+        print("[FAIL] One or more critical system permissions are missing. Please resolve them using the paths above.\n")
         sys.exit(1)
 
 

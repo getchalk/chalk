@@ -178,7 +178,7 @@ class SessionNotesManager:
         and updates context chain state.
         """
         self.chunk_count += 1
-        time_tag = f"### ⏱️ Segment {self.chunk_count}: {start_time_str} – {end_time_str}\n\n"
+        time_tag = f"### [Segment {self.chunk_count:02d}]: {start_time_str} – {end_time_str}\n\n"
 
         # Parse model's emitted chunk state
         new_state = ChunkState.from_model_output(markdown_text, chunk_index=self.chunk_count)
@@ -199,7 +199,7 @@ class SessionNotesManager:
     def append_master_synthesis(self, master_markdown: str):
         """Appends the final Gemini Pro master synthesis to the session file."""
         heading = (
-            "\n\n# 🎓 Chalk Master Synthesis & Exam Preparation Deck\n\n"
+            "\n\n# Master Synthesis & Exam Preparation\n\n"
             "*Synthesized across all lecture segments via Gemini Pro*\n\n"
             "---\n\n"
         )

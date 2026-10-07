@@ -15,7 +15,8 @@ import time
 import subprocess
 import logging
 import re
-from typing import Optional, List, Dict, Any, Tuple
+import html
+from typing import Optional, List, Dict, Any, Tuple, Union
 from PIL import Image
 
 from PyQt6.QtCore import Qt, QThread, pyqtSignal, QTimer, QPoint, QUrl
@@ -398,7 +399,7 @@ def render_markdown_with_katex(md_text: str) -> str:
         r"\[([0-9:]+)\]\(chalk-audio://([0-9:]+)\)",
         r'<a href="chalk-audio://\2" style="color:#60A5FA; text-decoration:none; '
         r'font-weight:600; font-family:monospace; background:rgba(255,255,255,0.08); '
-        r'padding:1px 5px; border-radius:4px;">⏱️ [\1]</a>',
+        r'padding:1px 5px; border-radius:4px;">[\1]</a>',
         text
     )
 
@@ -532,7 +533,7 @@ class WhiteboardCamDialog(QDialog):
         layout.setSpacing(12)
 
         # Header Title
-        title_lbl = QLabel("📱 Tafel-Kamera Kopplung")
+        title_lbl = QLabel("Tafel-Kamera Kopplung [LAN]")
         title_lbl.setStyleSheet("font-size: 16px; font-weight: 700; color: #FFFFFF;")
         title_lbl.setAlignment(Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(title_lbl)
@@ -609,12 +610,12 @@ class WhiteboardCamDialog(QDialog):
 
     def _copy_link(self):
         QApplication.clipboard().setText(self.url_edit.text())
-        self.copy_btn.setText("Kopiert ✓")
+        self.copy_btn.setText("Kopiert")
         QTimer.singleShot(2000, lambda: self.copy_btn.setText("Kopieren"))
 
     def _on_photo_received(self, path: str, ts: str):
         count = self.daemon.bridge.upload_count if self.daemon and self.daemon.bridge else 1
-        self.live_status.setText(f"✓ {count} Tafel-Foto{'s' if count > 1 else ''} empfangen ({ts})")
+        self.live_status.setText(f"[OK] {count} Tafel-Foto{'s' if count > 1 else ''} empfangen ({ts})")
 
     def _on_client_connected(self, ip: str):
         self.live_status.setText(f"Smartphone verbunden ({ip})")
@@ -723,7 +724,7 @@ class FloatingHUDWindow(QWidget):
         header.addStretch()
 
         # Minimize / Hide button
-        hide_btn = QPushButton("✕")
+        hide_btn = QPushButton("X")
         hide_btn.setFixedSize(28, 28)
         hud_shortcut = "Cmd+Shift+Space" if sys.platform == "darwin" else "Ctrl+Shift+Space"
         hide_btn.setToolTip(f"HUD ausblenden ({hud_shortcut} zum Einblenden)")
@@ -742,12 +743,12 @@ class FloatingHUDWindow(QWidget):
         actions_bar.addWidget(self.attach_doc_btn)
 
         snip_shortcut = "Cmd+Shift+S" if sys.platform == "darwin" else "Ctrl+Shift+S"
-        self.snip_btn = QPushButton(f"Snip ({snip_shortcut})")
+        self.snip_btn = QPushButton("Snip Screen [Alt+S]")
         self.snip_btn.setToolTip(f"Bildschirmbereich zuschneiden ({snip_shortcut} / Alt+S)")
         self.snip_btn.clicked.connect(self.trigger_screen_snip)
         actions_bar.addWidget(self.snip_btn)
 
-        self.cam_btn = QPushButton("Tafel-Kamera")
+        self.cam_btn = QPushButton("Tafel-Kamera [QR]")
         self.cam_btn.setToolTip("Smartphone via QR-Code verbinden, um Tafel-Fotos direkt einzubinden")
         self.cam_btn.clicked.connect(self._open_whiteboard_cam_dialog)
         actions_bar.addWidget(self.cam_btn)
@@ -762,7 +763,7 @@ class FloatingHUDWindow(QWidget):
         self.search_btn.clicked.connect(self._open_archive_search)
         actions_bar.addWidget(self.search_btn)
 
-        self.anki_export_btn = QPushButton("Export Anki (.tsv)")
+        self.anki_export_btn = QPushButton("Export Anki [TSV]")
         self.anki_export_btn.setToolTip("Generierte Spaced-Repetition Karteikarten für Anki exportieren")
         self.anki_export_btn.clicked.connect(self._export_anki_flashcards)
         actions_bar.addWidget(self.anki_export_btn)
@@ -772,7 +773,7 @@ class FloatingHUDWindow(QWidget):
         self.pdf_export_btn.clicked.connect(self._export_notes_pdf)
         actions_bar.addWidget(self.pdf_export_btn)
 
-        self.copy_notes_btn = QPushButton("Notizen kopieren")
+        self.copy_notes_btn = QPushButton("Copy Notes")
         self.copy_notes_btn.setToolTip("Notizen und Gliederung in Zwischenablage kopieren")
         self.copy_notes_btn.clicked.connect(self._copy_notes_to_clipboard)
         actions_bar.addWidget(self.copy_notes_btn)
@@ -782,7 +783,7 @@ class FloatingHUDWindow(QWidget):
         self.obsidian_btn.clicked.connect(self._open_in_obsidian)
         actions_bar.addWidget(self.obsidian_btn)
 
-        self.editor_btn = QPushButton("Editor")
+        self.editor_btn = QPushButton("System Editor")
         self.editor_btn.setToolTip("Notizen im Standard-Markdown-Editor öffnen")
         self.editor_btn.clicked.connect(self._open_in_default_editor)
         actions_bar.addWidget(self.editor_btn)
@@ -894,27 +895,27 @@ class FloatingHUDWindow(QWidget):
         splitter.setSizes([330, 410])
         main_layout.addWidget(splitter)
 
-        # Floating Mini-Player Pill ([⏮ -5s] [▶/⏸] [⏭ +5s] [01:24:15] ✕)
+        # Floating Mini-Player Pill ([-5s] [Play/Pause] [+5s] [00:00] X)
         self.player_pill = QFrame()
         self.player_pill.setObjectName("playerPill")
         pill_layout = QHBoxLayout(self.player_pill)
         pill_layout.setContentsMargins(10, 4, 10, 4)
         pill_layout.setSpacing(8)
 
-        self.player_rewind_btn = QPushButton("⏮ -5s")
+        self.player_rewind_btn = QPushButton("-5s")
         self.player_rewind_btn.setObjectName("pillBtn")
         self.player_rewind_btn.setToolTip("5 Sekunden zurückspringen")
         self.player_rewind_btn.clicked.connect(self._step_backward_5s)
         pill_layout.addWidget(self.player_rewind_btn)
 
-        self.player_play_btn = QPushButton("▶")
+        self.player_play_btn = QPushButton("Play")
         self.player_play_btn.setObjectName("pillBtn")
-        self.player_play_btn.setFixedSize(36, 26)
+        self.player_play_btn.setFixedSize(50, 26)
         self.player_play_btn.setToolTip("Wiedergabe starten/anhalten")
         self.player_play_btn.clicked.connect(self._toggle_audio_playback)
         pill_layout.addWidget(self.player_play_btn)
 
-        self.player_forward_btn = QPushButton("⏭ +5s")
+        self.player_forward_btn = QPushButton("+5s")
         self.player_forward_btn.setObjectName("pillBtn")
         self.player_forward_btn.setToolTip("5 Sekunden vorwärtsspringen")
         self.player_forward_btn.clicked.connect(self._step_forward_5s)
@@ -940,7 +941,7 @@ class FloatingHUDWindow(QWidget):
 
         pill_layout.addStretch()
 
-        self.player_close_btn = QPushButton("✕")
+        self.player_close_btn = QPushButton("X")
         self.player_close_btn.setObjectName("pillCloseBtn")
         self.player_close_btn.setToolTip("Mini-Player schließen")
         self.player_close_btn.clicked.connect(self.hide_audio_player_pill)
@@ -1063,7 +1064,7 @@ class FloatingHUDWindow(QWidget):
                 )
 
                 self.chat_history.append(
-                    f"<b>📚 Folien bereit: {total_pages} Seiten ({self.imported_pdf_name})</b><br>"
+                    f"<b>[PDF] Folien bereit: {total_pages} Seiten ({self.imported_pdf_name})</b><br>"
                     "<i>In-Person Vorlesungsmodus: Gesprochene Inhalte werden automatisch den Folienseiten zugeordnet.</i>\n"
                 )
                 logger.info("Pre-imported %d PDF slide pages from '%s'", total_pages, clean_path)
@@ -1138,14 +1139,14 @@ class FloatingHUDWindow(QWidget):
         if self.imported_pdf_slides:
             total_pages = len(self.imported_pdf_slides)
             deck_name = self.imported_pdf_name or "Vorlesungsskript"
-            tags.append(f"📚 Folien bereit: {total_pages} Seiten ({deck_name})")
+            tags.append(f"[PDF] Folien bereit: {total_pages} Seiten ({deck_name})")
         elif self.attached_document_name:
-            tags.append(f"📄 {self.attached_document_name}")
+            tags.append(f"[DOC] {self.attached_document_name}")
         if self.attached_snip_image:
-            tags.append(f"✂️ Screen Snip ({self.attached_snip_image.width}x{self.attached_snip_image.height})")
+            tags.append(f"[SNIP] Screen Snip ({self.attached_snip_image.width}x{self.attached_snip_image.height})")
         if self.whiteboard_photos:
             n_wb = len(self.whiteboard_photos)
-            tags.append(f"📱 Tafel-Fotos: {n_wb} erfasst")
+            tags.append(f"[CAM] Tafel-Fotos: {n_wb} erfasst")
 
         if tags:
             self.attachment_label.setText(" | ".join(tags))
@@ -1175,7 +1176,7 @@ class FloatingHUDWindow(QWidget):
         logger.info("Whiteboard photo registered in HUD: %s", image_path)
 
         # 1. Subtle transient confirmation badge on status pill
-        self.status_pill.setText(f"📷 TAFEL-FOTO ERFASST ({timestamp_str})")
+        self.status_pill.setText(f"[CAM] TAFEL-FOTO ERFASST ({timestamp_str})")
         self.status_pill.setStyleSheet(
             "background-color: rgba(16, 185, 129, 0.2); border: 1px solid #10B981;"
             "color: #10B981; font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 12px;"
@@ -1188,7 +1189,7 @@ class FloatingHUDWindow(QWidget):
         # 3. Add to chat history
         n_photos = len(self.whiteboard_photos)
         self.chat_history.append(
-            f"<span style='color:#10B981;'><b>📷 Tafel-Kamera:</b> Foto #{n_photos} erfasst ({timestamp_str}). Fließt mit höchster Priorität in die nächsten Notizen ein.</span><br>"
+            f"<span style='color:#10B981;'><b>[CAM] Tafel-Kamera:</b> Foto #{n_photos} erfasst ({timestamp_str}). Fließt mit höchster Priorität in die nächsten Notizen ein.</span><br>"
         )
 
     def _restore_pill_status(self):
@@ -1209,7 +1210,7 @@ class FloatingHUDWindow(QWidget):
             self.chat_history.append("<i>[Audio-Aufnahme nicht aktiv]</i>")
             return
 
-        self.chat_history.append("<b>⏮️ Rufe letzte 90 Sekunden Audio ab...</b>")
+        self.chat_history.append("<b>[REWIND] Rufe letzte 90 Sekunden Audio ab...</b>")
         self.play_audio_scrub(offset_seconds=0.0, duration=90.0)
 
         self.rewind_worker = RewindWorker(self.recorder, self.pipeline, seconds=90)
@@ -1340,8 +1341,8 @@ class FloatingHUDWindow(QWidget):
                 playback_sr = int(sr * speed)
                 sd.play(audio, playback_sr)
                 self.is_playing_audio = True
-                self.player_play_btn.setText("⏸")
-                self.player_status_lbl.setText(f"▶ Spielt 20s Ausschnitt ({speed}x)")
+                self.player_play_btn.setText("Pause")
+                self.player_status_lbl.setText(f"Spielt 20s Ausschnitt ({speed}x)")
                 self.player_status_lbl.setStyleSheet("color: #38BDF8; font-size: 11px;")
 
                 if hasattr(self, "_play_timer") and self._play_timer:
@@ -1354,12 +1355,12 @@ class FloatingHUDWindow(QWidget):
             else:
                 self.player_status_lbl.setText("Kein Audio-Puffer verfügbar")
                 self.player_status_lbl.setStyleSheet("color: #F87171; font-size: 11px;")
-                self.player_play_btn.setText("▶")
+                self.player_play_btn.setText("Play")
                 self.is_playing_audio = False
         except Exception as e:
             logger.warning("Audio playback error: %s", e)
             self.player_status_lbl.setText("Wiedergabefehler")
-            self.player_play_btn.setText("▶")
+            self.player_play_btn.setText("Play")
             self.is_playing_audio = False
 
     def play_audio_scrub(self, offset_seconds: float = 0.0, duration: float = 20.0):
@@ -1371,7 +1372,7 @@ class FloatingHUDWindow(QWidget):
 
     def _on_playback_completed(self):
         self.is_playing_audio = False
-        self.player_play_btn.setText("▶")
+        self.player_play_btn.setText("Play")
         self.player_status_lbl.setText("20s Snippet beendet")
         self.player_status_lbl.setStyleSheet("color: #94A3B8; font-size: 11px;")
 
@@ -1450,7 +1451,7 @@ class FloatingHUDWindow(QWidget):
         success = export_flashcards_to_tsv(cards, tsv_path)
         if success:
             orig_text = self.anki_export_btn.text()
-            self.anki_export_btn.setText("✓ Exportiert!")
+            self.anki_export_btn.setText("Exportiert [OK]")
             QTimer.singleShot(2500, lambda: self.anki_export_btn.setText(orig_text))
             self.chat_history.append(f"<b>[Anki TSV Export]</b> {len(cards)} Karteikarten exportiert nach: <code>{tsv_path}</code>")
         else:
@@ -1484,7 +1485,7 @@ class FloatingHUDWindow(QWidget):
         success = export_notes_to_pdf(content, pdf_path, title=title)
         if success:
             orig_text = self.pdf_export_btn.text()
-            self.pdf_export_btn.setText("✓ PDF Fertig!")
+            self.pdf_export_btn.setText("PDF Fertig [OK]")
             QTimer.singleShot(2500, lambda: self.pdf_export_btn.setText(orig_text))
             self.chat_history.append(f"<b>[PDF Export]</b> Akademisches Skript gespeichert: <code>{pdf_path}</code>")
         else:
@@ -1549,7 +1550,7 @@ class FloatingHUDWindow(QWidget):
         if clipboard:
             clipboard.setText(content)
             orig_text = self.copy_notes_btn.text()
-            self.copy_notes_btn.setText("✓ Kopiert!")
+            self.copy_notes_btn.setText("Kopiert [OK]")
             QTimer.singleShot(2000, lambda: self.copy_notes_btn.setText(orig_text))
 
     def _open_in_obsidian(self):
@@ -1649,6 +1650,71 @@ class FloatingHUDWindow(QWidget):
         if event.buttons() == Qt.MouseButton.LeftButton:
             self.move(event.globalPosition().toPoint() - self.drag_position)
             event.accept()
+
+    def show_socratic_debrief(self, source: Union[str, List[str]]):
+        """
+        Displays a compact Socratic Active Recall debrief card with 3 targeted comprehension questions
+        in the HUD Copilot view upon lecture completion (F9).
+        Also ensures the callout is appended to the active session notes if not already present.
+        """
+        questions = []
+        if isinstance(source, list):
+            questions = [str(q).strip() for q in source if str(q).strip()]
+        elif isinstance(source, str):
+            # Parse from markdown callout if present
+            pattern = re.compile(
+                r">\s*\[!question\]\s*Socratic Active Recall(.*?)(?=\n> \[|\n## |\n<!-- CHUNK_STATE|\Z)",
+                re.DOTALL | re.IGNORECASE,
+            )
+            match = pattern.search(source)
+            if match:
+                q_block = match.group(1)
+                for line in q_block.splitlines():
+                    cleaned = re.sub(r"^>\s*(?:\d+\.|\-|\*)\s*", "", line).strip()
+                    if cleaned and not cleaned.startswith(">") and not cleaned.startswith("[!"):
+                        questions.append(cleaned)
+
+        if not questions:
+            questions = [
+                "Was ist die fundamentale Invariante oder mathematische Kernannahme der heutigen Vorlesung?",
+                "Unter welchen Randbedingungen oder Grenzwerten verliert die hergeleitete Hauptformel ihre Gültigkeit?",
+                "Welcher typische Modellierungs- oder Prüfungsfehler wurde besonders hervorgehoben?"
+            ]
+
+        # Make sure questions are at most 3
+        questions = questions[:3]
+
+        qs_html = "".join([f"<li style='margin-bottom: 5px; color: #E2E8F0; line-height: 1.4;'>{html.escape(q)}</li>" for q in questions])
+        debrief_card = (
+            "<div style='border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 8px; "
+            "background-color: #1A1C23; padding: 12px; margin: 10px 0;'>"
+            "<div style='font-size: 11px; font-weight: 700; color: #94A3B8; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px;'>"
+            "[SOCRATIC ACTIVE RECALL — F9 DEBRIEF]</div>"
+            f"<ol style='margin: 0; padding-left: 20px; font-size: 12px;'>{qs_html}</ol>"
+            "</div>"
+        )
+
+        self._show_chat_view()
+        self.chat_history.append(debrief_card)
+
+        # Check if active session notes need this appended
+        notes_path = self._get_active_notes_path()
+        if notes_path and os.path.exists(notes_path):
+            try:
+                with open(notes_path, "r", encoding="utf-8") as f:
+                    current_notes = f.read()
+                if "[!question] Socratic Active Recall" not in current_notes:
+                    callout_lines = [
+                        "\n\n> [!question] Socratic Active Recall",
+                    ]
+                    for idx, q in enumerate(questions, 1):
+                        callout_lines.append(f"> {idx}. {q}")
+                    callout_lines.append("\n")
+                    with open(notes_path, "a", encoding="utf-8") as f:
+                        f.write("\n".join(callout_lines))
+                    logger.info("Appended Socratic Active Recall callout to notes: %s", notes_path)
+            except Exception as e:
+                logger.warning("Could not auto-append socratic callout to notes: %s", e)
 
     def closeEvent(self, event):
         if hasattr(self, "companion_daemon") and self.companion_daemon:

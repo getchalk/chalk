@@ -263,7 +263,7 @@ class ChalkCoordinator(QObject):
         self.tray.set_status("green")
         self.hud.set_daemon_status("recording")
 
-        send_desktop_notification("Chalk Lecture Engine", "🟢 Recording active: Mic + System Loopback + Slides.")
+        send_desktop_notification("Chalk Lecture Engine", "Recording active: Mic + Loopback + Slides.")
 
     def _init_global_hotkeys(self):
         """
@@ -384,7 +384,7 @@ class ChalkCoordinator(QObject):
 
         # Notify UI
         self.hud.chat_history.append(
-            f"<b>✓ Chunk Synthesized {start_t}–{end_t}:</b> {new_state.topic}\n"
+            f"<b>[SYNC] Chunk Synthesized {start_t}–{end_t}:</b> {new_state.topic}\n"
         )
 
         # Restore status
@@ -490,9 +490,10 @@ class ChalkCoordinator(QObject):
         self.hud.set_daemon_status("standby", "Session Completed")
 
         self.hud.chat_history.append(
-            "<b>🎓 Master Synthesis Completed!</b>\n"
+            "<b>Master Synthesis Completed.</b>\n"
             "Anki Cloze study deck, standardized formula derivations, and exam warnings generated.\n"
         )
+        self.hud.show_socratic_debrief(master_markdown)
         send_desktop_notification("Chalk Complete", "Lecture synthesized! Opening notes folder.")
         self.open_notes_folder()
 

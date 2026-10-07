@@ -1,9 +1,8 @@
 """
 src/ui/tray.py - System Tray Daemon with Dynamic Status Dot.
-Uses pystray to run a background system tray icon with colored status dots:
-🟢 Green: Actively recording (Mic + System Loopback + Screen)
-🟡 Yellow: Paused (Break detected via Silero VAD or manual pause)
-🔵 Blue: Processing chunk via Gemini API worker
+- Green: Actively recording (Mic + System Loopback + Screen)
+- Yellow: Paused (Break detected via Silero VAD or manual pause)
+- Blue: Processing chunk via Gemini API worker
 Context menu: Toggle Recording (F9), Force Chunk Flush (F10), Show HUD (Alt+Space),
 In Obsidian öffnen, Im Standard-Editor öffnen, Notizen-Ordner öffnen, Einstellungen, Beenden.
 """
@@ -106,9 +105,9 @@ class ChalkSystemTray:
     def set_status(self, state: str):
         """
         Updates the tray icon color:
-        'green' / 'recording' -> 🟢
-        'yellow' / 'paused' / 'standby' -> 🟡
-        'blue' / 'processing' -> 🔵
+        'green' / 'recording' -> [REC] (green status dot)
+        'yellow' / 'paused' / 'standby' -> [PAUSE] (yellow status dot)
+        'blue' / 'processing' -> [PROC] (blue status dot)
         """
         color_map = {
             "green": "green",

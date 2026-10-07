@@ -929,7 +929,7 @@ class TestPhase23And24AcademicSuite(unittest.TestCase):
         )
 
         md = render_flashcards_to_markdown([item1, item2])
-        self.assertIn("## Exam Flashcards & Key Concepts", md)
+        self.assertIn("## Exam Flashcards & Spaced Repetition", md)
         self.assertIn("Was besagt der Satz von Bayes?", md)
         self.assertIn("#flashcard", md)
         self.assertIn("?", md)
@@ -1051,6 +1051,139 @@ $$x(t) = C e^{\\lambda t}$$
         for part in parts:
             self.assertTrue(part.isdigit())
             self.assertTrue(0 <= int(part) <= 255)
+
+    def test_phase25_notation_ledger_schema_and_rendering(self):
+        """Test Mathematical Notation & Variable Ledger Pydantic schema and table rendering."""
+        from src.api.synthesis_pipeline import (
+            NotationItem,
+            LectureSynthesisResponse,
+            render_notations_to_markdown,
+            render_synthesis_to_markdown,
+        )
+
+        item1 = NotationItem(
+            symbol=r"\beta_i",
+            definition="Asset return sensitivity relative to market benchmark",
+            introduced_in_segment="Segment 01 [00:14:20]",
+        )
+        item2 = NotationItem(
+            symbol=r"R_f",
+            definition="Risk-free rate of return (e.g. 10Y Treasury)",
+            introduced_in_segment="Segment 01 [00:16:45]",
+        )
+
+        # Test table rendering
+        table_md = render_notations_to_markdown([item1, item2])
+        self.assertIn("### Mathematical Notation & Variable Ledger", table_md)
+        self.assertIn("| Symbol | Conceptual Definition | Context / Segment |", table_md)
+        self.assertIn(r"| $\beta_i$ | Asset return sensitivity relative to market benchmark | Segment 01 [00:14:20] |", table_md)
+        self.assertIn(r"| $R_f$ | Risk-free rate of return (e.g. 10Y Treasury) | Segment 01 [00:16:45] |", table_md)
+
+        # Empty notations returns empty string
+        self.assertEqual(render_notations_to_markdown([]), "")
+
+    def test_phase25_socratic_recall_drill(self):
+        """Test Socratic Active Recall Debrief callouts and synthesis integration."""
+        from src.api.synthesis_pipeline import (
+            LectureSynthesisResponse,
+            LectureNoteBlock,
+            NotationItem,
+            render_socratic_to_markdown,
+            render_synthesis_to_markdown,
+        )
+
+        questions = [
+            "Was ist die primäre Invariante des CAPM-Gleichgewichts?",
+            "Welche Grenzannahme bzgl. Arbitragefreiheit muss erfüllt sein?",
+            "Welcher typische Fehler tritt bei heterogenen Erwartungen auf?",
+        ]
+
+        socratic_md = render_socratic_to_markdown(questions)
+        self.assertIn("> [!question] Socratic Active Recall", socratic_md)
+        self.assertIn("> 1. Was ist die primäre Invariante des CAPM-Gleichgewichts?", socratic_md)
+        self.assertIn("> 2. Welche Grenzannahme bzgl. Arbitragefreiheit muss erfüllt sein?", socratic_md)
+        self.assertIn("> 3. Welcher typische Fehler tritt bei heterogenen Erwartungen auf?", socratic_md)
+
+        # Full response rendering order verification (Notations -> Blocks -> Socratic)
+        resp = LectureSynthesisResponse(
+            topic="Capital Asset Pricing Model",
+            notations=[
+                NotationItem(symbol=r"\beta_i", definition="Systematisches Risiko", introduced_in_segment="Seg 1")
+            ],
+            blocks=[
+                LectureNoteBlock(
+                    type="theorem",
+                    title="CAPM Wertpapiermarktlinie",
+                    latex=r"E(R_i) = R_f + \beta_i [E(R_m) - R_f]",
+                    explanation="Erwartete Rendite im Marktgleichgewicht.",
+                    source="slide",
+                )
+            ],
+            socratic_questions=questions,
+        )
+
+        full_md = render_synthesis_to_markdown(resp)
+        self.assertIn("### Mathematical Notation & Variable Ledger", full_md)
+        self.assertIn("> [!theorem] CAPM Wertpapiermarktlinie", full_md)
+        self.assertIn("> [!question] Socratic Active Recall", full_md)
+        # Notations must appear before theorem callout
+        notations_idx = full_md.index("### Mathematical Notation & Variable Ledger")
+        theorem_idx = full_md.index("> [!theorem]")
+        socratic_idx = full_md.index("> [!question] Socratic Active Recall")
+        self.assertLess(notations_idx, theorem_idx)
+        self.assertLess(theorem_idx, socratic_idx)
+
+    def test_phase25_zero_emojis_in_synthesis_and_markdown(self):
+        """Verify 0 emojis exist in rendered markdown and session state."""
+        import re
+        from src.api.synthesis_pipeline import (
+            LectureSynthesisResponse,
+            LectureNoteBlock,
+            NotationItem,
+            FlashcardItem,
+            render_synthesis_to_markdown,
+        )
+        from src.engine.session_state import SessionNotesManager
+
+        emoji_pattern = re.compile(r'[\U00010000-\U0010ffff]|[\u2600-\u27bf]|[\u2300-\u23ff]|[\u2b50-\u2b55]')
+
+        resp = LectureSynthesisResponse(
+            topic="Stochastische Differentialgleichungen",
+            notations=[
+                NotationItem(symbol=r"W_t", definition="Wiener-Prozess / Brownsche Bewegung", introduced_in_segment="00:05:00")
+            ],
+            blocks=[
+                LectureNoteBlock(
+                    type="definition",
+                    title="Itô-Integral",
+                    latex=r"X_t = \int_0^t \sigma_s \, dW_s",
+                    explanation="Stochastisches Integral bezüglich der Brownschen Bewegung.",
+                    source="slide",
+                )
+            ],
+            flashcards=[
+                FlashcardItem(question="Was ist die quadratische Variation von W_t?", answer_latex=r"[W, W]_t = t")
+            ],
+            socratic_questions=[
+                "Warum ist das Itô-Integral ein Martingal?",
+                "Wie unterscheidet sich das Stratonovich-Integral?",
+                "Welche Bedingung fordert das Lemma von Itô?",
+            ],
+        )
+
+        md = render_synthesis_to_markdown(resp)
+        emojis_found = emoji_pattern.findall(md)
+        self.assertEqual(len(emojis_found), 0, f"Emojis found in rendered markdown: {emojis_found}")
+
+        with tempfile.TemporaryDirectory() as td:
+            notes_mgr = SessionNotesManager(notes_dir=td, session_id="test_p25_clean")
+            notes_mgr.append_chunk_notes(md, "00:00:00", "00:15:00")
+            notes_mgr.append_master_synthesis("# Consolidated Review\n\nAll theorems verified.")
+
+            with open(notes_mgr.session_file, "r", encoding="utf-8") as f:
+                content = f.read()
+            session_emojis = emoji_pattern.findall(content)
+            self.assertEqual(len(session_emojis), 0, f"Emojis found in session file: {session_emojis}")
 
 
 if __name__ == "__main__":
