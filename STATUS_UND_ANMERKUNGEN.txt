@@ -1,6 +1,6 @@
 ================================================================================
 CHALK — AMBIENT COGNITIVE PRESENCE ENGINE & WEB PORTAL
-STATUS-REPORT, ARCHITEKTUR-ÜBERSICHT UND ANMERKUNGEN (PHASEN 1–25)
+STATUS-REPORT, ARCHITEKTUR-ÜBERSICHT UND ANMERKUNGEN (PHASEN 1–26)
 ================================================================================
 Stand: 2026-10-07
 Projektpfad (Desktop): /Users/user/Desktop/chalk/
@@ -34,8 +34,11 @@ Phase 22: Ultra-leichte Whiteboard-Kamera via QR-Code (Zero-Friction & Zero-Clou
 Phase 23 & 24: Production Hardening, Artifact Fixes & Advanced Academic Suite [ABGESCHLOSSEN]
 Phase 23C: Hero Mockup Whiteboard QR Integration & Visual Dual-Input [ABGESCHLOSSEN]
 Phase 25: Purist Codebase De-Emojifying, Mathematical Notation Ledger & Socratic Debrief [ABGESCHLOSSEN]
+Phase 26: Full 5-Language Desktop App i18n Parity (EN, DE, FR, ES, ZH) [ABGESCHLOSSEN]
 
-- Unit- & Integrationstest-Suite: 53/53 TESTS BESTANDEN (9.8s).
+- Unit- & Integrationstest-Suite: 60/60 TESTS BESTANDEN (8.9s).
+- Desktop App i18n Sprachparität: Vollständige 5-Sprachen-Unterstützung (EN, DE, FR, ES, ZH) in HUD, Tray, Settings, Suche, Notifications, PDF-Export und Socratic Debrief.
+
 - Hero-Mockup Dual-Input & Whiteboard QR: Responsives Split-Grid (Intelligent Recall + Phone Link mit 64x64 SVG QR-Code), reaktiver Titelleisten-Indikator, 5-Sprachen i18n.
 - Whiteboard-Kamera & Mobile Companion: 100% Inline Single-Page Web App, Pure-Python QR-Code Generator (0 Abhängigkeiten), Direct LAN/Hotspot (<850ms), höchste Synthese-Priorität für Tafelbilder.
 - Multi-OS Release Parität: Standalone-Pipelines für macOS arm64 (.app Bundle & .zip) und Windows x64 (.exe Installer via scripts/build_windows.bat & .github/workflows/release.yml).
@@ -1120,7 +1123,72 @@ D. QUALITÄTSSICHERUNG & SYSTEM-VERIFIKATION
   [✓] SHA-256 Prüfsummen aktualisiert in `dist/SHA256SUMS.txt`.
   [✓] 1:1 Spiegelung nach `/Users/user/Desktop/chalk/`.
   [✓] Desktop Review-Export aktualisiert: `/Users/user/Desktop/CHALK_FULL_CODEBASE.txt`.
+
 ================================================================================
+20. PHASE 26 DURCHGEFÜHRTE MASSNAHMEN (FULL 5-LANGUAGE DESKTOP APP I18N PARITY)
+--------------------------------------------------------------------------------
+
+A. ZENTRALES DESKTOP-I18N-MODUL (`src/ui/i18n.py`)
+  [✓] Zero-Pip-Bloat Übersetzungs-Architektur:
+      - Leichtgewichtige `I18nManager` Engine mit Singleton-Zugriff `tr(key, lang=None, **kwargs)`.
+      - Parität über alle 5 Sprachen des Web-Portals: Englisch (`en`, Default), Deutsch (`de`), Französisch (`fr`), Spanisch (`es`), Chinesisch (`zh`).
+      - Automatische Erkennung der Systemsprache via `QLocale.system().name()` beim Erststart, mit manuellem Override in `~/.chalk/config.json` (`"ui_language"`).
+      - Graceful Fallback auf Englisch bei unbekannten Keys oder Parametern.
+      - 100% Zero-Emoji-Konformität im gesamten Wörterbuch (ausschließlich Vektor-Icons und typografische Monospace-Tags).
+  [✓] Vollständige Abdeckung aller Desktop-Knoten:
+      - HUD Header & Status (Recording active, Paused, Processing, Standby, Direct BYOK Connected, Slides ready, Photos ready).
+      - Aktions-Buttons & Tooltips (Attach Slides, Snip Screen, Whiteboard Camera, Rewind 90s, Search Archive, Export Anki, Export PDF, Copy Notes, Obsidian, Editor, Finish).
+      - User Scratchpad (Label & dynamischer Prompt-Anker-Placeholder).
+      - Copilot & Notizen-Tabs (Live KaTeX Notizen, Copilot & Verlauf, Input-Placeholder, Senden).
+      - Whiteboard-Kamera Dialog (Kopplung LAN, QR-Code, Status, Link kopieren, Schließen).
+      - Settings Dialog (Modell, Provider-Schlüssel, Obsidian Vault, UI- & Output-Sprache, Keychain-Badges).
+      - Archivsuche (Titel, Echtzeit-Indexhinweis, Suchfeld, Mindestzeichen, Trefferzähler, Notizen laden).
+      - System Tray (Kontextmenü für Aufnahme, Synchronisation, HUD, Obsidian, Standard-Editor, Notizen-Ordner, Einstellungen, Beenden).
+      - Desktop-Notifications (Aufnahme gestartet/pausiert/fortgesetzt, Pause erkannt, Sprache fortgesetzt, Rate Limit, Master-Synthese abgeschlossen).
+      - Akademischer PDF-Exporter (Deckblatt, Standardtitel, Metadaten-Fußzeile).
+      - Sokratisches Debriefing (Aktiver Abruf, Invariante, Randbedingungen, Klausurfalle).
+
+B. INTEGRATION IN DIE UI- UND LIFECYCLE-KOMPONENTEN
+  [✓] Einstellungsdialog (`src/ui/settings_dialog.py` & `src/engine/config.py`):
+      - Logisch saubere Trennung von:
+        * `ui_language`: Sprache der Desktop-Bedienoberfläche (`get_ui_language()` / `set_ui_language()`).
+        * `output_language`: Zielsprache für generierte Vorlesungsnotizen (`get_output_language()` / `set_output_language()`).
+      - Dropdown für Interface-Sprache (English, Deutsch, Français, Español, 中文) mit Live-Aktualisierung.
+      - Signal `language_changed = pyqtSignal(str)` zur Laufzeit emittiert beim Speichern.
+  [✓] Floating HUD (`src/ui/hud_window.py`):
+      - Methode `FloatingHUDWindow.retranslate_ui()`:
+        * Aktualisiert dynamisch alle Buttons, Tooltips, Tabs, Placeholders, Status-Pills und Anhänge ohne App-Neustart.
+      - `WhiteboardCamDialog.retranslate_ui()`:
+        * Aktualisiert Dialog-Titel, Hinweistexte und Verbindungsstatus in Echtzeit.
+  [✓] System Tray (`src/ui/tray.py`):
+      - Methode `ChalkSystemTray.retranslate_menu()`:
+        * Dynamische Rekonstruktion des Kontextmenüs via `_build_menu()` in der aktiven Nutzersprache.
+  [✓] Archiv- & Formelsuche (`src/ui/search_dialog.py`):
+      - Methode `SessionArchiveSearchDialog.retranslate_ui()`:
+        * Header, Hinweistext, Suchplatzhalter, Trefferanzahl und Aktionsschaltflächen übersetzt.
+  [✓] PDF-Exporter (`src/export/pdf_exporter.py`):
+      - Akademische HTML-Generierung nutzt `tr("pdf_default_title")` und `tr("pdf_header_exported")`.
+  [✓] Koordinator & System-Notifications (`src/main.py`):
+      - `ChalkCoordinator._on_language_changed()` verdrahtet `settings_dialog.language_changed` direkt mit `hud.retranslate_ui()` und `tray.retranslate_menu()`.
+      - Alle Betriebssystem-Notifications verwenden `tr()` der konfigurierten UI-Sprache.
+
+C. QUALITÄTSSICHERUNG & SYSTEM-VERIFIKATION
+  [✓] Neue Unit-Test Suite (`tests/test_i18n.py`):
+      - Test aller 5 Sprachen auf 100% Vollständigkeit der Übersetzungsschlüssel.
+      - Strenger Regex-Test auf 0 Emojis in allen Übersetzungsstrings.
+      - Fallback-Verhalten (Sprach-Fallback auf EN, unbekannte Keys auf Raw-String).
+      - Parameter-Interpolation (`{count}`, `{time}`, `{duration}`, `{provider}`).
+      - Persistenz & Umschaltung in `~/.chalk/config.json`.
+      - Live-Retranslation Tests für HUD, Search Modal, Settings Dialog und Tray Menu.
+  [✓] 100% Grüne Test-Suite: 60 von 60 Tests bestanden (inkl. aller 420-Minuten Soak-Tests).
+  [✓] Web Deployment Suite: `./scripts/deploy_web.sh test` erfolgreich (0 verbotene Farbtokens, 0 Emojis).
+  [✓] Zero-Emoji-Audit: Rigoroser Regex-Scan bestätigt 0 Unicode-Emojis in allen `.py`-Dateien in `src/` und `tests/`.
+  [✓] Standalone Release-Build: `dist/Chalk.app` & `dist/Chalk-macOS.zip` neu kompiliert.
+  [✓] SHA-256 Prüfsummen aktualisiert in `dist/SHA256SUMS.txt`.
+  [✓] 1:1 Spiegelung nach `/Users/user/Desktop/chalk/`.
+  [✓] Desktop Review-Export aktualisiert: `/Users/user/Desktop/CHALK_FULL_CODEBASE.txt`.
+================================================================================
+
 
 
 

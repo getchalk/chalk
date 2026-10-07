@@ -49,8 +49,10 @@ from src.companion.qr_generator import QRCode
 from src.export.pdf_exporter import export_notes_to_pdf
 from src.api.synthesis_pipeline import export_flashcards_to_tsv, extract_flashcards_from_markdown
 from src.ui.search_dialog import SessionArchiveSearchDialog
+from src.ui.i18n import tr, get_ui_language
 
 logger = logging.getLogger("chalk.ui.hud")
+
 
 HUD_STYLESHEET = """
 QWidget#hudRoot {
@@ -533,16 +535,16 @@ class WhiteboardCamDialog(QDialog):
         layout.setSpacing(12)
 
         # Header Title
-        title_lbl = QLabel("Tafel-Kamera Kopplung [LAN]")
-        title_lbl.setStyleSheet("font-size: 16px; font-weight: 700; color: #FFFFFF;")
-        title_lbl.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        layout.addWidget(title_lbl)
+        self.title_lbl = QLabel()
+        self.title_lbl.setStyleSheet("font-size: 16px; font-weight: 700; color: #FFFFFF;")
+        self.title_lbl.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        layout.addWidget(self.title_lbl)
 
-        sub_lbl = QLabel("Scanne den Code mit deinem Smartphone. Fotos der physischen Tafel fließen lautlos in die Notizen ein.")
-        sub_lbl.setStyleSheet("font-size: 12px; color: #94A3B8; line-height: 1.4;")
-        sub_lbl.setWordWrap(True)
-        sub_lbl.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        layout.addWidget(sub_lbl)
+        self.sub_lbl = QLabel()
+        self.sub_lbl.setStyleSheet("font-size: 12px; color: #94A3B8; line-height: 1.4;")
+        self.sub_lbl.setWordWrap(True)
+        self.sub_lbl.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        layout.addWidget(self.sub_lbl)
 
         # QR Code Display
         qr_frame = QFrame()
@@ -581,44 +583,61 @@ class WhiteboardCamDialog(QDialog):
         """)
         url_layout.addWidget(self.url_edit)
 
-        self.copy_btn = QPushButton("Kopieren")
+        self.copy_btn = QPushButton()
         self.copy_btn.clicked.connect(self._copy_link)
         url_layout.addWidget(self.copy_btn)
         layout.addLayout(url_layout)
 
         # Live Status
-        self.live_status = QLabel("Warte auf Fotos...")
+        self.live_status = QLabel()
         self.live_status.setStyleSheet("font-size: 11px; color: #10B981; font-weight: 600;")
         self.live_status.setAlignment(Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(self.live_status)
 
         # Info bullet
-        info_lbl = QLabel("100% lokales Netzwerk &bull; Kein App-Download &bull; Höchste Synthese-Priorität")
-        info_lbl.setStyleSheet("font-size: 10px; color: #64748B;")
-        info_lbl.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        layout.addWidget(info_lbl)
+        self.info_lbl = QLabel()
+        self.info_lbl.setStyleSheet("font-size: 10px; color: #64748B;")
+        self.info_lbl.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        layout.addWidget(self.info_lbl)
 
         # Done button
-        done_btn = QPushButton("Schließen")
-        done_btn.setObjectName("doneBtn")
-        done_btn.clicked.connect(self.accept)
-        layout.addWidget(done_btn)
+        self.done_btn = QPushButton()
+        self.done_btn.setObjectName("doneBtn")
+        self.done_btn.clicked.connect(self.accept)
+        layout.addWidget(self.done_btn)
+
+        self._photos_count = 0
+        self.retranslate_ui()
 
         if self.daemon and self.daemon.bridge:
             self.daemon.bridge.photo_received.connect(self._on_photo_received)
             self.daemon.bridge.client_connected.connect(self._on_client_connected)
 
+    def retranslate_ui(self):
+        self.setWindowTitle(tr("wb_dialog_title"))
+        self.title_lbl.setText(tr("wb_dialog_title"))
+        self.sub_lbl.setText(tr("wb_subtitle"))
+        self.copy_btn.setText(tr("btn_copy_link"))
+        self.info_lbl.setText(tr("wb_info_footer"))
+        self.done_btn.setText(tr("btn_close"))
+        if self._photos_count == 0:
+            self.live_status.setText(tr("wb_waiting"))
+        else:
+            self.live_status.setText(f"[OK] {tr('wb_connected', count=self._photos_count)}")
+
     def _copy_link(self):
         QApplication.clipboard().setText(self.url_edit.text())
-        self.copy_btn.setText("Kopiert")
-        QTimer.singleShot(2000, lambda: self.copy_btn.setText("Kopieren"))
+        self.copy_btn.setText("[OK]")
+        QTimer.singleShot(2000, lambda: self.copy_btn.setText(tr("btn_copy_link")))
 
     def _on_photo_received(self, path: str, ts: str):
         count = self.daemon.bridge.upload_count if self.daemon and self.daemon.bridge else 1
-        self.live_status.setText(f"[OK] {count} Tafel-Foto{'s' if count > 1 else ''} empfangen ({ts})")
+        self._photos_count = count
+        self.live_status.setText(f"[OK] {tr('wb_connected', count=count)} ({ts})")
 
     def _on_client_connected(self, ip: str):
-        self.live_status.setText(f"Smartphone verbunden ({ip})")
+        self.live_status.setText(f"{tr('wb_connected', count=self._photos_count)} ({ip})")
+
 
 
 class FloatingHUDWindow(QWidget):
@@ -657,6 +676,8 @@ class FloatingHUDWindow(QWidget):
         self.session_start_time = time.time()
         self.drag_position = QPoint()
         self.is_playing_audio = False
+        self._current_daemon_state = "recording"
+        self._current_daemon_msg = ""
 
         # Snip overlay tool
         self.snip_overlay = SnipOverlayWidget()
@@ -724,14 +745,15 @@ class FloatingHUDWindow(QWidget):
         header.addStretch()
 
         # Minimize / Hide button
-        hide_btn = QPushButton("X")
-        hide_btn.setFixedSize(28, 28)
+        self.hide_btn = QPushButton("X")
+        self.hide_btn.setFixedSize(28, 28)
         hud_shortcut = "Cmd+Shift+Space" if sys.platform == "darwin" else "Ctrl+Shift+Space"
-        hide_btn.setToolTip(f"HUD ausblenden ({hud_shortcut} zum Einblenden)")
-        hide_btn.clicked.connect(self.hide)
-        header.addWidget(hide_btn)
+        self.hide_btn.setToolTip(f"HUD ausblenden ({hud_shortcut} zum Einblenden)")
+        self.hide_btn.clicked.connect(self.hide)
+        header.addWidget(self.hide_btn)
 
         main_layout.addLayout(header)
+
 
         # Quick Actions Bar
         actions_bar = QHBoxLayout()
@@ -820,9 +842,9 @@ class FloatingHUDWindow(QWidget):
         left_layout.setContentsMargins(0, 0, 6, 0)
         left_layout.setSpacing(6)
 
-        scratchpad_label = QLabel("User Scratchpad (Shorthand & Outline Anchor):")
-        scratchpad_label.setStyleSheet("font-size: 11px; font-weight: 600; color: #94A3B8;")
-        left_layout.addWidget(scratchpad_label)
+        self.scratchpad_label = QLabel("User Scratchpad (Shorthand & Outline Anchor):")
+        self.scratchpad_label.setStyleSheet("font-size: 11px; font-weight: 600; color: #94A3B8;")
+        left_layout.addWidget(self.scratchpad_label)
 
         self.scratchpad_text = QTextEdit()
         self.scratchpad_text.setPlaceholderText(
@@ -950,6 +972,8 @@ class FloatingHUDWindow(QWidget):
         main_layout.addWidget(self.player_pill)
         self.player_pill.hide()
 
+        self.retranslate_ui()
+
     def get_scratchpad_content(self) -> str:
         """Returns the current student scratchpad text."""
         return self.scratchpad_text.toPlainText()
@@ -964,29 +988,98 @@ class FloatingHUDWindow(QWidget):
             self.activateWindow()
 
     def set_daemon_status(self, state: str, message: str = ""):
+        self._current_daemon_state = state
+        self._current_daemon_msg = message
         mins = int((time.time() - self.session_start_time) // 60)
         secs = int((time.time() - self.session_start_time) % 60)
         time_str = f"{mins:02d}:{secs:02d}"
 
         if state == "recording":
-            self.status_pill.setText(f"AUFNAHME AKTIV ({time_str})")
+            self.status_pill.setText(tr("status_recording", time=time_str))
             self.status_pill.setStyleSheet(
                 "background-color: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.2);"
                 "color: #FFFFFF; font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 12px;"
             )
         elif state in ("paused", "standby"):
-            lbl = f"STANDBY ({message})" if message else f"PAUSIERT ({time_str})"
+            lbl = f"{tr('status_standby')} ({message})" if message else tr("status_paused", time=time_str)
             self.status_pill.setText(lbl)
             self.status_pill.setStyleSheet(
                 "background-color: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.1);"
                 "color: #94A3B8; font-size: 11px; font-weight: 500; padding: 4px 10px; border-radius: 12px;"
             )
         elif state == "processing":
-            self.status_pill.setText("VERARBEITE NOTIZEN...")
+            self.status_pill.setText(tr("status_processing"))
             self.status_pill.setStyleSheet(
                 "background-color: rgba(255, 255, 255, 0.12); border: 1px solid rgba(255, 255, 255, 0.25);"
                 "color: #FFFFFF; font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 12px;"
             )
+
+    def retranslate_ui(self):
+        """Updates all visible texts in the HUD according to the active language."""
+        hud_shortcut = "Cmd+Shift+Space" if sys.platform == "darwin" else "Ctrl+Shift+Space"
+        snip_shortcut = "Cmd+Shift+S" if sys.platform == "darwin" else "Ctrl+Shift+S"
+
+        if hasattr(self, "hide_btn"):
+            self.hide_btn.setToolTip(f"{tr('tray_hide_hud')} ({hud_shortcut})")
+        if hasattr(self, "attach_doc_btn"):
+            self.attach_doc_btn.setText(tr("btn_attach_slides"))
+            self.attach_doc_btn.setToolTip(tr("btn_attach_slides"))
+        if hasattr(self, "snip_btn"):
+            self.snip_btn.setText(tr("btn_snip_screen"))
+            self.snip_btn.setToolTip(f"{tr('btn_snip_screen')} ({snip_shortcut})")
+        if hasattr(self, "cam_btn"):
+            self.cam_btn.setText(tr("btn_cam"))
+            self.cam_btn.setToolTip(tr("btn_cam"))
+        if hasattr(self, "rewind_btn"):
+            self.rewind_btn.setText(tr("btn_rewind_90s"))
+            self.rewind_btn.setToolTip(tr("btn_rewind_90s"))
+        if hasattr(self, "search_btn"):
+            self.search_btn.setText(tr("btn_search_archive"))
+            self.search_btn.setToolTip(f"{tr('btn_search_archive')} (Alt+F)")
+        if hasattr(self, "anki_export_btn"):
+            self.anki_export_btn.setText(tr("btn_anki_export"))
+            self.anki_export_btn.setToolTip(tr("btn_anki_export"))
+        if hasattr(self, "pdf_export_btn"):
+            self.pdf_export_btn.setText(tr("btn_pdf_export"))
+            self.pdf_export_btn.setToolTip(tr("btn_pdf_export"))
+        if hasattr(self, "copy_notes_btn"):
+            self.copy_notes_btn.setText(tr("btn_copy_notes"))
+            self.copy_notes_btn.setToolTip(tr("btn_copy_notes"))
+        if hasattr(self, "obsidian_btn"):
+            self.obsidian_btn.setText(tr("btn_obsidian"))
+            self.obsidian_btn.setToolTip(tr("tray_open_obsidian"))
+        if hasattr(self, "editor_btn"):
+            self.editor_btn.setText(tr("btn_system_editor"))
+            self.editor_btn.setToolTip(tr("tray_open_default_editor"))
+        if hasattr(self, "synth_btn"):
+            self.synth_btn.setText(tr("btn_finish"))
+            self.synth_btn.setToolTip(tr("btn_finish"))
+
+        if hasattr(self, "scratchpad_label"):
+            self.scratchpad_label.setText(tr("scratchpad_label"))
+        if hasattr(self, "scratchpad_text"):
+            self.scratchpad_text.setPlaceholderText(tr("scratchpad_placeholder"))
+
+        if hasattr(self, "btn_view_chat"):
+            self.btn_view_chat.setText(tr("tab_copilot"))
+        if hasattr(self, "btn_view_notes"):
+            self.btn_view_notes.setText(tr("tab_notes"))
+        if hasattr(self, "chat_history"):
+            self.chat_history.setPlaceholderText(tr("chat_history_placeholder"))
+        if hasattr(self, "notes_browser"):
+            self.notes_browser.setPlaceholderText(tr("notes_browser_placeholder"))
+        if hasattr(self, "prompt_input"):
+            self.prompt_input.setPlaceholderText(tr("prompt_input_placeholder"))
+        if hasattr(self, "send_btn"):
+            self.send_btn.setText(tr("btn_send"))
+
+        if hasattr(self, "player_status_lbl"):
+            self.player_status_lbl.setText(tr("player_time_label", duration=20))
+
+        if hasattr(self, "_current_daemon_state"):
+            self.set_daemon_status(self._current_daemon_state, getattr(self, "_current_daemon_msg", ""))
+        self._update_attachment_banner()
+
 
     def _update_hud_status(self):
         if self.recorder and self.recorder.is_recording:
@@ -1138,15 +1231,15 @@ class FloatingHUDWindow(QWidget):
         tags = []
         if self.imported_pdf_slides:
             total_pages = len(self.imported_pdf_slides)
-            deck_name = self.imported_pdf_name or "Vorlesungsskript"
-            tags.append(f"[PDF] Folien bereit: {total_pages} Seiten ({deck_name})")
+            deck_name = self.imported_pdf_name or "Script"
+            tags.append(f"[PDF] {tr('status_slides_ready', count=total_pages)} ({deck_name})")
         elif self.attached_document_name:
             tags.append(f"[DOC] {self.attached_document_name}")
         if self.attached_snip_image:
             tags.append(f"[SNIP] Screen Snip ({self.attached_snip_image.width}x{self.attached_snip_image.height})")
         if self.whiteboard_photos:
             n_wb = len(self.whiteboard_photos)
-            tags.append(f"[CAM] Tafel-Fotos: {n_wb} erfasst")
+            tags.append(f"[CAM] {tr('status_photo_ready', count=n_wb)}")
 
         if tags:
             self.attachment_label.setText(" | ".join(tags))
@@ -1159,6 +1252,7 @@ class FloatingHUDWindow(QWidget):
             self.attachment_label.show()
         else:
             self.attachment_label.hide()
+
 
     def _open_whiteboard_cam_dialog(self):
         """Starts the companion daemon if not running, and opens the QR modal."""
@@ -1676,23 +1770,25 @@ class FloatingHUDWindow(QWidget):
 
         if not questions:
             questions = [
-                "Was ist die fundamentale Invariante oder mathematische Kernannahme der heutigen Vorlesung?",
-                "Unter welchen Randbedingungen oder Grenzwerten verliert die hergeleitete Hauptformel ihre Gültigkeit?",
-                "Welcher typische Modellierungs- oder Prüfungsfehler wurde besonders hervorgehoben?"
+                tr("debrief_q1"),
+                tr("debrief_q2"),
+                tr("debrief_q3"),
             ]
 
         # Make sure questions are at most 3
         questions = questions[:3]
 
         qs_html = "".join([f"<li style='margin-bottom: 5px; color: #E2E8F0; line-height: 1.4;'>{html.escape(q)}</li>" for q in questions])
+        header_text = tr("debrief_header")
         debrief_card = (
             "<div style='border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 8px; "
             "background-color: #1A1C23; padding: 12px; margin: 10px 0;'>"
-            "<div style='font-size: 11px; font-weight: 700; color: #94A3B8; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px;'>"
-            "[SOCRATIC ACTIVE RECALL — F9 DEBRIEF]</div>"
+            f"<div style='font-size: 11px; font-weight: 700; color: #94A3B8; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px;'>"
+            f"{header_text}</div>"
             f"<ol style='margin: 0; padding-left: 20px; font-size: 12px;'>{qs_html}</ol>"
             "</div>"
         )
+
 
         self._show_chat_view()
         self.chat_history.append(debrief_card)

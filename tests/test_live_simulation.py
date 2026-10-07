@@ -136,7 +136,7 @@ def run_live_simulation() -> bool:
     print("[1/5] Synthesizing 30-second 16kHz Stereo Lecture Audio...")
     audio_stereo = generate_synthetic_audio(duration_sec=30.0, sample_rate=16000)
     wav_bytes = DualChannelAudioRecorder.audio_to_wav_bytes(audio_stereo, sample_rate=16000)
-    print(f"      ✓ Audio Generated: {len(audio_stereo)} samples (Stereo), {len(wav_bytes):,} bytes WAV payload.")
+    print(f"      [OK] Audio Generated: {len(audio_stereo)} samples (Stereo), {len(wav_bytes):,} bytes WAV payload.")
 
     # --------------------------------------------------------------------------
     # Step 2: Silero VAD Processing & Silence Stripping
@@ -156,9 +156,9 @@ def run_live_simulation() -> bool:
     stripped_audio = vad.strip_silent_gaps(audio_stereo, sample_rate=16000, max_silence_sec=1.5)
     reduction_pct = (1.0 - (len(stripped_audio) / len(audio_stereo))) * 100
 
-    print(f"      ✓ Speech Detection: Prob = {speech_prob:.3f} (> 0.3 threshold: {speech_prob > 0.3})")
-    print(f"      ✓ Pause Detection:  Prob = {pause_prob:.3f} (< 0.1 quiet: {pause_prob < 0.1})")
-    print(f"      ✓ Silence Stripping: Reduced {len(audio_stereo)} -> {len(stripped_audio)} samples ({reduction_pct:.1f}% pruned).")
+    print(f"      [OK] Speech Detection: Prob = {speech_prob:.3f} (> 0.3 threshold: {speech_prob > 0.3})")
+    print(f"      [OK] Pause Detection:  Prob = {pause_prob:.3f} (< 0.1 quiet: {pause_prob < 0.1})")
+    print(f"      [OK] Silence Stripping: Reduced {len(audio_stereo)} -> {len(stripped_audio)} samples ({reduction_pct:.1f}% pruned).")
 
     assert speech_prob > 0.25, "Silero VAD failed to recognize synthetic vocal speech"
 
@@ -180,9 +180,9 @@ def run_live_simulation() -> bool:
     kf2 = slide_filter.evaluate_frame(slide2, session_elapsed_sec=15.0, ocr_text="SML & Beta Derivation")
     assert kf2 is not None, "Slide 2 transition was not detected"
 
-    print(f"      ✓ Keyframe 1 [00:00]: Retained (pHash: {kf1.phash})")
-    print(f"      ✓ Duplicate [00:08]: Discarded static frame (Zero token burn)")
-    print(f"      ✓ Keyframe 2 [00:15]: Detected new slide (Hamming distance: {kf2.hamming_distance_from_prev} > 8)")
+    print(f"      [OK] Keyframe 1 [00:00]: Retained (pHash: {kf1.phash})")
+    print(f"      [OK] Duplicate [00:08]: Discarded static frame (Zero token burn)")
+    print(f"      [OK] Keyframe 2 [00:15]: Detected new slide (Hamming distance: {kf2.hamming_distance_from_prev} > 8)")
 
     keyframes = [kf1, kf2]
 
@@ -204,7 +204,7 @@ def run_live_simulation() -> bool:
                 start_time_str="[00:00]",
                 end_time_str="[00:30]",
             )
-            print("      ✓ Gemini Flash Live API synthesis succeeded.")
+            print("      [OK] Gemini Flash Live API synthesis succeeded.")
         except Exception as e:
             print(f"      ! Live API call encountered: {e}. Falling back to deterministic synthesis engine.")
             has_key = False
@@ -218,8 +218,8 @@ def run_live_simulation() -> bool:
             "$$\\mathbb{E}[R_i] = R_f + \\beta_i \\cdot (\\mathbb{E}[R_m] - R_f)$$\n\n"
             "Where systematic risk $\\beta_i$ is standardized as:\n\n"
             "$$\\beta_i = \\frac{\\mathrm{Cov}(R_i, R_m)}{\\mathrm{Var}(R_m)} = \\frac{\\sigma_{im}}{\\sigma_m^2}$$\n\n"
-            "> ❓ **Student Question [00:18]:** \"Does mean-variance optimization still hold if asset returns exhibit fat tails?\"\n"
-            "> 💡 **Instructor Clarification:** \"No. Pure CAPM requires either normally distributed asset returns "
+            "> [Q] **Student Question [00:18]:** \"Does mean-variance optimization still hold if asset returns exhibit fat tails?\"\n"
+            "> [A] **Instructor Clarification:** \"No. Pure CAPM requires either normally distributed asset returns "
             "or quadratic investor utility functions. Fat tails violate quadratic optimization, requiring higher-order moment pricing.\"\n\n"
             "<!-- CHUNK_STATE\n"
             "Topic: Capital Asset Pricing Model & SML\n"
@@ -252,8 +252,9 @@ def run_live_simulation() -> bool:
     assert "<!-- CHUNK_STATE" in content, "Chunk state comment was missing from ledger"
     assert "Topic:" in content, "Chunk state Topic was not parsed"
 
-    print(f"      ✓ Successfully written to: {sim_notes_path} ({len(content)} bytes)")
-    print(f"      ✓ Parsed Chunk State: Topic='{new_state.topic}', Active Variables={new_state.active_variables}")
+    print(f"      [OK] Successfully written to: {sim_notes_path} ({len(content)} bytes)")
+    print(f"      [OK] Parsed Chunk State: Topic='{new_state.topic}', Active Variables={new_state.active_variables}")
+
 
     print("\n" + "-" * 76)
     print("  SIMULATION SUMMARY: [ALL 5 STAGES PASSED]")

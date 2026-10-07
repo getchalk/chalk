@@ -10,17 +10,20 @@ import re
 import html
 import logging
 from typing import Optional
+from src.ui.i18n import tr
 
 logger = logging.getLogger("chalk.export.pdf")
 
 
-def markdown_to_academic_html(markdown_text: str, title: str = "Chalk Lecture Notes") -> str:
+def markdown_to_academic_html(markdown_text: str, title: Optional[str] = None) -> str:
     """
     Transforms markdown notes into publication-grade academic HTML styled for PDF print.
     Handles headers, lists, callout boxes (> [!theorem]), inline math, code blocks,
     and flashcard sections.
     """
+    effective_title = title or tr("pdf_default_title")
     lines = markdown_text.splitlines()
+
     html_lines = []
     in_code_block = False
     in_list = False
@@ -258,7 +261,7 @@ code {{
 <body>
 {body_content}
 <div class="footer-meta">
-    Exported by Chalk &bull; Ambient Cognitive Presence &bull; Local-First Synthesis Engine
+    {tr("pdf_header_exported")}
 </div>
 </body>
 </html>
@@ -296,7 +299,7 @@ def _format_inline_markdown(text: str) -> str:
     return res
 
 
-def export_notes_to_pdf(markdown_text: str, output_path: str, title: str = "Chalk Lecture Notes") -> bool:
+def export_notes_to_pdf(markdown_text: str, output_path: str, title: Optional[str] = None) -> bool:
     """
     Exports markdown notes directly to a vector PDF at output_path using PyQt6 QPdfWriter.
     Returns True on success, False on error.

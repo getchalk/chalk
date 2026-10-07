@@ -16,6 +16,8 @@ from typing import Optional, Callable
 from PIL import Image, ImageDraw
 import pystray
 
+from src.ui.i18n import tr, get_ui_language
+
 logger = logging.getLogger("chalk.ui.tray")
 
 
@@ -75,21 +77,34 @@ class ChalkSystemTray:
         self.current_state = "green"
         self._icon: Optional[pystray.Icon] = None
 
-    def start(self):
-        """Builds and launches the system tray icon detached."""
-        menu = pystray.Menu(
-            pystray.MenuItem("Aufnahme umschalten (F9)", self._action_toggle_recording),
-            pystray.MenuItem("Abschnitt synchronisieren (F10)", self._action_force_flush),
-            pystray.MenuItem("HUD ein-/ausblenden (Alt+Space)", self._action_toggle_hud),
+    def _build_menu(self) -> pystray.Menu:
+        """Constructs the context menu dynamically using current i18n translations."""
+        return pystray.Menu(
+            pystray.MenuItem(tr("tray_toggle_recording"), self._action_toggle_recording),
+            pystray.MenuItem(tr("tray_force_flush"), self._action_force_flush),
+            pystray.MenuItem(tr("tray_toggle_hud"), self._action_toggle_hud),
             pystray.Menu.SEPARATOR,
-            pystray.MenuItem("In Obsidian öffnen", self._action_open_obsidian),
-            pystray.MenuItem("Im Standard-Editor öffnen", self._action_open_default_editor),
-            pystray.MenuItem("Notizen-Ordner öffnen", self._action_open_notes),
-            pystray.MenuItem("Einstellungen (Modelle & Keys)", self._action_open_settings),
+            pystray.MenuItem(tr("tray_open_obsidian"), self._action_open_obsidian),
+            pystray.MenuItem(tr("tray_open_default_editor"), self._action_open_default_editor),
+            pystray.MenuItem(tr("tray_open_notes"), self._action_open_notes),
+            pystray.MenuItem(tr("tray_settings"), self._action_open_settings),
             pystray.Menu.SEPARATOR,
-            pystray.MenuItem("Chalk beenden", self._action_exit),
+            pystray.MenuItem(tr("tray_exit"), self._action_exit),
         )
 
+    def retranslate_menu(self):
+        """Dynamically refreshes the context menu upon language change."""
+        if self._icon:
+            try:
+                self._icon.menu = self._build_menu()
+                if hasattr(self._icon, "update_menu"):
+                    self._icon.update_menu()
+            except Exception as e:
+                logger.debug("Tray menu retranslation notice: %s", e)
+
+    def start(self):
+        """Builds and launches the system tray icon detached."""
+        menu = self._build_menu()
         initial_img = create_tray_status_icon(self.current_state)
         self._icon = pystray.Icon(
             name="Chalk",
@@ -124,11 +139,12 @@ class ChalkSystemTray:
         if self._icon:
             self._icon.icon = create_tray_status_icon(color)
             if color == "green":
-                self._icon.title = "Chalk: Aufnahme aktiv (Mic + System)"
+                self._icon.title = f"Chalk: {tr('notify_recording_started_title')}"
             elif color == "yellow":
-                self._icon.title = "Chalk: Standby / Pausiert"
+                self._icon.title = f"Chalk: {tr('status_standby')}"
             elif color == "blue":
-                self._icon.title = "Chalk: Verarbeite Notizen..."
+                self._icon.title = f"Chalk: {tr('status_processing')}"
+
 
     def stop(self):
         """Stops the tray icon."""

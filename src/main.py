@@ -63,8 +63,10 @@ from src.api.gemini_client import GeminiLecturePipeline
 from src.api.tools import register_tool_context
 from src.ui.hud_window import FloatingHUDWindow
 from src.ui.tray import ChalkSystemTray
+from src.ui.i18n import tr, get_ui_language
 
 logging.basicConfig(
+
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] (%(name)s) %(message)s",
     datefmt="%H:%M:%S",
@@ -263,9 +265,10 @@ class ChalkCoordinator(QObject):
         self.tray.set_status("green")
         self.hud.set_daemon_status("recording")
 
-        send_desktop_notification("Chalk Lecture Engine", "Recording active: Mic + Loopback + Slides.")
+        send_desktop_notification(tr("notify_recording_started_title"), tr("notify_recording_started_body"))
 
     def _init_global_hotkeys(self):
+
         """
         Registers system-wide hotkeys using native OS APIs (Zero Permissions).
         macOS: Carbon RegisterEventHotKey (Cmd+Shift+Space, Cmd+Shift+S, F9, F10)
@@ -414,7 +417,7 @@ class ChalkCoordinator(QObject):
             self.chunker.handle_rate_limit_429(backoff_seconds=300)
             self.tray.set_status("yellow")
             self.hud.set_daemon_status("paused", "429 Rate Limit Backoff")
-            send_desktop_notification("Chalk Rate Limit", "HTTP 429 reached. Backing off 5 min without data loss.")
+            send_desktop_notification(tr("notify_rate_limit_title"), tr("notify_rate_limit_body"))
         else:
             self.tray.set_status("yellow")
             self.hud.set_daemon_status("paused", "Network Retry Staged")
@@ -426,7 +429,7 @@ class ChalkCoordinator(QObject):
         self.recorder.pause()
         self.tray.set_status("yellow")
         self.hud.set_daemon_status("standby", "Lecture Break")
-        send_desktop_notification("Break detected", "Chalk is resting — recording paused until speech resumes.")
+        send_desktop_notification(tr("notify_break_detected_title"), tr("notify_break_detected_body"))
 
     def _handle_speech_resumed(self):
         """Speech resumed after break."""
@@ -434,7 +437,7 @@ class ChalkCoordinator(QObject):
         self.recorder.resume()
         self.tray.set_status("green")
         self.hud.set_daemon_status("recording")
-        send_desktop_notification("Speech resumed", "Chalk has resumed active lecture capture.")
+        send_desktop_notification(tr("notify_speech_resumed_title"), tr("notify_speech_resumed_body"))
 
     def _on_rate_limit_backoff(self, seconds: int):
         self.tray.set_status("yellow")
@@ -447,12 +450,12 @@ class ChalkCoordinator(QObject):
                 self.recorder.resume()
                 self.tray.set_status("green")
                 self.hud.set_daemon_status("recording")
-                send_desktop_notification("Chalk", "Resumed recording.")
+                send_desktop_notification(tr("notify_recording_resumed_title"), tr("notify_recording_resumed_body"))
             else:
                 self.recorder.pause()
                 self.tray.set_status("yellow")
                 self.hud.set_daemon_status("paused")
-                send_desktop_notification("Chalk", "Paused recording.")
+                send_desktop_notification(tr("notify_recording_paused_title"), tr("notify_recording_paused_body"))
         else:
             self.start_session()
 
@@ -476,7 +479,7 @@ class ChalkCoordinator(QObject):
         # Read accumulated markdown
         full_notes = self.notes_manager.read_full_notes()
 
-        send_desktop_notification("Chalk Master Synthesis", "Synthesizing executive summary, derivations & Anki deck...")
+        send_desktop_notification(tr("notify_master_complete_title"), tr("status_processing"))
 
         self._active_master_worker = MasterSynthesisWorker(self.pipeline, full_notes)
         self._active_master_worker.success.connect(self._on_master_success)
@@ -494,7 +497,7 @@ class ChalkCoordinator(QObject):
             "Anki Cloze study deck, standardized formula derivations, and exam warnings generated.\n"
         )
         self.hud.show_socratic_debrief(master_markdown)
-        send_desktop_notification("Chalk Complete", "Lecture synthesized! Opening notes folder.")
+        send_desktop_notification(tr("notify_master_complete_title"), tr("notify_master_complete_body"))
         self.open_notes_folder()
 
     def _on_master_failed(self, error_msg: str):
@@ -513,11 +516,20 @@ class ChalkCoordinator(QObject):
         else:
             subprocess.Popen(["xdg-open", notes_dir])
 
+    def _on_language_changed(self, new_lang: str):
+        logger.info("Language changed event received in coordinator: %s", new_lang)
+        if hasattr(self, "hud") and self.hud:
+            self.hud.retranslate_ui()
+        if hasattr(self, "tray") and self.tray:
+            self.tray.retranslate_menu()
+
     def open_settings_dialog(self):
         dialog = SettingsDialog(parent=self.hud, is_initial_setup=False)
+        dialog.language_changed.connect(self._on_language_changed)
         if dialog.exec() == SettingsDialog.DialogCode.Accepted:
             self.pipeline.reload_key()
             logger.info("API key reloaded in pipeline from settings modal.")
+
 
     def handle_audio_url(self, url: str):
         """Dispatches audio scrubbing URL to floating HUD."""

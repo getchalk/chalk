@@ -81,3 +81,47 @@ def set_output_language(language_code: Optional[str]) -> bool:
     else:
         cfg["output_language"] = clean_code
     return save_chalk_config(cfg)
+
+
+def get_configured_ui_language() -> Optional[str]:
+    """Retrieves explicitly configured UI language, or None if not set."""
+    cfg = load_chalk_config()
+    lang = cfg.get("ui_language")
+    if isinstance(lang, str) and lang.strip().lower() in ("en", "de", "fr", "es", "zh"):
+        return lang.strip().lower()
+    return None
+
+
+def get_ui_language() -> str:
+    """Retrieves UI language ('en', 'de', 'fr', 'es', 'zh'). Defaults to system language or 'en'."""
+    configured = get_configured_ui_language()
+    if configured:
+        return configured
+    # Fallback to system locale detection
+    try:
+        from PyQt6.QtCore import QLocale
+        loc_name = QLocale.system().name().lower()
+    except Exception:
+        loc_name = os.environ.get("LANG", "en").lower()
+
+    if loc_name.startswith("de"):
+        return "de"
+    elif loc_name.startswith("fr"):
+        return "fr"
+    elif loc_name.startswith("es"):
+        return "es"
+    elif loc_name.startswith("zh"):
+        return "zh"
+    return "en"
+
+
+def set_ui_language(language_code: Optional[str]) -> bool:
+    """Persists chosen UI language in ~/.chalk/config.json."""
+    cfg = load_chalk_config()
+    clean_code = (language_code or "en").strip().lower()
+    if clean_code in ("en", "de", "fr", "es", "zh"):
+        cfg["ui_language"] = clean_code
+    else:
+        cfg["ui_language"] = "en"
+    return save_chalk_config(cfg)
+

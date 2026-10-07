@@ -3,9 +3,12 @@ src/ui/settings_dialog.py - BYOK API Key Configuration & Multi-Model Selection M
 Presents a sleek monochrome dark-mode PyQt6 dialog for configuring AI credentials.
 Supports Google AI Studio (default), Anthropic Claude 3.7, and OpenAI GPT-4o runtimes.
 Performs non-blocking validation and stores credentials in the OS native vault.
+Full 5-language internationalization parity (EN, DE, FR, ES, ZH).
 """
 
 import sys
+import os
+from typing import Optional, List, Dict, Any
 from PyQt6.QtCore import Qt, QThread, pyqtSignal, QUrl
 from PyQt6.QtGui import QFont, QIcon, QDesktopServices, QColor
 from PyQt6.QtWidgets import (
@@ -37,6 +40,12 @@ from src.engine.config import (
     get_output_language,
     set_output_language,
 )
+from src.ui.i18n import (
+    tr,
+    get_ui_language,
+    set_ui_language,
+    SUPPORTED_LANGUAGES,
+)
 
 MONOCHROME_STYLESHEET = """
 QDialog {
@@ -62,7 +71,7 @@ QLineEdit, QComboBox {
     color: #F8FAFC;
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 8px;
-    padding: 9px 12px;
+    padding: 8px 12px;
     font-size: 13px;
 }
 QLineEdit:focus, QComboBox:focus {
@@ -142,21 +151,24 @@ class ValidationWorker(QThread):
 
 
 class SettingsDialog(QDialog):
+    language_changed = pyqtSignal(str)
+
     def __init__(self, parent=None, is_initial_setup=False):
         super().__init__(parent)
         self.is_initial_setup = is_initial_setup
-        self.setWindowTitle("Chalk — Settings & BYOK Security")
-        self.setFixedSize(560, 740)
+        self.setFixedSize(580, 780)
         self.setStyleSheet(MONOCHROME_STYLESHEET)
         self.setWindowFlags(self.windowFlags() | Qt.WindowType.WindowStaysOnTopHint)
 
+        self._active_ui_lang = get_ui_language()
         self._setup_ui()
         self._load_existing_settings()
+        self.retranslate_ui()
 
     def _setup_ui(self):
         layout = QVBoxLayout(self)
-        layout.setContentsMargins(26, 24, 26, 24)
-        layout.setSpacing(13)
+        layout.setContentsMargins(24, 20, 24, 20)
+        layout.setSpacing(11)
 
         # Header Section
         header_layout = QHBoxLayout()
@@ -173,7 +185,7 @@ class SettingsDialog(QDialog):
         self.title_label.setObjectName("titleLabel")
         title_box.addWidget(self.title_label)
 
-        self.subtitle_label = QLabel("Zero-knowledge: Credentials live exclusively in your local OS vault.")
+        self.subtitle_label = QLabel("Local-First: Credentials live exclusively in your local OS native vault.")
         self.subtitle_label.setObjectName("subtitleLabel")
         title_box.addWidget(self.subtitle_label)
 
@@ -183,13 +195,13 @@ class SettingsDialog(QDialog):
 
         # 1. Model Selection
         model_box = QVBoxLayout()
-        model_box.setSpacing(6)
-        model_label = QLabel("Active Synthesis Model:")
-        model_label.setStyleSheet("font-weight: 600; color: #F8FAFC; font-size: 12px;")
-        model_box.addWidget(model_label)
+        model_box.setSpacing(4)
+        self.model_label = QLabel("Active Synthesis Model:")
+        self.model_label.setStyleSheet("font-weight: 600; color: #F8FAFC; font-size: 12px;")
+        model_box.addWidget(self.model_label)
 
         self.model_combo = QComboBox()
-        self.model_combo.addItem("Gemini 2.5 Flash (1M Token Context, Empfohlen)", "gemini-2.5-flash")
+        self.model_combo.addItem("Gemini 2.5 Flash (1M Token Context, Recommended)", "gemini-2.5-flash")
         self.model_combo.addItem("Claude 3.7 Sonnet (Anthropic BYOK)", "claude-3.7-sonnet")
         self.model_combo.addItem("GPT-4o (OpenAI BYOK)", "gpt-4o")
         self.model_combo.currentIndexChanged.connect(self._on_model_changed)
@@ -200,44 +212,44 @@ class SettingsDialog(QDialog):
         card = QFrame()
         card.setObjectName("bannerCard")
         card_layout = QVBoxLayout(card)
-        card_layout.setContentsMargins(14, 12, 14, 12)
-        card_layout.setSpacing(6)
+        card_layout.setContentsMargins(12, 10, 12, 10)
+        card_layout.setSpacing(5)
 
-        info_text = QLabel(
-            "Chalk verbindet sich direkt von Ihrem Laptop mit den offiziellen APIs des gewählten Anbieters. "
-            "Keine Zwischenserver, keine Relays, keine Telemetrie."
+        self.info_text = QLabel(
+            "Chalk connects directly from your laptop to the official APIs of the selected provider. "
+            "No middleman servers, no relays, no telemetry."
         )
-        info_text.setWordWrap(True)
-        info_text.setStyleSheet("color: #94A3B8; font-size: 12px; line-height: 1.4;")
-        card_layout.addWidget(info_text)
+        self.info_text.setWordWrap(True)
+        self.info_text.setStyleSheet("color: #94A3B8; font-size: 11px; line-height: 1.4;")
+        card_layout.addWidget(self.info_text)
 
-        link_btn = QPushButton("Kostenlosen Gemini API-Schlüssel bei aistudio.google.com erstellen →")
-        link_btn.setObjectName("linkButton")
-        link_btn.setCursor(Qt.CursorShape.PointingHandCursor)
-        link_btn.clicked.connect(self._open_ai_studio)
-        card_layout.addWidget(link_btn)
+        self.link_btn = QPushButton("Create free Gemini API key at aistudio.google.com →")
+        self.link_btn.setObjectName("linkButton")
+        self.link_btn.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.link_btn.clicked.connect(self._open_ai_studio)
+        card_layout.addWidget(self.link_btn)
 
         # Transparent Onboarding Note on Free-Tier vs Paid-Tier
-        tier_notice = QLabel(
-            "<b>Transparenz & Datenschutz:</b><br>"
-            "Google AI Studio Free-Tier: Google behält sich vor, Prompts zur Modellverbesserung zu nutzen. "
-            "Für 100% vertrauliche Sitzungen empfehlen wir einen Paid-Tier (Pay-as-you-go) Schlüssel von "
-            "Google AI Studio oder Anthropic/OpenAI, bei dem keine Daten für das Training verwendet werden."
+        self.tier_notice = QLabel(
+            "<b>Transparency & Privacy:</b><br>"
+            "Google AI Studio Free-Tier: Google reserves the right to use prompts for model improvement. "
+            "For 100% confidential sessions, we recommend a Paid-Tier (Pay-as-you-go) key from "
+            "Google AI Studio, Anthropic, or OpenAI where data is never used for training."
         )
-        tier_notice.setWordWrap(True)
-        tier_notice.setStyleSheet(
-            "color: #94A3B8; font-size: 11px; line-height: 1.45; "
-            "padding: 8px 10px; background-color: rgba(255, 255, 255, 0.03); "
+        self.tier_notice.setWordWrap(True)
+        self.tier_notice.setStyleSheet(
+            "color: #94A3B8; font-size: 10.5px; line-height: 1.4; "
+            "padding: 6px 8px; background-color: rgba(255, 255, 255, 0.03); "
             "border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 6px;"
         )
-        card_layout.addWidget(tier_notice)
+        card_layout.addWidget(self.tier_notice)
 
         layout.addWidget(card)
 
         # 2. Key Input: Google AI Studio (Primary)
-        gemini_label = QLabel("Google AI Studio API-Schlüssel (Gemini):")
-        gemini_label.setStyleSheet("font-weight: 600; color: #E2E8F0; font-size: 12px;")
-        layout.addWidget(gemini_label)
+        self.gemini_label = QLabel("Google AI Studio API Key (Gemini):")
+        self.gemini_label.setStyleSheet("font-weight: 600; color: #E2E8F0; font-size: 12px;")
+        layout.addWidget(self.gemini_label)
 
         gemini_row = QHBoxLayout()
         self.gemini_input = QLineEdit()
@@ -246,16 +258,16 @@ class SettingsDialog(QDialog):
         gemini_row.addWidget(self.gemini_input)
 
         self.toggle_gemini_eye = QPushButton("Show")
-        self.toggle_gemini_eye.setFixedSize(54, 36)
+        self.toggle_gemini_eye.setFixedSize(54, 34)
         self.toggle_gemini_eye.setObjectName("secondaryButton")
         self.toggle_gemini_eye.clicked.connect(lambda: self._toggle_echo(self.gemini_input, self.toggle_gemini_eye))
         gemini_row.addWidget(self.toggle_gemini_eye)
         layout.addLayout(gemini_row)
 
         # 3. Key Input: Anthropic (Optional)
-        anthropic_label = QLabel("Anthropic API-Schlüssel (Optional für Claude 3.7):")
-        anthropic_label.setStyleSheet("font-weight: 500; color: #94A3B8; font-size: 12px;")
-        layout.addWidget(anthropic_label)
+        self.anthropic_label = QLabel("Anthropic API Key (Optional for Claude 3.7):")
+        self.anthropic_label.setStyleSheet("font-weight: 500; color: #94A3B8; font-size: 11.5px;")
+        layout.addWidget(self.anthropic_label)
 
         anthropic_row = QHBoxLayout()
         self.anthropic_input = QLineEdit()
@@ -264,16 +276,16 @@ class SettingsDialog(QDialog):
         anthropic_row.addWidget(self.anthropic_input)
 
         self.toggle_ant_eye = QPushButton("Show")
-        self.toggle_ant_eye.setFixedSize(54, 36)
+        self.toggle_ant_eye.setFixedSize(54, 34)
         self.toggle_ant_eye.setObjectName("secondaryButton")
         self.toggle_ant_eye.clicked.connect(lambda: self._toggle_echo(self.anthropic_input, self.toggle_ant_eye))
         anthropic_row.addWidget(self.toggle_ant_eye)
         layout.addLayout(anthropic_row)
 
         # 4. Key Input: OpenAI (Optional)
-        openai_label = QLabel("OpenAI API-Schlüssel (Optional für GPT-4o):")
-        openai_label.setStyleSheet("font-weight: 500; color: #94A3B8; font-size: 12px;")
-        layout.addWidget(openai_label)
+        self.openai_label = QLabel("OpenAI API Key (Optional for GPT-4o):")
+        self.openai_label.setStyleSheet("font-weight: 500; color: #94A3B8; font-size: 11.5px;")
+        layout.addWidget(self.openai_label)
 
         openai_row = QHBoxLayout()
         self.openai_input = QLineEdit()
@@ -282,46 +294,72 @@ class SettingsDialog(QDialog):
         openai_row.addWidget(self.openai_input)
 
         self.toggle_oai_eye = QPushButton("Show")
-        self.toggle_oai_eye.setFixedSize(54, 36)
+        self.toggle_oai_eye.setFixedSize(54, 34)
         self.toggle_oai_eye.setObjectName("secondaryButton")
         self.toggle_oai_eye.clicked.connect(lambda: self._toggle_echo(self.openai_input, self.toggle_oai_eye))
         openai_row.addWidget(self.toggle_oai_eye)
         layout.addLayout(openai_row)
 
         # 5. Obsidian Vault Directory Picker
-        obsidian_label = QLabel("Obsidian Vault Verzeichnis (Optional für Auto-Sync):")
-        obsidian_label.setStyleSheet("font-weight: 500; color: #94A3B8; font-size: 12px;")
-        layout.addWidget(obsidian_label)
+        self.obsidian_label = QLabel("Obsidian Vault Directory (Optional for auto-sync):")
+        self.obsidian_label.setStyleSheet("font-weight: 500; color: #94A3B8; font-size: 11.5px;")
+        layout.addWidget(self.obsidian_label)
 
         obsidian_row = QHBoxLayout()
         self.obsidian_input = QLineEdit()
-        self.obsidian_input.setPlaceholderText("Pfad zum Obsidian Vault (z. B. ~/Documents/Obsidian)...")
+        self.obsidian_input.setPlaceholderText("Path to Obsidian Vault (e.g. ~/Documents/Obsidian)...")
         obsidian_row.addWidget(self.obsidian_input)
 
-        self.obsidian_browse_btn = QPushButton("Durchsuchen...")
+        self.obsidian_browse_btn = QPushButton("Browse...")
         self.obsidian_browse_btn.setObjectName("secondaryButton")
         self.obsidian_browse_btn.clicked.connect(self._browse_obsidian_vault)
         obsidian_row.addWidget(self.obsidian_browse_btn)
         layout.addLayout(obsidian_row)
 
-        # 6. Output Synthesis Language
-        lang_label = QLabel("Synthese-Sprache (Notizen & Karteikarten):")
-        lang_label.setStyleSheet("font-weight: 500; color: #94A3B8; font-size: 12px;")
-        layout.addWidget(lang_label)
+        # 6. Dual Language Configuration Row
+        lang_row = QHBoxLayout()
+        lang_row.setSpacing(12)
+
+        # 6A. Interface Language (Desktop App)
+        ui_lang_box = QVBoxLayout()
+        ui_lang_box.setSpacing(4)
+        self.ui_lang_label = QLabel("Interface Language (Desktop UI):")
+        self.ui_lang_label.setStyleSheet("font-weight: 500; color: #94A3B8; font-size: 11.5px;")
+        ui_lang_box.addWidget(self.ui_lang_label)
+
+        self.ui_lang_combo = QComboBox()
+        self.ui_lang_combo.addItem("English", "en")
+        self.ui_lang_combo.addItem("Deutsch", "de")
+        self.ui_lang_combo.addItem("Français", "fr")
+        self.ui_lang_combo.addItem("Español", "es")
+        self.ui_lang_combo.addItem("中文", "zh")
+        self.ui_lang_combo.currentIndexChanged.connect(self._on_ui_language_selected)
+        ui_lang_box.addWidget(self.ui_lang_combo)
+        lang_row.addLayout(ui_lang_box)
+
+        # 6B. Output Synthesis Target Language
+        output_lang_box = QVBoxLayout()
+        output_lang_box.setSpacing(4)
+        self.lang_label = QLabel("Synthesis Target Language (Notes):")
+        self.lang_label.setStyleSheet("font-weight: 500; color: #94A3B8; font-size: 11.5px;")
+        output_lang_box.addWidget(self.lang_label)
 
         self.lang_combo = QComboBox()
-        self.lang_combo.addItem("Auto / Original (Vorlesungssprache)", "auto")
-        self.lang_combo.addItem("Deutsch (German)", "de")
+        self.lang_combo.addItem("Auto / Original (Lecture Language)", "auto")
         self.lang_combo.addItem("English (US/UK)", "en")
+        self.lang_combo.addItem("Deutsch (German)", "de")
         self.lang_combo.addItem("Français (French)", "fr")
         self.lang_combo.addItem("Español (Spanish)", "es")
         self.lang_combo.addItem("中文 (Mandarin)", "zh")
-        layout.addWidget(self.lang_combo)
+        output_lang_box.addWidget(self.lang_combo)
+        lang_row.addLayout(output_lang_box)
+
+        layout.addLayout(lang_row)
 
         # Status Label
         self.status_label = QLabel("")
         self.status_label.setWordWrap(True)
-        self.status_label.setStyleSheet("font-size: 12px; color: #94A3B8;")
+        self.status_label.setStyleSheet("font-size: 11.5px; color: #94A3B8;")
         layout.addWidget(self.status_label)
 
         # Progress bar
@@ -343,22 +381,68 @@ class SettingsDialog(QDialog):
         btn_layout.setSpacing(10)
 
         if not self.is_initial_setup:
-            self.cancel_btn = QPushButton("Abbrechen")
+            self.cancel_btn = QPushButton("Cancel")
             self.cancel_btn.setObjectName("secondaryButton")
             self.cancel_btn.clicked.connect(self.reject)
             btn_layout.addWidget(self.cancel_btn)
         else:
-            self.exit_btn = QPushButton("Beenden")
+            self.exit_btn = QPushButton("Close")
             self.exit_btn.setObjectName("secondaryButton")
             self.exit_btn.clicked.connect(self._quit_application)
             btn_layout.addWidget(self.exit_btn)
 
-        self.save_btn = QPushButton("Speichern & Prüfen")
+        self.save_btn = QPushButton("Save & Validate")
         self.save_btn.setObjectName("primaryButton")
         self.save_btn.clicked.connect(self._validate_and_save)
         btn_layout.addWidget(self.save_btn)
 
         layout.addLayout(btn_layout)
+
+    def retranslate_ui(self, lang_code: Optional[str] = None):
+        """Updates all visible texts in SettingsDialog according to specified or current language."""
+        lang = lang_code or self._active_ui_lang
+
+        self.setWindowTitle(tr("settings_dialog_title", lang=lang))
+        self.title_label.setText(tr("settings_header_title", lang=lang))
+        self.subtitle_label.setText(tr("settings_header_subtitle", lang=lang))
+        self.model_label.setText(tr("settings_model_label", lang=lang))
+
+        # Model options
+        curr_model_idx = self.model_combo.currentIndex()
+        self.model_combo.setItemText(0, tr("settings_model_gemini", lang=lang))
+        self.model_combo.setItemText(1, tr("settings_model_claude", lang=lang))
+        self.model_combo.setItemText(2, tr("settings_model_gpt", lang=lang))
+        self.model_combo.setCurrentIndex(curr_model_idx)
+
+        self.info_text.setText(tr("settings_info_banner", lang=lang))
+        self.link_btn.setText(tr("settings_link_aistudio", lang=lang))
+        self.tier_notice.setText(tr("settings_tier_notice", lang=lang))
+        self.gemini_label.setText(tr("settings_gemini_key_label", lang=lang))
+        self.anthropic_label.setText(tr("settings_anthropic_key_label", lang=lang))
+        self.openai_label.setText(tr("settings_openai_key_label", lang=lang))
+        self.obsidian_label.setText(tr("settings_vault_label", lang=lang))
+        self.obsidian_input.setPlaceholderText(tr("settings_vault_placeholder", lang=lang))
+        self.obsidian_browse_btn.setText(tr("btn_browse", lang=lang))
+
+        self.ui_lang_label.setText(tr("settings_ui_lang_label", lang=lang))
+        self.lang_label.setText(tr("settings_output_lang_label", lang=lang))
+
+        # Output lang auto label
+        curr_out_idx = self.lang_combo.currentIndex()
+        self.lang_combo.setItemText(0, tr("settings_output_lang_auto", lang=lang))
+        self.lang_combo.setCurrentIndex(curr_out_idx)
+
+        if hasattr(self, "cancel_btn"):
+            self.cancel_btn.setText(tr("btn_cancel", lang=lang))
+        if hasattr(self, "exit_btn"):
+            self.exit_btn.setText(tr("btn_close", lang=lang))
+        self.save_btn.setText(tr("btn_save", lang=lang))
+
+    def _on_ui_language_selected(self, index: int):
+        new_lang = self.ui_lang_combo.currentData()
+        if new_lang and new_lang != self._active_ui_lang:
+            self._active_ui_lang = new_lang
+            self.retranslate_ui(new_lang)
 
     def _load_existing_settings(self):
         # Load active model
@@ -385,23 +469,31 @@ class SettingsDialog(QDialog):
         if vault_path:
             self.obsidian_input.setText(vault_path)
 
-        # Load output language
+        # Load UI language
+        ui_lang = get_ui_language()
+        ui_idx = self.ui_lang_combo.findData(ui_lang)
+        if ui_idx >= 0:
+            self.ui_lang_combo.blockSignals(True)
+            self.ui_lang_combo.setCurrentIndex(ui_idx)
+            self.ui_lang_combo.blockSignals(False)
+            self._active_ui_lang = ui_lang
+
+        # Load output synthesis language
         target_lang = get_output_language()
         lang_idx = self.lang_combo.findData(target_lang)
         if lang_idx >= 0:
             self.lang_combo.setCurrentIndex(lang_idx)
 
         if gemini_key or ant_key or oai_key or vault_path:
-            self.status_label.setText("Einstellungen und Schlüssel geladen.")
-            self.status_label.setStyleSheet("color: #FFFFFF; font-size: 12px;")
+            self.status_label.setText(tr("settings_status_loaded", lang=self._active_ui_lang))
+            self.status_label.setStyleSheet("color: #FFFFFF; font-size: 11.5px;")
 
     def _browse_obsidian_vault(self):
-        import os
         current_val = self.obsidian_input.text().strip()
         start_dir = os.path.expanduser(current_val) if current_val else os.path.expanduser("~")
         chosen = QFileDialog.getExistingDirectory(
             self,
-            "Obsidian Vault Verzeichnis auswählen",
+            tr("settings_vault_label", lang=self._active_ui_lang),
             start_dir,
             QFileDialog.Option.ShowDirsOnly,
         )
@@ -428,11 +520,19 @@ class SettingsDialog(QDialog):
         ant_key = self.anthropic_input.text().strip()
         oai_key = self.openai_input.text().strip()
         obsidian_vault = self.obsidian_input.text().strip()
-        selected_lang = self.lang_combo.currentData()
+        selected_output_lang = self.lang_combo.currentData()
+        selected_ui_lang = self.ui_lang_combo.currentData()
 
-        # Save Obsidian vault path & language
+        # Save Obsidian vault path & output language
         set_obsidian_vault_path(obsidian_vault if obsidian_vault else None)
-        set_output_language(selected_lang)
+        set_output_language(selected_output_lang)
+
+        # Check UI language change
+        old_ui_lang = get_ui_language()
+        if selected_ui_lang and selected_ui_lang != old_ui_lang:
+            set_ui_language(selected_ui_lang)
+            self._active_ui_lang = selected_ui_lang
+            self.language_changed.emit(selected_ui_lang)
 
         # Save keys
         if gemini_key:
@@ -456,14 +556,14 @@ class SettingsDialog(QDialog):
             provider = "gemini"
 
         if not target_key:
-            self.status_label.setText(f"Bitte hinterlegen Sie einen Schlüssel für {provider.capitalize()}.")
-            self.status_label.setStyleSheet("color: #F87171; font-size: 12px;")
+            self.status_label.setText(tr("settings_key_missing", lang=self._active_ui_lang, provider=provider.capitalize()))
+            self.status_label.setStyleSheet("color: #F87171; font-size: 11.5px;")
             return
 
         self.save_btn.setEnabled(False)
         self.progress_bar.show()
-        self.status_label.setText(f"Prüfe {provider.capitalize()} API-Schlüssel...")
-        self.status_label.setStyleSheet("color: #94A3B8; font-size: 12px;")
+        self.status_label.setText(tr("settings_checking_key", lang=self._active_ui_lang, provider=provider.capitalize()))
+        self.status_label.setStyleSheet("color: #94A3B8; font-size: 11.5px;")
 
         self.worker = ValidationWorker(target_key, provider=provider)
         self.worker.finished.connect(self._on_validation_result)
@@ -475,11 +575,11 @@ class SettingsDialog(QDialog):
 
         if is_valid:
             self.status_label.setText("[OK] " + message)
-            self.status_label.setStyleSheet("color: #FFFFFF; font-weight: 600; font-size: 12px;")
+            self.status_label.setStyleSheet("color: #FFFFFF; font-weight: 600; font-size: 11.5px;")
             self.accept()
         else:
             self.status_label.setText("[ERR] " + message)
-            self.status_label.setStyleSheet("color: #F87171; font-size: 12px;")
+            self.status_label.setStyleSheet("color: #F87171; font-size: 11.5px;")
 
     def _quit_application(self):
         self.reject()

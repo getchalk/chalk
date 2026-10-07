@@ -360,7 +360,10 @@ class TestChalkInPersonSlidesAndOnboarding(unittest.TestCase):
 
             self.assertEqual(len(hud.imported_pdf_slides), 3)
             self.assertEqual(hud.imported_pdf_slides[0]["page"], 1)
-            self.assertIn("Folien bereit: 3 Seiten", hud.attachment_label.text())
+            self.assertTrue(
+                "3 Seiten" in hud.attachment_label.text() or "3 pages" in hud.attachment_label.text(),
+                f"Unexpected attachment text: {hud.attachment_label.text()}"
+            )
 
             ref_text = hud.get_relevant_reference_text(query_hint="introduction")
             self.assertIsNotNone(ref_text)
@@ -378,11 +381,12 @@ class TestChalkInPersonSlidesAndOnboarding(unittest.TestCase):
         for child in dialog.findChildren(object):
             if hasattr(child, "text") and callable(child.text):
                 text = child.text()
-                if "Google AI Studio Free-Tier: Google behält sich vor" in text:
+                if "Google AI Studio Free-Tier" in text:
                     found_notice = True
-                    self.assertIn("Paid-Tier", text)
+                    self.assertTrue("Paid-Tier" in text or "Pay-as-you-go" in text)
                     break
         self.assertTrue(found_notice, "Transparent onboarding notice not found in SettingsDialog")
+
 
 
 class TestChalkMultimodalSynthesis(unittest.TestCase):

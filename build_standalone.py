@@ -85,9 +85,11 @@ hidden_imports = [
     'src.companion.qr_generator',
     'src.companion.bridge',
     'src.companion.server',
+    'src.ui.i18n',
 ]
 
 a = Analysis(
+
     [entry_point],
     pathex=[project_root],
     binaries=[],

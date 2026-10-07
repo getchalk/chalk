@@ -28,6 +28,7 @@ from PyQt6.QtWidgets import (
 )
 
 from src.engine.config import get_obsidian_vault_path
+from src.ui.i18n import tr, get_ui_language
 
 
 def parse_audio_timestamp(url_or_str: str) -> float:
@@ -230,13 +231,13 @@ class SessionArchiveSearchDialog(QDialog):
 
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.setWindowTitle("Chalk — Archiv- & Formelsuche (Alt+F)")
         self.setFixedSize(680, 520)
         self.setStyleSheet(SEARCH_MODAL_STYLESHEET)
         self.setWindowFlags(self.windowFlags() | Qt.WindowType.WindowStaysOnTopHint)
 
         self.current_results: List[SearchResult] = []
         self._setup_ui()
+        self.retranslate_ui()
 
     def _setup_ui(self):
         layout = QVBoxLayout(self)
@@ -245,19 +246,18 @@ class SessionArchiveSearchDialog(QDialog):
 
         # Header
         header = QHBoxLayout()
-        title_lbl = QLabel("Archiv- & Formelsuche")
-        title_lbl.setStyleSheet("color: #FFFFFF; font-size: 16px; font-weight: 700;")
-        header.addWidget(title_lbl)
+        self.title_lbl = QLabel()
+        self.title_lbl.setStyleSheet("color: #FFFFFF; font-size: 16px; font-weight: 700;")
+        header.addWidget(self.title_lbl)
 
         header.addStretch()
-        hint_lbl = QLabel("Echtzeit-Treffer in ~/.chalk/sessions/ & Obsidian")
-        hint_lbl.setStyleSheet("color: #64748B; font-size: 11px;")
-        header.addWidget(hint_lbl)
+        self.hint_lbl = QLabel()
+        self.hint_lbl.setStyleSheet("color: #64748B; font-size: 11px;")
+        header.addWidget(self.hint_lbl)
         layout.addLayout(header)
 
         # Search Bar
         self.search_input = QLineEdit()
-        self.search_input.setPlaceholderText("Formel, Stichwort, Theorem oder Zeitstempel suchen (z. B. 'Bayes', 'E=mc^2', '[14:20]')...")
         self.search_input.textChanged.connect(self._on_search_query_changed)
         self.search_input.returnPressed.connect(self._open_selected_result)
         layout.addWidget(self.search_input)
@@ -269,22 +269,39 @@ class SessionArchiveSearchDialog(QDialog):
 
         # Status & Action Bar
         action_bar = QHBoxLayout()
-        self.status_lbl = QLabel("Geben Sie mindestens 2 Zeichen ein.")
+        self.status_lbl = QLabel()
         self.status_lbl.setStyleSheet("color: #94A3B8; font-size: 11px;")
         action_bar.addWidget(self.status_lbl)
 
         action_bar.addStretch()
 
-        self.btn_open_external = QPushButton("Im Editor öffnen")
+        self.btn_open_external = QPushButton()
         self.btn_open_external.clicked.connect(self._open_in_editor)
         action_bar.addWidget(self.btn_open_external)
 
-        self.btn_open_hud = QPushButton("In Notizen laden")
+        self.btn_open_hud = QPushButton()
         self.btn_open_hud.setObjectName("primaryBtn")
         self.btn_open_hud.clicked.connect(self._open_selected_result)
         action_bar.addWidget(self.btn_open_hud)
 
         layout.addLayout(action_bar)
+
+    def retranslate_ui(self):
+        """Refreshes all modal strings according to the active language."""
+        self.setWindowTitle(tr("search_dialog_title"))
+        self.title_lbl.setText(tr("search_header_title"))
+        self.hint_lbl.setText(tr("search_hint"))
+        self.search_input.setPlaceholderText(tr("search_placeholder"))
+        self.btn_open_external.setText(tr("btn_open_editor"))
+        self.btn_open_hud.setText(tr("btn_load_notes"))
+
+        query = self.search_input.text().strip()
+        if len(query) < 2:
+            self.status_lbl.setText(tr("search_min_chars"))
+        elif not self.current_results:
+            self.status_lbl.setText(tr("search_no_results"))
+        else:
+            self.status_lbl.setText(tr("search_results_found", count=len(self.current_results)))
 
     def _on_search_query_changed(self, text: str):
         query = text.strip()
@@ -292,15 +309,15 @@ class SessionArchiveSearchDialog(QDialog):
         self.current_results = []
 
         if len(query) < 2:
-            self.status_lbl.setText("Geben Sie mindestens 2 Zeichen ein.")
+            self.status_lbl.setText(tr("search_min_chars"))
             return
 
         self.current_results = search_archive(query)
         if not self.current_results:
-            self.status_lbl.setText("Keine Treffer gefunden.")
+            self.status_lbl.setText(tr("search_no_results"))
             return
 
-        self.status_lbl.setText(f"{len(self.current_results)} Treffer gefunden.")
+        self.status_lbl.setText(tr("search_results_found", count=len(self.current_results)))
 
         for idx, res in enumerate(self.current_results):
             item = QListWidgetItem(self.results_list)
@@ -311,6 +328,7 @@ class SessionArchiveSearchDialog(QDialog):
 
         if self.results_list.count() > 0:
             self.results_list.setCurrentRow(0)
+
 
     def _create_result_widget(self, res: SearchResult, query: str) -> QWidget:
         container = QWidget()
