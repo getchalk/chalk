@@ -766,19 +766,40 @@
 
     <!-- Optional Terminal Commands for Power Users -->
     <div class="rounded-2xl border p-6 text-left" style="background-color: var(--surface-graphite); border-color: var(--chalk-border);">
-      <div class="text-xs font-semibold mb-3" style="color: var(--chalk-slate);" data-i18n="cli_title">Optional for developers (Terminal Quick-Install):</div>
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-        <div class="mono-terminal rounded-xl p-3 flex items-center justify-between shadow-sm">
-          <code class="select-all" style="color: var(--terminal-text);">curl -L -O https://github.com/volodyagladkyy/Chalk/releases/latest/download/Chalk-macOS.zip</code>
-          <button onclick="copyCommand(this, 'curl -L -O https://github.com/volodyagladkyy/Chalk/releases/latest/download/Chalk-macOS.zip')" class="text-xs px-2.5 py-1 rounded border font-medium transition" style="background-color: var(--terminal-btn-bg); border-color: var(--terminal-btn-border); color: var(--terminal-btn-text);">
-            <span data-i18n="btn_copy">Copy</span>
-          </button>
+      <div class="text-xs font-semibold mb-3.5" style="color: var(--chalk-slate);" data-i18n="cli_title">Optional for developers (Terminal Quick-Install):</div>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <!-- macOS Box -->
+        <div class="mono-terminal rounded-xl p-3.5 shadow-sm min-w-0 flex flex-col justify-between gap-2.5">
+          <div class="flex items-center justify-between gap-2">
+            <div class="flex items-center gap-2 min-w-0">
+              <span class="text-[10px] font-mono tracking-wider uppercase px-2 py-0.5 rounded border flex-shrink-0 font-medium" style="background-color: var(--surface-elevated); border-color: var(--chalk-border); color: var(--chalk-white);">macOS</span>
+              <span class="text-[11px] font-mono truncate" style="color: var(--chalk-muted);" data-i18n="cli_mac">macOS Terminal</span>
+            </div>
+            <button onclick="copyCommand(this, 'curl -L -O https://github.com/volodyagladkyy/Chalk/releases/latest/download/Chalk-macOS.zip')" class="flex-shrink-0 text-xs px-2.5 py-1 rounded border font-medium transition flex items-center gap-1.5 hover:opacity-90" style="background-color: var(--terminal-btn-bg); border-color: var(--terminal-btn-border); color: var(--terminal-btn-text);">
+              <svg class="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/></svg>
+              <span data-i18n="btn_copy">Copy</span>
+            </button>
+          </div>
+          <div class="rounded-lg p-2.5 border overflow-x-auto min-w-0" style="background-color: var(--surface-terminal); border-color: var(--chalk-border);">
+            <code class="select-all whitespace-nowrap font-mono text-xs block" style="color: var(--terminal-text);"><span class="select-none opacity-40">$ </span>curl -L -O https://github.com/volodyagladkyy/Chalk/releases/latest/download/Chalk-macOS.zip</code>
+          </div>
         </div>
-        <div class="mono-terminal rounded-xl p-3 flex items-center justify-between shadow-sm">
-          <code class="select-all" style="color: var(--terminal-text);">curl -L -O https://github.com/volodyagladkyy/Chalk/releases/latest/download/Chalk-Setup.exe</code>
-          <button onclick="copyCommand(this, 'curl -L -O https://github.com/volodyagladkyy/Chalk/releases/latest/download/Chalk-Setup.exe')" class="text-xs px-2.5 py-1 rounded border font-medium transition" style="background-color: var(--terminal-btn-bg); border-color: var(--terminal-btn-border); color: var(--terminal-btn-text);">
-            <span data-i18n="btn_copy">Copy</span>
-          </button>
+
+        <!-- Windows Box -->
+        <div class="mono-terminal rounded-xl p-3.5 shadow-sm min-w-0 flex flex-col justify-between gap-2.5">
+          <div class="flex items-center justify-between gap-2">
+            <div class="flex items-center gap-2 min-w-0">
+              <span class="text-[10px] font-mono tracking-wider uppercase px-2 py-0.5 rounded border flex-shrink-0 font-medium" style="background-color: var(--surface-elevated); border-color: var(--chalk-border); color: var(--chalk-white);">Windows</span>
+              <span class="text-[11px] font-mono truncate" style="color: var(--chalk-muted);" data-i18n="cli_win">Windows PowerShell / CMD</span>
+            </div>
+            <button onclick="copyCommand(this, 'curl -L -O https://github.com/volodyagladkyy/Chalk/releases/latest/download/Chalk-Setup.exe')" class="flex-shrink-0 text-xs px-2.5 py-1 rounded border font-medium transition flex items-center gap-1.5 hover:opacity-90" style="background-color: var(--terminal-btn-bg); border-color: var(--terminal-btn-border); color: var(--terminal-btn-text);">
+              <svg class="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/></svg>
+              <span data-i18n="btn_copy">Copy</span>
+            </button>
+          </div>
+          <div class="rounded-lg p-2.5 border overflow-x-auto min-w-0" style="background-color: var(--surface-terminal); border-color: var(--chalk-border);">
+            <code class="select-all whitespace-nowrap font-mono text-xs block" style="color: var(--terminal-text);"><span class="select-none opacity-40">> </span>curl -L -O https://github.com/volodyagladkyy/Chalk/releases/latest/download/Chalk-Setup.exe</code>
+          </div>
         </div>
       </div>
     </div>
@@ -1018,6 +1039,8 @@
     "win_btn": "Download for Windows (x64)",
     "win_os_req": "Windows 10 / 11 64-Bit",
     "cli_title": "Optional for developers (Terminal Quick-Install):",
+    "cli_mac": "macOS Terminal",
+    "cli_win": "Windows PowerShell / CMD",
     "btn_copy": "Copy",
     "btn_copied": "Copied",
     "footer_identity": "Local Presence & Synthesis",
@@ -1166,6 +1189,8 @@
     "win_btn": "Download für Windows (x64)",
     "win_os_req": "Windows 10 / 11 64-Bit",
     "cli_title": "Optional für Entwickler (Terminal Quick-Install):",
+    "cli_mac": "macOS Terminal",
+    "cli_win": "Windows PowerShell / CMD",
     "btn_copy": "Kopieren",
     "btn_copied": "Kopiert",
     "footer_identity": "Lokale Präsenz & Synthese",
@@ -1314,6 +1339,8 @@
     "win_btn": "Télécharger pour Windows (x64)",
     "win_os_req": "Windows 10 / 11 64 bits",
     "cli_title": "Optionnel pour développeurs (Installation rapide via terminal) :",
+    "cli_mac": "Terminal macOS",
+    "cli_win": "Windows PowerShell / CMD",
     "btn_copy": "Copier",
     "btn_copied": "Copié",
     "footer_identity": "Présence et synthèse locales",
@@ -1462,6 +1489,8 @@
     "win_btn": "Descargar para Windows (x64)",
     "win_os_req": "Windows 10 / 11 64 bits",
     "cli_title": "Opcional para desarrolladores (Instalación rápida en terminal):",
+    "cli_mac": "Terminal macOS",
+    "cli_win": "Windows PowerShell / CMD",
     "btn_copy": "Copiar",
     "btn_copied": "Copiado",
     "footer_identity": "Presencia y síntesis local",
@@ -1610,6 +1639,8 @@
     "win_btn": "下载 Windows 版 (x64)",
     "win_os_req": "Windows 10 / 11 64 位",
     "cli_title": "开发者终端便捷安装（可选）：",
+    "cli_mac": "macOS 终端",
+    "cli_win": "Windows 终端 (PowerShell)",
     "btn_copy": "复制",
     "btn_copied": "已复制",
     "footer_identity": "本地专注与智能纪要",
@@ -1914,7 +1945,7 @@
     function copyCommand(btn, text) {
       navigator.clipboard.writeText(text).then(() => {
         const originalHtml = btn.innerHTML;
-        btn.innerHTML = `<span>${translations[currentLang].btn_copied}</span>`;
+        btn.innerHTML = `${checkSvg}<span>${translations[currentLang].btn_copied}</span>`;
         setTimeout(() => {
           btn.innerHTML = originalHtml;
         }, 2000);
