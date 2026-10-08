@@ -389,17 +389,22 @@
             <!-- Active Screen Capture Card -->
             <div class="rounded-xl border p-4 relative overflow-hidden shadow-sm flex flex-col justify-between flex-1" style="background-color: var(--hud-card-bg); border-color: var(--chalk-border);">
               <div class="flex items-center justify-between text-xs font-medium mb-2.5" style="color: var(--chalk-slate);">
-                <span data-i18n="preview_screen_label">SCREEN CAPTURE</span>
-                <div class="flex items-center gap-1 font-mono text-[10px] text-slate-400">
-                  <button onclick="prevMockupSlide(event)" title="Previous Slide" class="p-0.5 px-1 rounded hover:bg-white/10 cursor-pointer">&larr;</button>
-                  <span id="mockup-slide-pill">1/3</span>
-                  <button onclick="nextMockupSlide(event)" title="Next Slide" class="p-0.5 px-1 rounded hover:bg-white/10 cursor-pointer">&rarr;</button>
+                <div class="flex items-center gap-1.5">
+                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                  <span class="text-[11px] font-medium uppercase tracking-wide" data-i18n="preview_screen_label">ACTIVE SCREEN MIRROR</span>
+                </div>
+                <div class="flex items-center gap-1.5 font-mono text-[10px]" style="color: var(--chalk-muted);">
+                  <span data-i18n="preview_screen_badge">DISPLAY 1 &bull; 60 FPS</span>
                 </div>
               </div>
-              <div onclick="nextMockupSlide(event)" class="aspect-video rounded-lg border flex flex-col justify-between p-3.5 text-center relative overflow-hidden cursor-pointer transition hover:border-white/30" style="background-color: var(--surface-elevated); border-color: var(--chalk-border);">
+              <div id="mockup-screen-container" onclick="manualTransitionMockupSlide(event)" title="Active presentation display mirror (click to cycle preview)" class="aspect-video rounded-lg border flex flex-col justify-between p-3.5 text-center relative overflow-hidden cursor-pointer hover:border-white/30" style="background-color: var(--surface-elevated); border-color: var(--chalk-border); transition: opacity 0.4s ease-in-out;">
                 <!-- Slide Header -->
                 <div class="flex items-center justify-between pb-1.5 border-b border-white/5 text-[10px] text-left opacity-70">
-                  <span id="mockup-slide-file" class="font-mono text-[9px] truncate" style="color: var(--chalk-muted);">Asset_Pricing_Lecture_04.pdf (p. 12/42)</span>
+                  <div class="flex items-center gap-1.5">
+                    <span class="w-1.5 h-1.5 rounded-full bg-slate-500"></span>
+                    <span id="mockup-slide-file" class="font-mono text-[9px] truncate" style="color: var(--chalk-muted);">Presentation_Display_1.pdf</span>
+                  </div>
+                  <span class="font-mono text-[8px] uppercase tracking-wider text-slate-500" data-i18n="preview_mirror_tag">Screen Mirror</span>
                 </div>
 
                 <!-- Window Content Area -->
@@ -1112,7 +1117,9 @@
     "preview_title": "Lecture: Financial Markets & Risk — Chalk",
     "preview_status": "Recording active (01:42)",
     "preview_status_label": "Recording active",
-    "preview_screen_label": "SCREEN CAPTURE",
+    "preview_screen_label": "ACTIVE SCREEN MIRROR",
+    "preview_screen_badge": "DISPLAY 1 • 60 FPS",
+    "preview_mirror_tag": "Screen Mirror",
     "preview_screen_topic": "Portfolio Theory & Risk Modeling",
     "preview_screen_heading": "Capital Asset Pricing Model (CAPM)",
     "preview_audio_label": "LIVE AUDIO & CAPTURE",
@@ -1253,7 +1260,9 @@
     "preview_title": "Vorlesung: Finanzmärkte & Risiko — Chalk",
     "preview_status": "Aufnahme aktiv (01:42)",
     "preview_status_label": "Aufnahme aktiv",
-    "preview_screen_label": "BILDSCHIRMAUFNAHME",
+    "preview_screen_label": "BILDSCHIRMSPIEGELUNG (LIVE)",
+    "preview_screen_badge": "HAUPTBILDSCHIRM • 60 FPS",
+    "preview_mirror_tag": "Bildschirmspiegel",
     "preview_screen_topic": "Portfoliotheorie & Risikomodellierung",
     "preview_screen_heading": "Capital Asset Pricing Model (CAPM)",
     "preview_audio_label": "LIVE-AUDIO & ERFASSUNG",
@@ -1394,7 +1403,9 @@
     "preview_title": "Cours : Marchés financiers et risque — Chalk",
     "preview_status": "Enregistrement en cours (01:42)",
     "preview_status_label": "Enregistrement en cours",
-    "preview_screen_label": "CAPTURE D'ÉCRAN",
+    "preview_screen_label": "MIROIR D'ÉCRAN ACTIF",
+    "preview_screen_badge": "ÉCRAN PRINCIPAL • 60 FPS",
+    "preview_mirror_tag": "Miroir d'écran",
     "preview_screen_topic": "Théorie du portefeuille & Risque",
     "preview_screen_heading": "Capital Asset Pricing Model (CAPM)",
     "preview_audio_label": "AUDIO & CAPTURE EN DIRECT",
@@ -1535,7 +1546,9 @@
     "preview_title": "Clase: Mercados financieros y riesgo — Chalk",
     "preview_status": "Grabación activa (01:42)",
     "preview_status_label": "Grabación activa",
-    "preview_screen_label": "CAPTURA DE PANTALLA",
+    "preview_screen_label": "ESPEJO DE PANTALLA ACTIVO",
+    "preview_screen_badge": "PANTALLA PRINCIPAL • 60 FPS",
+    "preview_mirror_tag": "Espejo pantalla",
     "preview_screen_topic": "Teoría de carteras y riesgo",
     "preview_screen_heading": "Capital Asset Pricing Model (CAPM)",
     "preview_audio_label": "AUDIO EN VIVO Y CAPTURA",
@@ -1676,7 +1689,9 @@
     "preview_title": "讲座：金融市场与风险分析 — Chalk",
     "preview_status": "录音采集中 (01:42)",
     "preview_status_label": "正在录制",
-    "preview_screen_label": "屏幕画面捕获",
+    "preview_screen_label": "实时屏幕镜像",
+    "preview_screen_badge": "主显示屏 • 60 FPS",
+    "preview_mirror_tag": "屏幕镜像",
     "preview_screen_topic": "投资组合理论与风险建模",
     "preview_screen_heading": "资本资产定价模型 (CAPM)",
     "preview_audio_label": "实时音频与采集",
@@ -2032,12 +2047,10 @@
       const topicEl = document.getElementById('mockup-screen-topic');
       const headingEl = document.getElementById('mockup-screen-heading');
       const mathEl = document.getElementById('mockup-screen-math');
-      const pillEl = document.getElementById('mockup-slide-pill');
       if (fileEl) fileEl.textContent = slide.file;
       if (topicEl) topicEl.textContent = slide.topic;
       if (headingEl) headingEl.textContent = slide.heading;
       if (mathEl) mathEl.textContent = slide.math;
-      if (pillEl) pillEl.textContent = `${idx + 1}/3`;
 
       // Update Notes view
       const noteH1 = document.getElementById('mockup-note-h1');
@@ -2060,16 +2073,40 @@
       renderHeroMath();
     }
 
-    function nextMockupSlide(e) {
+    function transitionMockupSlide(nextIdx) {
+      const container = document.getElementById('mockup-screen-container');
+      if (!container) {
+        setMockupSlide(nextIdx);
+        return;
+      }
+      container.style.opacity = '0';
+      setTimeout(() => {
+        setMockupSlide(nextIdx);
+        container.style.opacity = '1';
+      }, 350);
+    }
+
+    function manualTransitionMockupSlide(e) {
       if (e) e.stopPropagation();
       const next = (mockupState.activeSlide + 1) % mockupState.slides.length;
-      setMockupSlide(next);
+      transitionMockupSlide(next);
+      if (mockupState.screenLoopInterval) {
+        clearInterval(mockupState.screenLoopInterval);
+        mockupState.screenLoopInterval = setInterval(() => {
+          const autoNext = (mockupState.activeSlide + 1) % mockupState.slides.length;
+          transitionMockupSlide(autoNext);
+        }, 60000);
+      }
+    }
+
+    function nextMockupSlide(e) {
+      manualTransitionMockupSlide(e);
     }
 
     function prevMockupSlide(e) {
       if (e) e.stopPropagation();
       const prev = (mockupState.activeSlide - 1 + mockupState.slides.length) % mockupState.slides.length;
-      setMockupSlide(prev);
+      transitionMockupSlide(prev);
     }
 
     function toggleMockupQrPopover(e) {
@@ -2600,6 +2637,12 @@
     function initMockupExperience() {
       selectMockupTerm('beta');
       renderHeroMath();
+      if (!mockupState.screenLoopInterval) {
+        mockupState.screenLoopInterval = setInterval(() => {
+          const next = (mockupState.activeSlide + 1) % mockupState.slides.length;
+          transitionMockupSlide(next);
+        }, 60000);
+      }
     }
     window.addEventListener('load', initMockupExperience);
     window.addEventListener('DOMContentLoaded', initMockupExperience);

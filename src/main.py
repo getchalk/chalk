@@ -328,6 +328,8 @@ class ChalkCoordinator(QObject):
     def _on_slide_advanced(self, keyframe):
         """Notified by screen grabber when a new slide keyframe is found."""
         self.chunker.notify_slide_advanced(keyframe)
+        if hasattr(self, "hud") and hasattr(self.hud, "update_screen_preview") and getattr(keyframe, "pil_image", None):
+            self.hud.update_screen_preview(keyframe.pil_image)
 
     def _evaluate_chunk_boundaries(self):
         """Periodic evaluation of dynamic elastic chunk boundaries."""
@@ -417,6 +419,12 @@ class ChalkCoordinator(QObject):
         self.hud.chat_history.append(
             f"<b>[SYNC] Chunk Synthesized {start_t}–{end_t}:</b> {html.escape(new_state.topic)}\n"
         )
+        if hasattr(self.hud, "update_live_speech") and getattr(new_state, "topic", ""):
+            self.hud.update_live_speech(
+                f"Synthesized Point: {new_state.topic}",
+                speaker=getattr(new_state, "primary_speaker", "Speaker Active"),
+                timestamp=end_t,
+            )
 
         # Restore status
         if self.recorder.is_paused:

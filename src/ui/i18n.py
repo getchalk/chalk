@@ -90,6 +90,27 @@ TRANSLATIONS: Dict[str, Dict[str, str]] = {
         "es": "Fotos de pizarra: {count} adjuntas",
         "zh": "白板照片：已附加 {count} 张",
     },
+    "hud_screen_mirror": {
+        "en": "ACTIVE SCREEN MIRROR",
+        "de": "BILDSCHIRMSPIEGELUNG (LIVE)",
+        "fr": "MIROIR D'ECRAN ACTIF",
+        "es": "ESPEJO DE PANTALLA ACTIVO",
+        "zh": "实时屏幕镜像",
+    },
+    "hud_display_status": {
+        "en": "PRIMARY DISPLAY",
+        "de": "HAUPTBILDSCHIRM",
+        "fr": "ECRAN PRINCIPAL",
+        "es": "PANTALLA PRINCIPAL",
+        "zh": "主显示屏",
+    },
+    "hud_listening_speech": {
+        "en": "Listening to microphone feed... Live spoken audio will appear here.",
+        "de": "Mikrofon aktiv... Gesprochenes Audio erscheint hier.",
+        "fr": "Microphone actif... Les paroles apparaitront ici.",
+        "es": "Microfono activo... El audio hablado aparecera aqui.",
+        "zh": "麦克风监听中... 现场语音将在此实时呈现。",
+    },
 
     # ----------------------------------------------------
     # Action Buttons & Tooltips

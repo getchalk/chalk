@@ -876,6 +876,12 @@ class FloatingHUDWindow(QWidget):
         self.hud_timer.timeout.connect(self._update_hud_status)
         self.hud_timer.start(1000)
 
+        # Periodic live screen mirror sampler
+        self.screen_mirror_timer = QTimer(self)
+        self.screen_mirror_timer.timeout.connect(self.grab_live_screen_preview)
+        self.screen_mirror_timer.start(2500)
+        QTimer.singleShot(200, self.grab_live_screen_preview)
+
     def _setup_window_properties(self):
         self.setObjectName("hudRoot")
         self.setWindowFlags(
@@ -972,7 +978,7 @@ class FloatingHUDWindow(QWidget):
         left_col = QVBoxLayout()
         left_col.setSpacing(10)
 
-        # Card 1: SCREEN CAPTURE
+        # Card 1: ACTIVE SCREEN MIRROR (Real Hardware Screen Grabber)
         self.screen_capture_card = QFrame()
         self.screen_capture_card.setObjectName("cardFrame")
         sc_layout = QVBoxLayout(self.screen_capture_card)
@@ -980,43 +986,52 @@ class FloatingHUDWindow(QWidget):
         sc_layout.setSpacing(6)
 
         sc_head = QHBoxLayout()
-        sc_title_lbl = QLabel("SCREEN CAPTURE")
-        sc_title_lbl.setStyleSheet("font-size: 10px; font-weight: 700; letter-spacing: 1px; color: #94A3B8;")
-        sc_head.addWidget(sc_title_lbl)
+        self.screen_title_lbl = QLabel(tr("hud_screen_mirror"))
+        self.screen_title_lbl.setStyleSheet("font-size: 10px; font-weight: 700; letter-spacing: 1px; color: #94A3B8;")
+        sc_head.addWidget(self.screen_title_lbl)
         sc_head.addStretch()
 
+        self.screen_badge_lbl = QLabel(f"● {tr('hud_display_status')}")
+        self.screen_badge_lbl.setStyleSheet("font-size: 10px; font-weight: 600; font-family: monospace; color: #10B981;")
+        sc_head.addWidget(self.screen_badge_lbl)
+
+        # Legacy backward-compat widgets (hidden)
         self.prev_slide_btn = QPushButton("‹")
-        self.prev_slide_btn.setFixedSize(22, 20)
-        self.prev_slide_btn.clicked.connect(lambda: self._navigate_slide(-1))
-        sc_head.addWidget(self.prev_slide_btn)
-
-        self.slide_counter_lbl = QLabel("1/3")
-        self.slide_counter_lbl.setStyleSheet("font-size: 11px; font-family: monospace; color: #CBD5E1;")
-        sc_head.addWidget(self.slide_counter_lbl)
-
+        self.prev_slide_btn.hide()
         self.next_slide_btn = QPushButton("›")
-        self.next_slide_btn.setFixedSize(22, 20)
-        self.next_slide_btn.clicked.connect(lambda: self._navigate_slide(1))
-        sc_head.addWidget(self.next_slide_btn)
+        self.next_slide_btn.hide()
+        self.slide_counter_lbl = QLabel("1/1")
+        self.slide_counter_lbl.hide()
+        self.slide_file_lbl = QLabel("")
+        self.slide_file_lbl.hide()
+        self.slide_topic_lbl = QLabel("")
+        self.slide_topic_lbl.hide()
+        self.slide_heading_lbl = QLabel("")
+        self.slide_heading_lbl.hide()
+        self.slide_math_view = QTextBrowser()
+        self.slide_math_view.hide()
 
         sc_layout.addLayout(sc_head)
 
-        self.slide_file_lbl = QLabel("Asset_Pricing_Lecture_04.pdf (p. 12/42)")
-        self.slide_file_lbl.setStyleSheet("font-size: 10px; font-family: monospace; color: #64748B;")
-        sc_layout.addWidget(self.slide_file_lbl)
+        self.screen_source_lbl = QLabel("Primary Display (Retina) • Real-time Mirror")
+        self.screen_source_lbl.setStyleSheet("font-size: 10px; font-family: monospace; color: #64748B;")
+        sc_layout.addWidget(self.screen_source_lbl)
 
-        self.slide_topic_lbl = QLabel("Portfolio Theory & Risk Modeling")
-        self.slide_topic_lbl.setStyleSheet("font-size: 11px; color: #94A3B8; margin-top: 2px;")
-        sc_layout.addWidget(self.slide_topic_lbl)
+        # Real Live Screen Preview Label
+        self.screen_preview_lbl = QLabel("[Mirroring Active Display]")
+        self.screen_preview_lbl.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.screen_preview_lbl.setStyleSheet(
+            "background-color: rgba(21, 22, 27, 0.85); "
+            "border: 1px solid rgba(255, 255, 255, 0.08); "
+            "border-radius: 6px; color: #64748B; font-size: 11px; font-family: monospace;"
+        )
+        self.screen_preview_lbl.setFixedHeight(120)
+        self.screen_preview_lbl.setScaledContents(False)
+        sc_layout.addWidget(self.screen_preview_lbl)
 
-        self.slide_heading_lbl = QLabel("Capital Asset Pricing Model (CAPM)")
-        self.slide_heading_lbl.setStyleSheet("font-size: 13px; font-weight: 700; color: #F8FAFC;")
-        sc_layout.addWidget(self.slide_heading_lbl)
-
-        self.slide_math_view = QTextBrowser()
-        self.slide_math_view.setStyleSheet("background-color: rgba(21, 22, 27, 0.7); border: none; border-radius: 6px;")
-        self.slide_math_view.setFixedHeight(75)
-        sc_layout.addWidget(self.slide_math_view)
+        self.screen_details_lbl = QLabel("Zero-lag hardware capture • Perceptual diff active")
+        self.screen_details_lbl.setStyleSheet("font-size: 9.5px; color: #475569;")
+        sc_layout.addWidget(self.screen_details_lbl)
 
         left_col.addWidget(self.screen_capture_card)
 
@@ -1034,14 +1049,11 @@ class FloatingHUDWindow(QWidget):
         la_head.addStretch()
         la_layout.addLayout(la_head)
 
-        self.speaker_badge_lbl = QLabel("🎙 Prof. Vance (Speaker)    @ 01:14:20")
+        self.speaker_badge_lbl = QLabel("🎙 Speaker Active    @ 00:00")
         self.speaker_badge_lbl.setStyleSheet("font-size: 10.5px; font-family: monospace; color: #CBD5E1;")
         la_layout.addWidget(self.speaker_badge_lbl)
 
-        self.live_speech_lbl = QLabel(
-            '"...unsystematic risk is eliminated by diversification. '
-            'The market only prices systematic covariance..."'
-        )
+        self.live_speech_lbl = QLabel(tr("hud_listening_speech"))
         self.live_speech_lbl.setStyleSheet(
             "font-size: 11.5px; font-style: italic; color: #94A3B8; "
             "background-color: rgba(21, 22, 27, 0.7); padding: 8px 10px; border-radius: 6px; border: 1px solid rgba(255, 255, 255, 0.06);"
@@ -1526,6 +1538,67 @@ class FloatingHUDWindow(QWidget):
             self.slide_heading_lbl.setText(slide["heading"])
             self.slide_math_view.setHtml(render_markdown_with_katex(slide["math"]))
 
+    def grab_live_screen_preview(self):
+        """Captures a real scaled thumbnail of the primary display without lag."""
+        if not self.isVisible():
+            return
+        if self.imported_pdf_slides:
+            return  # If user explicitly attached slide deck, keep slide deck context active
+        try:
+            screen = QApplication.primaryScreen()
+            if screen:
+                pix = screen.grabWindow(0)
+                if not pix.isNull():
+                    target_w = self.screen_preview_lbl.width() or 316
+                    target_h = self.screen_preview_lbl.height() or 120
+                    scaled = pix.scaled(
+                        target_w, target_h,
+                        Qt.AspectRatioMode.KeepAspectRatio,
+                        Qt.TransformationMode.SmoothTransformation,
+                    )
+                    self.screen_preview_lbl.setPixmap(scaled)
+                    self.screen_source_lbl.setText(f"Primary Display ({pix.width()}x{pix.height()}) • Real-time Mirror")
+        except Exception as e:
+            logger.debug("Live screen preview capture failed: %s", e)
+
+    def update_screen_preview(self, image_data: Union[Image.Image, QPixmap, str]):
+        """Updates the HUD screen preview widget with a new keyframe, snip or photo."""
+        try:
+            if isinstance(image_data, Image.Image):
+                from PIL.ImageQt import ImageQt
+                qimg = ImageQt(image_data)
+                pix = QPixmap.fromImage(qimg)
+            elif isinstance(image_data, str) and os.path.exists(image_data):
+                pix = QPixmap(image_data)
+            elif isinstance(image_data, QPixmap):
+                pix = image_data
+            else:
+                return
+
+            if not pix.isNull():
+                target_w = self.screen_preview_lbl.width() or 316
+                target_h = self.screen_preview_lbl.height() or 120
+                scaled = pix.scaled(
+                    target_w, target_h,
+                    Qt.AspectRatioMode.KeepAspectRatio,
+                    Qt.TransformationMode.SmoothTransformation,
+                )
+                self.screen_preview_lbl.setPixmap(scaled)
+        except Exception as e:
+            logger.debug("Failed to set screen preview pixmap: %s", e)
+
+    def update_live_speech(self, text: str, speaker: str = "", timestamp: str = ""):
+        """Updates the live spoken audio quote and speaker badge dynamically."""
+        if text:
+            clean_text = text.strip()
+            if not clean_text.startswith('"') and not clean_text.startswith('“'):
+                clean_text = f'"{clean_text}"'
+            self.live_speech_lbl.setText(clean_text)
+        if speaker or timestamp:
+            spk = speaker or "Speaker Active"
+            ts = timestamp or format_timestamp(time.time() - self.session_start_time)
+            self.speaker_badge_lbl.setText(f"🎙 {spk}    @ {ts}")
+
     def _on_pin_user_directive(self):
         text = self.directive_input.text().strip()
         if not text:
@@ -1727,6 +1800,11 @@ class FloatingHUDWindow(QWidget):
             self.rewind_btn.setText(tr("btn_rewind_90s"))
         if hasattr(self, "search_btn"):
             self.search_btn.setText(tr("btn_search_archive"))
+
+        if hasattr(self, "screen_title_lbl"):
+            self.screen_title_lbl.setText(tr("hud_screen_mirror"))
+        if hasattr(self, "screen_badge_lbl"):
+            self.screen_badge_lbl.setText(f"● {tr('hud_display_status')}")
 
         self._update_hud_status()
 
