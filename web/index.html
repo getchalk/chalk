@@ -354,31 +354,24 @@
                 </div>
               </div>
 
-              <!-- Sub-Col 2 (sm:col-span-7): Recall -->
+              <!-- Sub-Col 2 (sm:col-span-7): Key Terms (Auto-Detected) -->
               <div class="sm:col-span-7 rounded-xl border p-3.5 shadow-sm flex flex-col justify-between" style="background-color: var(--hud-card-bg); border-color: var(--chalk-border);">
                 <div>
                   <div class="flex items-center justify-between mb-2">
-                    <span class="text-[11px] font-medium uppercase tracking-wide" style="color: var(--chalk-slate);" data-i18n="preview_recall_label">RECALL</span>
-                    <kbd class="text-[9px] font-mono px-1.5 py-0.5 rounded border leading-none" style="background-color: var(--surface-terminal); border-color: var(--chalk-border); color: var(--chalk-muted);">Alt+Space</kbd>
-                  </div>
-                  <div class="flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-xs focus-within:border-white/40" style="background-color: var(--surface-terminal); border-color: var(--chalk-border);">
-                    <span class="font-mono text-[11px] flex-shrink-0 text-slate-400">></span>
-                    <input type="text" id="recall-input" onkeydown="if(event.key==='Enter')submitMockupRecall()" placeholder="Ask question (e.g. 'Explain beta')..." class="bg-transparent text-xs w-full focus:outline-none" style="color: var(--terminal-text);">
-                    <button onclick="submitMockupRecall()" title="Ask Copilot" class="p-1 rounded hover:bg-white/10 text-slate-300 flex-shrink-0 cursor-pointer">
-                      <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg>
-                    </button>
+                    <span class="text-[11px] font-medium uppercase tracking-wide" style="color: var(--chalk-slate);" data-i18n="preview_terms_label">KEY TERMS</span>
+                    <span class="text-[10px] font-mono px-1.5 py-0.5 rounded border" style="background-color: var(--surface-terminal); border-color: var(--chalk-border); color: var(--chalk-muted);" data-i18n="preview_terms_badge">Detected</span>
                   </div>
 
-                  <!-- Suggested Query Chips -->
-                  <div class="flex items-center gap-1.5 mt-2 flex-wrap">
-                    <button onclick="askRecallPreset('Explain beta')" class="px-2 py-0.5 rounded text-[10px] font-mono border hover:bg-white/5 cursor-pointer transition" style="border-color: var(--chalk-border); color: var(--chalk-slate);">Beta</button>
-                    <button onclick="askRecallPreset('What is Rf?')" class="px-2 py-0.5 rounded text-[10px] font-mono border hover:bg-white/5 cursor-pointer transition" style="border-color: var(--chalk-border); color: var(--chalk-slate);">Risk-Free</button>
-                    <button onclick="askRecallPreset('Derive Alpha')" class="px-2 py-0.5 rounded text-[10px] font-mono border hover:bg-white/5 cursor-pointer transition" style="border-color: var(--chalk-border); color: var(--chalk-slate);">Alpha</button>
+                  <!-- Auto-Suggested Term Chips -->
+                  <div class="flex items-center gap-1.5 mb-2.5 flex-wrap" id="mockup-term-chips">
+                    <button id="term-chip-beta" onclick="selectMockupTerm('beta')" class="px-2 py-0.5 rounded text-[10px] font-mono border cursor-pointer transition font-medium" style="background-color: var(--surface-elevated); border-color: var(--chalk-border); color: var(--chalk-white);">Beta (&beta;<sub>i</sub>)</button>
+                    <button id="term-chip-rf" onclick="selectMockupTerm('rf')" class="px-2 py-0.5 rounded text-[10px] font-mono border cursor-pointer transition hover:bg-white/5" style="border-color: var(--chalk-border); color: var(--chalk-slate);">Risk-Free (R<sub>f</sub>)</button>
+                    <button id="term-chip-alpha" onclick="selectMockupTerm('alpha')" class="px-2 py-0.5 rounded text-[10px] font-mono border cursor-pointer transition hover:bg-white/5" style="border-color: var(--chalk-border); color: var(--chalk-slate);">Alpha (&alpha;<sub>i</sub>)</button>
                   </div>
 
-                  <!-- Dynamic AI Recall Answer Box -->
-                  <div id="recall-answer-box" class="mt-2.5 p-2 rounded-lg border text-[11px] leading-relaxed hidden" style="background-color: var(--surface-terminal); border-color: var(--chalk-border); color: var(--chalk-white);">
-                    <!-- Injected dynamically via JS -->
+                  <!-- Term Definition Card -->
+                  <div id="mockup-term-detail" class="p-2.5 rounded-lg border text-[11px] leading-relaxed" style="background-color: var(--surface-terminal); border-color: var(--chalk-border); color: var(--chalk-white);">
+                    <!-- Populated dynamically via selectMockupTerm -->
                   </div>
                 </div>
               </div>
@@ -393,7 +386,7 @@
                 <div class="flex items-center gap-1">
                   <button id="tab-btn-notes" onclick="setMockupTab('notes')" class="text-xs font-semibold px-2.5 py-1 rounded transition cursor-pointer" style="background-color: var(--surface-elevated); color: var(--chalk-white);" data-i18n="preview_tab_notes">Live Notes</button>
                   <button id="tab-btn-settings" onclick="setMockupTab('settings')" class="text-xs font-medium px-2.5 py-1 rounded transition hover:opacity-80 cursor-pointer" style="background-color: transparent; color: var(--chalk-muted);" data-i18n="preview_tab_settings">Settings</button>
-                  <button id="tab-btn-recall" onclick="setMockupTab('recall')" class="text-xs font-medium px-2.5 py-1 rounded transition hover:opacity-80 cursor-pointer" style="background-color: transparent; color: var(--chalk-muted);" data-i18n="preview_tab_recall">Recall</button>
+                  <button id="tab-btn-chat" onclick="setMockupTab('chat')" class="text-xs font-medium px-2.5 py-1 rounded transition hover:opacity-80 cursor-pointer" style="background-color: transparent; color: var(--chalk-muted);" data-i18n="preview_tab_chat">Chat</button>
                 </div>
                 <div class="flex items-center gap-2">
                   <span id="mockup-notes-filename" class="text-[11px] hidden sm:inline" style="color: var(--chalk-muted);">financial_markets_ch3.md</span>
@@ -462,29 +455,54 @@
                 </div>
               </div>
 
-              <!-- VIEW 3: Recall Debrief Questions -->
-              <div id="mockup-view-recall" class="hidden space-y-3 py-1 text-xs" style="color: var(--chalk-slate);">
-                <div class="p-3 rounded-lg border" style="background-color: var(--surface-terminal); border-color: var(--chalk-border);">
-                  <div class="font-medium text-xs mb-1" style="color: var(--chalk-white);" data-i18n="preview_recall_q1">Why does the market only compensate systematic risk?</div>
-                  <button onclick="toggleRecallAnswer('recall-a1')" class="text-[11px] underline hover:text-white cursor-pointer" style="color: var(--chalk-muted);">[Toggle Derivation]</button>
-                  <div id="recall-a1" class="mt-2 text-[12px] leading-relaxed hidden" style="color: var(--chalk-slate);" data-i18n="preview_recall_a1">
-                    Unsystematic individual risk is eliminated through diversification. Only market-wide covariance cannot be diversified away.
+              <!-- VIEW 3: Interactive Chat with AI -->
+              <div id="mockup-view-chat" class="hidden flex flex-col justify-between py-1 text-xs" style="color: var(--chalk-slate); min-height: 250px;">
+                <!-- Chat Context Sub-Bar -->
+                <div class="flex items-center justify-between pb-2 mb-2 border-b" style="border-color: var(--chalk-border);">
+                  <span class="text-[11px] font-medium" style="color: var(--chalk-muted);" data-i18n="preview_chat_grounded">AI grounded in live audio, slides & whiteboard</span>
+                  <span class="text-[10px] font-mono px-1.5 py-0.5 rounded border" style="background-color: var(--surface-terminal); border-color: var(--chalk-border); color: var(--chalk-muted);">Gemini 2.5 Flash</span>
+                </div>
+
+                <!-- Scrollable Messages Area -->
+                <div id="mockup-chat-messages" class="space-y-2.5 overflow-y-auto pr-1 max-h-[175px]">
+                  <!-- AI Message 1 -->
+                  <div class="flex gap-2 items-start text-xs">
+                    <div class="w-5 h-5 rounded flex items-center justify-center font-mono font-bold text-[9px] flex-shrink-0" style="background-color: var(--surface-elevated); border: 1px solid var(--chalk-border); color: var(--chalk-white);">AI</div>
+                    <div class="p-2.5 rounded-lg border flex-1 leading-relaxed" style="background-color: var(--surface-terminal); border-color: var(--chalk-border); color: var(--chalk-slate);">
+                      I'm listening to the lecture and indexing current slides (CAPM). What would you like to clarify or explore?
+                    </div>
+                  </div>
+
+                  <!-- User Message 1 -->
+                  <div class="flex gap-2 items-start justify-end text-xs">
+                    <div class="p-2.5 rounded-lg border max-w-[85%]" style="background-color: var(--surface-elevated); border-color: var(--chalk-border); color: var(--chalk-white);">
+                      Why does the market only compensate systematic risk?
+                    </div>
+                  </div>
+
+                  <!-- AI Message 2 -->
+                  <div class="flex gap-2 items-start text-xs">
+                    <div class="w-5 h-5 rounded flex items-center justify-center font-mono font-bold text-[9px] flex-shrink-0" style="background-color: var(--surface-elevated); border: 1px solid var(--chalk-border); color: var(--chalk-white);">AI</div>
+                    <div class="p-2.5 rounded-lg border flex-1 leading-relaxed" style="background-color: var(--surface-terminal); border-color: var(--chalk-border); color: var(--chalk-slate);">
+                      Because unsystematic (specific) risk is eliminated through diversification:
+                      <div class="render-math text-xs py-1 text-center font-serif" style="color: var(--chalk-white);" data-tex="\lim_{N \to \infty} \text{Var}\left(\frac{1}{N}\sum_{i=1}^N \epsilon_i\right) = 0"></div>
+                      Only market-wide covariance cannot be diversified away. Hence, only &beta;<sub>i</sub> earns a risk premium.
+                    </div>
                   </div>
                 </div>
 
-                <div class="p-3 rounded-lg border" style="background-color: var(--surface-terminal); border-color: var(--chalk-border);">
-                  <div class="font-medium text-xs mb-1" style="color: var(--chalk-white);" data-i18n="preview_recall_q2">What is the economic interpretation of Jensen's Alpha &gt; 0?</div>
-                  <button onclick="toggleRecallAnswer('recall-a2')" class="text-[11px] underline hover:text-white cursor-pointer" style="color: var(--chalk-muted);">[Toggle Derivation]</button>
-                  <div id="recall-a2" class="mt-2 text-[12px] leading-relaxed hidden" style="color: var(--chalk-slate);" data-i18n="preview_recall_a2">
-                    Positive abnormal excess return above the CAPM risk-adjusted hurdle rate, indicating active edge or structural mispricing.
+                <!-- Chat Suggestion Chips & Input -->
+                <div class="pt-2 mt-2 border-t" style="border-color: var(--chalk-border);">
+                  <div class="flex items-center gap-1.5 mb-2 flex-wrap">
+                    <button onclick="sendMockupPresetChat('Explain Jensen\'s Alpha')" class="px-2 py-0.5 rounded text-[10px] font-mono border hover:bg-white/5 cursor-pointer transition" style="border-color: var(--chalk-border); color: var(--chalk-slate);">Explain Alpha</button>
+                    <button onclick="sendMockupPresetChat('Derive CAPM formula')" class="px-2 py-0.5 rounded text-[10px] font-mono border hover:bg-white/5 cursor-pointer transition" style="border-color: var(--chalk-border); color: var(--chalk-slate);">Derive CAPM</button>
+                    <button onclick="sendMockupPresetChat('Give an exam question')" class="px-2 py-0.5 rounded text-[10px] font-mono border hover:bg-white/5 cursor-pointer transition" style="border-color: var(--chalk-border); color: var(--chalk-slate);">Exam Question</button>
                   </div>
-                </div>
-
-                <div class="p-3 rounded-lg border" style="background-color: var(--surface-terminal); border-color: var(--chalk-border);">
-                  <div class="font-medium text-xs mb-1" style="color: var(--chalk-white);" data-i18n="preview_recall_q3">How does Arbitrage Pricing Theory generalize CAPM?</div>
-                  <button onclick="toggleRecallAnswer('recall-a3')" class="text-[11px] underline hover:text-white cursor-pointer" style="color: var(--chalk-muted);">[Toggle Derivation]</button>
-                  <div id="recall-a3" class="mt-2 text-[12px] leading-relaxed hidden" style="color: var(--chalk-slate);" data-i18n="preview_recall_a3">
-                    By replacing the unobservable single market index with multi-factor macroeconomic sensitivities (inflation, GDP, credit spreads).
+                  <div class="flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-xs focus-within:border-white/40" style="background-color: var(--surface-terminal); border-color: var(--chalk-border);">
+                    <input type="text" id="mockup-chat-input" onkeydown="if(event.key==='Enter')submitMockupChat()" placeholder="Ask AI about this lecture..." class="bg-transparent text-xs w-full focus:outline-none" style="color: var(--terminal-text);" data-i18n-placeholder="preview_chat_placeholder">
+                    <button onclick="submitMockupChat()" title="Send message" class="p-1 rounded hover:bg-white/10 text-slate-300 flex-shrink-0 cursor-pointer">
+                      <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+                    </button>
                   </div>
                 </div>
               </div>
@@ -922,8 +940,8 @@
     "preview_screen_label": "SCREEN CAPTURE",
     "preview_screen_topic": "Portfolio Theory & Risk Modeling",
     "preview_screen_heading": "Capital Asset Pricing Model (CAPM)",
-    "preview_recall_label": "RECALL",
-    "preview_recall_query": "How does beta behave during market volatility?",
+    "preview_terms_label": "KEY TERMS",
+    "preview_terms_badge": "Detected",
     "preview_qr_label": "PHONE LINK",
     "preview_qr_action": "Scan to snap board",
     "preview_notes_label": "LECTURE NOTES",
@@ -937,19 +955,15 @@
     "preview_settings_tab": "Settings",
     "preview_tab_notes": "Live Notes",
     "preview_tab_settings": "Settings",
-    "preview_tab_recall": "Recall",
+    "preview_tab_chat": "Chat",
+    "preview_chat_grounded": "AI grounded in live audio, slides & whiteboard",
+    "preview_chat_placeholder": "Ask AI about this lecture...",
     "preview_key_label": "Google Gemini API Key (BYOK):",
     "preview_key_test_btn": "Test Key",
     "preview_key_save_btn": "Save Key",
     "preview_model_label": "AI Synthesis Model:",
     "preview_obsidian_label": "Obsidian Vault Directory:",
     "preview_return_notes": "Return to Live Notes",
-    "preview_recall_q1": "Why does the market only compensate systematic risk?",
-    "preview_recall_a1": "Unsystematic individual risk is eliminated through diversification. Only market-wide covariance cannot be diversified away.",
-    "preview_recall_q2": "What is the economic interpretation of Jensen's Alpha > 0?",
-    "preview_recall_a2": "Positive abnormal excess return above the CAPM risk-adjusted hurdle rate, indicating active edge or structural mispricing.",
-    "preview_recall_q3": "How does Arbitrage Pricing Theory generalize CAPM?",
-    "preview_recall_a3": "By replacing the unobservable single market index with multi-factor macroeconomic sensitivities (inflation, GDP, credit spreads).",
     "steps_tag": "HOW IT WORKS",
     "steps_title": "The 3-Step Principle",
     "steps_subtitle": "No stress, no frantic typing. Complete focus on the presenter.",
@@ -1051,8 +1065,8 @@
     "preview_screen_label": "BILDSCHIRMAUFNAHME",
     "preview_screen_topic": "Portfoliotheorie & Risikomodellierung",
     "preview_screen_heading": "Capital Asset Pricing Model (CAPM)",
-    "preview_recall_label": "RECALL",
-    "preview_recall_query": "Wie verhält sich das Beta bei Marktvolatilität?",
+    "preview_terms_label": "BEGRIFFE",
+    "preview_terms_badge": "Erkannt",
     "preview_qr_label": "HANDY-KOPPLUNG",
     "preview_qr_action": "Tafel fotografieren",
     "preview_notes_label": "VORLESUNGSNOTIZEN",
@@ -1066,19 +1080,15 @@
     "preview_settings_tab": "Einstellungen",
     "preview_tab_notes": "Live-Notizen",
     "preview_tab_settings": "Einstellungen",
-    "preview_tab_recall": "Recall",
+    "preview_tab_chat": "Chat",
+    "preview_chat_grounded": "KI synchronisiert mit Audio, Folien & Tafel",
+    "preview_chat_placeholder": "Frage zur Vorlesung stellen...",
     "preview_key_label": "Google Gemini API-Schlüssel (BYOK):",
     "preview_key_test_btn": "Key testen",
     "preview_key_save_btn": "Key speichern",
     "preview_model_label": "KI-Synthese-Modell:",
     "preview_obsidian_label": "Obsidian Vault-Pfad:",
     "preview_return_notes": "Zurück zu Live-Notizen",
-    "preview_recall_q1": "Warum vergütet der Markt nur systematisches Risiko?",
-    "preview_recall_a1": "Unsystematisches Einzelrisiko wird durch Portfolio-Diversifikation eliminiert. Nur die marktweite Kovarianz kann nicht wegdiversifiziert werden.",
-    "preview_recall_q2": "Was bedeutet ein positiver Jensen's Alpha > 0?",
-    "preview_recall_a2": "Eine abnormale Überrendite über der theoretischen CAPM-Benchmark, was auf aktive Informationsvorteile hinweist.",
-    "preview_recall_q3": "Wie verallgemeinert die Arbitrage Pricing Theory das CAPM?",
-    "preview_recall_a3": "Sie ersetzt das unvollständig beobachtbare Marktportfolio durch multifaktorielle makroökonomische Sensitivitäten (Inflation, Zinskurve, BIP).",
     "steps_tag": "SO EINFACH FUNKTIONIERT ES",
     "steps_title": "Das 3-Schritte-Prinzip",
     "steps_subtitle": "Kein Stress, kein Tippen. Vollste Konzentration auf den Vortragenden.",
@@ -1180,8 +1190,8 @@
     "preview_screen_label": "CAPTURE D'ÉCRAN",
     "preview_screen_topic": "Théorie du portefeuille & Risque",
     "preview_screen_heading": "Capital Asset Pricing Model (CAPM)",
-    "preview_recall_label": "RAPPEL",
-    "preview_recall_query": "Comment le bêta réagit-il à la volatilité du marché ?",
+    "preview_terms_label": "TERMES CLÉS",
+    "preview_terms_badge": "Détecté",
     "preview_qr_label": "LIEN MOBILE",
     "preview_qr_action": "Scanner pour tableau",
     "preview_notes_label": "NOTES DE COURS",
@@ -1195,19 +1205,15 @@
     "preview_settings_tab": "Paramètres",
     "preview_tab_notes": "Notes en direct",
     "preview_tab_settings": "Paramètres",
-    "preview_tab_recall": "Rappel",
+    "preview_tab_chat": "Chat",
+    "preview_chat_grounded": "IA synchronisée avec l'audio, les diapositives & le tableau",
+    "preview_chat_placeholder": "Poser une question sur le cours...",
     "preview_key_label": "Clé API Google Gemini (BYOK) :",
     "preview_key_test_btn": "Tester la clé",
     "preview_key_save_btn": "Enregistrer la clé",
     "preview_model_label": "Modèle de synthèse IA :",
     "preview_obsidian_label": "Répertoire du coffre Obsidian :",
     "preview_return_notes": "Retour aux notes",
-    "preview_recall_q1": "Pourquoi le marché ne rémunère-t-il que le risque systématique ?",
-    "preview_recall_a1": "Le risque spécifique est éliminé par la diversification. Seule la covariance avec l'ensemble du marché persiste.",
-    "preview_recall_q2": "Que signifie un Alpha de Jensen positif > 0 ?",
-    "preview_recall_a2": "Un rendement excédentaire anormal supérieur à l'exigence du modèle CAPM, signe d'une performance active.",
-    "preview_recall_q3": "Comment l'APT généralise-t-elle le CAPM ?",
-    "preview_recall_a3": "En remplaçant le portefeuille de marché par des sensibilités multifactorielles macroéconomiques.",
     "steps_tag": "COMMENT ÇA MARCHE",
     "steps_title": "Le principe en 3 étapes",
     "steps_subtitle": "Zéro stress, zéro frappe manuelle. Concentration totale sur l'orateur.",
@@ -1309,8 +1315,8 @@
     "preview_screen_label": "CAPTURA DE PANTALLA",
     "preview_screen_topic": "Teoría de carteras y riesgo",
     "preview_screen_heading": "Capital Asset Pricing Model (CAPM)",
-    "preview_recall_label": "RECUERDO",
-    "preview_recall_query": "¿Cómo se comporta la beta ante la volatilidad del mercado?",
+    "preview_terms_label": "TÉRMINOS CLAVE",
+    "preview_terms_badge": "Detectado",
     "preview_qr_label": "ENLACE MÓVIL",
     "preview_qr_action": "Escanear pizarra",
     "preview_notes_label": "NOTAS DE CLASE",
@@ -1324,19 +1330,15 @@
     "preview_settings_tab": "Ajustes",
     "preview_tab_notes": "Notas en vivo",
     "preview_tab_settings": "Ajustes",
-    "preview_tab_recall": "Recuerdo",
+    "preview_tab_chat": "Chat",
+    "preview_chat_grounded": "IA sincronizada con audio, diapositivas y pizarra",
+    "preview_chat_placeholder": "Hacer una pregunta sobre la clase...",
     "preview_key_label": "Clave API de Google Gemini (BYOK):",
     "preview_key_test_btn": "Probar clave",
     "preview_key_save_btn": "Guardar clave",
     "preview_model_label": "Modelo de síntesis IA:",
     "preview_obsidian_label": "Directorio del baúl Obsidian:",
     "preview_return_notes": "Volver a notas",
-    "preview_recall_q1": "¿Por qué el mercado solo compensa el riesgo sistemático?",
-    "preview_recall_a1": "El riesgo no sistemático se elimina mediante diversificación. Solo la covarianza de mercado no puede diversificarse.",
-    "preview_recall_q2": "¿Qué significa un Alfa de Jensen positivo > 0?",
-    "preview_recall_a2": "Rendimiento anormal positivo por encima del umbral teórico del CAPM, señal de ventaja activa.",
-    "preview_recall_q3": "¿Cómo generaliza la APT el modelo CAPM?",
-    "preview_recall_a3": "Sustituye la cartera de mercado por sensibilidades macroeconómicas multifactoriales.",
     "steps_tag": "CÓMO FUNCIONA",
     "steps_title": "El principio de 3 pasos",
     "steps_subtitle": "Sin estrés ni tecleo apresurado. Concentración total en el ponente.",
@@ -1438,8 +1440,8 @@
     "preview_screen_label": "屏幕画面捕获",
     "preview_screen_topic": "投资组合理论与风险建模",
     "preview_screen_heading": "资本资产定价模型 (CAPM)",
-    "preview_recall_label": "回顾",
-    "preview_recall_query": "市场剧烈波动时贝塔系数如何变化？",
+    "preview_terms_label": "核心术语",
+    "preview_terms_badge": "实时提取",
     "preview_qr_label": "手机互联",
     "preview_qr_action": "扫码拍板书",
     "preview_notes_label": "课堂精要笔记",
@@ -1453,19 +1455,15 @@
     "preview_settings_tab": "设置",
     "preview_tab_notes": "实时笔记",
     "preview_tab_settings": "设置",
-    "preview_tab_recall": "回顾",
+    "preview_tab_chat": "对话",
+    "preview_chat_grounded": "AI 实时同步语音、讲义与黑板推导",
+    "preview_chat_placeholder": "向 AI 提问本节讲座内容...",
     "preview_key_label": "Google Gemini API 密钥 (BYOK)：",
     "preview_key_test_btn": "测试密钥",
     "preview_key_save_btn": "保存密钥",
     "preview_model_label": "AI 提炼模型：",
     "preview_obsidian_label": "Obsidian 仓库目录：",
     "preview_return_notes": "返回实时笔记",
-    "preview_recall_q1": "为什么市场只对系统性风险给予风险溢价？",
-    "preview_recall_a1": "非系统性风险可通过多元化投资组合彻底消除，市场上唯有不可分散的整体协方差风险才能获得收益补偿。",
-    "preview_recall_q2": "詹森阿尔法 (Jensen's Alpha > 0) 的经济含义是什么？",
-    "preview_recall_a2": "代表超出 CAPM 理论风险调整收益的超额回报，通常体现主动管理能力或定价偏差。",
-    "preview_recall_q3": "套利定价理论 (APT) 如何推广单因子 CAPM？",
-    "preview_recall_a3": "通过引入通胀、经济增长和信用利差等多重宏观因子敏感度，摆脱了对不可观测的单一市场组合的依赖。",
     "steps_tag": "极简工作流",
     "steps_title": "三步极简体验",
     "steps_subtitle": "告别焦虑与键盘敲击。全身心倾听主讲人见解。",
@@ -1688,16 +1686,16 @@
       mockupState.activeTab = tab;
       const viewNotes = document.getElementById('mockup-view-notes');
       const viewSettings = document.getElementById('mockup-view-settings');
-      const viewRecall = document.getElementById('mockup-view-recall');
+      const viewChat = document.getElementById('mockup-view-chat');
       const btnNotes = document.getElementById('tab-btn-notes');
       const btnSettings = document.getElementById('tab-btn-settings');
-      const btnRecall = document.getElementById('tab-btn-recall');
+      const btnChat = document.getElementById('tab-btn-chat');
 
       if (viewNotes) viewNotes.classList.toggle('hidden', tab !== 'notes');
       if (viewSettings) viewSettings.classList.toggle('hidden', tab !== 'settings');
-      if (viewRecall) viewRecall.classList.toggle('hidden', tab !== 'recall');
+      if (viewChat) viewChat.classList.toggle('hidden', tab !== 'chat');
 
-      [btnNotes, btnSettings, btnRecall].forEach(b => {
+      [btnNotes, btnSettings, btnChat].forEach(b => {
         if (b) {
           b.style.backgroundColor = 'transparent';
           b.style.color = 'var(--chalk-muted)';
@@ -1705,14 +1703,14 @@
         }
       });
 
-      const activeBtn = tab === 'notes' ? btnNotes : tab === 'settings' ? btnSettings : btnRecall;
+      const activeBtn = tab === 'notes' ? btnNotes : tab === 'settings' ? btnSettings : btnChat;
       if (activeBtn) {
         activeBtn.style.backgroundColor = 'var(--surface-elevated)';
         activeBtn.style.color = 'var(--chalk-white)';
         activeBtn.style.fontWeight = '600';
       }
 
-      if (tab === 'notes' || tab === 'recall') {
+      if (tab === 'notes' || tab === 'chat') {
         renderHeroMath();
       }
     }
@@ -1830,40 +1828,204 @@
       }
     }
 
-    function submitMockupRecall() {
-      const input = document.getElementById('recall-input');
-      const answerBox = document.getElementById('recall-answer-box');
-      if (!answerBox) return;
-      const q = (input ? input.value : '').trim().toLowerCase();
+    const mockupTermsData = {
+      beta: {
+        title: 'Beta (\\beta_i)',
+        timestamp: '@ 01:14:20',
+        latex: '\\beta_i = \\frac{\\text{Cov}(R_i, R_m)}{\\text{Var}(R_m)}',
+        desc: {
+          en: 'Measures systematic risk & sensitivity to broad market movements. Values > 1 amplify market variance; values < 1 provide defensive buffering.',
+          de: 'Misst das systematische Risiko & die Sensitivität gegenüber Schwankungen des Gesamtmarktes. Werte > 1 verstärken Marktbewegungen; Werte < 1 dämpfen.',
+          fr: "Mesure le risque systématique et la sensibilité aux fluctuations globales du marché. Les valeurs > 1 amplifient la variance du marché.",
+          es: 'Mide el riesgo sistemático y la sensibilidad ante fluctuaciones del mercado global. Valores > 1 amplifican la varianza del mercado.',
+          zh: '衡量资产对整体市场波动的系统性风险敏感度。Beta > 1 放大市场波动；Beta < 1 具有防守避险属性。'
+        }
+      },
+      rf: {
+        title: 'Risk-Free Rate (R_f)',
+        timestamp: '@ 01:05:12',
+        latex: '\\text{Var}(R_f) = 0 \\implies \\text{Cov}(R_f, R_m) = 0',
+        desc: {
+          en: 'Benchmark sovereign treasury yield with theoretical zero variance. Acts as baseline hurdle rate before equity risk premium is applied.',
+          de: 'Rendite erstklassiger Staatsanleihen mit theoretischer Nullvarianz. Dient als risikolose Mindesthürde vor jeder Risikoprämie.',
+          fr: "Rendement des emprunts d'État de référence à variance théorique nulle. Sert de taux sans risque minimal.",
+          es: 'Rendimiento de deuda soberana con varianza teórica cero. Sirve como tasa base antes de la prima de riesgo.',
+          zh: '基准主权国债收益率，理论方差为零。作为获得股权风险溢价前的基准无风险门槛利率。'
+        }
+      },
+      alpha: {
+        title: "Jensen's Alpha (\\alpha_i)",
+        timestamp: '@ 01:28:45',
+        latex: '\\alpha_i = R_i - \\left[R_f + \\beta_i(E(R_m) - R_f)\\right]',
+        desc: {
+          en: 'Measures abnormal risk-adjusted excess return above CAPM benchmark. Values > 0 indicate active managerial edge or persistent structural mispricing.',
+          de: 'Misst die risikobereinigte Überrendite über der theoretischen CAPM-Benchmark. Werte > 0 belegen aktive Informationsvorteile.',
+          fr: "Mesure le rendement excédentaire anormal ajusté du risque par rapport au CAPM. Les valeurs > 0 indiquent une surperformance active.",
+          es: 'Mide el rendimiento anormal ajustado por riesgo sobre el CAPM. Valores > 0 indican ventaja activa o infravaloración estructural.',
+          zh: '衡量经 CAPM 风险调整后的超额收益率。Alpha > 0 证明存在主动管理优势或定价偏差。'
+        }
+      }
+    };
 
-      answerBox.classList.remove('hidden');
-      answerBox.innerHTML = '<span class="animate-pulse font-mono text-[11px] text-slate-400">Synthesizing answer...</span>';
+    function selectMockupTerm(termKey) {
+      mockupState.activeTerm = termKey;
+      const term = mockupTermsData[termKey];
+      if (!term) return;
+
+      // Update chip styling
+      ['beta', 'rf', 'alpha'].forEach(k => {
+        const chip = document.getElementById(`term-chip-${k}`);
+        if (chip) {
+          if (k === termKey) {
+            chip.style.backgroundColor = 'var(--surface-elevated)';
+            chip.style.borderColor = 'var(--chalk-border)';
+            chip.style.color = 'var(--chalk-white)';
+            chip.style.fontWeight = '600';
+          } else {
+            chip.style.backgroundColor = 'transparent';
+            chip.style.borderColor = 'var(--chalk-border)';
+            chip.style.color = 'var(--chalk-slate)';
+            chip.style.fontWeight = '400';
+          }
+        }
+      });
+
+      // Update definition container
+      const detailContainer = document.getElementById('mockup-term-detail');
+      if (detailContainer) {
+        const descText = typeof term.desc === 'object' ? (term.desc[currentLang] || term.desc.en) : term.desc;
+        detailContainer.innerHTML = `
+          <div class="flex items-center justify-between mb-1 font-mono text-[11px]" style="color: var(--chalk-white);">
+            <span>${term.title}</span>
+            <span class="text-[10px]" style="color: var(--chalk-muted);">${term.timestamp}</span>
+          </div>
+          <div class="render-math text-xs py-1 text-center font-serif" style="color: var(--chalk-white);" data-tex="${term.latex}"></div>
+          <div class="text-[11px] leading-relaxed mt-1" style="color: var(--chalk-slate);">${descText}</div>
+        `;
+        renderHeroMath();
+      }
+    }
+
+    const initialMockupChatMessagesHtml = `
+      <!-- AI Message 1 -->
+      <div class="flex gap-2 items-start text-xs">
+        <div class="w-5 h-5 rounded flex items-center justify-center font-mono font-bold text-[9px] flex-shrink-0" style="background-color: var(--surface-elevated); border: 1px solid var(--chalk-border); color: var(--chalk-white);">AI</div>
+        <div class="p-2.5 rounded-lg border flex-1 leading-relaxed" style="background-color: var(--surface-terminal); border-color: var(--chalk-border); color: var(--chalk-slate);">
+          I'm listening to the lecture and indexing current slides (CAPM). What would you like to clarify or explore?
+        </div>
+      </div>
+
+      <!-- User Message 1 -->
+      <div class="flex gap-2 items-start justify-end text-xs">
+        <div class="p-2.5 rounded-lg border max-w-[85%]" style="background-color: var(--surface-elevated); border-color: var(--chalk-border); color: var(--chalk-white);">
+          Why does the market only compensate systematic risk?
+        </div>
+      </div>
+
+      <!-- AI Message 2 -->
+      <div class="flex gap-2 items-start text-xs">
+        <div class="w-5 h-5 rounded flex items-center justify-center font-mono font-bold text-[9px] flex-shrink-0" style="background-color: var(--surface-elevated); border: 1px solid var(--chalk-border); color: var(--chalk-white);">AI</div>
+        <div class="p-2.5 rounded-lg border flex-1 leading-relaxed" style="background-color: var(--surface-terminal); border-color: var(--chalk-border); color: var(--chalk-slate);">
+          Because unsystematic (specific) risk is eliminated through diversification:
+          <div class="render-math text-xs py-1 text-center font-serif" style="color: var(--chalk-white);" data-tex="\\lim_{N \\to \\infty} \\text{Var}\\left(\\frac{1}{N}\\sum_{i=1}^N \\epsilon_i\\right) = 0"></div>
+          Only market-wide covariance cannot be diversified away. Hence, only &beta;<sub>i</sub> earns a risk premium.
+        </div>
+      </div>
+    `;
+
+    function sendMockupPresetChat(promptText) {
+      const input = document.getElementById('mockup-chat-input');
+      if (input) input.value = promptText;
+      submitMockupChat();
+    }
+
+    function submitMockupChat() {
+      const input = document.getElementById('mockup-chat-input');
+      const messagesContainer = document.getElementById('mockup-chat-messages');
+      if (!input || !messagesContainer) return;
+
+      const q = input.value.trim();
+      if (!q) return;
+      input.value = '';
+
+      // Escape user input
+      const sanitized = q.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+      // Append user bubble
+      const userBubble = document.createElement('div');
+      userBubble.className = 'flex gap-2 items-start justify-end text-xs';
+      userBubble.innerHTML = `
+        <div class="p-2.5 rounded-lg border max-w-[85%]" style="background-color: var(--surface-elevated); border-color: var(--chalk-border); color: var(--chalk-white);">
+          ${sanitized}
+        </div>
+      `;
+      messagesContainer.appendChild(userBubble);
+      messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+      // Append thinking indicator
+      const typingIndicator = document.createElement('div');
+      typingIndicator.id = 'mockup-chat-typing';
+      typingIndicator.className = 'flex gap-2 items-start text-xs';
+      typingIndicator.innerHTML = `
+        <div class="w-5 h-5 rounded flex items-center justify-center font-mono font-bold text-[9px] flex-shrink-0" style="background-color: var(--surface-elevated); border: 1px solid var(--chalk-border); color: var(--chalk-white);">AI</div>
+        <div class="p-2.5 rounded-lg border flex-1 leading-relaxed animate-pulse font-mono text-[11px]" style="background-color: var(--surface-terminal); border-color: var(--chalk-border); color: var(--chalk-muted);">
+          Synthesizing grounded response...
+        </div>
+      `;
+      messagesContainer.appendChild(typingIndicator);
+      messagesContainer.scrollTop = messagesContainer.scrollHeight;
 
       setTimeout(() => {
-        let ans = '';
-        if (q.includes('beta')) {
-          ans = '<strong>Beta (&beta;<sub>i</sub>):</strong> Measures systematic volatility: <div class="render-math text-xs py-1" data-tex="\\beta_i = \\frac{\\text{Cov}(R_i, R_m)}{\\text{Var}(R_m)}"></div> Values &gt; 1 amplify market movements; values &lt; 1 provide defensive characteristics.';
-        } else if (q.includes('rf') || q.includes('risk-free') || q.includes('zins')) {
-          ans = '<strong>Risk-Free Rate (R<sub>f</sub>):</strong> Benchmark sovereign bond yield with zero variance. Serves as the hurdle rate before any risk premium is awarded.';
-        } else if (q.includes('alpha')) {
-          ans = "<strong>Jensen's Alpha (&alpha;<sub>i</sub>):</strong> Measures risk-adjusted excess return: <div class=\"render-math text-xs py-1\" data-tex=\"\\alpha_i = R_i - \\left[R_f + \\beta_i(E(R_m) - R_f)\\right]\"></div> Positive alpha (&alpha; &gt; 0) demonstrates active outperformance.";
+        const typing = document.getElementById('mockup-chat-typing');
+        if (typing) typing.remove();
+
+        const lower = q.toLowerCase();
+        let aiContent = '';
+
+        if (lower.includes('alpha')) {
+          aiContent = `
+            <strong>Jensen's Alpha (&alpha;<sub>i</sub>)</strong> quantifies abnormal excess return above the CAPM hurdle rate:
+            <div class="render-math text-xs py-1 text-center font-serif" style="color: var(--chalk-white);" data-tex="\\alpha_i = R_i - \\left[R_f + \\beta_i(E(R_m) - R_f)\\right]"></div>
+            A positive &alpha; &gt; 0 indicates structural outperformance or active informational advantage.
+          `;
+        } else if (lower.includes('derive') || lower.includes('capm') || lower.includes('herleitung') || lower.includes('formel')) {
+          aiContent = `
+            <strong>CAPM Derivation:</strong> In Markowitz equilibrium, all investors hold the tangent market portfolio <em>M</em>. Risk premium scales strictly with systematic covariance:
+            <div class="render-math text-xs py-1 text-center font-serif" style="color: var(--chalk-white);" data-tex="E(R_i) = R_f + \\frac{\\text{Cov}(R_i, R_m)}{\\sigma_m^2}\\left[E(R_m) - R_f\\right]"></div>
+            Substituting &beta;<sub>i</sub> = Cov(R<sub>i</sub>, R<sub>m</sub>) / &sigma;<sub>m</sub><sup>2</sup> yields the Security Market Line.
+          `;
+        } else if (lower.includes('exam') || lower.includes('klausur') || lower.includes('question') || lower.includes('frage')) {
+          aiContent = `
+            <strong>Mock Exam Question:</strong> An asset has &beta; = 1.4, risk-free rate R<sub>f</sub> = 2.5%, and expected market return E(R<sub>m</sub>) = 8.5%.
+            <div class="render-math text-xs py-1 text-center font-serif" style="color: var(--chalk-white);" data-tex="E(R) = 2.5\\% + 1.4 \\times (8.5\\% - 2.5\\%) = 10.9\\%"></div>
+            If actual return is 12.0%, calculate Jensen's Alpha. <em>(Answer: &alpha; = +1.1% active outperformance)</em>.
+          `;
+        } else if (lower.includes('beta')) {
+          aiContent = `
+            <strong>Beta Factor (&beta;<sub>i</sub>):</strong> Normalized regression slope against the market index:
+            <div class="render-math text-xs py-1 text-center font-serif" style="color: var(--chalk-white);" data-tex="\\beta_i = \\frac{\\text{Cov}(R_i, R_m)}{\\text{Var}(R_m)}"></div>
+            Measures non-diversifiable systematic sensitivity. Assets with &beta; &gt; 1 amplify broad market movements.
+          `;
         } else {
-          ans = '<strong>Recall Synthesis:</strong> Grounded in active lecture chunk @ 01:14:20 and current slide formulas. Verified against mathematical invariance principles.';
+          aiContent = `
+            <strong>Grounded Response (@ 01:14:20):</strong> Indexed directly from live audio and slide <em>${mockupState.slides[mockupState.activeSlide].file}</em>.
+            <div class="render-math text-xs py-1 text-center font-serif" style="color: var(--chalk-white);" data-tex="E(R_i) = R_f + \\beta_i \\left[E(R_m) - R_f\\right]"></div>
+            The lecturer emphasizes that unsystematic idiosyncratic variance earns zero market compensation.
+          `;
         }
-        answerBox.innerHTML = ans;
+
+        const aiBubble = document.createElement('div');
+        aiBubble.className = 'flex gap-2 items-start text-xs';
+        aiBubble.innerHTML = `
+          <div class="w-5 h-5 rounded flex items-center justify-center font-mono font-bold text-[9px] flex-shrink-0" style="background-color: var(--surface-elevated); border: 1px solid var(--chalk-border); color: var(--chalk-white);">AI</div>
+          <div class="p-2.5 rounded-lg border flex-1 leading-relaxed" style="background-color: var(--surface-terminal); border-color: var(--chalk-border); color: var(--chalk-slate);">
+            ${aiContent}
+          </div>
+        `;
+        messagesContainer.appendChild(aiBubble);
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
         renderHeroMath();
-      }, 250);
-    }
-
-    function askRecallPreset(prompt) {
-      const input = document.getElementById('recall-input');
-      if (input) input.value = prompt;
-      submitMockupRecall();
-    }
-
-    function toggleRecallAnswer(id) {
-      const el = document.getElementById(id);
-      if (el) el.classList.toggle('hidden');
+      }, 300);
     }
 
     function resetMockupSession() {
@@ -1872,13 +2034,13 @@
       mockupState.phoneSnaps = 0;
       setMockupSlide(0);
       setMockupTab('notes');
-      const recallInput = document.getElementById('recall-input');
-      const recallBox = document.getElementById('recall-answer-box');
+      selectMockupTerm('beta');
+      const chatInput = document.getElementById('mockup-chat-input');
+      const chatMessages = document.getElementById('mockup-chat-messages');
       const snapsContainer = document.getElementById('mockup-merged-snaps');
-      if (recallInput) recallInput.value = '';
-      if (recallBox) {
-        recallBox.classList.add('hidden');
-        recallBox.innerHTML = '';
+      if (chatInput) chatInput.value = '';
+      if (chatMessages) {
+        chatMessages.innerHTML = initialMockupChatMessagesHtml;
       }
       if (snapsContainer) snapsContainer.innerHTML = '';
       renderHeroMath();
@@ -1961,6 +2123,18 @@
         }
       });
 
+      // Translate placeholder attributes
+      document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+        const key = el.getAttribute('data-i18n-placeholder');
+        const text = translations[lang][key];
+        if (text !== undefined) {
+          el.setAttribute('placeholder', text);
+        }
+      });
+
+      // Update selected key term definition for active language
+      selectMockupTerm(mockupState.activeTerm || 'beta');
+
       // Update dynamic hero download button & switch text
       updateHeroDownloadButton();
 
@@ -2012,7 +2186,7 @@
         if (mathEl) renderKatexElement(mathEl, cur.math);
         if (noteMath) renderKatexElement(noteMath, cur.noteMath);
       }
-      document.querySelectorAll('#mockup-merged-snaps .render-math, #recall-answer-box .render-math').forEach(el => {
+      document.querySelectorAll('#mockup-merged-snaps .render-math, #mockup-term-detail .render-math, #mockup-chat-messages .render-math').forEach(el => {
         const tex = el.getAttribute('data-tex') || el.textContent;
         renderKatexElement(el, tex);
       });
@@ -2023,8 +2197,13 @@
         }
       }
     }
-    window.addEventListener('load', renderHeroMath);
-    window.addEventListener('DOMContentLoaded', renderHeroMath);
+
+    function initMockupExperience() {
+      selectMockupTerm('beta');
+      renderHeroMath();
+    }
+    window.addEventListener('load', initMockupExperience);
+    window.addEventListener('DOMContentLoaded', initMockupExperience);
 
     // Smooth Vertical Centering for Explore Live Session Button
     const exploreBtn = document.getElementById('hero-explore-btn');
