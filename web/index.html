@@ -316,25 +316,16 @@
             <div class="rounded-xl border p-4 relative overflow-hidden shadow-sm" style="background-color: var(--hud-card-bg); border-color: var(--chalk-border);">
               <div class="flex items-center justify-between text-xs font-medium mb-2.5" style="color: var(--chalk-slate);">
                 <span data-i18n="preview_screen_label">SCREEN CAPTURE</span>
-                <div class="flex items-center gap-1.5">
-                  <span class="text-[11px] font-mono px-1.5 py-0.5 rounded border" style="background-color: var(--surface-elevated); border-color: var(--chalk-border); color: var(--chalk-muted);" data-i18n="preview_screen_badge">Display 1</span>
-                  <div class="flex items-center gap-1">
-                    <button onclick="prevMockupSlide(event)" title="Previous Slide" class="p-0.5 px-1 rounded hover:bg-white/10 text-slate-400 font-mono text-[10px] cursor-pointer">&larr;</button>
-                    <span id="mockup-slide-pill" class="font-mono text-[10px] text-slate-400">1/3</span>
-                    <button onclick="nextMockupSlide(event)" title="Next Slide" class="p-0.5 px-1 rounded hover:bg-white/10 text-slate-400 font-mono text-[10px] cursor-pointer">&rarr;</button>
-                  </div>
+                <div class="flex items-center gap-1 font-mono text-[10px] text-slate-400">
+                  <button onclick="prevMockupSlide(event)" title="Previous Slide" class="p-0.5 px-1 rounded hover:bg-white/10 cursor-pointer">&larr;</button>
+                  <span id="mockup-slide-pill">1/3</span>
+                  <button onclick="nextMockupSlide(event)" title="Next Slide" class="p-0.5 px-1 rounded hover:bg-white/10 cursor-pointer">&rarr;</button>
                 </div>
               </div>
               <div onclick="nextMockupSlide(event)" class="aspect-video rounded-lg border flex flex-col justify-between p-3.5 text-center relative overflow-hidden cursor-pointer transition hover:border-white/30" style="background-color: var(--surface-elevated); border-color: var(--chalk-border);">
-                <!-- Mini Window Chrome -->
+                <!-- Slide Header -->
                 <div class="flex items-center justify-between pb-1.5 border-b border-white/5 text-[10px] text-left opacity-70">
-                  <div class="flex items-center gap-1.5">
-                    <span class="w-1.5 h-1.5 rounded-full bg-slate-500/40"></span>
-                    <span class="w-1.5 h-1.5 rounded-full bg-slate-500/40"></span>
-                    <span class="w-1.5 h-1.5 rounded-full bg-slate-500/40"></span>
-                    <span id="mockup-slide-file" class="ml-1.5 font-mono text-[9px] truncate max-w-[140px]" style="color: var(--chalk-muted);">Asset_Pricing_Lecture_04.pdf (p. 12/42)</span>
-                  </div>
-                  <span class="font-mono text-[9px] px-1 rounded bg-black/20" style="color: var(--chalk-muted);">1080p</span>
+                  <span id="mockup-slide-file" class="font-mono text-[9px] truncate" style="color: var(--chalk-muted);">Asset_Pricing_Lecture_04.pdf (p. 12/42)</span>
                 </div>
 
                 <!-- Window Content Area -->
@@ -344,10 +335,6 @@
                   <div id="mockup-screen-math" class="render-math text-xs sm:text-sm text-center font-serif" style="color: var(--chalk-white);">$$E(R_i) = R_f + \beta_i [E(R_m) - R_f]$$</div>
                 </div>
               </div>
-              <div class="mt-3 flex items-center justify-between text-xs" style="color: var(--chalk-muted);">
-                <span data-i18n="preview_screen_sync">Screen Sync Active</span>
-                <span class="font-medium text-emerald-400" id="mockup-screen-subtext" data-i18n="preview_slide_local">Local detection</span>
-              </div>
             </div>
 
             <!-- Dual-Input Split-Grid: Whiteboard Phone Link & Recall -->
@@ -356,7 +343,6 @@
               <div onclick="triggerMockupPhoneSnap()" title="Click to simulate whiteboard photo capture" class="sm:col-span-5 rounded-xl border p-3 shadow-sm flex flex-col items-center justify-between text-center cursor-pointer transition hover:border-emerald-500/40" style="background-color: var(--hud-card-bg); border-color: var(--chalk-border);">
                 <div class="w-full flex items-center justify-between text-[11px] font-medium mb-1.5" style="color: var(--chalk-slate);">
                   <span class="tracking-wide" data-i18n="preview_qr_label">PHONE LINK</span>
-                  <span class="w-1.5 h-1.5 rounded-full animate-pulse flex-shrink-0" style="background-color: #10B981;" title="LAN Ready"></span>
                 </div>
                 <div id="mockup-qr-box" class="p-1.5 rounded-lg border shadow-inner flex items-center justify-center my-1 transition-all" style="background-color: var(--surface-terminal); border-color: var(--chalk-border);">
                   <svg class="w-16 h-16" viewBox="0 0 27 27" fill="currentColor" shape-rendering="crispEdges" style="color: var(--chalk-white);" role="img" aria-label="Phone Link QR Code">
@@ -428,7 +414,7 @@
                 <ul id="mockup-note-bullets" class="space-y-1.5 text-xs">
                   <li data-i18n="preview_notes_li1"><strong style="color: var(--chalk-white);">Beta factor (&beta;<sub>i</sub>):</strong> Sensitivity of asset return to broad market movements.</li>
                   <li data-i18n="preview_notes_li2"><strong style="color: var(--chalk-white);">Risk-free rate (R<sub>f</sub>):</strong> Benchmark sovereign bond yield as the hurdle rate.</li>
-                  <li data-i18n="preview_notes_li3"><span style="color: var(--chalk-white); font-weight: 500;">[Lecturer Core Point @ 01:14:20]:</span> Only systematic risk is compensated by the market with a risk premium.</li>
+                  <li data-i18n="preview_notes_li3"><strong style="color: var(--chalk-white);">Core point:</strong> Only systematic risk is compensated by the market with a risk premium.</li>
                 </ul>
 
                 <!-- Container for merged whiteboard snapshots -->
@@ -453,7 +439,7 @@
                     <button onclick="saveMockupKey()" class="px-3.5 py-2 rounded-lg text-xs font-semibold bg-white text-black hover:opacity-90 cursor-pointer transition" data-i18n="preview_key_save_btn">Save Key</button>
                   </div>
                   <div id="mockup-key-feedback" class="text-[11px] font-mono mt-1.5" style="color: var(--chalk-muted);">
-                    [Local BYOK] Ready for key entry. Key stored in browser storage only.
+                    Key stored locally in browser storage only.
                   </div>
                 </div>
 
@@ -471,8 +457,7 @@
                   <input type="text" id="mockup-obsidian-input" value="~/Documents/Obsidian/Academic_Notes" class="w-full text-xs font-mono px-3 py-2 rounded-lg border focus:outline-none" style="background-color: var(--surface-terminal); border-color: var(--chalk-border); color: var(--chalk-white);">
                 </div>
 
-                <div class="pt-2.5 flex items-center justify-between border-t" style="border-color: var(--chalk-border);">
-                  <span class="text-[10px] font-mono" style="color: var(--chalk-muted);" data-i18n="preview_byok_guarantee">100% Client-Side Direct BYOK • 0 Chalk Servers</span>
+                <div class="pt-2.5 flex items-center justify-end border-t" style="border-color: var(--chalk-border);">
                   <button onclick="setMockupTab('notes')" class="px-3 py-1.5 rounded-lg text-xs font-medium border hover:bg-white/10 cursor-pointer transition" style="border-color: var(--chalk-border); color: var(--chalk-white);" data-i18n="preview_return_notes">Return to Live Notes &rarr;</button>
                 </div>
               </div>
@@ -537,10 +522,6 @@
              Chalk runs quietly in the background of your laptop. One click or pressing Alt+Space is all it takes — no complex configuration or audio routing cables.
            </p>
          </div>
-         <div class="pt-4 border-t text-xs flex justify-between" style="border-color: var(--chalk-border); color: var(--chalk-muted);">
-           <span data-i18n="step1_tag1">Setup: Instant launch</span>
-           <span data-i18n="step1_tag2">Silent background process</span>
-         </div>
        </div>
  
        <!-- Step 2 -->
@@ -554,10 +535,6 @@
              You don't type a single word, staying completely immersed in the conversation. Chalk captures speech, slide transitions, and whiteboard formulas autonomously.
            </p>
          </div>
-         <div class="pt-4 border-t text-xs flex justify-between" style="border-color: var(--chalk-border); color: var(--chalk-muted);">
-           <span data-i18n="step2_tag1">Focus: 100% presence</span>
-           <span data-i18n="step2_tag2">Speech pauses handled</span>
-         </div>
        </div>
  
        <!-- Step 3 -->
@@ -570,10 +547,6 @@
            <p class="text-sm leading-relaxed mb-4" style="color: var(--chalk-slate);" data-i18n="step3_desc">
              When finished, you receive clean, structured Markdown notes with key points, LaTeX formulas, and slide snapshots. Ready for Obsidian or your editor of choice.
            </p>
-         </div>
-         <div class="pt-4 border-t text-xs flex justify-between" style="border-color: var(--chalk-border); color: var(--chalk-muted);">
-           <span data-i18n="step3_tag1">Format: LaTeX Markdown</span>
-           <span data-i18n="step3_tag2">1-Click Obsidian export</span>
          </div>
        </div>
 
@@ -601,10 +574,6 @@
             Captures every whiteboard derivation, side remark, and slide during multi-hour lectures without omission. Delivers pristine LaTeX equations.
           </p>
         </div>
-        <div class="pt-4 border-t text-xs flex justify-between" style="border-color: var(--chalk-border); color: var(--chalk-muted);">
-          <span data-i18n="case1_tag1">Audience: Students & Researchers</span>
-          <span data-i18n="case1_tag2">Output: LaTeX Markdown</span>
-        </div>
       </div>
 
       <!-- Case 2: Technical Seminars & Architecture Reviews -->
@@ -617,10 +586,6 @@
           <p class="text-sm leading-relaxed mb-4" style="color: var(--chalk-slate);" data-i18n="case2_desc">
             Engage actively in architecture decisions. Chalk captures code snippets, data schemas, and technical trade-offs directly from shared screens.
           </p>
-        </div>
-        <div class="pt-4 border-t text-xs flex justify-between" style="border-color: var(--chalk-border); color: var(--chalk-muted);">
-          <span data-i18n="case2_tag1">Audience: Engineers & Architects</span>
-          <span data-i18n="case2_tag2">Output: Decision Records (ADRs)</span>
         </div>
       </div>
 
@@ -635,10 +600,6 @@
             Maintain eye contact and presence in crucial negotiations. Chalk records commitments, metrics from slide decks, and produces prioritized action items.
           </p>
         </div>
-        <div class="pt-4 border-t text-xs flex justify-between" style="border-color: var(--chalk-border); color: var(--chalk-muted);">
-          <span data-i18n="case3_tag1">Audience: Leaders & Consultants</span>
-          <span data-i18n="case3_tag2">Output: Minutes & Action Items</span>
-        </div>
       </div>
 
       <!-- Case 4: Webinars & Remote Conferences -->
@@ -651,10 +612,6 @@
           <p class="text-sm leading-relaxed mb-4" style="color: var(--chalk-slate);" data-i18n="case4_desc">
             Captures Zoom, Teams, and keynote livestreams via direct system audio and slide change detection, building searchable knowledge archives automatically.
           </p>
-        </div>
-        <div class="pt-4 border-t text-xs flex justify-between" style="border-color: var(--chalk-border); color: var(--chalk-muted);">
-          <span data-i18n="case4_tag1">Audience: Knowledge Workers & Analysts</span>
-          <span data-i18n="case4_tag2">Output: Knowledge Base Notes</span>
         </div>
       </div>
 
@@ -669,10 +626,6 @@
             High-yield flashcards generated automatically from core theorems, formulas, and definitions. 1-click export to Anki (.tsv) or Obsidian Spaced Repetition.
           </p>
         </div>
-        <div class="pt-4 border-t text-xs flex justify-between" style="border-color: var(--chalk-border); color: var(--chalk-muted);">
-          <span data-i18n="case_anki_tag1">Audience: STEM Students & Candidates</span>
-          <span data-i18n="case_anki_tag2">Output: Anki .tsv & Flashcard Blocks</span>
-        </div>
       </div>
 
       <!-- Case 6: Standalone Vector PDF & Archive Search -->
@@ -686,44 +639,14 @@
             Print publication-grade vector scripts with LaTeX formulas directly to PDF with zero dependencies. Lightning-fast Alt+F fulltext and formula search across all historical sessions.
           </p>
         </div>
-        <div class="pt-4 border-t text-xs flex justify-between" style="border-color: var(--chalk-border); color: var(--chalk-muted);">
-          <span data-i18n="case_pdf_tag1">Engine: Local PyQt6 Vector PDF</span>
-          <span data-i18n="case_pdf_tag2">Search: Real-Time Alt+F Formula Index</span>
-        </div>
       </div>
 
-      <!-- Case 7 / Feature Spotlight: Physical Whiteboard & Blackboard Camera -->
-      <div class="md:col-span-2 rounded-2xl border p-7 transition flex flex-col justify-between shadow-sm" style="background-color: var(--surface-graphite); border-color: var(--chalk-border);">
-        <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
-          <div class="md:col-span-8">
-            <div class="inline-flex items-center gap-2 px-2.5 py-1 rounded-md text-[11px] font-mono border mb-3" style="background-color: var(--surface-terminal); border-color: var(--chalk-border); color: var(--chalk-muted);">
-              <span class="w-1.5 h-1.5 rounded-full" style="background-color: var(--chalk-white);"></span>
-              <span data-i18n="case5_badge">ZERO-FRICTION HARDWARE BRIDGE</span>
-            </div>
-            <h3 class="text-xl font-bold mb-2" style="color: var(--chalk-white);" data-i18n="case5_title">Smartphone Whiteboard Camera via Local QR Code</h3>
-            <p class="text-sm leading-relaxed mb-4" style="color: var(--chalk-slate);" data-i18n="case5_desc">
-              Scan a QR code from the HUD with your phone. Snap a photo of physical chalkboards, whiteboards, or projector screens — uploaded instantly over your local Wi-Fi or hotspot in under a second. Formulas and derivations are immediately synthesized into mathematical LaTeX.
-            </p>
-          </div>
-          <div class="md:col-span-4 rounded-xl border p-4 text-xs font-mono space-y-2 shadow-sm" style="background-color: var(--surface-terminal); border-color: var(--chalk-border);">
-            <div class="flex justify-between text-[11px]" style="color: var(--chalk-muted);">
-              <span data-i18n="case5_spec_bridge_label">BRIDGE</span>
-              <span style="color: var(--chalk-white);" data-i18n="case5_spec_bridge_val">Direct LAN / Hotspot</span>
-            </div>
-            <div class="flex justify-between text-[11px]" style="color: var(--chalk-muted);">
-              <span data-i18n="case5_spec_latency_label">LATENCY</span>
-              <span style="color: var(--chalk-white);" data-i18n="case5_spec_latency_val">&lt; 850 ms</span>
-            </div>
-            <div class="flex justify-between text-[11px]" style="color: var(--chalk-muted);">
-              <span data-i18n="case5_spec_cloud_label">CLOUD RELAY</span>
-              <span style="color: var(--chalk-white);" data-i18n="case5_spec_cloud_val">0% (Zero Cloud)</span>
-            </div>
-          </div>
-        </div>
-        <div class="pt-4 mt-4 border-t text-xs flex justify-between" style="border-color: var(--chalk-border); color: var(--chalk-muted);">
-          <span data-i18n="case5_tag1">Audience: In-Person Lectures & Brainstorming</span>
-          <span data-i18n="case5_tag2">Input: Environment Camera • Local P2P</span>
-        </div>
+      <!-- Case 7: Physical Whiteboard & Blackboard Camera -->
+      <div class="md:col-span-2 rounded-2xl border p-7 transition shadow-sm" style="background-color: var(--surface-graphite); border-color: var(--chalk-border);">
+        <h3 class="text-xl font-bold mb-2" style="color: var(--chalk-white);" data-i18n="case5_title">Smartphone Whiteboard Camera via Local QR Code</h3>
+        <p class="text-sm leading-relaxed" style="color: var(--chalk-slate);" data-i18n="case5_desc">
+          Scan a QR code from the HUD with your phone. Snap a photo of physical chalkboards, whiteboards, or projector screens — uploaded instantly over your local Wi-Fi or hotspot in under a second. Formulas and derivations are immediately synthesized into mathematical LaTeX.
+        </p>
       </div>
 
     </div>
@@ -741,10 +664,6 @@
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
         <!-- Left Column (7 Cols) -->
         <div class="lg:col-span-7">
-          <div class="inline-flex items-center gap-2 px-2.5 py-1 rounded-md text-[11px] font-mono border mb-4" style="background-color: var(--surface-terminal); border-color: var(--chalk-border); color: var(--chalk-muted);">
-            <span class="w-1.5 h-1.5 rounded-full" style="background-color: var(--chalk-slate);"></span>
-            <span data-i18n="privacy_badge">STRICT LOCAL-FIRST ARCHITECTURE</span>
-          </div>
           <h3 class="text-xl sm:text-2xl font-bold tracking-tight mb-3" style="color: var(--chalk-white);" data-i18n="privacy_box_title">Zero cloud relays. Absolute data sovereignty.</h3>
           <p class="text-sm sm:text-base leading-relaxed mb-6" style="color: var(--chalk-slate);" data-i18n="privacy_p1">
             Unlike cloud meeting bots that route your private conversations and confidential presentations through third-party servers, Chalk operates on a strict Local-First and Direct BYOK (Bring Your Own Key) architecture. Audio recordings and screen captures never leave your laptop unencrypted, communicating solely and directly between your workstation and your personal AI accounts with zero intermediary relays.
@@ -775,7 +694,7 @@
             <div class="text-[11px]" style="color: var(--chalk-slate);" data-i18n="privacy_card2_desc">Synthesis requests travel without detours from localhost directly to Google, Anthropic, or OpenAI.</div>
           </div>
           <div class="p-4 rounded-xl border shadow-sm" style="background-color: var(--surface-terminal); border-color: var(--chalk-border);">
-            <div class="font-semibold text-xs mb-1" style="color: var(--chalk-white);" data-i18n="privacy_card3_title">Local-First BYOK Direct API</div>
+            <div class="font-semibold text-xs mb-1" style="color: var(--chalk-white);" data-i18n="privacy_card3_title">Direct API Connection</div>
             <div class="text-[11px]" style="color: var(--chalk-slate);" data-i18n="privacy_card3_desc">Zero telemetry, zero tracking cookies (§ 165 TKG), zero central relay servers.</div>
           </div>
         </div>
@@ -1001,11 +920,8 @@
     "preview_status": "Recording active (01:42)",
     "preview_status_label": "Recording active",
     "preview_screen_label": "SCREEN CAPTURE",
-    "preview_screen_badge": "Display 1",
     "preview_screen_topic": "Portfolio Theory & Risk Modeling",
     "preview_screen_heading": "Capital Asset Pricing Model (CAPM)",
-    "preview_screen_sync": "Screen Sync Active",
-    "preview_slide_local": "Local detection",
     "preview_recall_label": "RECALL",
     "preview_recall_query": "How does beta behave during market volatility?",
     "preview_qr_label": "PHONE LINK",
@@ -1016,7 +932,7 @@
     "preview_notes_p1": "The expected return of an asset comprises the risk-free rate plus the market risk premium. Unsystematic individual risk is eliminated through portfolio diversification.",
     "preview_notes_li1": "<strong style=\"color: var(--chalk-white);\">Beta factor (&beta;<sub>i</sub>):</strong> Sensitivity of asset return to broad market movements.",
     "preview_notes_li2": "<strong style=\"color: var(--chalk-white);\">Risk-free rate (R<sub>f</sub>):</strong> Benchmark sovereign bond yield as the hurdle rate.",
-    "preview_notes_li3": "<span style=\"color: var(--chalk-white); font-weight: 500;\">[Lecturer Core Point @ 01:14:20]:</span> Only systematic risk is compensated by the market with a risk premium.",
+    "preview_notes_li3": "<strong style=\"color: var(--chalk-white);\">Core point:</strong> Only systematic risk is compensated by the market with a risk premium.",
     "preview_duration": "Duration: 1h 42m",
     "preview_settings_tab": "Settings",
     "preview_tab_notes": "Live Notes",
@@ -1027,7 +943,6 @@
     "preview_key_save_btn": "Save Key",
     "preview_model_label": "AI Synthesis Model:",
     "preview_obsidian_label": "Obsidian Vault Directory:",
-    "preview_byok_guarantee": "100% Client-Side Direct BYOK • 0 Chalk Servers",
     "preview_return_notes": "Return to Live Notes",
     "preview_recall_q1": "Why does the market only compensate systematic risk?",
     "preview_recall_a1": "Unsystematic individual risk is eliminated through diversification. Only market-wide covariance cannot be diversified away.",
@@ -1040,58 +955,30 @@
     "steps_subtitle": "No stress, no frantic typing. Complete focus on the presenter.",
     "step1_title": "Chalk runs silently",
     "step1_desc": "Chalk runs quietly in the background of your laptop. One click or pressing Alt+Space is all it takes — no complex configuration or audio routing cables.",
-    "step1_tag1": "Setup: Instant launch",
-    "step1_tag2": "Silent background process",
     "step2_title": "You listen actively",
     "step2_desc": "You don't type a single word, staying completely immersed in the conversation. Chalk captures speech, slide transitions, and whiteboard formulas autonomously.",
-    "step2_tag1": "Focus: 100% presence",
-    "step2_tag2": "Speech pauses handled",
     "step3_title": "Structured notes in Obsidian",
     "step3_desc": "When finished, you receive clean, structured Markdown notes with key points, LaTeX formulas, and slide snapshots. Ready for Obsidian or your editor of choice.",
-    "step3_tag1": "Format: LaTeX Markdown",
-    "step3_tag2": "1-Click Obsidian export",
     "cases_tag": "USE CASES",
     "cases_title": "Engineered for Demanding Discussions",
     "cases_subtitle": "Designed for students, engineers, and executives who need deep conceptual engagement.",
     "case1_title": "University Lectures & Academic Seminars",
     "case1_desc": "Captures every whiteboard derivation, side remark, and slide during multi-hour lectures without omission. Delivers pristine LaTeX equations.",
-    "case1_tag1": "Audience: Students & Researchers",
-    "case1_tag2": "Output: LaTeX Markdown",
     "case2_title": "Technical Reviews & Architecture Walkthroughs",
     "case2_desc": "Engage actively in architecture decisions. Chalk captures code snippets, data schemas, and technical trade-offs directly from shared screens.",
-    "case2_tag1": "Audience: Engineers & Architects",
-    "case2_tag2": "Output: Decision Records (ADRs)",
     "case3_title": "Executive Strategy & Board Meetings",
     "case3_desc": "Maintain eye contact and presence in crucial negotiations. Chalk records commitments, metrics from slide decks, and produces prioritized action items.",
-    "case3_tag1": "Audience: Leaders & Consultants",
-    "case3_tag2": "Output: Minutes & Action Items",
     "case4_title": "Webinars & Virtual Conferences",
     "case4_desc": "Captures Zoom, Teams, and keynote livestreams via direct system audio and slide change detection, building searchable knowledge archives automatically.",
-    "case4_tag1": "Audience: Knowledge Workers & Analysts",
-    "case4_tag2": "Output: Knowledge Base Notes",
-    "case5_badge": "ZERO-FRICTION HARDWARE BRIDGE",
     "case5_title": "Smartphone Whiteboard Camera via Local QR Code",
     "case5_desc": "Scan a QR code from the HUD with your phone. Snap a photo of physical chalkboards, whiteboards, or projector screens — uploaded instantly over your local Wi-Fi or hotspot in under a second. Formulas and derivations are immediately synthesized into mathematical LaTeX.",
-    "case5_spec_bridge_label": "BRIDGE",
-    "case5_spec_bridge_val": "Direct LAN / Hotspot",
-    "case5_spec_latency_label": "LATENCY",
-    "case5_spec_latency_val": "< 850 ms",
-    "case5_spec_cloud_label": "CLOUD RELAY",
-    "case5_spec_cloud_val": "0% (Zero Cloud)",
-    "case5_tag1": "Audience: In-Person Lectures & Brainstorming",
-    "case5_tag2": "Input: Environment Camera • Local P2P",
     "case_anki_title": "Exam Prep: Spaced Repetition & Anki",
     "case_anki_desc": "High-yield flashcards generated automatically from core theorems, formulas, and definitions. 1-click export to Anki (.tsv) or Obsidian Spaced Repetition.",
-    "case_anki_tag1": "Audience: STEM Students & Candidates",
-    "case_anki_tag2": "Output: Anki .tsv & Flashcard Blocks",
     "case_pdf_title": "Standalone Academic PDF & Archive Search",
     "case_pdf_desc": "Print publication-grade vector scripts with LaTeX formulas directly to PDF with zero dependencies. Lightning-fast Alt+F fulltext and formula search across all historical sessions.",
-    "case_pdf_tag1": "Engine: Local PyQt6 Vector PDF",
-    "case_pdf_tag2": "Search: Real-Time Alt+F Formula Index",
     "privacy_tag": "LOCAL-FIRST PRIVACY",
     "privacy_title": "Your data belongs to you.<br>No middlemen. No servers.",
     "privacy_subtitle": "Unlike cloud meeting bots, Chalk processes audio and screen captures exclusively locally on your hardware.",
-    "privacy_badge": "STRICT LOCAL-FIRST ARCHITECTURE",
     "privacy_box_title": "Zero cloud relays. Absolute data sovereignty.",
     "privacy_p1": "Unlike cloud meeting bots that route your private conversations and confidential presentations through third-party servers, Chalk operates on a strict Local-First and Direct BYOK (Bring Your Own Key) architecture. Audio recordings and screen captures never leave your laptop unencrypted, communicating solely and directly between your workstation and your personal AI accounts with zero intermediary relays.",
     "privacy_stat1_label": "Audio & Screen",
@@ -1104,7 +991,7 @@
     "privacy_card1_desc": "API keys are securely encrypted in macOS Keychain or Windows DPAPI.",
     "privacy_card2_title": "Direct TLS 1.3 Connection",
     "privacy_card2_desc": "Synthesis requests travel without detours from localhost directly to Google, Anthropic, or OpenAI.",
-    "privacy_card3_title": "Local-First BYOK Direct API",
+    "privacy_card3_title": "Direct API Connection",
     "privacy_card3_desc": "Zero telemetry, zero tracking cookies (§ 165 TKG), zero central relay servers.",
     "download_tag": "DOWNLOAD",
     "download_title": "Chalk for your Desktop",
@@ -1162,11 +1049,8 @@
     "preview_status": "Aufnahme aktiv (01:42)",
     "preview_status_label": "Aufnahme aktiv",
     "preview_screen_label": "BILDSCHIRMAUFNAHME",
-    "preview_screen_badge": "Display 1",
     "preview_screen_topic": "Portfoliotheorie & Risikomodellierung",
     "preview_screen_heading": "Capital Asset Pricing Model (CAPM)",
-    "preview_screen_sync": "Bildschirm-Sync aktiv",
-    "preview_slide_local": "Lokale Erkennung",
     "preview_recall_label": "RECALL",
     "preview_recall_query": "Wie verhält sich das Beta bei Marktvolatilität?",
     "preview_qr_label": "HANDY-KOPPLUNG",
@@ -1188,7 +1072,6 @@
     "preview_key_save_btn": "Key speichern",
     "preview_model_label": "KI-Synthese-Modell:",
     "preview_obsidian_label": "Obsidian Vault-Pfad:",
-    "preview_byok_guarantee": "100% Client-Side Direct BYOK • 0 Chalk-Server",
     "preview_return_notes": "Zurück zu Live-Notizen",
     "preview_recall_q1": "Warum vergütet der Markt nur systematisches Risiko?",
     "preview_recall_a1": "Unsystematisches Einzelrisiko wird durch Portfolio-Diversifikation eliminiert. Nur die marktweite Kovarianz kann nicht wegdiversifiziert werden.",
@@ -1201,58 +1084,30 @@
     "steps_subtitle": "Kein Stress, kein Tippen. Vollste Konzentration auf den Vortragenden.",
     "step1_title": "Chalk läuft leise",
     "step1_desc": "Chalk läuft leise im Hintergrund deines Laptops. Ein Klick oder Druck auf Alt+Space genügt – ohne komplizierte Einrichtung oder Audiokabel.",
-    "step1_tag1": "Setup: Sofort startklar",
-    "step1_tag2": "Lautlos im Hintergrund",
     "step2_title": "Du hörst aktiv zu",
     "step2_desc": "Du tippst kein einziges Wort mit, sondern konzentrierst dich voll auf das Gespräch. Chalk erfasst die Stimme, Folienwechsel und Whiteboard-Formeln autonom.",
-    "step2_tag1": "Fokus: 100 % Präsenz",
-    "step2_tag2": "Sprechpausen geschont",
     "step3_title": "Strukturierte Notizen in Obsidian",
     "step3_desc": "Am Ende erhältst du ein sauberes, strukturiertes Markdown-Dokument mit Kernaussagen, Formeln und Folienausschnitten. Bereit für Obsidian oder deinen Editor.",
-    "step3_tag1": "Format: LaTeX Markdown",
-    "step3_tag2": "1-Klick Obsidian Export",
     "cases_tag": "EINSATZBEREICHE",
     "cases_title": "Für jedes anspruchsvolle Gespräch",
     "cases_subtitle": "Entwickelt für Studierende, Ingenieure und Führungskräfte, die tief mitdenken wollen.",
     "case1_title": "Vorlesungen & Wissenschaftliche Seminare",
     "case1_desc": "Hält jede Whiteboard-Herleitung, Zwischenbemerkung und Folie in mehrstündigen Vorlesungen lückenlos fest. Liefert saubere LaTeX-Formeln ohne Auslassungen.",
-    "case1_tag1": "Zielgruppe: Studierende & Forschende",
-    "case1_tag2": "Ausgabe: LaTeX Markdown",
     "case2_title": "Technische Reviews & Code-Walkthroughs",
     "case2_desc": "Aktiv in Architekturentscheidungen mitdiskutieren. Chalk erfasst Code-Snippets, Datenmodelle und technische Abwägungen direkt aus geteilten Bildschirmen.",
-    "case2_tag1": "Zielgruppe: Entwickler & Architekten",
-    "case2_tag2": "Ausgabe: Entscheidungsdokumente",
     "case3_title": "Strategiemeetings & Vorstandssitzungen",
     "case3_desc": "Voller Augenkontakt und Präsenz in wichtigen Verhandlungen. Chalk protokolliert Zusagen, Kennzahlen aus Folien und erstellt priorisierte Maßnahmenpläne.",
-    "case3_tag1": "Zielgruppe: Führungskräfte & Berater",
-    "case3_tag2": "Ausgabe: Protokoll & Action Items",
     "case4_title": "Webinare & Online-Konferenzen",
     "case4_desc": "Erfasst Zoom-, Teams- und YouTube-Keynotes über direkte Audioschnittstellen und Bildwechsel, sodass automatisiert durchsuchbare Wissensarchive entstehen.",
-    "case4_tag1": "Zielgruppe: Wissensarbeiter & Analysten",
-    "case4_tag2": "Ausgabe: Wissensdatenbank-Notizen",
-    "case5_badge": "ZERO-FRICTION HARDWARE-BRÜCKE",
     "case5_title": "Smartphone-Tafel-Kamera via lokalem QR-Code",
     "case5_desc": "QR-Code direkt im HUD mit dem Smartphone scannen. Physische Tafeln, Whiteboards oder Beamer fotografieren — in unter einer Sekunde lautlos über lokales WLAN oder Hotspot übertragen. Mathematische Herleitungen fließen sofort als LaTeX in die Notizen ein.",
-    "case5_spec_bridge_label": "VERBINDUNG",
-    "case5_spec_bridge_val": "Direktes LAN / Hotspot",
-    "case5_spec_latency_label": "LATENZ",
-    "case5_spec_latency_val": "< 850 ms",
-    "case5_spec_cloud_label": "CLOUD-RELAY",
-    "case5_spec_cloud_val": "0% (Zero Cloud)",
-    "case5_tag1": "Zielgruppe: Präsenz-Vorlesungen & Seminare",
-    "case5_tag2": "Eingabe: Umgebungs-Kamera • Lokales P2P",
     "case_anki_title": "Klausurvorbereitung: Spaced Repetition & Anki",
     "case_anki_desc": "Automatisch generierte Karteikarten für zentrale Theoreme, Definitionen und Rechenschritte. 1-Klick-Export für Anki (.tsv) und Obsidian Spaced Repetition.",
-    "case_anki_tag1": "Zielgruppe: MINT-Studierende & Examenskandidaten",
-    "case_anki_tag2": "Ausgabe: Anki .tsv & Karteikarten-Blöcke",
     "case_pdf_title": "Eigenständiger PDF-Druck & Formel-Archivsuche",
     "case_pdf_desc": "Druckt akademische Skripte mit LaTeX-Formeln direkt als Vektor-PDF ohne externe Compiler. Blitzschnelle Alt+F Volltext- und Formelsuche über alle vergangenen Vorlesungen.",
-    "case_pdf_tag1": "Engine: Lokaler PyQt6 Vektor-PDF-Druck",
-    "case_pdf_tag2": "Suche: Echtzeit Alt+F Formel-Index",
     "privacy_tag": "LOCAL-FIRST DATENSCHUTZ",
     "privacy_title": "Deine Daten gehören dir.<br>Keine Mittelsmänner. Keine Server.",
     "privacy_subtitle": "Im Gegensatz zu Cloud-Meeting-Bots verarbeitet Chalk Ton und Bildschirmaufnahmen ausschließlich lokal auf deiner Hardware.",
-    "privacy_badge": "STRIKT LOCAL-FIRST ARCHITEKTUR",
     "privacy_box_title": "Keine Cloud-Relays. Absolute Datenhoheit.",
     "privacy_p1": "Im Gegensatz zu Cloud-Meeting-Bots, die private Gespräche und vertrauliche Präsentationen über fremde Server leiten, setzt Chalk auf eine kompromisslose Local-First- und Direct-BYOK-Architektur (Bring Your Own Key). Tonaufnahmen und Bildschirmerfassungen verlassen deinen Laptop niemals unverschlüsselt, sondern kommunizieren ausschließlich und direkt zwischen deinem Rechner und deinen persönlichen KI-Konten – ohne zwischengeschaltete Relay-Server.",
     "privacy_stat1_label": "Audio & Bildschirm",
@@ -1323,11 +1178,8 @@
     "preview_status": "Enregistrement en cours (01:42)",
     "preview_status_label": "Enregistrement en cours",
     "preview_screen_label": "CAPTURE D'ÉCRAN",
-    "preview_screen_badge": "Display 1",
     "preview_screen_topic": "Théorie du portefeuille & Risque",
     "preview_screen_heading": "Capital Asset Pricing Model (CAPM)",
-    "preview_screen_sync": "Sync écran active",
-    "preview_slide_local": "Détection locale",
     "preview_recall_label": "RAPPEL",
     "preview_recall_query": "Comment le bêta réagit-il à la volatilité du marché ?",
     "preview_qr_label": "LIEN MOBILE",
@@ -1349,7 +1201,6 @@
     "preview_key_save_btn": "Enregistrer la clé",
     "preview_model_label": "Modèle de synthèse IA :",
     "preview_obsidian_label": "Répertoire du coffre Obsidian :",
-    "preview_byok_guarantee": "100 % Client-Side Direct BYOK • Zéro serveur Chalk",
     "preview_return_notes": "Retour aux notes",
     "preview_recall_q1": "Pourquoi le marché ne rémunère-t-il que le risque systématique ?",
     "preview_recall_a1": "Le risque spécifique est éliminé par la diversification. Seule la covariance avec l'ensemble du marché persiste.",
@@ -1362,58 +1213,30 @@
     "steps_subtitle": "Zéro stress, zéro frappe manuelle. Concentration totale sur l'orateur.",
     "step1_title": "Chalk s'exécute discrètement",
     "step1_desc": "Chalk fonctionne silencieusement en arrière-plan. Un simple clic ou le raccourci Alt+Espace suffit — sans réglages complexes ni câblage audio.",
-    "step1_tag1": "Configuration : Immédiate",
-    "step1_tag2": "Discret en arrière-plan",
     "step2_title": "Vous écoutez activement",
     "step2_desc": "Vous ne tapez aucun mot et restez totalement engagé dans la discussion. Chalk enregistre la voix, détecte les diapositives et capture les formules au tableau.",
-    "step2_tag1": "Focus : 100 % présence",
-    "step2_tag2": "Pauses naturelles gérées",
     "step3_title": "Notes structurées dans Obsidian",
     "step3_desc": "À la fin, vous obtenez un document Markdown structuré avec idées maîtresses, formules LaTeX et captures. Prêt pour Obsidian ou votre éditeur favori.",
-    "step3_tag1": "Format : Markdown LaTeX",
-    "step3_tag2": "Export Obsidian en 1 clic",
     "cases_tag": "CAS D'USAGE",
     "cases_title": "Pour chaque discussion exigeante",
     "cases_subtitle": "Conçu pour les étudiants, ingénieurs et dirigeants qui souhaitent réfléchir en profondeur.",
     "case1_title": "Cours magistraux et séminaires académiques",
     "case1_desc": "Consigne chaque démonstration au tableau, remarque orale et diapositive sur des cours de plusieurs heures. Restitue des formules LaTeX précises.",
-    "case1_tag1": "Public : Étudiants et chercheurs",
-    "case1_tag2": "Format : Markdown LaTeX",
     "case2_title": "Revues techniques et analyses de code",
     "case2_desc": "Participez activement aux choix d'architecture. Chalk extrait les extraits de code, schémas de données et compromis depuis l'écran partagé.",
-    "case2_tag1": "Public : Développeurs et architectes",
-    "case2_tag2": "Format : Décisions techniques (ADR)",
     "case3_title": "Comités de direction et réunions stratégiques",
     "case3_desc": "Gardez le contact visuel pendant les négociations clés. Chalk note les engagements, chiffres des présentations et génère des plans d'action ordonnés.",
-    "case3_tag1": "Public : Dirigeants et consultants",
-    "case3_tag2": "Format : Procès-verbal et tâches",
     "case4_title": "Webinaires et conférences en ligne",
     "case4_desc": "Capture les présentations Zoom, Teams ou en streaming grâce à l'audio système et la détection d'écrans, créant des archives consultables.",
-    "case4_tag1": "Public : Professionnels et analystes",
-    "case4_tag2": "Format : Base de connaissances",
-    "case5_badge": "PASSERELLE MATÉRIELLE SANS FRICTION",
     "case5_title": "Caméra Tableau Smartphone via QR Code Local",
     "case5_desc": "Scannez un code QR depuis le HUD avec votre téléphone. Photographiez les tableaux noirs, blancs ou écrans de projection — transféré instantanément via Wi-Fi local ou point d'accès en moins d'une seconde. Les formules et démonstrations sont intégrées immédiatement en LaTeX mathématique.",
-    "case5_spec_bridge_label": "CONNEXION",
-    "case5_spec_bridge_val": "LAN direct / Point d'accès",
-    "case5_spec_latency_label": "LATENCE",
-    "case5_spec_latency_val": "< 850 ms",
-    "case5_spec_cloud_label": "RELAIS CLOUD",
-    "case5_spec_cloud_val": "0% (Zéro Cloud)",
-    "case5_tag1": "Public : Cours en présentiel & Séminaires",
-    "case5_tag2": "Entrée : Caméra environnementale • P2P local",
     "case_anki_title": "Révision d'examens : Répétition espacée & Anki",
     "case_anki_desc": "Génération automatique de fiches de mémorisation pour théorèmes, définitions et calculs clés. Export en 1 clic pour Anki (.tsv) et Obsidian Spaced Repetition.",
-    "case_anki_tag1": "Public : Étudiants STEM & candidats",
-    "case_anki_tag2": "Format : Decks Anki (.tsv) & blocs mémoire",
     "case_pdf_title": "Impression PDF académique autonome & Recherche d'archives",
     "case_pdf_desc": "Générez des polycopiés vectoriels de haute qualité avec formules LaTeX directement en PDF sans dépendances externes. Recherche instantanée Alt+F dans toutes vos archives.",
-    "case_pdf_tag1": "Moteur : PDF vectoriel PyQt6 local",
-    "case_pdf_tag2": "Recherche : Index formules Alt+F",
     "privacy_tag": "CONFIDENTIALITÉ 100 % LOCALE",
     "privacy_title": "Vos données vous appartiennent.<br>Aucun intermédiaire. Aucun serveur.",
     "privacy_subtitle": "Contrairement aux assistants cloud, Chalk traite le son et les captures d'écran exclusivement en local sur votre matériel.",
-    "privacy_badge": "ARCHITECTURE STRICTEMENT LOCALE",
     "privacy_box_title": "Zéro relais cloud. Souveraineté totale des données.",
     "privacy_p1": "Contrairement aux assistants cloud qui font transiter vos conversations privées et présentations confidentielles par des serveurs tiers, Chalk repose sur une architecture stricte Local-First et BYOK (Bring Your Own Key) directe. Les enregistrements audio et captures d'écran ne quittent jamais votre ordinateur en clair, communiquant uniquement et directement entre votre poste de travail et vos comptes IA personnels, sans aucun relais intermédiaire.",
     "privacy_stat1_label": "Audio & Écran",
@@ -1484,11 +1307,8 @@
     "preview_status": "Grabación activa (01:42)",
     "preview_status_label": "Grabación activa",
     "preview_screen_label": "CAPTURA DE PANTALLA",
-    "preview_screen_badge": "Display 1",
     "preview_screen_topic": "Teoría de carteras y riesgo",
     "preview_screen_heading": "Capital Asset Pricing Model (CAPM)",
-    "preview_screen_sync": "Sincronización de pantalla",
-    "preview_slide_local": "Detección local",
     "preview_recall_label": "RECUERDO",
     "preview_recall_query": "¿Cómo se comporta la beta ante la volatilidad del mercado?",
     "preview_qr_label": "ENLACE MÓVIL",
@@ -1510,7 +1330,6 @@
     "preview_key_save_btn": "Guardar clave",
     "preview_model_label": "Modelo de síntesis IA:",
     "preview_obsidian_label": "Directorio del baúl Obsidian:",
-    "preview_byok_guarantee": "100% Client-Side Direct BYOK • Cero servidores Chalk",
     "preview_return_notes": "Volver a notas",
     "preview_recall_q1": "¿Por qué el mercado solo compensa el riesgo sistemático?",
     "preview_recall_a1": "El riesgo no sistemático se elimina mediante diversificación. Solo la covarianza de mercado no puede diversificarse.",
@@ -1523,58 +1342,30 @@
     "steps_subtitle": "Sin estrés ni tecleo apresurado. Concentración total en el ponente.",
     "step1_title": "Chalk opera silenciosamente",
     "step1_desc": "Chalk funciona silenciosamente en segundo plano. Basta un clic o pulsar Alt+Espacio, sin configuraciones complejas ni cables de audio.",
-    "step1_tag1": "Ajuste: Listo al instante",
-    "step1_tag2": "Invisible en segundo plano",
     "step2_title": "Tú escuchas activamente",
     "step2_desc": "No escribes ni una sola palabra y te concentras por completo. Chalk captura la voz, el cambio de diapositivas y las fórmulas en pizarra de forma autónoma.",
-    "step2_tag1": "Foco: 100 % presencia",
-    "step2_tag2": "Pausas naturales cuidadas",
     "step3_title": "Notas estructuradas en Obsidian",
     "step3_desc": "Al finalizar, obtienes un documento Markdown impecable con puntos clave, fórmulas LaTeX y recortes de diapositivas. Listo para Obsidian o tu editor.",
-    "step3_tag1": "Formato: LaTeX Markdown",
-    "step3_tag2": "Exportar a Obsidian en 1 clic",
     "cases_tag": "CASOS DE USO",
     "cases_title": "Para cualquier conversación exigente",
     "cases_subtitle": "Diseñado para estudiantes, ingenieros y directivos que buscan una reflexión profunda.",
     "case1_title": "Conferencias y seminarios académicos",
     "case1_desc": "Registra cada demostración en pizarra, comentario y diapositiva en clases largas. Entrega fórmulas LaTeX impecables.",
-    "case1_tag1": "Público: Estudiantes e investigadores",
-    "case1_tag2": "Salida: LaTeX Markdown",
     "case2_title": "Revisiones técnicas y análisis de código",
     "case2_desc": "Participa activamente en decisiones de arquitectura. Chalk extrae fragmentos de código, esquemas de datos y consideraciones técnicas de pantallas compartidas.",
-    "case2_tag1": "Público: Desarrolladores y arquitectos",
-    "case2_tag2": "Salida: Registros de decisiones (ADR)",
     "case3_title": "Reuniones estratégicas y juntas directivas",
     "case3_desc": "Mantén contacto visual y presencia en negociaciones clave. Chalk registra compromisos, métricas de diapositivas y crea planes de acción priorizados.",
-    "case3_tag1": "Público: Ejecutivos y consultores",
-    "case3_tag2": "Salida: Actas y tareas de acción",
     "case4_title": "Seminarios web y conferencias virtuales",
     "case4_desc": "Registra eventos de Zoom, Teams y streaming con audio directo y detección de diapositivas, creando archivos de consulta automática.",
-    "case4_tag1": "Público: Profesionales y analistas",
-    "case4_tag2": "Salida: Archivo de conocimiento",
-    "case5_badge": "PUENTE DE HARDWARE SIN FRICCIÓN",
     "case5_title": "Cámara de Pizarra Smartphone mediante Código QR Local",
     "case5_desc": "Escanee un código QR desde el HUD con su teléfono. Fotografíe pizarras físicas o pantallas de proyector — transferido al instante a través de Wi-Fi local o punto de acceso en menos de un segundo. Las fórmulas y derivaciones se integran de inmediato como LaTeX matemático.",
-    "case5_spec_bridge_label": "CONEXIÓN",
-    "case5_spec_bridge_val": "LAN directa / Zona Wi-Fi",
-    "case5_spec_latency_label": "LATENCIA",
-    "case5_spec_latency_val": "< 850 ms",
-    "case5_spec_cloud_label": "RETRANSMISIÓN CLOUD",
-    "case5_spec_cloud_val": "0% (Cero Nube)",
-    "case5_tag1": "Audiencia: Clases presenciales y Seminarios",
-    "case5_tag2": "Entrada: Cámara de entorno • P2P local",
     "case_anki_title": "Preparación de exámenes: Repetición espaciada y Anki",
     "case_anki_desc": "Generación automática de tarjetas de memoria para teoremas, definiciones y fórmulas clave. Exportación en 1 clic para Anki (.tsv) y Obsidian Spaced Repetition.",
-    "case_anki_tag1": "Público: Estudiantes STEM y opositores",
-    "case_anki_tag2": "Salida: Decks Anki (.tsv) y bloques de estudio",
     "case_pdf_title": "Exportación PDF académico independiente y Búsqueda en archivo",
     "case_pdf_desc": "Imprima apuntes vectoriales de calidad académica con fórmulas LaTeX directamente en PDF sin dependencias externas. Búsqueda instantánea Alt+F de texto y fórmulas en todas sus sesiones.",
-    "case_pdf_tag1": "Motor: Impresión vectorial PyQt6 local",
-    "case_pdf_tag2": "Búsqueda: Índice de fórmulas Alt+F",
     "privacy_tag": "PRIVACIDAD LOCAL-FIRST",
     "privacy_title": "Tus datos te pertenecen.<br>Sin intermediarios. Sin servidores.",
     "privacy_subtitle": "A diferencia de los bots en la nube, Chalk procesa el audio y las capturas de pantalla exclusivamente en local en tu hardware.",
-    "privacy_badge": "ARQUITECTURA ESTRICTAMENTE LOCAL-FIRST",
     "privacy_box_title": "Cero repetidores en la nube. Soberanía total.",
     "privacy_p1": "A diferencia de los bots en la nube que enrutan tus conversaciones privadas y presentaciones confidenciales a través de servidores de terceros, Chalk opera con una estricta arquitectura Local-First y BYOK (Bring Your Own Key) directo. Las grabaciones de audio y capturas de pantalla nunca salen de tu portátil sin cifrar, comunicándose única y directamente entre tu estación de trabajo y tus cuentas personales de IA, sin repetidores intermediarios.",
     "privacy_stat1_label": "Audio y Pantalla",
@@ -1645,11 +1436,8 @@
     "preview_status": "录音采集中 (01:42)",
     "preview_status_label": "正在录制",
     "preview_screen_label": "屏幕画面捕获",
-    "preview_screen_badge": "主显示屏",
     "preview_screen_topic": "投资组合理论与风险建模",
     "preview_screen_heading": "资本资产定价模型 (CAPM)",
-    "preview_screen_sync": "实时画面同步",
-    "preview_slide_local": "本地智能识别",
     "preview_recall_label": "回顾",
     "preview_recall_query": "市场剧烈波动时贝塔系数如何变化？",
     "preview_qr_label": "手机互联",
@@ -1671,7 +1459,6 @@
     "preview_key_save_btn": "保存密钥",
     "preview_model_label": "AI 提炼模型：",
     "preview_obsidian_label": "Obsidian 仓库目录：",
-    "preview_byok_guarantee": "100% 本地端侧 BYOK 直连 • 零中转服务器",
     "preview_return_notes": "返回实时笔记",
     "preview_recall_q1": "为什么市场只对系统性风险给予风险溢价？",
     "preview_recall_a1": "非系统性风险可通过多元化投资组合彻底消除，市场上唯有不可分散的整体协方差风险才能获得收益补偿。",
@@ -1684,58 +1471,30 @@
     "steps_subtitle": "告别焦虑与键盘敲击。全身心倾听主讲人见解。",
     "step1_title": "Chalk 静默在后台运行",
     "step1_desc": "Chalk 在笔记本后台静默待命。只需轻轻一点或按下快捷键 Alt+Space，免去繁杂配置或虚拟音频驱动跳线。",
-    "step1_tag1": "启动：开箱即用",
-    "step1_tag2": "零干扰：后台无声运行",
     "step2_title": "你全神贯注沉浸思考",
     "step2_desc": "无需敲击任何按键，全身心参与讨论。Chalk 自主捕获主讲人发言、幻灯片翻页轨迹与白板数学公式推导。",
-    "step2_tag1": "专注：100% 临场沉浸",
-    "step2_tag2": "降噪：自动识别说话停顿",
     "step3_title": "结构化笔记同步至 Obsidian",
     "step3_desc": "录制结束瞬间，获得条理完备的 Markdown 文档，涵盖核心论点、LaTeX 数学公式与幻灯片关键截图。一键无缝接入 Obsidian 或任意编辑器。",
-    "step3_tag1": "格式：LaTeX Markdown",
-    "step3_tag2": "一键导出至 Obsidian",
     "cases_tag": "应用场景",
     "cases_title": "赋能高强度深度沟通场景",
     "cases_subtitle": "为渴望深度思考、精准决策的学者、工程师与高管团队专属打造。",
     "case1_title": "大学讲座与学术研讨会",
     "case1_desc": "完整记录数小时讲座中的白板推导、随堂旁注与幻灯片细节。输出高保真 LaTeX 公式，绝无遗漏。",
-    "case1_tag1": "适用人群：高校师生与科研学者",
-    "case1_tag2": "输出：LaTeX Markdown 笔记",
     "case2_title": "技术评审与架构深度探讨",
     "case2_desc": "从容参与核心架构评审。Chalk 自动从共享屏幕抓取代码片段、数据模型设计及架构选型权衡方案。",
-    "case2_tag1": "适用人群：资深开发与系统架构师",
-    "case2_tag2": "输出：架构决策记录 (ADR)",
     "case3_title": "战略研讨与董事会高层会议",
     "case3_desc": "在商务谈判中保持眼神交流与专注。Chalk 全程记录决策共识与关键指标，自动输出高优先级行动清单。",
-    "case3_tag1": "适用人群：企业管理者与战略顾问",
-    "case3_tag2": "输出：会议纪要与待办清单",
     "case4_title": "网络研讨会与在线峰会",
     "case4_desc": "通过系统内录与画面识别无损记录 Zoom、Teams 等线上会议，自动沉淀为可全盘检索的知识库资产。",
-    "case4_tag1": "适用人群：知识工作者与分析师",
-    "case4_tag2": "输出：知识库 Markdown 归档",
-    "case5_badge": "零摩擦硬件直连网桥",
     "case5_title": "手机黑板/白板相机（本地二维码直连）",
     "case5_desc": "用手机直接扫描桌面HUD中的二维码。拍摄实体黑板、白板或投影幕布——1秒内通过局域网或热点无感回传至电脑。板书公式与数学推导即刻作为高精度LaTeX整合进笔记中。",
-    "case5_spec_bridge_label": "连接协议",
-    "case5_spec_bridge_val": "局域网直连 / 热点",
-    "case5_spec_latency_label": "传输延迟",
-    "case5_spec_latency_val": "< 850毫秒",
-    "case5_spec_cloud_label": "云端中转",
-    "case5_spec_cloud_val": "0%（无云端依赖）",
-    "case5_tag1": "受众：线下高校讲座与学术研讨",
-    "case5_tag2": "采集源：手机后置相机 • 本地P2P",
     "case_anki_title": "考前冲刺：间隔重复记忆卡与 Anki 导出",
     "case_anki_desc": "自动提炼讲座核心定理、定义与关键公式为高频考点记忆卡。支持一键导出至 Anki (.tsv) 及 Obsidian 间隔重复插件。",
-    "case_anki_tag1": "适用人群：理工医科生与应试考生",
-    "case_anki_tag2": "输出：Anki .tsv 与双面闪卡区块",
     "case_pdf_title": "独立学术级 PDF 导出与公式档案极速检索",
     "case_pdf_desc": "零依赖将包含真实 LaTeX 数学公式的笔记直接渲染为高精矢量 PDF 文档。支持 Alt+F 快捷键实时检索历史所有讲座的文本与数学公式。",
-    "case_pdf_tag1": "引擎：本地 PyQt6 高精矢量排版",
-    "case_pdf_tag2": "检索：Alt+F 实时公式索引",
     "privacy_tag": "本地优先隐私保护",
     "privacy_title": "数据资产完全归你所有。<br>无中介。无中转服务器。",
     "privacy_subtitle": "与云端会议机器人不同，Chalk 仅在你的本地硬件上离线处理音频与屏幕画面。",
-    "privacy_badge": "严格端侧物理隔离架构",
     "privacy_box_title": "零云端中继。绝对数据主权。",
     "privacy_p1": "与将私人对话和保密幻灯片上传至第三方服务器的云端会议机器人截然不同，Chalk 遵循严格的本地优先 (Local-First) 与密钥直连 (Direct BYOK) 架构。录音文件与屏幕截图绝不以明文形式离开笔记本电脑，仅在你本机的终端设备与专属个人 AI 账户之间建立安全直连，无任何中转服务器旁路中继。",
     "privacy_stat1_label": "音画数据处理",
@@ -2006,22 +1765,11 @@
       const headingEl = document.getElementById('mockup-screen-heading');
       const mathEl = document.getElementById('mockup-screen-math');
       const pillEl = document.getElementById('mockup-slide-pill');
-      const deltaSync = document.getElementById('mockup-delta-sync');
-
       if (fileEl) fileEl.textContent = slide.file;
       if (topicEl) topicEl.textContent = slide.topic;
       if (headingEl) headingEl.textContent = slide.heading;
       if (mathEl) mathEl.textContent = slide.math;
       if (pillEl) pillEl.textContent = `${idx + 1}/3`;
-
-      if (deltaSync) {
-        deltaSync.textContent = 'Slide Delta Synced (Display 1)';
-        deltaSync.style.color = '#10B981';
-        setTimeout(() => {
-          deltaSync.textContent = 'Delta Sync: In Frame';
-          deltaSync.style.color = '';
-        }, 1200);
-      }
 
       // Update Notes view
       const noteH1 = document.getElementById('mockup-note-h1');
