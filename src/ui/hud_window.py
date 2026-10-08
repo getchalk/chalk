@@ -563,7 +563,7 @@ def render_markdown_with_katex(md_text: str) -> str:
     # Obsidian callouts > [!type] Title
     callout_colors = {
         "theorem": ("#60A5FA", "THEOREM"),
-        "definition": ("#34D399", "DEFINITION"),
+        "definition": ("#94A3B8", "DEFINITION"),
         "proof": ("#A78BFA", "BEWEIS / PROOF"),
         "remark": ("#FBBF24", "HINWEIS / REMARK"),
         "example": ("#38BDF8", "BEISPIEL / EXAMPLE"),

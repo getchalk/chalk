@@ -56,7 +56,7 @@ COMPANION_HTML_TEMPLATE = """<!DOCTYPE html>
       --border-focus: rgba(255, 255, 255, 0.28);
       --text: #F8FAFC;
       --muted: #94A3B8;
-      --success: #10B981;
+      --success: #F8FAFC;
       --error: #EF4444;
     }
     body {
@@ -98,7 +98,7 @@ COMPANION_HTML_TEMPLATE = """<!DOCTYPE html>
       height: 6px;
       border-radius: 50%;
       background: var(--success);
-      box-shadow: 0 0 8px rgba(16, 185, 129, 0.6);
+      box-shadow: 0 0 8px rgba(255, 255, 255, 0.4);
     }
     .status-counter {
       font-size: 12px;
@@ -188,15 +188,15 @@ COMPANION_HTML_TEMPLATE = """<!DOCTYPE html>
     }
     /* State: Success */
     .shutter-btn.state-success {
-      border-color: var(--success);
-      background: rgba(16, 185, 129, 0.08);
+      border-color: rgba(255, 255, 255, 0.28);
+      background: rgba(255, 255, 255, 0.08);
     }
     .shutter-btn.state-success .shutter-icon-wrap {
-      background: rgba(16, 185, 129, 0.2);
-      border-color: var(--success);
+      background: rgba(255, 255, 255, 0.16);
+      border-color: rgba(255, 255, 255, 0.28);
     }
     .shutter-btn.state-success .shutter-icon {
-      stroke: var(--success);
+      stroke: var(--text);
     }
     /* State: Error */
     .shutter-btn.state-error {

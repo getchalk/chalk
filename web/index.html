@@ -7,6 +7,17 @@
   <meta name="description" content="Chalk listens, sees the screen, and writes your notes. Private desktop app for lectures, meetings, and calls with direct BYOK privacy.">
   <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
   <link rel="icon" type="image/png" href="assets/logo.png">
+  <script>
+    // Enforce manual scroll restoration so reload (F5 / Cmd+R) always starts cleanly at the top
+    if ('scrollRestoration' in history) {
+      history.scrollRestoration = 'manual';
+    }
+    // Remove lingering anchor fragment so browser reload never locks or scrolls into an anchor
+    if (window.location.hash) {
+      history.replaceState(null, '', window.location.pathname + window.location.search);
+    }
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+  </script>
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- KaTeX Mathematical Typography Engine -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
@@ -3191,6 +3202,61 @@
           modal.classList.add('hidden');
           modal.classList.remove('flex');
         });
+      }
+    });
+
+    // Reload & Scroll Management: Guarantee page reload always starts at the very top
+    window.addEventListener('beforeunload', () => {
+      if (window.location.hash) {
+        history.replaceState(null, '', window.location.pathname + window.location.search);
+      }
+      window.scrollTo(0, 0);
+    });
+
+    window.addEventListener('pageshow', () => {
+      if ('scrollRestoration' in history) {
+        history.scrollRestoration = 'manual';
+      }
+      if (window.location.hash) {
+        history.replaceState(null, '', window.location.pathname + window.location.search);
+      }
+      window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+      document.documentElement.scrollTop = 0;
+      if (document.body) document.body.scrollTop = 0;
+    });
+
+    // In-page navigation handling: smooth scrolling without polluting window.location.hash
+    window.addEventListener('DOMContentLoaded', () => {
+      window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+      document.documentElement.scrollTop = 0;
+      if (document.body) document.body.scrollTop = 0;
+
+      document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        if (anchor.id === 'hero-explore-btn') return;
+        anchor.addEventListener('click', function (e) {
+          const href = this.getAttribute('href');
+          if (!href || href === '#') {
+            e.preventDefault();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            return;
+          }
+          const target = document.querySelector(href);
+          if (target) {
+            e.preventDefault();
+            target.scrollIntoView({ behavior: 'smooth' });
+          }
+        });
+      });
+    });
+
+    window.addEventListener('load', () => {
+      const navEntries = performance.getEntriesByType('navigation');
+      const isReload = (navEntries.length > 0 && navEntries[0].type === 'reload') ||
+                       (performance.navigation && performance.navigation.type === 1);
+      if (isReload || !window.location.hash) {
+        window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+        document.documentElement.scrollTop = 0;
+        if (document.body) document.body.scrollTop = 0;
       }
     });
 

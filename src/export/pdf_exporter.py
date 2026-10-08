@@ -200,7 +200,7 @@ blockquote {{
     border-left-color: #2563EB;
 }}
 .callout-definition {{
-    border-left-color: #059669;
+    border-left-color: #64748B;
 }}
 .callout-proof {{
     border-left-color: #7C3AED;
