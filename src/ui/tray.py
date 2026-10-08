@@ -109,7 +109,7 @@ class ChalkSystemTray:
         self._icon = pystray.Icon(
             name="Chalk",
             icon=initial_img,
-            title="Chalk — Autonomous Desktop Lecture Engine",
+            title="Chalk — Desktop Lecture Notes",
             menu=menu,
         )
 

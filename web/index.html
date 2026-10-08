@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Chalk — Never scramble to take notes again</title>
-  <meta name="description" content="Chalk listens, sees the screen, and writes your notes. Autonomous desktop app for lectures, meetings, and calls with 100% local privacy.">
+  <meta name="description" content="Chalk listens, sees the screen, and writes your notes. Private desktop app for lectures, meetings, and calls with direct BYOK privacy.">
   <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
   <link rel="icon" type="image/png" href="assets/logo.png">
   <script src="https://cdn.tailwindcss.com"></script>
@@ -385,23 +385,14 @@
           <div class="md:col-span-5 flex flex-col justify-between space-y-4 md:h-[520px]">
             <!-- Active Screen Capture Card -->
             <div class="rounded-xl border p-4 relative overflow-hidden shadow-sm flex flex-col justify-between flex-1" style="background-color: var(--hud-card-bg); border-color: var(--chalk-border);">
-              <div class="flex items-center justify-between text-xs font-medium mb-2.5" style="color: var(--chalk-slate);">
-                <div class="flex items-center gap-1.5">
-                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                  <span class="text-[11px] font-medium uppercase tracking-wide" data-i18n="preview_screen_label">ACTIVE SCREEN MIRROR</span>
-                </div>
-                <div class="flex items-center gap-1.5 font-mono text-[10px]" style="color: var(--chalk-muted);">
-                  <span data-i18n="preview_screen_badge">DISPLAY 1 &bull; 60 FPS</span>
-                </div>
+              <div class="flex items-center gap-1.5 text-xs font-medium mb-2.5" style="color: var(--chalk-slate);">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                <span class="text-[11px] font-medium uppercase tracking-wide" data-i18n="preview_screen_label">SCREEN CAPTURE</span>
               </div>
-              <div id="mockup-screen-container" onclick="manualTransitionMockupSlide(event)" title="Active presentation display mirror (click to cycle preview)" class="aspect-video rounded-lg border flex flex-col justify-between p-3.5 text-center relative overflow-hidden cursor-pointer hover:border-white/30" style="background-color: var(--surface-elevated); border-color: var(--chalk-border); transition: opacity 0.4s ease-in-out;">
+              <div id="mockup-screen-container" onclick="manualTransitionMockupSlide(event)" title="Presentation slide preview (click to cycle)" class="aspect-video rounded-lg border flex flex-col justify-between p-3.5 text-center relative overflow-hidden cursor-pointer hover:border-white/30" style="background-color: var(--surface-elevated); border-color: var(--chalk-border); transition: opacity 0.4s ease-in-out;">
                 <!-- Slide Header -->
                 <div class="flex items-center justify-between pb-1.5 border-b border-white/5 text-[10px] text-left opacity-70">
-                  <div class="flex items-center gap-1.5">
-                    <span class="w-1.5 h-1.5 rounded-full bg-slate-500"></span>
-                    <span id="mockup-slide-file" class="font-mono text-[9px] truncate" style="color: var(--chalk-muted);">Presentation_Display_1.pdf</span>
-                  </div>
-                  <span class="font-mono text-[8px] uppercase tracking-wider text-slate-500" data-i18n="preview_mirror_tag">Screen Mirror</span>
+                  <span id="mockup-slide-file" class="font-mono text-[9px] truncate" style="color: var(--chalk-muted);">Asset_Pricing_Lecture_04.pdf</span>
                 </div>
 
                 <!-- Window Content Area -->
@@ -726,7 +717,7 @@
            </div>
            <h3 class="text-lg font-semibold mb-2" style="color: var(--chalk-white);" data-i18n="step2_title">You listen actively</h3>
            <p class="text-sm leading-relaxed mb-4" style="color: var(--chalk-slate);" data-i18n="step2_desc">
-             You don't type a single word, staying completely immersed in the conversation. Chalk captures speech, slide transitions, and formulas autonomously.
+             You don't type a single word, staying completely immersed in the conversation. Chalk captures speech, slide transitions, and formulas in the background.
            </p>
          </div>
        </div>
@@ -1096,7 +1087,7 @@
     const translations = {
   "en": {
     "page_title": "Chalk — Never scramble to take notes again",
-    "page_desc": "Chalk listens, sees the screen, and writes your notes. Autonomous desktop app for lectures, meetings, and calls with 100% local privacy.",
+    "page_desc": "Chalk listens, sees the screen, and writes your notes. Private desktop app for lectures, meetings, and calls with direct BYOK privacy.",
     "nav_how_it_works": "How it works",
     "nav_use_cases": "Use cases",
     "nav_privacy": "Privacy",
@@ -1114,9 +1105,7 @@
     "preview_title": "Lecture: Financial Markets & Risk — Chalk",
     "preview_status": "Recording active (01:42)",
     "preview_status_label": "Recording active",
-    "preview_screen_label": "ACTIVE SCREEN MIRROR",
-    "preview_screen_badge": "DISPLAY 1 • 60 FPS",
-    "preview_mirror_tag": "Screen Mirror",
+    "preview_screen_label": "SCREEN CAPTURE",
     "preview_screen_topic": "Portfolio Theory & Risk Modeling",
     "preview_screen_heading": "Capital Asset Pricing Model (CAPM)",
     "preview_audio_label": "LIVE AUDIO & CAPTURE",
@@ -1164,7 +1153,7 @@
     "step1_title": "Chalk runs silently",
     "step1_desc": "Chalk runs quietly in the background of your laptop. One click or pressing Alt+Space is all it takes — no complex configuration or audio routing cables.",
     "step2_title": "You listen actively",
-    "step2_desc": "You don't type a single word, staying completely immersed in the conversation. Chalk captures speech, slide transitions, and formulas autonomously.",
+    "step2_desc": "You don't type a single word, staying completely immersed in the conversation. Chalk captures speech, slide transitions, and formulas in the background.",
     "step3_title": "Structured notes in Obsidian",
     "step3_desc": "When finished, you receive clean, structured Markdown notes with key points, LaTeX formulas, and slide snapshots. Ready for Obsidian or your editor of choice.",
     "cases_tag": "USE CASES",
@@ -1239,7 +1228,7 @@
   },
   "de": {
     "page_title": "Chalk — Nie wieder hektisch mitschreiben",
-    "page_desc": "Chalk hört zu, sieht den Bildschirm und schreibt deine Notizen. Autonome Desktop-App für Vorlesungen, Meetings und Gespräche mit 100% lokaler Privatsphäre.",
+    "page_desc": "Chalk hört zu, sieht den Bildschirm und schreibt deine Notizen. Private Desktop-App für Vorlesungen, Meetings und Gespräche mit direkter BYOK-Privatsphäre.",
     "nav_how_it_works": "Funktionsweise",
     "nav_use_cases": "Einsatzbereiche",
     "nav_privacy": "Privatsphäre",
@@ -1257,9 +1246,7 @@
     "preview_title": "Vorlesung: Finanzmärkte & Risiko — Chalk",
     "preview_status": "Aufnahme aktiv (01:42)",
     "preview_status_label": "Aufnahme aktiv",
-    "preview_screen_label": "BILDSCHIRMSPIEGELUNG (LIVE)",
-    "preview_screen_badge": "HAUPTBILDSCHIRM • 60 FPS",
-    "preview_mirror_tag": "Bildschirmspiegel",
+    "preview_screen_label": "BILDSCHIRMAUFNAHME",
     "preview_screen_topic": "Portfoliotheorie & Risikomodellierung",
     "preview_screen_heading": "Capital Asset Pricing Model (CAPM)",
     "preview_audio_label": "LIVE-AUDIO & ERFASSUNG",
@@ -1307,7 +1294,7 @@
     "step1_title": "Chalk läuft leise",
     "step1_desc": "Chalk läuft leise im Hintergrund deines Laptops. Ein Klick oder Druck auf Alt+Space genügt – ohne komplizierte Einrichtung oder Audiokabel.",
     "step2_title": "Du hörst aktiv zu",
-    "step2_desc": "Du tippst kein einziges Wort mit, sondern konzentrierst dich voll auf das Gespräch. Chalk erfasst die Stimme, Folienwechsel und Formeln autonom.",
+    "step2_desc": "Du tippst kein einziges Wort mit, sondern konzentrierst dich voll auf das Gespräch. Chalk erfasst die Stimme, Folienwechsel und Formeln im Hintergrund.",
     "step3_title": "Strukturierte Notizen in Obsidian",
     "step3_desc": "Am Ende erhältst du ein sauberes, strukturiertes Markdown-Dokument mit Kernaussagen, Formeln und Folienausschnitten. Bereit für Obsidian oder deinen Editor.",
     "cases_tag": "EINSATZBEREICHE",
@@ -1382,7 +1369,7 @@
   },
   "fr": {
     "page_title": "Chalk — Ne prenez plus jamais de notes dans l'urgence",
-    "page_desc": "Chalk écoute, regarde l'écran et rédige vos notes. Application de bureau autonome pour cours et réunions avec confidentialité 100 % locale.",
+    "page_desc": "Chalk écoute, regarde l'écran et rédige vos notes. Application de bureau privée pour cours et réunions avec confidentialité BYOK directe.",
     "nav_how_it_works": "Fonctionnement",
     "nav_use_cases": "Cas d'usage",
     "nav_privacy": "Confidentialité",
@@ -1400,9 +1387,7 @@
     "preview_title": "Cours : Marchés financiers et risque — Chalk",
     "preview_status": "Enregistrement en cours (01:42)",
     "preview_status_label": "Enregistrement en cours",
-    "preview_screen_label": "MIROIR D'ÉCRAN ACTIF",
-    "preview_screen_badge": "ÉCRAN PRINCIPAL • 60 FPS",
-    "preview_mirror_tag": "Miroir d'écran",
+    "preview_screen_label": "CAPTURE D'ÉCRAN",
     "preview_screen_topic": "Théorie du portefeuille & Risque",
     "preview_screen_heading": "Capital Asset Pricing Model (CAPM)",
     "preview_audio_label": "AUDIO & CAPTURE EN DIRECT",
@@ -1450,7 +1435,7 @@
     "step1_title": "Chalk s'exécute discrètement",
     "step1_desc": "Chalk fonctionne silencieusement en arrière-plan. Un simple clic ou le raccourci Alt+Espace suffit — sans réglages complexes ni câblage audio.",
     "step2_title": "Vous écoutez activement",
-    "step2_desc": "Vous ne tapez aucun mot et restez totalement engagé dans la discussion. Chalk enregistre la voix, détecte les diapositives et capture les formules de manière autonome.",
+    "step2_desc": "Vous ne tapez aucun mot et restez totalement engagé dans la discussion. Chalk enregistre la voix, détecte les diapositives et capture les formules en arrière-plan.",
     "step3_title": "Notes structurées dans Obsidian",
     "step3_desc": "À la fin, vous obtenez un document Markdown structuré avec idées maîtresses, formules LaTeX et captures. Prêt pour Obsidian ou votre éditeur favori.",
     "cases_tag": "CAS D'USAGE",
@@ -1468,7 +1453,7 @@
     "case5_desc": "Scannez un code QR depuis le HUD avec votre téléphone. Photographiez des notes manuscrites, schémas ou écrans de projection — transféré instantanément via Wi-Fi local ou point d'accès en moins d'une seconde. Les formules et démonstrations sont intégrées immédiatement en LaTeX mathématique.",
     "case_anki_title": "Révision d'examens : Répétition espacée & Anki",
     "case_anki_desc": "Génération automatique de fiches de mémorisation pour théorèmes, définitions et calculs clés. Export en 1 clic pour Anki (.tsv) et Obsidian Spaced Repetition.",
-    "case_pdf_title": "Impression PDF académique autonome & Recherche d'archives",
+    "case_pdf_title": "Impression PDF académique & Recherche d'archives",
     "case_pdf_desc": "Générez des polycopiés vectoriels de haute qualité avec formules LaTeX directement en PDF sans dépendances externes. Recherche instantanée Alt+F dans toutes vos archives.",
     "privacy_tag": "CONFIDENTIALITÉ 100 % LOCALE",
     "privacy_title": "Vos données vous appartiennent.<br>Aucun intermédiaire. Aucun serveur.",
@@ -1493,7 +1478,7 @@
     "mac_bundle": "PAQUET MACOS",
     "mac_arch": "Apple Silicon (M1/M2/M3/M4) & Intel",
     "mac_title": "Chalk pour Mac",
-    "mac_desc": "Application autonome sans configuration. S'exécute discrètement dans la barre des menus et s'ouvre avec Alt+Espace.",
+    "mac_desc": "Application indépendante sans configuration. S'exécute discrètement dans la barre des menus et s'ouvre avec Alt+Espace.",
     "mac_btn": "Télécharger pour macOS (Apple Silicon)",
     "mac_os_req": "macOS 13+ (Ventura, Sonoma, Sequoia)",
     "win_bundle": "INSTALLATION WINDOWS",
@@ -1525,7 +1510,7 @@
   },
   "es": {
     "page_title": "Chalk — Nunca más vuelvas a tomar notas a toda prisa",
-    "page_desc": "Chalk escucha, observa la pantalla y redacta tus notas. Aplicación de escritorio autónoma para clases y reuniones con privacidad 100 % local.",
+    "page_desc": "Chalk escucha, observa la pantalla y redacta tus notas. Aplicación de escritorio privada para clases y reuniones con privacidad BYOK directa.",
     "nav_how_it_works": "Cómo funciona",
     "nav_use_cases": "Casos de uso",
     "nav_privacy": "Privacidad",
@@ -1543,9 +1528,7 @@
     "preview_title": "Clase: Mercados financieros y riesgo — Chalk",
     "preview_status": "Grabación activa (01:42)",
     "preview_status_label": "Grabación activa",
-    "preview_screen_label": "ESPEJO DE PANTALLA ACTIVO",
-    "preview_screen_badge": "PANTALLA PRINCIPAL • 60 FPS",
-    "preview_mirror_tag": "Espejo pantalla",
+    "preview_screen_label": "CAPTURA DE PANTALLA",
     "preview_screen_topic": "Teoría de carteras y riesgo",
     "preview_screen_heading": "Capital Asset Pricing Model (CAPM)",
     "preview_audio_label": "AUDIO EN VIVO Y CAPTURA",
@@ -1593,7 +1576,7 @@
     "step1_title": "Chalk opera silenciosamente",
     "step1_desc": "Chalk funciona silenciosamente en segundo plano. Basta un clic o pulsar Alt+Espacio, sin configuraciones complejas ni cables de audio.",
     "step2_title": "Tú escuchas activamente",
-    "step2_desc": "No escribes ni una sola palabra y te concentras por completo. Chalk captura la voz, el cambio de diapositivas y las fórmulas de forma autónoma.",
+    "step2_desc": "No escribes ni una sola palabra y te concentras por completo. Chalk captura la voz, el cambio de diapositivas y las fórmulas en segundo plano.",
     "step3_title": "Notas estructuradas en Obsidian",
     "step3_desc": "Al finalizar, obtienes un documento Markdown impecable con puntos clave, fórmulas LaTeX y recortes de diapositivas. Listo para Obsidian o tu editor.",
     "cases_tag": "CASOS DE USO",
@@ -1668,7 +1651,7 @@
   },
   "zh": {
     "page_title": "Chalk — 告别手忙脚乱的听课记录",
-    "page_desc": "Chalk 实时倾听、捕捉屏幕画面并自动生成结构化笔记。专为讲座、会议和深度交谈打造的自主桌面客户端，100% 本地隐私保障。",
+    "page_desc": "Chalk 实时倾听、捕捉屏幕画面并记录笔记。专为讲座、会议和深度交谈打造的桌面客户端，直连 BYOK 隐私保障。",
     "nav_how_it_works": "工作原理",
     "nav_use_cases": "应用场景",
     "nav_privacy": "隐私保障",
@@ -1686,9 +1669,7 @@
     "preview_title": "讲座：金融市场与风险分析 — Chalk",
     "preview_status": "录音采集中 (01:42)",
     "preview_status_label": "正在录制",
-    "preview_screen_label": "实时屏幕镜像",
-    "preview_screen_badge": "主显示屏 • 60 FPS",
-    "preview_mirror_tag": "屏幕镜像",
+    "preview_screen_label": "屏幕捕获",
     "preview_screen_topic": "投资组合理论与风险建模",
     "preview_screen_heading": "资本资产定价模型 (CAPM)",
     "preview_audio_label": "实时音频与采集",
@@ -1736,7 +1717,7 @@
     "step1_title": "Chalk 静默在后台运行",
     "step1_desc": "Chalk 在笔记本后台静默待命。只需轻轻一点或按下快捷键 Alt+Space，免去繁杂配置或虚拟音频驱动跳线。",
     "step2_title": "你全神贯注沉浸思考",
-    "step2_desc": "无需敲击任何按键，全身心参与讨论。Chalk 自主捕获主讲人发言、幻灯片翻页轨迹与数学公式推导。",
+    "step2_desc": "无需敲击任何按键，全身心参与讨论。Chalk 在后台捕获主讲人发言、幻灯片翻页与数学公式推导。",
     "step3_title": "结构化笔记同步至 Obsidian",
     "step3_desc": "录制结束瞬间，获得条理完备的 Markdown 文档，涵盖核心论点、LaTeX 数学公式与幻灯片关键截图。一键无缝接入 Obsidian 或任意编辑器。",
     "cases_tag": "应用场景",

@@ -91,11 +91,11 @@ TRANSLATIONS: Dict[str, Dict[str, str]] = {
         "zh": "白板照片：已附加 {count} 张",
     },
     "hud_screen_mirror": {
-        "en": "ACTIVE SCREEN MIRROR",
-        "de": "BILDSCHIRMSPIEGELUNG (LIVE)",
-        "fr": "MIROIR D'ECRAN ACTIF",
-        "es": "ESPEJO DE PANTALLA ACTIVO",
-        "zh": "实时屏幕镜像",
+        "en": "SCREEN CAPTURE",
+        "de": "BILDSCHIRMAUFNAHME",
+        "fr": "CAPTURE D'ECRAN",
+        "es": "CAPTURA DE PANTALLA",
+        "zh": "屏幕捕获",
     },
     "hud_display_status": {
         "en": "PRIMARY DISPLAY",

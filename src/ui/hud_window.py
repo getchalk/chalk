@@ -978,7 +978,7 @@ class FloatingHUDWindow(QWidget):
         left_col = QVBoxLayout()
         left_col.setSpacing(10)
 
-        # Card 1: ACTIVE SCREEN MIRROR (Real Hardware Screen Grabber)
+        # Card 1: SCREEN CAPTURE
         self.screen_capture_card = QFrame()
         self.screen_capture_card.setObjectName("cardFrame")
         sc_layout = QVBoxLayout(self.screen_capture_card)
@@ -991,8 +991,8 @@ class FloatingHUDWindow(QWidget):
         sc_head.addWidget(self.screen_title_lbl)
         sc_head.addStretch()
 
-        self.screen_badge_lbl = QLabel(f"● {tr('hud_display_status')}")
-        self.screen_badge_lbl.setStyleSheet("font-size: 10px; font-weight: 600; font-family: monospace; color: #10B981;")
+        self.screen_badge_lbl = QLabel("")
+        self.screen_badge_lbl.hide()
         sc_head.addWidget(self.screen_badge_lbl)
 
         # Legacy backward-compat widgets (hidden)
@@ -1013,12 +1013,13 @@ class FloatingHUDWindow(QWidget):
 
         sc_layout.addLayout(sc_head)
 
-        self.screen_source_lbl = QLabel("Primary Display (Retina) • Real-time Mirror")
+        self.screen_source_lbl = QLabel("")
         self.screen_source_lbl.setStyleSheet("font-size: 10px; font-family: monospace; color: #64748B;")
+        self.screen_source_lbl.hide()
         sc_layout.addWidget(self.screen_source_lbl)
 
         # Real Live Screen Preview Label
-        self.screen_preview_lbl = QLabel("[Mirroring Active Display]")
+        self.screen_preview_lbl = QLabel("")
         self.screen_preview_lbl.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.screen_preview_lbl.setStyleSheet(
             "background-color: rgba(21, 22, 27, 0.85); "
@@ -1029,8 +1030,8 @@ class FloatingHUDWindow(QWidget):
         self.screen_preview_lbl.setScaledContents(False)
         sc_layout.addWidget(self.screen_preview_lbl)
 
-        self.screen_details_lbl = QLabel("Zero-lag hardware capture • Perceptual diff active")
-        self.screen_details_lbl.setStyleSheet("font-size: 9.5px; color: #475569;")
+        self.screen_details_lbl = QLabel("")
+        self.screen_details_lbl.hide()
         sc_layout.addWidget(self.screen_details_lbl)
 
         left_col.addWidget(self.screen_capture_card)
@@ -1557,7 +1558,6 @@ class FloatingHUDWindow(QWidget):
                         Qt.TransformationMode.SmoothTransformation,
                     )
                     self.screen_preview_lbl.setPixmap(scaled)
-                    self.screen_source_lbl.setText(f"Primary Display ({pix.width()}x{pix.height()}) • Real-time Mirror")
         except Exception as e:
             logger.debug("Live screen preview capture failed: %s", e)
 
@@ -1803,8 +1803,6 @@ class FloatingHUDWindow(QWidget):
 
         if hasattr(self, "screen_title_lbl"):
             self.screen_title_lbl.setText(tr("hud_screen_mirror"))
-        if hasattr(self, "screen_badge_lbl"):
-            self.screen_badge_lbl.setText(f"● {tr('hud_display_status')}")
 
         self._update_hud_status()
 

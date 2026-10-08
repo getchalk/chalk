@@ -169,13 +169,11 @@ class SessionNotesManager:
                     f'audio_session: "{safe_sid}"\n'
                     f"---\n\n"
                     f"# Chalk Lecture Notes — {self.session_date_str}\n\n"
-                    f"*Generated autonomously by Chalk Desktop Lecture Engine*\n\n"
                     f"---\n\n"
                 )
             else:
                 header = (
                     f"# Chalk Lecture Notes — {self.session_date_str}\n\n"
-                    f"*Generated autonomously by Chalk Desktop Lecture Engine*\n\n"
                     f"---\n\n"
                 )
             try:
