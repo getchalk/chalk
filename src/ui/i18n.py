@@ -691,6 +691,13 @@ TRANSLATIONS: Dict[str, Dict[str, str]] = {
         "es": "No configurado",
         "zh": "未配置",
     },
+    "preview_key_label": {
+        "en": "API Key (BYOK):",
+        "de": "API-Schlüssel (BYOK):",
+        "fr": "Clé API (BYOK) :",
+        "es": "Clave API (BYOK):",
+        "zh": "API 密钥 (BYOK)：",
+    },
 
     # ----------------------------------------------------
     # Search Modal

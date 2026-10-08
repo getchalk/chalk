@@ -236,6 +236,11 @@
       opacity: 0;
       transition: opacity 0.12s ease-in;
     }
+    .render-math.inline-math {
+      display: inline-block;
+      padding: 0 1px;
+      vertical-align: baseline;
+    }
     .render-math.math-rendered,
     .render-math.math-fallback,
     .render-math:has(.katex) {
@@ -375,10 +380,11 @@
         <!-- Window Title Bar -->
         <div class="px-4 sm:px-5 py-3 border-b flex items-center justify-between select-none relative z-20" style="border-color: var(--chalk-border); background-color: var(--hud-header-bg);">
           <div class="flex items-center gap-2">
-            <button onclick="resetMockupSession()" title="Reset Demo Session" class="w-3 h-3 rounded-full shadow-sm transition hover:opacity-80 cursor-pointer" style="background-color: #FF5F56; border: 1px solid #E0443E;"></button>
-            <button onclick="toggleMockupRecording()" title="Pause / Resume Recording" class="w-3 h-3 rounded-full shadow-sm transition hover:opacity-80 cursor-pointer" style="background-color: #FFBD2E; border: 1px solid #DEA123;"></button>
-            <button onclick="toggleMockupExpand()" title="Toggle Studio View" class="w-3 h-3 rounded-full shadow-sm transition hover:opacity-80 cursor-pointer" style="background-color: #27C93F; border: 1px solid #1AAB29;"></button>
-            <span id="mockup-lecture-title" onclick="cycleMockupTopic()" title="Click to switch topic" class="text-xs font-medium ml-2 sm:ml-3 cursor-pointer hover:underline transition" style="color: var(--chalk-slate);" data-i18n="preview_title">Lecture: Financial Markets & Risk — Chalk</span>
+            <button onclick="toggleMockupClose()" title="Close / Reset HUD (Cmd+Shift+Space)" class="w-3 h-3 rounded-full shadow-sm transition hover:opacity-80 cursor-pointer" style="background-color: #FF5F56; border: 1px solid #E0443E;"></button>
+            <button onclick="toggleMockupMinimize()" title="Minimize / Restore HUD" class="w-3 h-3 rounded-full shadow-sm transition hover:opacity-80 cursor-pointer" style="background-color: #FFBD2E; border: 1px solid #DEA123;"></button>
+            <button onclick="toggleMockupExpand()" title="Expand / Shrink Window" class="w-3 h-3 rounded-full shadow-sm transition hover:opacity-80 cursor-pointer" style="background-color: #27C93F; border: 1px solid #1AAB29;"></button>
+            <span id="mockup-lecture-title" onclick="restoreMockupWindow(); cycleMockupTopic();" title="Click to switch topic" class="text-xs font-medium ml-2 sm:ml-3 cursor-pointer hover:underline transition" style="color: var(--chalk-slate);" data-i18n="preview_title">Lecture: Financial Markets & Risk — Chalk</span>
+            <span id="mockup-window-state-badge" class="hidden text-[10.5px] font-mono px-2 py-0.5 rounded-full border transition cursor-pointer" onclick="restoreMockupWindow()"></span>
           </div>
 
           <!-- Apple Live Recording Indicator & Attachment Badge -->
@@ -392,7 +398,7 @@
         </div>
 
         <!-- Mockup Content Grid -->
-        <div class="p-6 grid grid-cols-1 md:grid-cols-12 gap-6" style="background-color: var(--hud-body-bg);">
+        <div id="mockup-window-body" class="p-6 grid grid-cols-1 md:grid-cols-12 gap-6 transition-all duration-200" style="background-color: var(--hud-body-bg);">
 
           <!-- Left Column: Presentation & Multimodal Capture Studio -->
           <div class="md:col-span-5 flex flex-col justify-between space-y-4 md:h-[520px]">
@@ -616,7 +622,7 @@
               <div id="mockup-view-settings" class="hidden flex-1 flex flex-col justify-between overflow-hidden min-h-0 space-y-2 py-0.5 text-xs" style="color: var(--chalk-slate);">
                 <div>
                   <div class="flex items-center justify-between mb-1">
-                    <label class="font-semibold text-xs" style="color: var(--chalk-white);" data-i18n="preview_key_label">Google Gemini API Key (BYOK):</label>
+                    <label class="font-semibold text-xs" style="color: var(--chalk-white);" data-i18n="preview_key_label">API Key (BYOK):</label>
                     <button type="button" onclick="openFreeKeyGuide()" class="text-[11px] font-medium px-2.5 py-1 rounded-md border transition cursor-pointer flex items-center gap-1.5 shadow-sm hover:border-slate-400" style="background-color: var(--surface-elevated); border-color: var(--chalk-border); color: var(--chalk-white);">
                       <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
                       <span data-i18n="preview_free_guide_link">Get Free Key ↗</span>
@@ -666,7 +672,7 @@
                 </div>
 
                 <!-- 2-Column Row: Theme & Language -->
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-2 border-t" style="border-color: var(--chalk-border);">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                   <div class="flex items-center justify-between">
                     <div>
                       <label class="font-semibold text-[11px] block" style="color: var(--chalk-white);" data-i18n="settings_theme_label">Theme:</label>
@@ -803,10 +809,12 @@
       <!-- Case 1: University Lectures -->
       <div class="rounded-2xl border p-6 transition flex flex-col justify-between shadow-sm" style="background-color: var(--surface-graphite); border-color: var(--chalk-border);">
         <div>
-          <div class="w-8 h-8 rounded-lg border flex items-center justify-center font-mono text-xs font-bold mb-3.5" style="background-color: var(--surface-elevated); border-color: var(--chalk-border); color: var(--chalk-white);">
-            01
+          <div class="flex items-center gap-3 mb-2">
+            <div class="w-8 h-8 rounded-lg border flex items-center justify-center font-mono text-xs font-bold flex-shrink-0" style="background-color: var(--surface-elevated); border-color: var(--chalk-border); color: var(--chalk-white);">
+              01
+            </div>
+            <h3 class="text-base font-bold" style="color: var(--chalk-white);" data-i18n="case1_title">University Lectures & Academic Seminars</h3>
           </div>
-          <h3 class="text-base font-bold mb-2" style="color: var(--chalk-white);" data-i18n="case1_title">University Lectures & Academic Seminars</h3>
           <p class="text-xs leading-relaxed" style="color: var(--chalk-slate);" data-i18n="case1_desc">
             Captures every derivation, side remark, and slide during multi-hour lectures without omission. Delivers pristine LaTeX equations.
           </p>
@@ -816,10 +824,12 @@
       <!-- Case 2: Technical Seminars & Architecture Reviews -->
       <div class="rounded-2xl border p-6 transition flex flex-col justify-between shadow-sm" style="background-color: var(--surface-graphite); border-color: var(--chalk-border);">
         <div>
-          <div class="w-8 h-8 rounded-lg border flex items-center justify-center font-mono text-xs font-bold mb-3.5" style="background-color: var(--surface-elevated); border-color: var(--chalk-border); color: var(--chalk-white);">
-            02
+          <div class="flex items-center gap-3 mb-2">
+            <div class="w-8 h-8 rounded-lg border flex items-center justify-center font-mono text-xs font-bold flex-shrink-0" style="background-color: var(--surface-elevated); border-color: var(--chalk-border); color: var(--chalk-white);">
+              02
+            </div>
+            <h3 class="text-base font-bold" style="color: var(--chalk-white);" data-i18n="case2_title">Technical Reviews & Architecture Walkthroughs</h3>
           </div>
-          <h3 class="text-base font-bold mb-2" style="color: var(--chalk-white);" data-i18n="case2_title">Technical Reviews & Architecture Walkthroughs</h3>
           <p class="text-xs leading-relaxed" style="color: var(--chalk-slate);" data-i18n="case2_desc">
             Engage actively in architecture decisions. Chalk captures code snippets, data schemas, and technical trade-offs directly from shared screens.
           </p>
@@ -829,10 +839,12 @@
       <!-- Case 3: Executive Strategy & Board Calls -->
       <div class="rounded-2xl border p-6 transition flex flex-col justify-between shadow-sm" style="background-color: var(--surface-graphite); border-color: var(--chalk-border);">
         <div>
-          <div class="w-8 h-8 rounded-lg border flex items-center justify-center font-mono text-xs font-bold mb-3.5" style="background-color: var(--surface-elevated); border-color: var(--chalk-border); color: var(--chalk-white);">
-            03
+          <div class="flex items-center gap-3 mb-2">
+            <div class="w-8 h-8 rounded-lg border flex items-center justify-center font-mono text-xs font-bold flex-shrink-0" style="background-color: var(--surface-elevated); border-color: var(--chalk-border); color: var(--chalk-white);">
+              03
+            </div>
+            <h3 class="text-base font-bold" style="color: var(--chalk-white);" data-i18n="case3_title">Executive Strategy & Board Meetings</h3>
           </div>
-          <h3 class="text-base font-bold mb-2" style="color: var(--chalk-white);" data-i18n="case3_title">Executive Strategy & Board Meetings</h3>
           <p class="text-xs leading-relaxed" style="color: var(--chalk-slate);" data-i18n="case3_desc">
             Maintain eye contact and presence in crucial negotiations. Chalk records commitments, metrics from slide decks, and produces prioritized action items.
           </p>
@@ -842,10 +854,12 @@
       <!-- Case 4: Webinars & Remote Conferences -->
       <div class="rounded-2xl border p-6 transition flex flex-col justify-between shadow-sm" style="background-color: var(--surface-graphite); border-color: var(--chalk-border);">
         <div>
-          <div class="w-8 h-8 rounded-lg border flex items-center justify-center font-mono text-xs font-bold mb-3.5" style="background-color: var(--surface-elevated); border-color: var(--chalk-border); color: var(--chalk-white);">
-            04
+          <div class="flex items-center gap-3 mb-2">
+            <div class="w-8 h-8 rounded-lg border flex items-center justify-center font-mono text-xs font-bold flex-shrink-0" style="background-color: var(--surface-elevated); border-color: var(--chalk-border); color: var(--chalk-white);">
+              04
+            </div>
+            <h3 class="text-base font-bold" style="color: var(--chalk-white);" data-i18n="case4_title">Webinars & Virtual Conferences</h3>
           </div>
-          <h3 class="text-base font-bold mb-2" style="color: var(--chalk-white);" data-i18n="case4_title">Webinars & Virtual Conferences</h3>
           <p class="text-xs leading-relaxed" style="color: var(--chalk-slate);" data-i18n="case4_desc">
             Captures Zoom, Teams, and keynote livestreams via direct system audio and slide change detection, building searchable knowledge archives automatically.
           </p>
@@ -1253,7 +1267,7 @@
     "preview_chat_chip_summary": "Summarize Takeaways",
     "preview_chat_chip_intuition": "Explain Intuition",
     "preview_chat_chip_proof": "Step-by-Step Proof",
-    "preview_key_label": "Google Gemini API Key (BYOK):",
+    "preview_key_label": "API Key (BYOK):",
     "preview_free_guide_link": "Get Free Key ↗",
     "preview_key_test_btn": "Test Key",
     "preview_key_save_btn": "Save Key",
@@ -1413,7 +1427,7 @@
     "preview_chat_chip_summary": "Kernpunkte",
     "preview_chat_chip_intuition": "Intuition",
     "preview_chat_chip_proof": "Herleitung",
-    "preview_key_label": "Google Gemini API-Schlüssel (BYOK):",
+    "preview_key_label": "API-Schlüssel (BYOK):",
     "preview_free_guide_link": "Gratis-Key holen ↗",
     "preview_key_test_btn": "Key testen",
     "preview_key_save_btn": "Key speichern",
@@ -1573,7 +1587,7 @@
     "preview_chat_chip_summary": "Points clés",
     "preview_chat_chip_intuition": "Intuition",
     "preview_chat_chip_proof": "Démonstration",
-    "preview_key_label": "Clé API Google Gemini (BYOK) :",
+    "preview_key_label": "Clé API (BYOK) :",
     "preview_free_guide_link": "Clé gratuite ↗",
     "preview_key_test_btn": "Tester la clé",
     "preview_key_save_btn": "Enregistrer la clé",
@@ -1733,7 +1747,7 @@
     "preview_chat_chip_summary": "Puntos clave",
     "preview_chat_chip_intuition": "Intuición",
     "preview_chat_chip_proof": "Demostración",
-    "preview_key_label": "Clave API de Google Gemini (BYOK):",
+    "preview_key_label": "Clave API (BYOK):",
     "preview_free_guide_link": "Clave gratis ↗",
     "preview_key_test_btn": "Probar clave",
     "preview_key_save_btn": "Guardar clave",
@@ -1893,7 +1907,7 @@
     "preview_chat_chip_summary": "核心要点",
     "preview_chat_chip_intuition": "直观原理",
     "preview_chat_chip_proof": "公式推导",
-    "preview_key_label": "Google Gemini API 密钥 (BYOK)：",
+    "preview_key_label": "API 密钥 (BYOK)：",
     "preview_free_guide_link": "获取免费密钥 ↗",
     "preview_key_test_btn": "测试密钥",
     "preview_key_save_btn": "保存密钥",
@@ -2594,9 +2608,9 @@
           aiContent = `
             <strong>Executive Takeaways (@ 01:14:20):</strong>
             <ul class="mt-1 space-y-1 text-xs">
-              <li>• <strong>Diversification:</strong> Unsystematic idiosyncratic risk is fully eliminated across large portfolios ($\lim_{N \to \infty} \text{Var} = 0$).</li>
-              <li>• <strong>Compensated Exposure:</strong> The market prices exclusively non-diversifiable covariance with the macro economy ($\beta_i$).</li>
-              <li>• <strong>Security Market Line:</strong> Required hurdle rate scales linearly: $E(R_i) = R_f + \beta_i[E(R_m) - R_f]$.</li>
+              <li>• <strong>Diversification:</strong> Unsystematic idiosyncratic risk is fully eliminated across large portfolios (<span class="render-math inline-math" data-tex="\\lim_{N \\to \\infty} \\text{Var} = 0"></span>).</li>
+              <li>• <strong>Compensated Exposure:</strong> The market prices exclusively non-diversifiable covariance with the macro economy (<span class="render-math inline-math" data-tex="\\beta_i"></span>).</li>
+              <li>• <strong>Security Market Line:</strong> Required hurdle rate scales linearly: <span class="render-math inline-math" data-tex="E(R_i) = R_f + \\beta_i[E(R_m) - R_f]"></span>.</li>
             </ul>
           `;
         } else if (lower.includes('intuition') || lower.includes('praktisch') || lower.includes('intuitive') || lower.includes('intuitif') || lower.includes('直观')) {
@@ -2609,7 +2623,7 @@
             <strong>Step-by-Step Derivation:</strong>
             In portfolio equilibrium, total portfolio variance decomposes into individual asset variance and pairwise covariance:
             <div class="render-math text-xs py-1 text-center font-serif" style="color: var(--chalk-white);" data-tex="\\sigma_p^2 = \\frac{1}{N}\\bar{\\sigma}_i^2 + \\frac{N-1}{N}\\bar{\\sigma}_{ij} \\implies \\lim_{N \\to \\infty} \\sigma_p^2 = \\bar{\\sigma}_{ij}"></div>
-            Individual noise drops to zero, establishing that beta $\\beta_i = \\frac{\\text{Cov}(R_i, R_m)}{\\sigma_m^2}$ uniquely determines the required return. ∎
+            Individual noise drops to zero, establishing that beta <span class="render-math inline-math" data-tex="\\beta_i = \\frac{\\text{Cov}(R_i, R_m)}{\\sigma_m^2}"></span> uniquely determines the required return. ∎
           `;
         } else if (lower.includes('alpha')) {
           aiContent = `
@@ -2647,7 +2661,60 @@
         messagesContainer.appendChild(aiBubble);
         messagesContainer.scrollTop = messagesContainer.scrollHeight;
         renderHeroMath();
+        autoRenderMath(aiBubble);
       }, 300);
+    }
+
+    function restoreMockupWindow() {
+      const body = document.getElementById('mockup-window-body');
+      const badge = document.getElementById('mockup-window-state-badge');
+      mockupState.isMinimized = false;
+      mockupState.isClosed = false;
+      if (body) body.classList.remove('hidden');
+      if (badge) badge.classList.add('hidden');
+    }
+
+    function toggleMockupMinimize() {
+      const body = document.getElementById('mockup-window-body');
+      const badge = document.getElementById('mockup-window-state-badge');
+      if (!body) return;
+      if (mockupState.isClosed) {
+        mockupState.isClosed = false;
+      }
+      mockupState.isMinimized = !mockupState.isMinimized;
+      if (mockupState.isMinimized) {
+        body.classList.add('hidden');
+        if (badge) {
+          badge.textContent = 'HUD Minimized • Click to Restore';
+          badge.className = 'text-[10px] font-mono px-2 py-0.5 rounded-full border border-yellow-500/40 text-yellow-300 bg-yellow-500/10 cursor-pointer hover:bg-yellow-500/20 transition';
+          badge.classList.remove('hidden');
+        }
+      } else {
+        body.classList.remove('hidden');
+        if (badge) badge.classList.add('hidden');
+      }
+    }
+
+    function toggleMockupClose() {
+      const body = document.getElementById('mockup-window-body');
+      const badge = document.getElementById('mockup-window-state-badge');
+      if (!body) return;
+      if (mockupState.isMinimized) {
+        mockupState.isMinimized = false;
+      }
+      mockupState.isClosed = !mockupState.isClosed;
+      if (mockupState.isClosed) {
+        body.classList.add('hidden');
+        if (badge) {
+          badge.textContent = 'HUD Closed • Click to Reopen [Cmd+Shift+Space]';
+          badge.className = 'text-[10px] font-mono px-2 py-0.5 rounded-full border border-red-500/40 text-red-300 bg-red-500/10 cursor-pointer hover:bg-red-500/20 transition';
+          badge.classList.remove('hidden');
+        }
+      } else {
+        body.classList.remove('hidden');
+        if (badge) badge.classList.add('hidden');
+        resetMockupSession();
+      }
     }
 
     function resetMockupSession() {
@@ -2660,7 +2727,7 @@
       setMockupSlide(0);
       setMockupTab('notes');
       selectMockupTerm('beta');
-      applyMockupTheme('dark');
+      // NOTE: Preserves active theme (dark/light) - never force dark mode!
       const chatInput = document.getElementById('mockup-chat-input');
       const chatMessages = document.getElementById('mockup-chat-messages');
       const snapsContainer = document.getElementById('mockup-merged-snaps');
@@ -2672,8 +2739,18 @@
       const recDot = document.getElementById('mockup-rec-dot');
       const recLabel = document.getElementById('mockup-rec-label');
       const completeText = document.getElementById('mockup-complete-text');
+      const body = document.getElementById('mockup-window-body');
+      const stateBadge = document.getElementById('mockup-window-state-badge');
+      if (body) body.classList.remove('hidden');
+      if (stateBadge) stateBadge.classList.add('hidden');
+      mockupState.isMinimized = false;
+      mockupState.isClosed = false;
       if (badge) badge.classList.add('hidden');
-      if (recDot) recDot.className = 'w-2 h-2 rounded-full bg-red-500 animate-pulse shadow-[0_0_8px_rgba(239,68,68,0.7)]';
+      if (recDot) {
+        recDot.className = 'w-2 h-2 rounded-full bg-red-500 animate-pulse shadow-[0_0_8px_rgba(239,68,68,0.7)]';
+        recDot.style.backgroundColor = '#EF4444';
+        recDot.style.boxShadow = '0 0 8px rgba(239,68,68,0.7)';
+      }
       if (recLabel) recLabel.textContent = (translations[currentLang] && translations[currentLang].preview_status_label) || 'Recording active';
       if (completeText) completeText.textContent = (translations[currentLang] && translations[currentLang].btn_finish) || 'Finish [F9]';
       if (chatInput) chatInput.value = '';
@@ -2937,16 +3014,24 @@
       }
     }
 
-    // Robust KaTeX Math Rendering with Direct Node Injection
-    function renderKatexElement(el, texString) {
+    // Robust KaTeX Math Rendering with Direct Node Injection & Inline Support
+    function renderKatexElement(el, texString, forceInline = false) {
       if (!el || !texString) return;
       let clean = texString.trim();
+      let isDisplay = !forceInline;
       if (clean.startsWith('$$') && clean.endsWith('$$')) {
         clean = clean.slice(2, -2).trim();
+        isDisplay = true;
+      } else if (clean.startsWith('$') && clean.endsWith('$')) {
+        clean = clean.slice(1, -1).trim();
+        isDisplay = false;
+      }
+      if (el.classList.contains('inline-math')) {
+        isDisplay = false;
       }
       if (typeof katex !== 'undefined' && typeof katex.render === 'function') {
         try {
-          katex.render(clean, el, { displayMode: true, throwOnError: false });
+          katex.render(clean, el, { displayMode: isDisplay, throwOnError: false });
           el.classList.add('math-rendered');
           return;
         } catch (e) {
@@ -2954,6 +3039,26 @@
         }
       }
       el.textContent = clean;
+      el.classList.add('math-fallback');
+    }
+
+    function autoRenderMath(container) {
+      if (!container) return;
+      if (typeof renderMathInElement === 'function') {
+        try {
+          renderMathInElement(container, {
+            delimiters: [
+              {left: '$$', right: '$$', display: true},
+              {left: '$', right: '$', display: false},
+              {left: '\\(', right: '\\)', display: false},
+              {left: '\\[', right: '\\]', display: true}
+            ],
+            throwOnError: false
+          });
+        } catch (e) {
+          console.warn('Auto-render math error:', e);
+        }
+      }
     }
 
     let katexRetries = 0;
@@ -2967,8 +3072,13 @@
       }
       document.querySelectorAll('#mockup-merged-snaps .render-math, #mockup-term-detail .render-math, #mockup-chat-messages .render-math').forEach(el => {
         const tex = el.getAttribute('data-tex') || el.textContent;
-        renderKatexElement(el, tex);
+        const isInline = el.classList.contains('inline-math');
+        renderKatexElement(el, tex, isInline);
       });
+      const chatMessages = document.getElementById('mockup-chat-messages');
+      if (chatMessages) {
+        autoRenderMath(chatMessages);
+      }
       if (typeof katex === 'undefined') {
         katexRetries++;
         if (katexRetries < 30) {

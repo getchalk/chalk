@@ -1267,7 +1267,7 @@ class FloatingHUDWindow(QWidget):
 
         # 1. API Key
         key_head = QHBoxLayout()
-        key_lbl = QLabel("Google Gemini API Key (BYOK):")
+        key_lbl = QLabel(tr("preview_key_label") or "API Key (BYOK):")
         key_lbl.setStyleSheet("font-size: 11px; font-weight: 600; color: #F8FAFC;")
         key_head.addWidget(key_lbl)
         key_head.addStretch()
