@@ -235,6 +235,28 @@ class SessionNotesManager:
             logger.error("Failed to read session notes: %s", e)
             return ""
 
+    def append_user_directive(self, note_text: str, timestamp_str: str = "") -> str:
+        """
+        Appends an explicit user note or AI directive to the session markdown file.
+        This note is linked with the audio timeline and ingested by master synthesis.
+        """
+        if not note_text.strip():
+            return ""
+        if not timestamp_str:
+            timestamp_str = datetime.now().strftime("%H:%M:%S")
+
+        callout = (
+            f"\n> [!note] User Note & AI Directive (@ {timestamp_str})\n"
+            f"> {note_text.strip()}\n\n"
+        )
+        try:
+            with open(self.session_file, "a", encoding="utf-8") as f:
+                f.write(callout)
+            logger.info("Appended user directive to %s", self.session_file)
+        except Exception as e:
+            logger.error("Failed to append user directive: %s", e)
+        return callout
+
 
 class OfflineStagingQueue:
     """

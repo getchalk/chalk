@@ -867,6 +867,20 @@ class FloatingHUDWindow(QWidget):
             "- Drag & drop slides (.pdf, .pptx) anywhere onto HUD"
         )
         left_layout.addWidget(self.scratchpad_text)
+
+        # Quick Directive Pin Bar
+        pin_row = QHBoxLayout()
+        self.pin_directive_btn = QPushButton("Notiz anheften (An KI & Zusammenfassung)")
+        self.pin_directive_btn.setStyleSheet(
+            "background-color: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.15);"
+            "color: #F8FAFC; font-size: 10.5px; font-weight: 500; padding: 4px 8px; border-radius: 6px;"
+        )
+        self.pin_directive_btn.setToolTip("Fügt Notiz mit Audio-Zeitstempel in Notizdatei ein und verknüpft sie mit der KI-Zusammenfassung")
+        self.pin_directive_btn.clicked.connect(self._on_pin_user_directive)
+        pin_row.addWidget(self.pin_directive_btn)
+        pin_row.addStretch()
+        left_layout.addLayout(pin_row)
+
         splitter.addWidget(left_widget)
 
         # Right Column: Interactive Copilot & Scrub Transcript
@@ -990,6 +1004,26 @@ class FloatingHUDWindow(QWidget):
     def get_scratchpad_content(self) -> str:
         """Returns the current student scratchpad text."""
         return self.scratchpad_text.toPlainText()
+
+    def _on_pin_user_directive(self):
+        """Pins the current scratchpad text to the notes file with audio timestamp."""
+        text = self.scratchpad_text.toPlainText().strip()
+        if not text:
+            return
+        now_sec = time.time() - self.session_start_time
+        m, s = int(now_sec // 60), int(now_sec % 60)
+        time_str = f"{m:02d}:{s:02d}"
+        if self.notes_manager and hasattr(self.notes_manager, "append_user_directive"):
+            self.notes_manager.append_user_directive(text, timestamp_str=time_str)
+        if hasattr(self, "notes_browser"):
+            self.notes_browser.append(f"\n> [!note] User Note & Directive (@ {time_str})\n> {text}\n")
+        if hasattr(self, "chat_history"):
+            self.chat_history.append(
+                f"<div style='color: #94A3B8; font-size: 11px; margin: 4px 0;'>"
+                f"<b>[Notiz erfasst @ {time_str}]</b>: {text}</div>"
+            )
+        self.scratchpad_text.clear()
+        self.scratchpad_text.setPlaceholderText("Notiz mit Audio-Zeitstempel verknüpft! Weitere Gedanken hier notieren...")
 
     def toggle_visibility(self):
         """Toggle HUD window visibility (Alt+Space)."""

@@ -13,6 +13,7 @@ Wires together:
 
 import sys
 import os
+import json
 import time
 import subprocess
 import threading
@@ -151,14 +152,15 @@ class MasterSynthesisWorker(QThread):
     success = pyqtSignal(str)
     failed = pyqtSignal(str)
 
-    def __init__(self, pipeline: GeminiLecturePipeline, full_notes: str):
+    def __init__(self, pipeline: GeminiLecturePipeline, full_notes: str, user_instructions: str = ""):
         super().__init__()
         self.pipeline = pipeline
         self.full_notes = full_notes
+        self.user_instructions = user_instructions
 
     def run(self):
         try:
-            res = self.pipeline.synthesize_master_lecture(self.full_notes)
+            res = self.pipeline.synthesize_master_lecture(self.full_notes, user_instructions=self.user_instructions)
             self.success.emit(res)
         except Exception as e:
             self.failed.emit(str(e))
@@ -580,9 +582,10 @@ class ChalkCoordinator(QObject):
                 logger.error("Failed to mark journal completed: %s", e)
 
         full_notes = self.notes_manager.read_full_notes()
+        user_instructions = self.hud.get_scratchpad_content() if hasattr(self, "hud") else ""
         send_desktop_notification(tr("notify_master_complete_title"), tr("status_processing"))
 
-        self._active_master_worker = MasterSynthesisWorker(self.pipeline, full_notes)
+        self._active_master_worker = MasterSynthesisWorker(self.pipeline, full_notes, user_instructions=user_instructions)
         self._active_master_worker.success.connect(self._on_master_success)
         self._active_master_worker.failed.connect(self._on_master_failed)
         self._active_master_worker.finished.connect(self._active_master_worker.deleteLater)
