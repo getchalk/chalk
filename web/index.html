@@ -660,6 +660,20 @@
                   </div>
                 </div>
 
+                <div class="pt-2 border-t flex items-center justify-between" style="border-color: var(--chalk-border);">
+                  <div>
+                    <label class="font-semibold text-xs block" style="color: var(--chalk-white);" data-i18n="settings_lang_label">Interface Language:</label>
+                    <span class="text-[10px]" style="color: var(--chalk-muted);" data-i18n="settings_lang_desc">Switch language strictly for this session window</span>
+                  </div>
+                  <div class="inline-flex rounded-lg border p-0.5" style="background-color: var(--surface-terminal); border-color: var(--chalk-border);">
+                    <button id="mockup-lang-en-btn" onclick="applyMockupLanguage('en')" class="px-2 py-1 rounded text-[11px] font-mono font-medium transition cursor-pointer" style="background-color: var(--surface-elevated); color: var(--chalk-white);">EN</button>
+                    <button id="mockup-lang-de-btn" onclick="applyMockupLanguage('de')" class="px-2 py-1 rounded text-[11px] font-mono font-medium transition cursor-pointer" style="background-color: transparent; color: var(--chalk-muted);">DE</button>
+                    <button id="mockup-lang-fr-btn" onclick="applyMockupLanguage('fr')" class="px-2 py-1 rounded text-[11px] font-mono font-medium transition cursor-pointer" style="background-color: transparent; color: var(--chalk-muted);">FR</button>
+                    <button id="mockup-lang-es-btn" onclick="applyMockupLanguage('es')" class="px-2 py-1 rounded text-[11px] font-mono font-medium transition cursor-pointer" style="background-color: transparent; color: var(--chalk-muted);">ES</button>
+                    <button id="mockup-lang-zh-btn" onclick="applyMockupLanguage('zh')" class="px-2 py-1 rounded text-[11px] font-mono font-medium transition cursor-pointer" style="background-color: transparent; color: var(--chalk-muted);">ZH</button>
+                  </div>
+                </div>
+
                 <!-- Privacy Disclaimer Note -->
                 <div class="mt-2 p-3 rounded-lg border text-xs leading-relaxed" style="background-color: var(--surface-terminal); border-color: var(--chalk-border); color: var(--chalk-muted);">
                   <div class="font-medium text-[11px] mb-0.5" style="color: var(--chalk-white);" data-i18n="settings_disclaimer_title">Direct Connection & Local Storage</div>
@@ -1136,6 +1150,8 @@
     "preview_obsidian_label": "Notes Vault Directory:",
     "settings_theme_label": "Appearance Mode:",
     "settings_theme_desc": "Toggle Dark and Light theme for this window",
+    "settings_lang_label": "Interface Language:",
+    "settings_lang_desc": "Switch language strictly for this session window",
     "settings_disclaimer_title": "Direct Connection & Local Storage",
     "settings_disclaimer_desc": "Your API key is saved locally on your device. Synthesis requests connect directly to your chosen provider with no project middleman servers.",
     "steps_tag": "HOW IT WORKS",
@@ -1275,6 +1291,8 @@
     "preview_obsidian_label": "Notizen Vault-Verzeichnis:",
     "settings_theme_label": "Design-Modus:",
     "settings_theme_desc": "Dunkles und helles Farbschema für dieses Fenster",
+    "settings_lang_label": "Fenster-Sprache:",
+    "settings_lang_desc": "Sprache nur für dieses Vorschaufenster anpassen",
     "settings_disclaimer_title": "Direkte Verbindung & Lokale Speicherung",
     "settings_disclaimer_desc": "Ihr API-Schlüssel wird lokal auf Ihrem Gerät gespeichert. Anfragen verbinden sich direkt mit dem gewählten Anbieter ohne Zwischenserver.",
     "steps_tag": "SO EINFACH FUNKTIONIERT ES",
@@ -1414,6 +1432,8 @@
     "preview_obsidian_label": "Répertoire du coffre de notes :",
     "settings_theme_label": "Mode d'affichage :",
     "settings_theme_desc": "Basculer le thème sombre et clair pour cette fenêtre",
+    "settings_lang_label": "Langue de la fenêtre :",
+    "settings_lang_desc": "Changer la langue uniquement pour cette fenêtre",
     "settings_disclaimer_title": "Connexion directe & stockage local",
     "settings_disclaimer_desc": "Votre clé API est enregistrée localement sur votre appareil. Les requêtes se connectent directement à votre fournisseur sans serveur intermédiaire.",
     "steps_tag": "COMMENT ÇA MARCHE",
@@ -1553,6 +1573,8 @@
     "preview_obsidian_label": "Directorio del baúl de notas:",
     "settings_theme_label": "Modo de apariencia:",
     "settings_theme_desc": "Cambiar tema oscuro y claro para esta ventana",
+    "settings_lang_label": "Idioma de la ventana:",
+    "settings_lang_desc": "Cambiar el idioma solo para esta ventana",
     "settings_disclaimer_title": "Conexión directa y almacenamiento local",
     "settings_disclaimer_desc": "Tu clave API se almacena localmente en tu dispositivo. Las solicitudes se conectan directamente con tu proveedor sin servidores intermedios.",
     "steps_tag": "CÓMO FUNCIONA",
@@ -1692,6 +1714,8 @@
     "preview_obsidian_label": "笔记仓库目录：",
     "settings_theme_label": "外观模式：",
     "settings_theme_desc": "为此窗口切换深色或浅色外观",
+    "settings_lang_label": "窗口语言：",
+    "settings_lang_desc": "仅在此会话窗口中切换界面语言",
     "settings_disclaimer_title": "直连通信与本地存储",
     "settings_disclaimer_desc": "您的 API 密钥仅保存在本机环境中。所有合成请求直连所选服务商，无任何项目中间服务器。",
     "steps_tag": "极简工作流",
@@ -1817,6 +1841,7 @@
       timerSeconds: 102,
       baseDurationSeconds: 6132,
       timerInterval: null,
+      lang: localStorage.getItem('chalk-mockup-lang') || 'en',
       activeSlide: 0,
       activeTab: 'notes',
       phoneSnaps: 0,
@@ -1875,16 +1900,16 @@
       ]
     };
 
-    function formatFooterDuration(totalSec) {
+    function formatFooterDuration(totalSec, lang = (mockupState.lang || currentLang)) {
       const h = Math.floor(totalSec / 3600);
       const m = Math.floor((totalSec % 3600) / 60);
       const s = totalSec % 60;
       const mStr = String(m).padStart(2, '0');
       const sStr = String(s).padStart(2, '0');
-      if (currentLang === 'de') return `Dauer: ${h}h ${mStr}m ${sStr}s`;
-      if (currentLang === 'fr') return `Durée : ${h}h ${mStr}m ${sStr}s`;
-      if (currentLang === 'es') return `Duración: ${h}h ${mStr}m ${sStr}s`;
-      if (currentLang === 'zh') return `时长：${h}小时${mStr}分${sStr}秒`;
+      if (lang === 'de') return `Dauer: ${h}h ${mStr}m ${sStr}s`;
+      if (lang === 'fr') return `Durée : ${h}h ${mStr}m ${sStr}s`;
+      if (lang === 'es') return `Duración: ${h}h ${mStr}m ${sStr}s`;
+      if (lang === 'zh') return `时长：${h}小时${mStr}分${sStr}秒`;
       return `Duration: ${h}h ${mStr}m ${sStr}s`;
     }
 
@@ -2222,32 +2247,61 @@
       mockupState.activeTerm = termKey;
     }
 
-    const initialMockupChatMessagesHtml = `
-      <!-- AI Message 1 -->
-      <div class="flex gap-2 items-start text-xs">
-        <div class="w-5 h-5 rounded flex items-center justify-center font-mono font-bold text-[9px] flex-shrink-0" style="background-color: var(--surface-elevated); border: 1px solid var(--chalk-border); color: var(--chalk-white);">AI</div>
-        <div class="p-2.5 rounded-lg border flex-1 leading-relaxed" style="background-color: var(--surface-terminal); border-color: var(--chalk-border); color: var(--chalk-slate);">
-          I'm listening to the lecture and indexing current slides (CAPM). What would you like to clarify or explore?
+    function getMockupChatMessagesHtml(lang = (mockupState.lang || currentLang)) {
+      const messages = {
+        en: {
+          ai1: "I'm listening to the lecture and indexing current slides (CAPM). What would you like to clarify or explore?",
+          u1: "Why does the market only compensate systematic risk?",
+          ai2: 'Because unsystematic (specific) risk is eliminated through diversification:<div class="render-math text-xs py-1 text-center font-serif" style="color: var(--chalk-white);" data-tex="\\lim_{N \\to \\infty} \\text{Var}\\left(\\frac{1}{N}\\sum_{i=1}^N \\epsilon_i\\right) = 0"></div>Only market-wide covariance cannot be diversified away. Hence, only &beta;<sub>i</sub> earns a risk premium.'
+        },
+        de: {
+          ai1: "Ich höre der Vorlesung zu und indexiere die aktuellen Folien (CAPM). Welche Herleitung oder Frage möchtest du vertiefen?",
+          u1: "Warum vergütet der Markt nur das systematische Risiko?",
+          ai2: 'Weil unsystematisches (spezifisches) Risiko durch Portfoliodiversifikation eliminiert wird:<div class="render-math text-xs py-1 text-center font-serif" style="color: var(--chalk-white);" data-tex="\\lim_{N \\to \\infty} \\text{Var}\\left(\\frac{1}{N}\\sum_{i=1}^N \\epsilon_i\\right) = 0"></div>Nur marktweite Kovarianz kann nicht wegdiversifiziert werden. Daher erhält nur &beta;<sub>i</sub> eine Risikoprämie.'
+        },
+        fr: {
+          ai1: "J'écoute le cours et j'indexe les diapositives actuelles (CAPM). Que souhaitez-vous clarifier ou approfondir ?",
+          u1: "Pourquoi le marché ne rémunère-t-il que le risque systématique ?",
+          ai2: 'Parce que le risque non systématique (spécifique) est éliminé par la diversification :<div class="render-math text-xs py-1 text-center font-serif" style="color: var(--chalk-white);" data-tex="\\lim_{N \\to \\infty} \\text{Var}\\left(\\frac{1}{N}\\sum_{i=1}^N \\epsilon_i\\right) = 0"></div>Seule la covariance de marché ne peut être éliminée. Dès lors, seul &beta;<sub>i</sub> génère une prime de risque.'
+        },
+        es: {
+          ai1: "Estoy escuchando la clase e indexando las diapositivas actuales (CAPM). ¿Qué te gustaría aclarar o profundizar?",
+          u1: "¿Por qué el mercado solo compensa el riesgo sistemático?",
+          ai2: 'Porque el riesgo no sistemático (específico) se elimina mediante la diversificación:<div class="render-math text-xs py-1 text-center font-serif" style="color: var(--chalk-white);" data-tex="\\lim_{N \\to \\infty} \\text{Var}\\left(\\frac{1}{N}\\sum_{i=1}^N \\epsilon_i\\right) = 0"></div>Solo la covarianza del mercado no se puede diversificar. Por lo tanto, solo &beta;<sub>i</sub> recibe una prima de riesgo.'
+        },
+        zh: {
+          ai1: "正在实时监听讲座并同步索引当前课件 (CAPM)。您想就哪个核心推导或概念进行提问？",
+          u1: "为什么金融市场仅对系统性风险给予风险溢价？",
+          ai2: '因为非系统性（特异性）风险可通过多元化投资组合消除：<div class="render-math text-xs py-1 text-center font-serif" style="color: var(--chalk-white);" data-tex="\\lim_{N \\to \\infty} \\text{Var}\\left(\\frac{1}{N}\\sum_{i=1}^N \\epsilon_i\\right) = 0"></div>唯有全市场系统性协方差无法被分散化对冲。因此仅有 &beta;<sub>i</sub> 享有风险溢价补偿。'
+        }
+      };
+      const m = messages[lang] || messages.en;
+      return `
+        <!-- AI Message 1 -->
+        <div class="flex gap-2 items-start text-xs">
+          <div class="w-5 h-5 rounded flex items-center justify-center font-mono font-bold text-[9px] flex-shrink-0" style="background-color: var(--surface-elevated); border: 1px solid var(--chalk-border); color: var(--chalk-white);">AI</div>
+          <div class="p-2.5 rounded-lg border flex-1 leading-relaxed" style="background-color: var(--surface-terminal); border-color: var(--chalk-border); color: var(--chalk-slate);">
+            ${m.ai1}
+          </div>
         </div>
-      </div>
 
-      <!-- User Message 1 -->
-      <div class="flex gap-2 items-start justify-end text-xs">
-        <div class="p-2.5 rounded-lg border max-w-[85%]" style="background-color: var(--surface-elevated); border-color: var(--chalk-border); color: var(--chalk-white);">
-          Why does the market only compensate systematic risk?
+        <!-- User Message 1 -->
+        <div class="flex gap-2 items-start justify-end text-xs">
+          <div class="p-2.5 rounded-lg border max-w-[85%]" style="background-color: var(--surface-elevated); border-color: var(--chalk-border); color: var(--chalk-white);">
+            ${m.u1}
+          </div>
         </div>
-      </div>
 
-      <!-- AI Message 2 -->
-      <div class="flex gap-2 items-start text-xs">
-        <div class="w-5 h-5 rounded flex items-center justify-center font-mono font-bold text-[9px] flex-shrink-0" style="background-color: var(--surface-elevated); border: 1px solid var(--chalk-border); color: var(--chalk-white);">AI</div>
-        <div class="p-2.5 rounded-lg border flex-1 leading-relaxed" style="background-color: var(--surface-terminal); border-color: var(--chalk-border); color: var(--chalk-slate);">
-          Because unsystematic (specific) risk is eliminated through diversification:
-          <div class="render-math text-xs py-1 text-center font-serif" style="color: var(--chalk-white);" data-tex="\\lim_{N \\to \\infty} \\text{Var}\\left(\\frac{1}{N}\\sum_{i=1}^N \\epsilon_i\\right) = 0"></div>
-          Only market-wide covariance cannot be diversified away. Hence, only &beta;<sub>i</sub> earns a risk premium.
+        <!-- AI Message 2 -->
+        <div class="flex gap-2 items-start text-xs">
+          <div class="w-5 h-5 rounded flex items-center justify-center font-mono font-bold text-[9px] flex-shrink-0" style="background-color: var(--surface-elevated); border: 1px solid var(--chalk-border); color: var(--chalk-white);">AI</div>
+          <div class="p-2.5 rounded-lg border flex-1 leading-relaxed" style="background-color: var(--surface-terminal); border-color: var(--chalk-border); color: var(--chalk-slate);">
+            ${m.ai2}
+          </div>
         </div>
-      </div>
-    `;
+      `;
+    }
+    const initialMockupChatMessagesHtml = getMockupChatMessagesHtml('en');
 
     function sendMockupPresetChat(promptText) {
       const input = document.getElementById('mockup-chat-input');
@@ -2372,7 +2426,7 @@
       const durEl = document.getElementById('mockup-footer-duration');
       if (chatInput) chatInput.value = '';
       if (chatMessages) {
-        chatMessages.innerHTML = initialMockupChatMessagesHtml;
+        chatMessages.innerHTML = getMockupChatMessagesHtml(mockupState.lang || currentLang);
       }
       if (snapsContainer) snapsContainer.innerHTML = '';
       if (directivesContainer) directivesContainer.innerHTML = '';
@@ -2493,6 +2547,14 @@
 
       // Render KaTeX formulas in mockup
       renderHeroMath();
+
+      // If user configured a dedicated mockup language, preserve it strictly in the mockup window
+      const savedMockupLang = localStorage.getItem('chalk-mockup-lang');
+      if (savedMockupLang && savedMockupLang !== lang) {
+        applyMockupLanguage(savedMockupLang);
+      } else {
+        syncMockupLangBtns(lang);
+      }
     }
 
     // Robust KaTeX Math Rendering with Direct Node Injection
@@ -2609,6 +2671,70 @@
       }
     }
 
+    function syncMockupLangBtns(lang) {
+      const langs = ['en', 'de', 'fr', 'es', 'zh'];
+      langs.forEach(l => {
+        const btn = document.getElementById(`mockup-lang-${l}-btn`);
+        if (btn) {
+          if (l === lang) {
+            btn.style.backgroundColor = 'var(--surface-elevated)';
+            btn.style.color = 'var(--chalk-white)';
+            btn.style.fontWeight = '600';
+            btn.style.opacity = '1';
+          } else {
+            btn.style.backgroundColor = 'transparent';
+            btn.style.color = 'var(--chalk-muted)';
+            btn.style.fontWeight = '400';
+            btn.style.opacity = '0.75';
+          }
+        }
+      });
+    }
+
+    // Independent Mockup Window Language Switcher (Only alters #hero-card, not the site)
+    function applyMockupLanguage(lang) {
+      if (!translations[lang]) return;
+      mockupState.lang = lang;
+      localStorage.setItem('chalk-mockup-lang', lang);
+
+      const card = document.getElementById('hero-card');
+      if (card) {
+        card.querySelectorAll('[data-i18n]').forEach(el => {
+          const key = el.getAttribute('data-i18n');
+          const text = translations[lang][key];
+          if (text !== undefined) {
+            if (text.includes('<') && text.includes('>')) {
+              el.innerHTML = text;
+            } else {
+              el.textContent = text;
+            }
+          }
+        });
+
+        card.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+          const key = el.getAttribute('data-i18n-placeholder');
+          const text = translations[lang][key];
+          if (text !== undefined) {
+            el.setAttribute('placeholder', text);
+          }
+        });
+      }
+
+      syncMockupLangBtns(lang);
+
+      const durEl = document.getElementById('mockup-footer-duration');
+      if (durEl) {
+        durEl.textContent = formatFooterDuration(mockupState.baseDurationSeconds, lang);
+      }
+
+      const chatMessages = document.getElementById('mockup-chat-messages');
+      if (chatMessages && (!mockupState.userDirectives || mockupState.userDirectives.length === 0)) {
+        chatMessages.innerHTML = getMockupChatMessagesHtml(lang);
+      }
+
+      renderHeroMath();
+    }
+
     // Independent Mockup Window Theme Toggle (Only alters #hero-card, not the site)
     function applyMockupTheme(theme) {
       const card = document.getElementById('hero-card');
@@ -2662,6 +2788,10 @@
     // Load saved or default language
     const savedLang = localStorage.getItem('chalk-lang') || 'en';
     setLanguage(savedLang);
+
+    // Initialize Mockup Window Language (Scoped solely to #hero-card)
+    const savedMockupLang = localStorage.getItem('chalk-mockup-lang') || savedLang;
+    applyMockupLanguage(savedMockupLang);
 
     // 4. Safe Clipboard Helpers with Guaranteed Fallback (Zero Unicode Emojis)
     const checkSvg = `<svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
