@@ -407,7 +407,7 @@
                 <div class="flex items-center gap-1">
                   <button id="tab-btn-notes" onclick="setMockupTab('notes')" class="text-xs font-semibold px-2.5 py-1 rounded transition cursor-pointer" style="background-color: var(--surface-elevated); color: var(--chalk-white);" data-i18n="preview_tab_notes">Live Notes</button>
                   <button id="tab-btn-settings" onclick="setMockupTab('settings')" class="text-xs font-medium px-2.5 py-1 rounded transition hover:opacity-80 cursor-pointer" style="background-color: transparent; color: var(--chalk-muted);" data-i18n="preview_tab_settings">Settings</button>
-                  <button id="tab-btn-socratic" onclick="setMockupTab('socratic')" class="text-xs font-medium px-2.5 py-1 rounded transition hover:opacity-80 cursor-pointer" style="background-color: transparent; color: var(--chalk-muted);" data-i18n="preview_tab_socratic">Recall</button>
+                  <button id="tab-btn-recall" onclick="setMockupTab('recall')" class="text-xs font-medium px-2.5 py-1 rounded transition hover:opacity-80 cursor-pointer" style="background-color: transparent; color: var(--chalk-muted);" data-i18n="preview_tab_recall">Recall</button>
                 </div>
                 <div class="flex items-center gap-2">
                   <span id="mockup-notes-filename" class="text-[11px] hidden sm:inline" style="color: var(--chalk-muted);">financial_markets_ch3.md</span>
@@ -478,27 +478,27 @@
               </div>
 
               <!-- VIEW 3: Recall Debrief Questions -->
-              <div id="mockup-view-socratic" class="hidden space-y-3 py-1 text-xs" style="color: var(--chalk-slate);">
+              <div id="mockup-view-recall" class="hidden space-y-3 py-1 text-xs" style="color: var(--chalk-slate);">
                 <div class="p-3 rounded-lg border" style="background-color: var(--surface-terminal); border-color: var(--chalk-border);">
-                  <div class="font-medium text-xs mb-1" style="color: var(--chalk-white);" data-i18n="preview_socratic_q1">Why does the market only compensate systematic risk?</div>
-                  <button onclick="toggleSocraticAnswer('socratic-a1')" class="text-[11px] underline hover:text-white cursor-pointer" style="color: var(--chalk-muted);">[Toggle Derivation]</button>
-                  <div id="socratic-a1" class="mt-2 text-[12px] leading-relaxed hidden" style="color: var(--chalk-slate);" data-i18n="preview_socratic_a1">
+                  <div class="font-medium text-xs mb-1" style="color: var(--chalk-white);" data-i18n="preview_recall_q1">Why does the market only compensate systematic risk?</div>
+                  <button onclick="toggleRecallAnswer('recall-a1')" class="text-[11px] underline hover:text-white cursor-pointer" style="color: var(--chalk-muted);">[Toggle Derivation]</button>
+                  <div id="recall-a1" class="mt-2 text-[12px] leading-relaxed hidden" style="color: var(--chalk-slate);" data-i18n="preview_recall_a1">
                     Unsystematic individual risk is eliminated through diversification. Only market-wide covariance cannot be diversified away.
                   </div>
                 </div>
 
                 <div class="p-3 rounded-lg border" style="background-color: var(--surface-terminal); border-color: var(--chalk-border);">
-                  <div class="font-medium text-xs mb-1" style="color: var(--chalk-white);" data-i18n="preview_socratic_q2">What is the economic interpretation of Jensen's Alpha &gt; 0?</div>
-                  <button onclick="toggleSocraticAnswer('socratic-a2')" class="text-[11px] underline hover:text-white cursor-pointer" style="color: var(--chalk-muted);">[Toggle Derivation]</button>
-                  <div id="socratic-a2" class="mt-2 text-[12px] leading-relaxed hidden" style="color: var(--chalk-slate);" data-i18n="preview_socratic_a2">
+                  <div class="font-medium text-xs mb-1" style="color: var(--chalk-white);" data-i18n="preview_recall_q2">What is the economic interpretation of Jensen's Alpha &gt; 0?</div>
+                  <button onclick="toggleRecallAnswer('recall-a2')" class="text-[11px] underline hover:text-white cursor-pointer" style="color: var(--chalk-muted);">[Toggle Derivation]</button>
+                  <div id="recall-a2" class="mt-2 text-[12px] leading-relaxed hidden" style="color: var(--chalk-slate);" data-i18n="preview_recall_a2">
                     Positive abnormal excess return above the CAPM risk-adjusted hurdle rate, indicating active edge or structural mispricing.
                   </div>
                 </div>
 
                 <div class="p-3 rounded-lg border" style="background-color: var(--surface-terminal); border-color: var(--chalk-border);">
-                  <div class="font-medium text-xs mb-1" style="color: var(--chalk-white);" data-i18n="preview_socratic_q3">How does Arbitrage Pricing Theory generalize CAPM?</div>
-                  <button onclick="toggleSocraticAnswer('socratic-a3')" class="text-[11px] underline hover:text-white cursor-pointer" style="color: var(--chalk-muted);">[Toggle Derivation]</button>
-                  <div id="socratic-a3" class="mt-2 text-[12px] leading-relaxed hidden" style="color: var(--chalk-slate);" data-i18n="preview_socratic_a3">
+                  <div class="font-medium text-xs mb-1" style="color: var(--chalk-white);" data-i18n="preview_recall_q3">How does Arbitrage Pricing Theory generalize CAPM?</div>
+                  <button onclick="toggleRecallAnswer('recall-a3')" class="text-[11px] underline hover:text-white cursor-pointer" style="color: var(--chalk-muted);">[Toggle Derivation]</button>
+                  <div id="recall-a3" class="mt-2 text-[12px] leading-relaxed hidden" style="color: var(--chalk-slate);" data-i18n="preview_recall_a3">
                     By replacing the unobservable single market index with multi-factor macroeconomic sensitivities (inflation, GDP, credit spreads).
                   </div>
                 </div>
@@ -1000,8 +1000,6 @@
     "preview_title": "Lecture: Financial Markets & Risk — Chalk",
     "preview_status": "Recording active (01:42)",
     "preview_status_label": "Recording active",
-    "preview_phone_status": "Phone Link: Ready",
-    "preview_phone_cam_badge": "Phone Cam: Ready",
     "preview_screen_label": "SCREEN CAPTURE",
     "preview_screen_badge": "Display 1",
     "preview_screen_topic": "Portfolio Theory & Risk Modeling",
@@ -1023,7 +1021,7 @@
     "preview_settings_tab": "Settings",
     "preview_tab_notes": "Live Notes",
     "preview_tab_settings": "Settings",
-    "preview_tab_socratic": "Recall",
+    "preview_tab_recall": "Recall",
     "preview_key_label": "Google Gemini API Key (BYOK):",
     "preview_key_test_btn": "Test Key",
     "preview_key_save_btn": "Save Key",
@@ -1031,12 +1029,12 @@
     "preview_obsidian_label": "Obsidian Vault Directory:",
     "preview_byok_guarantee": "100% Client-Side Direct BYOK • 0 Chalk Servers",
     "preview_return_notes": "Return to Live Notes",
-    "preview_socratic_q1": "Why does the market only compensate systematic risk?",
-    "preview_socratic_a1": "Unsystematic individual risk is eliminated through diversification. Only market-wide covariance cannot be diversified away.",
-    "preview_socratic_q2": "What is the economic interpretation of Jensen's Alpha > 0?",
-    "preview_socratic_a2": "Positive abnormal excess return above the CAPM risk-adjusted hurdle rate, indicating active edge or structural mispricing.",
-    "preview_socratic_q3": "How does Arbitrage Pricing Theory generalize CAPM?",
-    "preview_socratic_a3": "By replacing the unobservable single market index with multi-factor macroeconomic sensitivities (inflation, GDP, credit spreads).",
+    "preview_recall_q1": "Why does the market only compensate systematic risk?",
+    "preview_recall_a1": "Unsystematic individual risk is eliminated through diversification. Only market-wide covariance cannot be diversified away.",
+    "preview_recall_q2": "What is the economic interpretation of Jensen's Alpha > 0?",
+    "preview_recall_a2": "Positive abnormal excess return above the CAPM risk-adjusted hurdle rate, indicating active edge or structural mispricing.",
+    "preview_recall_q3": "How does Arbitrage Pricing Theory generalize CAPM?",
+    "preview_recall_a3": "By replacing the unobservable single market index with multi-factor macroeconomic sensitivities (inflation, GDP, credit spreads).",
     "steps_tag": "HOW IT WORKS",
     "steps_title": "The 3-Step Principle",
     "steps_subtitle": "No stress, no frantic typing. Complete focus on the presenter.",
@@ -1163,8 +1161,6 @@
     "preview_title": "Vorlesung: Finanzmärkte & Risiko — Chalk",
     "preview_status": "Aufnahme aktiv (01:42)",
     "preview_status_label": "Aufnahme aktiv",
-    "preview_phone_status": "Handy-Kopplung: Bereit",
-    "preview_phone_cam_badge": "Tafel-Kamera: Bereit",
     "preview_screen_label": "BILDSCHIRMAUFNAHME",
     "preview_screen_badge": "Display 1",
     "preview_screen_topic": "Portfoliotheorie & Risikomodellierung",
@@ -1186,7 +1182,7 @@
     "preview_settings_tab": "Einstellungen",
     "preview_tab_notes": "Live-Notizen",
     "preview_tab_settings": "Einstellungen",
-    "preview_tab_socratic": "Recall",
+    "preview_tab_recall": "Recall",
     "preview_key_label": "Google Gemini API-Schlüssel (BYOK):",
     "preview_key_test_btn": "Key testen",
     "preview_key_save_btn": "Key speichern",
@@ -1194,12 +1190,12 @@
     "preview_obsidian_label": "Obsidian Vault-Pfad:",
     "preview_byok_guarantee": "100% Client-Side Direct BYOK • 0 Chalk-Server",
     "preview_return_notes": "Zurück zu Live-Notizen",
-    "preview_socratic_q1": "Warum vergütet der Markt nur systematisches Risiko?",
-    "preview_socratic_a1": "Unsystematisches Einzelrisiko wird durch Portfolio-Diversifikation eliminiert. Nur die marktweite Kovarianz kann nicht wegdiversifiziert werden.",
-    "preview_socratic_q2": "Was bedeutet ein positiver Jensen's Alpha > 0?",
-    "preview_socratic_a2": "Eine abnormale Überrendite über der theoretischen CAPM-Benchmark, was auf aktive Informationsvorteile hinweist.",
-    "preview_socratic_q3": "Wie verallgemeinert die Arbitrage Pricing Theory das CAPM?",
-    "preview_socratic_a3": "Sie ersetzt das unvollständig beobachtbare Marktportfolio durch multifaktorielle makroökonomische Sensitivitäten (Inflation, Zinskurve, BIP).",
+    "preview_recall_q1": "Warum vergütet der Markt nur systematisches Risiko?",
+    "preview_recall_a1": "Unsystematisches Einzelrisiko wird durch Portfolio-Diversifikation eliminiert. Nur die marktweite Kovarianz kann nicht wegdiversifiziert werden.",
+    "preview_recall_q2": "Was bedeutet ein positiver Jensen's Alpha > 0?",
+    "preview_recall_a2": "Eine abnormale Überrendite über der theoretischen CAPM-Benchmark, was auf aktive Informationsvorteile hinweist.",
+    "preview_recall_q3": "Wie verallgemeinert die Arbitrage Pricing Theory das CAPM?",
+    "preview_recall_a3": "Sie ersetzt das unvollständig beobachtbare Marktportfolio durch multifaktorielle makroökonomische Sensitivitäten (Inflation, Zinskurve, BIP).",
     "steps_tag": "SO EINFACH FUNKTIONIERT ES",
     "steps_title": "Das 3-Schritte-Prinzip",
     "steps_subtitle": "Kein Stress, kein Tippen. Vollste Konzentration auf den Vortragenden.",
@@ -1326,8 +1322,6 @@
     "preview_title": "Cours : Marchés financiers et risque — Chalk",
     "preview_status": "Enregistrement en cours (01:42)",
     "preview_status_label": "Enregistrement en cours",
-    "preview_phone_status": "Liaison mobile: Prête",
-    "preview_phone_cam_badge": "Caméra tableau : Prête",
     "preview_screen_label": "CAPTURE D'ÉCRAN",
     "preview_screen_badge": "Display 1",
     "preview_screen_topic": "Théorie du portefeuille & Risque",
@@ -1349,7 +1343,7 @@
     "preview_settings_tab": "Paramètres",
     "preview_tab_notes": "Notes en direct",
     "preview_tab_settings": "Paramètres",
-    "preview_tab_socratic": "Rappel",
+    "preview_tab_recall": "Rappel",
     "preview_key_label": "Clé API Google Gemini (BYOK) :",
     "preview_key_test_btn": "Tester la clé",
     "preview_key_save_btn": "Enregistrer la clé",
@@ -1357,12 +1351,12 @@
     "preview_obsidian_label": "Répertoire du coffre Obsidian :",
     "preview_byok_guarantee": "100 % Client-Side Direct BYOK • Zéro serveur Chalk",
     "preview_return_notes": "Retour aux notes",
-    "preview_socratic_q1": "Pourquoi le marché ne rémunère-t-il que le risque systématique ?",
-    "preview_socratic_a1": "Le risque spécifique est éliminé par la diversification. Seule la covariance avec l'ensemble du marché persiste.",
-    "preview_socratic_q2": "Que signifie un Alpha de Jensen positif > 0 ?",
-    "preview_socratic_a2": "Un rendement excédentaire anormal supérieur à l'exigence du modèle CAPM, signe d'une performance active.",
-    "preview_socratic_q3": "Comment l'APT généralise-t-elle le CAPM ?",
-    "preview_socratic_a3": "En remplaçant le portefeuille de marché par des sensibilités multifactorielles macroéconomiques.",
+    "preview_recall_q1": "Pourquoi le marché ne rémunère-t-il que le risque systématique ?",
+    "preview_recall_a1": "Le risque spécifique est éliminé par la diversification. Seule la covariance avec l'ensemble du marché persiste.",
+    "preview_recall_q2": "Que signifie un Alpha de Jensen positif > 0 ?",
+    "preview_recall_a2": "Un rendement excédentaire anormal supérieur à l'exigence du modèle CAPM, signe d'une performance active.",
+    "preview_recall_q3": "Comment l'APT généralise-t-elle le CAPM ?",
+    "preview_recall_a3": "En remplaçant le portefeuille de marché par des sensibilités multifactorielles macroéconomiques.",
     "steps_tag": "COMMENT ÇA MARCHE",
     "steps_title": "Le principe en 3 étapes",
     "steps_subtitle": "Zéro stress, zéro frappe manuelle. Concentration totale sur l'orateur.",
@@ -1489,8 +1483,6 @@
     "preview_title": "Clase: Mercados financieros y riesgo — Chalk",
     "preview_status": "Grabación activa (01:42)",
     "preview_status_label": "Grabación activa",
-    "preview_phone_status": "Enlace móvil: Listo",
-    "preview_phone_cam_badge": "Cámara pizarra: Lista",
     "preview_screen_label": "CAPTURA DE PANTALLA",
     "preview_screen_badge": "Display 1",
     "preview_screen_topic": "Teoría de carteras y riesgo",
@@ -1512,7 +1504,7 @@
     "preview_settings_tab": "Ajustes",
     "preview_tab_notes": "Notas en vivo",
     "preview_tab_settings": "Ajustes",
-    "preview_tab_socratic": "Recuerdo",
+    "preview_tab_recall": "Recuerdo",
     "preview_key_label": "Clave API de Google Gemini (BYOK):",
     "preview_key_test_btn": "Probar clave",
     "preview_key_save_btn": "Guardar clave",
@@ -1520,12 +1512,12 @@
     "preview_obsidian_label": "Directorio del baúl Obsidian:",
     "preview_byok_guarantee": "100% Client-Side Direct BYOK • Cero servidores Chalk",
     "preview_return_notes": "Volver a notas",
-    "preview_socratic_q1": "¿Por qué el mercado solo compensa el riesgo sistemático?",
-    "preview_socratic_a1": "El riesgo no sistemático se elimina mediante diversificación. Solo la covarianza de mercado no puede diversificarse.",
-    "preview_socratic_q2": "¿Qué significa un Alfa de Jensen positivo > 0?",
-    "preview_socratic_a2": "Rendimiento anormal positivo por encima del umbral teórico del CAPM, señal de ventaja activa.",
-    "preview_socratic_q3": "¿Cómo generaliza la APT el modelo CAPM?",
-    "preview_socratic_a3": "Sustituye la cartera de mercado por sensibilidades macroeconómicas multifactoriales.",
+    "preview_recall_q1": "¿Por qué el mercado solo compensa el riesgo sistemático?",
+    "preview_recall_a1": "El riesgo no sistemático se elimina mediante diversificación. Solo la covarianza de mercado no puede diversificarse.",
+    "preview_recall_q2": "¿Qué significa un Alfa de Jensen positivo > 0?",
+    "preview_recall_a2": "Rendimiento anormal positivo por encima del umbral teórico del CAPM, señal de ventaja activa.",
+    "preview_recall_q3": "¿Cómo generaliza la APT el modelo CAPM?",
+    "preview_recall_a3": "Sustituye la cartera de mercado por sensibilidades macroeconómicas multifactoriales.",
     "steps_tag": "CÓMO FUNCIONA",
     "steps_title": "El principio de 3 pasos",
     "steps_subtitle": "Sin estrés ni tecleo apresurado. Concentración total en el ponente.",
@@ -1652,8 +1644,6 @@
     "preview_title": "讲座：金融市场与风险分析 — Chalk",
     "preview_status": "录音采集中 (01:42)",
     "preview_status_label": "正在录制",
-    "preview_phone_status": "手机链路: 就绪",
-    "preview_phone_cam_badge": "手机白板相机：就绪",
     "preview_screen_label": "屏幕画面捕获",
     "preview_screen_badge": "主显示屏",
     "preview_screen_topic": "投资组合理论与风险建模",
@@ -1675,7 +1665,7 @@
     "preview_settings_tab": "设置",
     "preview_tab_notes": "实时笔记",
     "preview_tab_settings": "设置",
-    "preview_tab_socratic": "回顾",
+    "preview_tab_recall": "回顾",
     "preview_key_label": "Google Gemini API 密钥 (BYOK)：",
     "preview_key_test_btn": "测试密钥",
     "preview_key_save_btn": "保存密钥",
@@ -1683,12 +1673,12 @@
     "preview_obsidian_label": "Obsidian 仓库目录：",
     "preview_byok_guarantee": "100% 本地端侧 BYOK 直连 • 零中转服务器",
     "preview_return_notes": "返回实时笔记",
-    "preview_socratic_q1": "为什么市场只对系统性风险给予风险溢价？",
-    "preview_socratic_a1": "非系统性风险可通过多元化投资组合彻底消除，市场上唯有不可分散的整体协方差风险才能获得收益补偿。",
-    "preview_socratic_q2": "詹森阿尔法 (Jensen's Alpha > 0) 的经济含义是什么？",
-    "preview_socratic_a2": "代表超出 CAPM 理论风险调整收益的超额回报，通常体现主动管理能力或定价偏差。",
-    "preview_socratic_q3": "套利定价理论 (APT) 如何推广单因子 CAPM？",
-    "preview_socratic_a3": "通过引入通胀、经济增长和信用利差等多重宏观因子敏感度，摆脱了对不可观测的单一市场组合的依赖。",
+    "preview_recall_q1": "为什么市场只对系统性风险给予风险溢价？",
+    "preview_recall_a1": "非系统性风险可通过多元化投资组合彻底消除，市场上唯有不可分散的整体协方差风险才能获得收益补偿。",
+    "preview_recall_q2": "詹森阿尔法 (Jensen's Alpha > 0) 的经济含义是什么？",
+    "preview_recall_a2": "代表超出 CAPM 理论风险调整收益的超额回报，通常体现主动管理能力或定价偏差。",
+    "preview_recall_q3": "套利定价理论 (APT) 如何推广单因子 CAPM？",
+    "preview_recall_a3": "通过引入通胀、经济增长和信用利差等多重宏观因子敏感度，摆脱了对不可观测的单一市场组合的依赖。",
     "steps_tag": "极简工作流",
     "steps_title": "三步极简体验",
     "steps_subtitle": "告别焦虑与键盘敲击。全身心倾听主讲人见解。",
@@ -1939,16 +1929,16 @@
       mockupState.activeTab = tab;
       const viewNotes = document.getElementById('mockup-view-notes');
       const viewSettings = document.getElementById('mockup-view-settings');
-      const viewSocratic = document.getElementById('mockup-view-socratic');
+      const viewRecall = document.getElementById('mockup-view-recall');
       const btnNotes = document.getElementById('tab-btn-notes');
       const btnSettings = document.getElementById('tab-btn-settings');
-      const btnSocratic = document.getElementById('tab-btn-socratic');
+      const btnRecall = document.getElementById('tab-btn-recall');
 
       if (viewNotes) viewNotes.classList.toggle('hidden', tab !== 'notes');
       if (viewSettings) viewSettings.classList.toggle('hidden', tab !== 'settings');
-      if (viewSocratic) viewSocratic.classList.toggle('hidden', tab !== 'socratic');
+      if (viewRecall) viewRecall.classList.toggle('hidden', tab !== 'recall');
 
-      [btnNotes, btnSettings, btnSocratic].forEach(b => {
+      [btnNotes, btnSettings, btnRecall].forEach(b => {
         if (b) {
           b.style.backgroundColor = 'transparent';
           b.style.color = 'var(--chalk-muted)';
@@ -1956,14 +1946,14 @@
         }
       });
 
-      const activeBtn = tab === 'notes' ? btnNotes : tab === 'settings' ? btnSettings : btnSocratic;
+      const activeBtn = tab === 'notes' ? btnNotes : tab === 'settings' ? btnSettings : btnRecall;
       if (activeBtn) {
         activeBtn.style.backgroundColor = 'var(--surface-elevated)';
         activeBtn.style.color = 'var(--chalk-white)';
         activeBtn.style.fontWeight = '600';
       }
 
-      if (tab === 'notes' || tab === 'socratic') {
+      if (tab === 'notes' || tab === 'recall') {
         renderHeroMath();
       }
     }
@@ -2123,7 +2113,7 @@
       submitMockupRecall();
     }
 
-    function toggleSocraticAnswer(id) {
+    function toggleRecallAnswer(id) {
       const el = document.getElementById(id);
       if (el) el.classList.toggle('hidden');
     }
@@ -2137,14 +2127,12 @@
       const recallInput = document.getElementById('recall-input');
       const recallBox = document.getElementById('recall-answer-box');
       const snapsContainer = document.getElementById('mockup-merged-snaps');
-      const phoneStatus = document.getElementById('mockup-phone-status');
       if (recallInput) recallInput.value = '';
       if (recallBox) {
         recallBox.classList.add('hidden');
         recallBox.innerHTML = '';
       }
       if (snapsContainer) snapsContainer.innerHTML = '';
-      if (phoneStatus) phoneStatus.textContent = translations[currentLang]?.preview_phone_status || 'Phone Link: Ready';
       renderHeroMath();
     }
 
