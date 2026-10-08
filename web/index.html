@@ -416,11 +416,6 @@
                   <div id="mockup-screen-math" class="render-math text-xs sm:text-sm text-center font-serif" style="color: var(--chalk-white);">$$E(R_i) = R_f + \beta_i [E(R_m) - R_f]$$</div>
                 </div>
 
-                <!-- Slide Footer Status -->
-                <div class="flex items-center justify-between pt-1 border-t border-white/5 text-[9px] font-mono opacity-70">
-                  <span style="color: var(--chalk-muted);">1080p Screen Sync</span>
-                  <span style="color: var(--chalk-muted);">OCR: Active</span>
-                </div>
               </div>
             </div>
 
@@ -432,7 +427,6 @@
                   <span class="w-1.5 h-1.5 rounded-full" style="background-color: var(--chalk-white);"></span>
                   <span class="text-[11px] font-medium uppercase tracking-wide" style="color: var(--chalk-slate);" data-i18n="preview_audio_label">LIVE AUDIO & CAPTURE</span>
                 </div>
-                <span class="text-[10px] font-mono px-1.5 py-0.5 rounded border" style="background-color: var(--surface-terminal); border-color: var(--chalk-border); color: var(--chalk-muted);" data-i18n="preview_audio_vad">16 kHz • Local VAD</span>
               </div>
 
               <!-- Live Spoken Audio Feed -->
@@ -464,13 +458,6 @@
                     <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
                     <span class="text-[10px] hidden sm:inline" data-i18n="preview_qr_toggle">Pair QR</span>
                   </button>
-                </div>
-                <div class="flex items-center justify-between text-[10px] font-mono" style="color: var(--chalk-muted);">
-                  <span class="flex items-center gap-1.5">
-                    <span class="w-1.5 h-1.5 rounded-full" style="background-color: var(--chalk-white);"></span>
-                    <span data-i18n="preview_snap_status">iPhone 16 Pro Linked • 1-tap insert</span>
-                  </span>
-                  <span id="mockup-snaps-count">0 snaps merged</span>
                 </div>
 
                 <!-- Smooth QR Drawer Popover -->
@@ -608,15 +595,13 @@
                     <button onclick="testMockupKey()" class="px-3 py-2 rounded-lg text-xs font-medium border hover:bg-white/10 cursor-pointer transition flex-shrink-0" style="background-color: var(--surface-elevated); border-color: var(--chalk-border); color: var(--chalk-white);" data-i18n="preview_key_test_btn">Test Key</button>
                     <button onclick="saveMockupKey()" class="px-3.5 py-2 rounded-lg text-xs font-semibold hover:opacity-90 cursor-pointer transition flex-shrink-0" style="background-color: var(--chalk-white); color: var(--bg-obsidian);" data-i18n="preview_key_save_btn">Save Key</button>
                   </div>
-                  <div id="mockup-key-feedback" class="text-[11px] font-mono mt-1.5" style="color: var(--chalk-muted);">
-                    Key stored locally in browser storage • Direct TLS 1.3
-                  </div>
+                  <div id="mockup-key-feedback" class="text-[11px] font-mono mt-1.5 min-h-[16px]"></div>
                 </div>
 
                 <div>
                   <label class="font-semibold text-xs block mb-1.5" style="color: var(--chalk-white);" data-i18n="preview_model_label">AI Synthesis Model:</label>
                   <select id="mockup-model-select" onchange="onModelChange()" class="w-full text-xs font-mono px-3 py-2 rounded-lg border focus:outline-none" style="background-color: var(--surface-terminal); border-color: var(--chalk-border); color: var(--chalk-white);">
-                    <option value="gemini-2.5-flash">Gemini 2.5 Flash (1M Tokens • Recommended)</option>
+                    <option value="gemini-2.5-flash">Gemini 2.5 Flash (Recommended)</option>
                     <option value="claude-3-7-sonnet">Claude 3.7 Sonnet (Anthropic BYOK)</option>
                     <option value="gpt-4o">GPT-4o (OpenAI BYOK)</option>
                   </select>
@@ -642,6 +627,12 @@
                       <span data-i18n="theme_light">Light</span>
                     </button>
                   </div>
+                </div>
+
+                <!-- Privacy Disclaimer Note -->
+                <div class="mt-2 p-3 rounded-lg border text-xs leading-relaxed" style="background-color: var(--surface-terminal); border-color: var(--chalk-border); color: var(--chalk-muted);">
+                  <div class="font-medium text-[11px] mb-0.5" style="color: var(--chalk-white);" data-i18n="settings_disclaimer_title">Direct Connection & Local Storage</div>
+                  <div class="text-[10px]" data-i18n="settings_disclaimer_desc">Your API key is saved locally on your device. Synthesis requests connect directly to the model provider without intermediary project servers.</div>
                 </div>
               </div>
             </div>
@@ -846,11 +837,11 @@
             <div class="text-[11px]" style="color: var(--chalk-slate);" data-i18n="privacy_card1_desc">API keys are securely encrypted in macOS Keychain or Windows DPAPI.</div>
           </div>
           <div class="p-4 rounded-xl border shadow-sm" style="background-color: var(--surface-terminal); border-color: var(--chalk-border);">
-            <div class="font-semibold text-xs mb-1" style="color: var(--chalk-white);" data-i18n="privacy_card2_title">Direct TLS 1.3 Connection</div>
-            <div class="text-[11px]" style="color: var(--chalk-slate);" data-i18n="privacy_card2_desc">Synthesis requests travel without detours from localhost directly to Google, Anthropic, or OpenAI.</div>
+            <div class="font-semibold text-xs mb-1" style="color: var(--chalk-white);" data-i18n="privacy_card2_title">Direct Provider Connection</div>
+            <div class="text-[11px]" style="color: var(--chalk-slate);" data-i18n="privacy_card2_desc">Synthesis requests travel without detours from your device directly to Google, Anthropic, or OpenAI.</div>
           </div>
           <div class="p-4 rounded-xl border shadow-sm" style="background-color: var(--surface-terminal); border-color: var(--chalk-border);">
-            <div class="font-semibold text-xs mb-1" style="color: var(--chalk-white);" data-i18n="privacy_card3_title">Direct API Connection</div>
+            <div class="font-semibold text-xs mb-1" style="color: var(--chalk-white);" data-i18n="privacy_card3_title">Zero Telemetry & Tracking</div>
             <div class="text-[11px]" style="color: var(--chalk-slate);" data-i18n="privacy_card3_desc">Zero telemetry, zero tracking cookies (§ 165 TKG), zero central relay servers.</div>
           </div>
         </div>
@@ -1079,10 +1070,8 @@
     "preview_screen_topic": "Portfolio Theory & Risk Modeling",
     "preview_screen_heading": "Capital Asset Pricing Model (CAPM)",
     "preview_audio_label": "LIVE AUDIO & CAPTURE",
-    "preview_audio_vad": "16 kHz • Local VAD",
     "preview_audio_speech": "\"...unsystematic risk is eliminated by diversification. The market only prices systematic covariance...\"",
     "preview_snap_btn": "Snap Whiteboard Photo",
-    "preview_snap_status": "iPhone 16 Pro Linked • 1-tap insert",
     "preview_qr_toggle": "Pair QR",
     "preview_notes_label": "LECTURE NOTES",
     "preview_copy_btn": "Copy notes",
@@ -1108,6 +1097,8 @@
     "preview_obsidian_label": "Notes Vault Directory:",
     "settings_theme_label": "Appearance Mode:",
     "settings_theme_desc": "Toggle Dark and Light theme for this window",
+    "settings_disclaimer_title": "Direct Connection & Local Storage",
+    "settings_disclaimer_desc": "Your API key is saved locally on your device. Synthesis requests connect directly to your chosen provider with no project middleman servers.",
     "steps_tag": "HOW IT WORKS",
     "steps_title": "The 3-Step Principle",
     "steps_subtitle": "No stress, no frantic typing. Complete focus on the presenter.",
@@ -1147,9 +1138,9 @@
     "privacy_stat3_val": "0 KB Collected",
     "privacy_card1_title": "Native Hardware Vault",
     "privacy_card1_desc": "API keys are securely encrypted in macOS Keychain or Windows DPAPI.",
-    "privacy_card2_title": "Direct TLS 1.3 Connection",
-    "privacy_card2_desc": "Synthesis requests travel without detours from localhost directly to Google, Anthropic, or OpenAI.",
-    "privacy_card3_title": "Direct API Connection",
+    "privacy_card2_title": "Direct Provider Connection",
+    "privacy_card2_desc": "Synthesis requests travel without detours from your device directly to Google, Anthropic, or OpenAI.",
+    "privacy_card3_title": "Zero Telemetry & Tracking",
     "privacy_card3_desc": "Zero telemetry, zero tracking cookies (§ 165 TKG), zero central relay servers.",
     "download_tag": "DOWNLOAD",
     "download_title": "Chalk for your Desktop",
@@ -1210,10 +1201,8 @@
     "preview_screen_topic": "Portfoliotheorie & Risikomodellierung",
     "preview_screen_heading": "Capital Asset Pricing Model (CAPM)",
     "preview_audio_label": "LIVE-AUDIO & ERFASSUNG",
-    "preview_audio_vad": "16 kHz • Lokales VAD",
     "preview_audio_speech": "„...unsystematisches Risiko wird durch Diversifikation eliminiert. Der Markt vergütet nur systematische Kovarianz...“",
     "preview_snap_btn": "Tafel-Foto aufnehmen",
-    "preview_snap_status": "iPhone 16 Pro verbunden • 1 Klick",
     "preview_qr_toggle": "QR koppeln",
     "preview_notes_label": "VORLESUNGSNOTIZEN",
     "preview_copy_btn": "Notizen kopieren",
@@ -1239,6 +1228,8 @@
     "preview_obsidian_label": "Notizen Vault-Verzeichnis:",
     "settings_theme_label": "Design-Modus:",
     "settings_theme_desc": "Dunkles und helles Farbschema für dieses Fenster",
+    "settings_disclaimer_title": "Direkte Verbindung & Lokale Speicherung",
+    "settings_disclaimer_desc": "Ihr API-Schlüssel wird lokal auf Ihrem Gerät gespeichert. Anfragen verbinden sich direkt mit dem gewählten Anbieter ohne Zwischenserver.",
     "steps_tag": "SO EINFACH FUNKTIONIERT ES",
     "steps_title": "Das 3-Schritte-Prinzip",
     "steps_subtitle": "Kein Stress, kein Tippen. Vollste Konzentration auf den Vortragenden.",
@@ -1278,9 +1269,9 @@
     "privacy_stat3_val": "0 KB Erfasst",
     "privacy_card1_title": "Nativer Hardware-Tresor",
     "privacy_card1_desc": "API-Schlüssel liegen sicher verschlüsselt im macOS Schlüsselbund oder Windows DPAPI.",
-    "privacy_card2_title": "Direkte TLS 1.3 Verbindung",
-    "privacy_card2_desc": "Synthese-Requests fließen ohne Umwege von localhost direkt zu Google, Anthropic oder OpenAI.",
-    "privacy_card3_title": "Local-First BYOK Direkt-API",
+    "privacy_card2_title": "Direkte Anbieteranbindung",
+    "privacy_card2_desc": "Syntheseanfragen laufen direkt von Ihrem Gerät zu Google, Anthropic oder OpenAI ohne zwischengeschaltete Server.",
+    "privacy_card3_title": "Keine Telemetrie & kein Tracking",
     "privacy_card3_desc": "Keine Telemetrie, keine Tracking-Cookies (§ 165 TKG), keine zentralen Relay-Server.",
     "download_tag": "DOWNLOAD",
     "download_title": "Chalk für deinen Desktop",
@@ -1341,10 +1332,8 @@
     "preview_screen_topic": "Théorie du portefeuille & Risque",
     "preview_screen_heading": "Capital Asset Pricing Model (CAPM)",
     "preview_audio_label": "AUDIO & CAPTURE EN DIRECT",
-    "preview_audio_vad": "16 kHz • VAD local",
     "preview_audio_speech": "«...le risque non systématique est éliminé par diversification. Le marché ne rémunère que la covariance systématique...»",
     "preview_snap_btn": "Capturer le tableau",
-    "preview_snap_status": "iPhone 16 Pro lié • 1 clic",
     "preview_qr_toggle": "Lier QR",
     "preview_notes_label": "NOTES DE COURS",
     "preview_copy_btn": "Copier les notes",
@@ -1370,6 +1359,8 @@
     "preview_obsidian_label": "Répertoire du coffre de notes :",
     "settings_theme_label": "Mode d'affichage :",
     "settings_theme_desc": "Basculer le thème sombre et clair pour cette fenêtre",
+    "settings_disclaimer_title": "Connexion directe & stockage local",
+    "settings_disclaimer_desc": "Votre clé API est enregistrée localement sur votre appareil. Les requêtes se connectent directement à votre fournisseur sans serveur intermédiaire.",
     "steps_tag": "COMMENT ÇA MARCHE",
     "steps_title": "Le principe en 3 étapes",
     "steps_subtitle": "Zéro stress, zéro frappe manuelle. Concentration totale sur l'orateur.",
@@ -1409,9 +1400,9 @@
     "privacy_stat3_val": "0 Ko Collecté",
     "privacy_card1_title": "Coffre-fort matériel natif",
     "privacy_card1_desc": "Les clés d'API sont chiffrées dans le trousseau macOS ou Windows DPAPI.",
-    "privacy_card2_title": "Connexion directe TLS 1.3",
-    "privacy_card2_desc": "Les requêtes de synthèse transitent directement de localhost vers Google, Anthropic ou OpenAI.",
-    "privacy_card3_title": "API Directe BYOK Local-First",
+    "privacy_card2_title": "Connexion directe aux fournisseurs",
+    "privacy_card2_desc": "Les requêtes de synthèse transitent directement de votre appareil vers Google, Anthropic ou OpenAI sans serveur relais.",
+    "privacy_card3_title": "Zéro télémétrie & zéro traceur",
     "privacy_card3_desc": "Zéro télémétrie, zéro cookie traceur (§ 165 TKG), aucun serveur relais central.",
     "download_tag": "TÉLÉCHARGEMENT",
     "download_title": "Chalk pour votre bureau",
@@ -1472,10 +1463,8 @@
     "preview_screen_topic": "Teoría de carteras y riesgo",
     "preview_screen_heading": "Capital Asset Pricing Model (CAPM)",
     "preview_audio_label": "AUDIO EN VIVO Y CAPTURA",
-    "preview_audio_vad": "16 kHz • VAD local",
     "preview_audio_speech": "«...el riesgo no sistemático se elimina mediante diversificación. El mercado solo remunera la covarianza sistemática...»",
     "preview_snap_btn": "Capturar pizarra",
-    "preview_snap_status": "iPhone 16 Pro vinculado • 1 clic",
     "preview_qr_toggle": "Vincular QR",
     "preview_notes_label": "NOTAS DE CLASE",
     "preview_copy_btn": "Copiar notas",
@@ -1501,6 +1490,8 @@
     "preview_obsidian_label": "Directorio del baúl de notas:",
     "settings_theme_label": "Modo de apariencia:",
     "settings_theme_desc": "Cambiar tema oscuro y claro para esta ventana",
+    "settings_disclaimer_title": "Conexión directa y almacenamiento local",
+    "settings_disclaimer_desc": "Tu clave API se almacena localmente en tu dispositivo. Las solicitudes se conectan directamente con tu proveedor sin servidores intermedios.",
     "steps_tag": "CÓMO FUNCIONA",
     "steps_title": "El principio de 3 pasos",
     "steps_subtitle": "Sin estrés ni tecleo apresurado. Concentración total en el ponente.",
@@ -1540,9 +1531,9 @@
     "privacy_stat3_val": "0 KB Recopilados",
     "privacy_card1_title": "Bóveda de hardware nativa",
     "privacy_card1_desc": "Las claves de API se cifran de forma segura en el llavero de macOS o Windows DPAPI.",
-    "privacy_card2_title": "Conexión directa TLS 1.3",
-    "privacy_card2_desc": "Las solicitudes de síntesis viajan sin desvíos desde localhost directamente a Google, Anthropic u OpenAI.",
-    "privacy_card3_title": "API Directa BYOK Local-First",
+    "privacy_card2_title": "Conexión directa con proveedores",
+    "privacy_card2_desc": "Las solicitudes de síntesis viajan directamente desde tu dispositivo a Google, Anthropic u OpenAI sin servidores intermediarios.",
+    "privacy_card3_title": "Cero telemetría y rastreo",
     "privacy_card3_desc": "Cero telemetría, cero cookies de seguimiento (§ 165 TKG), cero servidores de retransmisión.",
     "download_tag": "DESCARGA",
     "download_title": "Chalk para tu escritorio",
@@ -1603,10 +1594,8 @@
     "preview_screen_topic": "投资组合理论与风险建模",
     "preview_screen_heading": "资本资产定价模型 (CAPM)",
     "preview_audio_label": "实时音频与采集",
-    "preview_audio_vad": "16 kHz • 本地 VAD",
     "preview_audio_speech": "“……非系统性风险通过分散投资被完全消除。市场仅对不可分散的系统性协方差给予风险溢价……”",
     "preview_snap_btn": "拍摄黑板板书",
-    "preview_snap_status": "iPhone 16 Pro 已连接 • 一键插入",
     "preview_qr_toggle": "扫码配对",
     "preview_notes_label": "课堂精要笔记",
     "preview_copy_btn": "复制笔记",
@@ -1632,6 +1621,8 @@
     "preview_obsidian_label": "笔记仓库目录：",
     "settings_theme_label": "外观模式：",
     "settings_theme_desc": "为此窗口切换深色或浅色外观",
+    "settings_disclaimer_title": "直连通信与本地存储",
+    "settings_disclaimer_desc": "您的 API 密钥仅保存在本机环境中。所有合成请求直连所选服务商，无任何项目中间服务器。",
     "steps_tag": "极简工作流",
     "steps_title": "三步极简体验",
     "steps_subtitle": "告别焦虑与键盘敲击。全身心倾听主讲人见解。",
@@ -1671,9 +1662,9 @@
     "privacy_stat3_val": "0 KB 数据收集",
     "privacy_card1_title": "原生系统安全硬件库",
     "privacy_card1_desc": "API 密钥在 macOS 钥匙串或 Windows DPAPI 中安全加密存储。",
-    "privacy_card2_title": "端到端 TLS 1.3 直连",
-    "privacy_card2_desc": "模型合成请求直接从 localhost 发送至 Google、Anthropic 或 OpenAI，绝无旁路中转。",
-    "privacy_card3_title": "本地优先 BYOK 直连架构",
+    "privacy_card2_title": "模型服务商端到端直连",
+    "privacy_card2_desc": "AI 合成请求直接从您的本机发送至 Google、Anthropic 或 OpenAI，无需任何中继服务器。",
+    "privacy_card3_title": "零遥测与零追踪",
     "privacy_card3_desc": "零遥测收集、零追踪 Cookie (§ 165 TKG)，无任何集中式中转服务器。",
     "download_tag": "立即下载",
     "download_title": "获取 Chalk 桌面客户端",
@@ -1893,10 +1884,10 @@
       if (!feedback) return;
       const val = input ? input.value.trim() : '';
       if (val.length >= 8) {
-        feedback.innerHTML = '<span style="color: var(--chalk-white); font-weight: 500;">[OK] Key valid • Direct Local TLS 1.3 to Google AI Studio • Ready</span>';
+        feedback.innerHTML = '<span style="color: var(--chalk-white); font-weight: 500;">[OK] Key valid and ready</span>';
         mockupState.keyValid = true;
       } else {
-        feedback.innerHTML = '<span style="color: var(--chalk-muted);">[Demo Mode] Simulated Gemini 2.5 Flash pipeline active • Stored locally in browser</span>';
+        feedback.innerHTML = '<span style="color: var(--chalk-muted);">[Demo Mode] Simulated preview active</span>';
         mockupState.keyValid = false;
       }
     }
@@ -1909,7 +1900,7 @@
         localStorage.setItem('chalk_user_gemini_key', val);
       }
       if (feedback) {
-        feedback.innerHTML = '<span style="color: var(--chalk-white); font-weight: 500;">[OK] Key saved to browser local storage • 0 Cloud Retention</span>';
+        feedback.innerHTML = '<span style="color: var(--chalk-white); font-weight: 500;">[OK] Key saved locally</span>';
       }
     }
 
@@ -1982,11 +1973,6 @@
         }, 200);
       }
 
-      const countEl = document.getElementById('mockup-snaps-count');
-      if (countEl) {
-        countEl.textContent = `${mockupState.phoneSnaps} snap${mockupState.phoneSnaps > 1 ? 's' : ''} merged`;
-      }
-
       const snapsContainer = document.getElementById('mockup-merged-snaps');
       if (snapsContainer) {
         const snapBlock = document.createElement('div');
@@ -1997,9 +1983,8 @@
           <div class="flex items-center justify-between text-[11px] mb-1 font-mono" style="color: var(--chalk-white);">
             <span class="flex items-center gap-1.5">
               <span class="w-1.5 h-1.5 rounded-full" style="background-color: var(--chalk-white);"></span>
-              <span>[PHOTO LINKED] Whiteboard Capture @ 01:18:40</span>
+              <span>Whiteboard Capture @ 01:18:40</span>
             </span>
-            <span class="text-[10px]" style="color: var(--chalk-muted);">0.4s local sync</span>
           </div>
           <div class="text-[12px]" style="color: var(--chalk-slate);">Handwritten Derivation: Covariance Formulation:</div>
           <div class="render-math py-1 text-xs text-center font-serif" style="color: var(--chalk-white);" data-tex="\\text{Cov}(R_i, R_m) = \\sigma_{im} \\implies \\beta_i = \\frac{\\sigma_{im}}{\\sigma_m^2}"></div>
@@ -2196,8 +2181,6 @@
       setMockupTab('notes');
       selectMockupTerm('beta');
       applyMockupTheme('dark');
-      const snapsCount = document.getElementById('mockup-snaps-count');
-      if (snapsCount) snapsCount.textContent = '0 snaps merged';
       const chatInput = document.getElementById('mockup-chat-input');
       const chatMessages = document.getElementById('mockup-chat-messages');
       const snapsContainer = document.getElementById('mockup-merged-snaps');
@@ -2232,7 +2215,7 @@
       const sel = document.getElementById('mockup-model-select');
       const feedback = document.getElementById('mockup-key-feedback');
       if (sel && feedback) {
-        feedback.textContent = `[Model Selected] Active provider: ${sel.value} (Direct BYOK TLS 1.3)`;
+        feedback.textContent = `Model switched to: ${sel.options[sel.selectedIndex].text}`;
       }
     }
 
