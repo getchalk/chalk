@@ -1417,19 +1417,19 @@ class FloatingHUDWindow(QWidget):
 
         footer_bar.addStretch()
 
-        self.attach_doc_btn = QPushButton("Folien anhängen")
+        self.attach_doc_btn = QPushButton(tr("btn_attach_slides"))
         self.attach_doc_btn.clicked.connect(self._open_document_dialog)
         footer_bar.addWidget(self.attach_doc_btn)
 
-        self.pdf_export_btn = QPushButton("Export PDF")
+        self.pdf_export_btn = QPushButton(tr("btn_pdf_export"))
         self.pdf_export_btn.clicked.connect(self._export_notes_pdf)
         footer_bar.addWidget(self.pdf_export_btn)
 
-        self.obsidian_btn = QPushButton("Obsidian")
+        self.obsidian_btn = QPushButton(tr("btn_obsidian"))
         self.obsidian_btn.clicked.connect(self._open_in_obsidian)
         footer_bar.addWidget(self.obsidian_btn)
 
-        self.synth_btn = QPushButton("Beenden [F9]")
+        self.synth_btn = QPushButton(tr("btn_finish"))
         self.synth_btn.setObjectName("primaryAction")
         self.synth_btn.clicked.connect(lambda: self.request_master_synthesis.emit())
         footer_bar.addWidget(self.synth_btn)

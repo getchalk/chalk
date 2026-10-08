@@ -370,8 +370,9 @@
             <span id="mockup-lecture-title" onclick="cycleMockupTopic()" title="Click to switch topic" class="text-xs font-medium ml-2 sm:ml-3 cursor-pointer hover:underline transition" style="color: var(--chalk-slate);" data-i18n="preview_title">Lecture: Financial Markets & Risk — Chalk</span>
           </div>
 
-          <!-- Apple Live Recording Indicator -->
+          <!-- Apple Live Recording Indicator & Attachment Badge -->
           <div class="flex items-center gap-2">
+            <span id="mockup-attachment-badge" class="hidden text-[10.5px] font-mono px-2 py-0.5 rounded-full border transition" style="background-color: var(--surface-terminal); border-color: var(--chalk-border); color: var(--chalk-white);"></span>
             <button id="mockup-rec-btn" onclick="toggleMockupRecording()" title="Click to pause or resume recording" class="flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium transition hover:opacity-90 cursor-pointer" style="background-color: var(--pill-bg); border: 1px solid var(--pill-border); color: var(--chalk-white);">
               <span id="mockup-rec-dot" class="w-2 h-2 rounded-full bg-red-500 animate-pulse shadow-[0_0_8px_rgba(239,68,68,0.7)]"></span>
               <span id="mockup-rec-label" data-i18n="preview_status_label">Recording active</span> (<span id="live-timer" class="font-mono">01:42</span>)
@@ -694,9 +695,26 @@
               </div>
             </div>
 
-            <!-- Footer Stats -->
-            <div class="pt-2.5 mt-2.5 border-t flex items-center justify-between text-xs flex-shrink-0" style="border-color: var(--chalk-border); color: var(--chalk-muted);">
+            <!-- Footer Stats & Actions -->
+            <div class="pt-2.5 mt-2.5 border-t flex flex-wrap items-center justify-between gap-2 text-xs flex-shrink-0" style="border-color: var(--chalk-border); color: var(--chalk-muted);">
               <span id="mockup-footer-duration" class="font-mono text-[11px]" data-i18n="preview_duration">Duration: 1h 42m 12s</span>
+              <div class="flex items-center gap-1.5 flex-wrap">
+                <button type="button" id="mockup-btn-slides" onclick="triggerMockupAttachSlides()" class="px-2 py-1 rounded text-[11px] font-medium border transition cursor-pointer hover:border-white/40 flex items-center gap-1" style="background-color: var(--surface-terminal); border-color: var(--chalk-border); color: var(--chalk-white);" title="Attach in-person lecture PDF slides">
+                  <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path></svg>
+                  <span data-i18n="btn_attach_slides">Attach Slides</span>
+                </button>
+                <button type="button" id="mockup-btn-pdf" onclick="triggerMockupPdfExport(this)" class="px-2 py-1 rounded text-[11px] font-medium border transition cursor-pointer hover:border-white/40 flex items-center gap-1" style="background-color: var(--surface-terminal); border-color: var(--chalk-border); color: var(--chalk-white);" title="Export notes to PDF">
+                  <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                  <span data-i18n="btn_pdf_export">Export PDF</span>
+                </button>
+                <button type="button" id="mockup-btn-obsidian" onclick="triggerMockupObsidianSync(this)" class="px-2 py-1 rounded text-[11px] font-medium border transition cursor-pointer hover:border-white/40 flex items-center gap-1" style="background-color: var(--surface-terminal); border-color: var(--chalk-border); color: var(--chalk-white);" title="Open notes in Obsidian Vault">
+                  <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+                  <span data-i18n="btn_obsidian">Obsidian</span>
+                </button>
+                <button type="button" id="mockup-complete-btn" onclick="toggleMockupSessionCompletion()" class="px-2.5 py-1 rounded text-[11px] font-semibold transition cursor-pointer flex items-center gap-1 hover:opacity-90 shadow-sm" style="background-color: var(--chalk-white); color: var(--bg-obsidian);" title="Finish recording & trigger final synthesis [F9]">
+                  <span id="mockup-complete-text" data-i18n="btn_finish">Finish [F9]</span>
+                </button>
+              </div>
             </div>
           </div>
 
@@ -1192,6 +1210,12 @@
     "preview_directive_placeholder": "Add note or instruction for the AI summary...",
     "preview_directive_btn": "Attach",
     "preview_duration": "Duration: 1h 42m 12s",
+    "btn_attach_slides": "Attach Slides",
+    "btn_pdf_export": "Export PDF",
+    "btn_obsidian": "Obsidian",
+    "btn_finish": "Finish [F9]",
+    "btn_resume": "Resume [F9]",
+    "status_synthesis_complete": "Synthesis complete",
     "preview_settings_tab": "Settings",
     "preview_tab_notes": "Live Notes",
     "preview_tab_settings": "Settings",
@@ -1344,6 +1368,12 @@
     "preview_directive_placeholder": "Notiz oder Anweisung für die KI-Zusammenfassung...",
     "preview_directive_btn": "Anhängen",
     "preview_duration": "Dauer: 1 Std. 42 Min.",
+    "btn_attach_slides": "Folien anhängen",
+    "btn_pdf_export": "Export PDF",
+    "btn_obsidian": "Obsidian",
+    "btn_finish": "Beenden [F9]",
+    "btn_resume": "Fortsetzen [F9]",
+    "status_synthesis_complete": "Synthese abgeschlossen",
     "preview_settings_tab": "Einstellungen",
     "preview_tab_notes": "Live-Notizen",
     "preview_tab_settings": "Einstellungen",
@@ -1496,6 +1526,12 @@
     "preview_directive_placeholder": "Ajouter une note ou consigne pour le résumé IA...",
     "preview_directive_btn": "Associer",
     "preview_duration": "Durée : 1 h 42 min",
+    "btn_attach_slides": "Joindre diapositives",
+    "btn_pdf_export": "Exporter PDF",
+    "btn_obsidian": "Obsidian",
+    "btn_finish": "Terminer [F9]",
+    "btn_resume": "Reprendre [F9]",
+    "status_synthesis_complete": "Synthèse terminée",
     "preview_settings_tab": "Paramètres",
     "preview_tab_notes": "Notes en direct",
     "preview_tab_settings": "Paramètres",
@@ -1648,6 +1684,12 @@
     "preview_directive_placeholder": "Añadir nota o instrucción para el resumen de IA...",
     "preview_directive_btn": "Adjuntar",
     "preview_duration": "Duración: 1 h 42 min",
+    "btn_attach_slides": "Adjuntar diapositivas",
+    "btn_pdf_export": "Exportar PDF",
+    "btn_obsidian": "Obsidian",
+    "btn_finish": "Finalizar [F9]",
+    "btn_resume": "Reanudar [F9]",
+    "status_synthesis_complete": "Síntesis completada",
     "preview_settings_tab": "Ajustes",
     "preview_tab_notes": "Notas en vivo",
     "preview_tab_settings": "Ajustes",
@@ -1800,6 +1842,12 @@
     "preview_directive_placeholder": "添加个人笔记或给 AI 的总结要求...",
     "preview_directive_btn": "添加至笔记",
     "preview_duration": "时长：1小时42分钟",
+    "btn_attach_slides": "附加幻灯片",
+    "btn_pdf_export": "导出 PDF",
+    "btn_obsidian": "Obsidian",
+    "btn_finish": "完成 [F9]",
+    "btn_resume": "继续 [F9]",
+    "status_synthesis_complete": "笔记合成完毕",
     "preview_settings_tab": "设置",
     "preview_tab_notes": "实时笔记",
     "preview_tab_settings": "设置",
@@ -2247,6 +2295,12 @@
         renderHeroMath();
       }
 
+      const badge = document.getElementById('mockup-attachment-badge');
+      if (badge) {
+        badge.textContent = `[CAM] ${mockupState.phoneSnaps} Photo${mockupState.phoneSnaps > 1 ? 's' : ''} ready`;
+        badge.classList.remove('hidden');
+      }
+
       if (mockupState.activeTab !== 'notes') {
         setMockupTab('notes');
       }
@@ -2543,6 +2597,7 @@
 
     function resetMockupSession() {
       mockupState.recording = true;
+      mockupState.isCompleted = false;
       mockupState.timerSeconds = 102;
       mockupState.baseDurationSeconds = 6132;
       mockupState.phoneSnaps = 0;
@@ -2558,6 +2613,14 @@
       const dirInput = document.getElementById('mockup-directive-input');
       const updateBullet = document.getElementById('mockup-directive-synthesis-bullet');
       const durEl = document.getElementById('mockup-footer-duration');
+      const badge = document.getElementById('mockup-attachment-badge');
+      const recDot = document.getElementById('mockup-rec-dot');
+      const recLabel = document.getElementById('mockup-rec-label');
+      const completeText = document.getElementById('mockup-complete-text');
+      if (badge) badge.classList.add('hidden');
+      if (recDot) recDot.className = 'w-2 h-2 rounded-full bg-red-500 animate-pulse shadow-[0_0_8px_rgba(239,68,68,0.7)]';
+      if (recLabel) recLabel.textContent = (translations[currentLang] && translations[currentLang].preview_status_label) || 'Recording active';
+      if (completeText) completeText.textContent = (translations[currentLang] && translations[currentLang].btn_finish) || 'Finish [F9]';
       if (chatInput) chatInput.value = '';
       if (chatMessages) {
         chatMessages.innerHTML = getMockupChatMessagesHtml(mockupState.lang || currentLang);
@@ -2588,6 +2651,98 @@
       if (titleEl) titleEl.textContent = t.title;
       if (fileEl) fileEl.textContent = t.file;
       if (durEl) durEl.textContent = formatFooterDuration(mockupState.baseDurationSeconds);
+    }
+
+    function triggerMockupAttachSlides() {
+      const badge = document.getElementById('mockup-attachment-badge');
+      const messagesContainer = document.getElementById('mockup-chat-messages');
+      if (badge) {
+        badge.textContent = '[PDF] 42 Slides ready';
+        badge.classList.remove('hidden');
+      }
+      if (messagesContainer) {
+        const bubble = document.createElement('div');
+        bubble.className = 'flex gap-2 items-start text-xs';
+        bubble.innerHTML = `
+          <div class="w-5 h-5 rounded flex items-center justify-center font-mono font-bold text-[9px] flex-shrink-0" style="background-color: var(--surface-elevated); border: 1px solid var(--chalk-border); color: var(--chalk-white);">PDF</div>
+          <div class="p-2.5 rounded-lg border flex-1 leading-relaxed" style="background-color: var(--surface-terminal); border-color: var(--chalk-border); color: var(--chalk-slate);">
+            <strong style="color: var(--chalk-white);">[PDF] Slides imported: 42 pages (Asset_Pricing_Lecture_04.pdf)</strong><br>
+            <span class="text-[11px] opacity-80">In-person lecture mode active: Spoken audio and questions mapped directly to slide pages.</span>
+          </div>
+        `;
+        messagesContainer.appendChild(bubble);
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+      }
+      manualTransitionMockupSlide();
+    }
+
+    function triggerMockupPdfExport(btn) {
+      if (!btn) btn = document.getElementById('mockup-btn-pdf');
+      if (!btn) return;
+      const originalText = btn.innerHTML;
+      btn.innerHTML = `<svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg> <span>PDF Exported</span>`;
+      setTimeout(() => {
+        btn.innerHTML = originalText;
+      }, 2000);
+    }
+
+    function triggerMockupObsidianSync(btn) {
+      if (!btn) btn = document.getElementById('mockup-btn-obsidian');
+      if (!btn) return;
+      const notesH1 = document.getElementById('mockup-note-h1')?.textContent || 'Lecture Notes';
+      const notesP1 = document.getElementById('mockup-note-p1')?.textContent || '';
+      const markdown = `# ${notesH1}\n\n${notesP1}\n\n$$E(R_i) = R_f + \\beta_i [E(R_m) - R_f]$$\n\n- Beta factor: Sensitivity to market\n- Risk-free rate: Hurdle rate\n- Core point: Systematic risk only compensated`;
+      navigator.clipboard.writeText(markdown).catch(() => {});
+      const originalText = btn.innerHTML;
+      btn.innerHTML = `<svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg> <span>Vault Synced</span>`;
+      setTimeout(() => {
+        btn.innerHTML = originalText;
+      }, 2000);
+    }
+
+    function toggleMockupSessionCompletion() {
+      const recDot = document.getElementById('mockup-rec-dot');
+      const recLabel = document.getElementById('mockup-rec-label');
+      const completeText = document.getElementById('mockup-complete-text');
+      const messagesContainer = document.getElementById('mockup-chat-messages');
+
+      mockupState.isCompleted = !mockupState.isCompleted;
+
+      if (mockupState.isCompleted) {
+        mockupState.recording = false;
+        if (recDot) {
+          recDot.className = 'w-2 h-2 rounded-full bg-slate-400';
+        }
+        if (recLabel) {
+          recLabel.textContent = (translations[currentLang] && translations[currentLang].status_synthesis_complete) || 'Synthesis complete';
+        }
+        if (completeText) {
+          completeText.textContent = (translations[currentLang] && translations[currentLang].btn_resume) || 'Resume [F9]';
+        }
+        if (messagesContainer) {
+          const bubble = document.createElement('div');
+          bubble.className = 'flex gap-2 items-start text-xs';
+          bubble.innerHTML = `
+            <div class="w-5 h-5 rounded flex items-center justify-center font-mono font-bold text-[9px] flex-shrink-0" style="background-color: var(--surface-elevated); border: 1px solid var(--chalk-border); color: var(--chalk-white);">✓</div>
+            <div class="p-2.5 rounded-lg border flex-1 leading-relaxed" style="background-color: var(--surface-terminal); border-color: var(--chalk-border); color: var(--chalk-white);">
+              <strong>Session Finished [F9]:</strong> Complete multi-modal synthesis written to Obsidian Vault (<code>${document.getElementById('mockup-obsidian-input')?.value || '~/Documents/Notes/Transcripts'}</code>).
+            </div>
+          `;
+          messagesContainer.appendChild(bubble);
+          messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+      } else {
+        mockupState.recording = true;
+        if (recDot) {
+          recDot.className = 'w-2 h-2 rounded-full bg-red-500 animate-pulse shadow-[0_0_8px_rgba(239,68,68,0.7)]';
+        }
+        if (recLabel) {
+          recLabel.textContent = (translations[currentLang] && translations[currentLang].preview_status_label) || 'Recording active';
+        }
+        if (completeText) {
+          completeText.textContent = (translations[currentLang] && translations[currentLang].btn_finish) || 'Finish [F9]';
+        }
+      }
     }
 
     function onModelChange() {
