@@ -76,6 +76,87 @@
       --logo-chalk: #0F172A;
     }
 
+    /* Scoped App Mockup Window Theme (Only switches #hero-card, not the entire site) */
+    #hero-card.mockup-theme-light {
+      --bg-obsidian: #FBFBFD;
+      --surface-graphite: #FFFFFF;
+      --surface-elevated: #F4F4F6;
+      --surface-terminal: #EFEFF3;
+      --chalk-white: #0F172A;
+      --chalk-slate: #475569;
+      --chalk-muted: #64748B;
+      --chalk-border: #E2E8F0;
+      --chalk-border-hover: #CBD5E1;
+      --terminal-bg: #EFEFF3;
+      --terminal-text: #0F172A;
+      --terminal-border: #CBD5E1;
+      --terminal-btn-bg: #E2E8F0;
+      --terminal-btn-text: #334155;
+      --terminal-btn-border: #CBD5E1;
+      --hud-header-bg: #F8FAFC;
+      --hud-body-bg: #F4F4F6;
+      --hud-card-bg: #FFFFFF;
+      --pill-bg: rgba(0, 0, 0, 0.05);
+      --pill-border: rgba(0, 0, 0, 0.1);
+      --pill-text: #0F172A;
+      background-color: #FFFFFF !important;
+      border-color: #E2E8F0 !important;
+      color: #475569 !important;
+      box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.15) !important;
+    }
+
+    #hero-card.mockup-theme-dark {
+      --bg-obsidian: #121317;
+      --surface-graphite: #1A1C23;
+      --surface-elevated: #22252F;
+      --surface-terminal: #15161B;
+      --chalk-white: #F8FAFC;
+      --chalk-slate: #94A3B8;
+      --chalk-muted: #64748B;
+      --chalk-border: rgba(255, 255, 255, 0.08);
+      --chalk-border-hover: rgba(255, 255, 255, 0.16);
+      --terminal-bg: #15161B;
+      --terminal-text: #F8FAFC;
+      --terminal-border: rgba(255, 255, 255, 0.1);
+      --terminal-btn-bg: rgba(255, 255, 255, 0.06);
+      --terminal-btn-text: #CBD5E1;
+      --terminal-btn-border: rgba(255, 255, 255, 0.12);
+      --hud-header-bg: rgba(255, 255, 255, 0.02);
+      --hud-body-bg: #121317;
+      --hud-card-bg: #1A1C23;
+      --pill-bg: rgba(255, 255, 255, 0.06);
+      --pill-border: rgba(255, 255, 255, 0.14);
+      --pill-text: #F8FAFC;
+      background-color: #1A1C23 !important;
+      border-color: rgba(255, 255, 255, 0.08) !important;
+      color: #94A3B8 !important;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5) !important;
+    }
+
+    #hero-card.mockup-theme-light .border-white\/5 {
+      border-color: rgba(0, 0, 0, 0.06) !important;
+    }
+    #hero-card.mockup-theme-light .border-white\/10 {
+      border-color: rgba(0, 0, 0, 0.1) !important;
+    }
+    #hero-card.mockup-theme-light .hover\:bg-white\/5:hover,
+    #hero-card.mockup-theme-light .hover\:bg-white\/10:hover {
+      background-color: rgba(0, 0, 0, 0.05) !important;
+    }
+    #hero-card.mockup-theme-light .hover\:border-white\/30:hover,
+    #hero-card.mockup-theme-light .hover\:border-white\/40:hover {
+      border-color: rgba(0, 0, 0, 0.2) !important;
+    }
+    #hero-card.mockup-theme-light .focus-within\:border-white\/40:focus-within {
+      border-color: rgba(0, 0, 0, 0.25) !important;
+    }
+    #hero-card.mockup-theme-light .text-slate-300 {
+      color: #334155 !important;
+    }
+    #hero-card.mockup-theme-light .text-slate-400 {
+      color: #64748B !important;
+    }
+
     body {
       font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Inter", "Segoe UI", Roboto, sans-serif;
       background-color: var(--bg-obsidian);
@@ -549,15 +630,15 @@
                 <div class="pt-2 border-t flex items-center justify-between" style="border-color: var(--chalk-border);">
                   <div>
                     <label class="font-semibold text-xs block" style="color: var(--chalk-white);" data-i18n="settings_theme_label">Appearance Mode:</label>
-                    <span class="text-[10px]" style="color: var(--chalk-muted);" data-i18n="settings_theme_desc">Synchronize Dark and Light theme</span>
+                    <span class="text-[10px]" style="color: var(--chalk-muted);" data-i18n="settings_theme_desc">Toggle Dark and Light theme for this window</span>
                   </div>
                   <div class="inline-flex rounded-lg border p-0.5" style="background-color: var(--surface-terminal); border-color: var(--chalk-border);">
-                    <button id="mockup-theme-dark-btn" onclick="applyTheme('dark')" class="px-2.5 py-1 rounded text-[11px] font-medium transition cursor-pointer flex items-center gap-1.5" style="background-color: var(--surface-elevated); color: var(--chalk-white);">
-                      <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+                    <button id="mockup-theme-dark-btn" onclick="applyMockupTheme('dark')" class="px-2.5 py-1 rounded text-[11px] font-medium transition cursor-pointer flex items-center gap-1.5" style="background-color: var(--surface-elevated); color: var(--chalk-white);">
+                      <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
                       <span data-i18n="theme_dark">Dark</span>
                     </button>
-                    <button id="mockup-theme-light-btn" onclick="applyTheme('light')" class="px-2.5 py-1 rounded text-[11px] font-medium transition cursor-pointer flex items-center gap-1.5" style="background-color: transparent; color: var(--chalk-muted);">
-                      <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+                    <button id="mockup-theme-light-btn" onclick="applyMockupTheme('light')" class="px-2.5 py-1 rounded text-[11px] font-medium transition cursor-pointer flex items-center gap-1.5" style="background-color: transparent; color: var(--chalk-muted);">
+                      <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
                       <span data-i18n="theme_light">Light</span>
                     </button>
                   </div>
@@ -1026,7 +1107,7 @@
     "preview_model_label": "AI Synthesis Model:",
     "preview_obsidian_label": "Notes Vault Directory:",
     "settings_theme_label": "Appearance Mode:",
-    "settings_theme_desc": "Synchronize Dark and Light theme",
+    "settings_theme_desc": "Toggle Dark and Light theme for this window",
     "steps_tag": "HOW IT WORKS",
     "steps_title": "The 3-Step Principle",
     "steps_subtitle": "No stress, no frantic typing. Complete focus on the presenter.",
@@ -1157,7 +1238,7 @@
     "preview_model_label": "KI-Synthese-Modell:",
     "preview_obsidian_label": "Notizen Vault-Verzeichnis:",
     "settings_theme_label": "Design-Modus:",
-    "settings_theme_desc": "Dunkles und helles Farbschema synchronisieren",
+    "settings_theme_desc": "Dunkles und helles Farbschema für dieses Fenster",
     "steps_tag": "SO EINFACH FUNKTIONIERT ES",
     "steps_title": "Das 3-Schritte-Prinzip",
     "steps_subtitle": "Kein Stress, kein Tippen. Vollste Konzentration auf den Vortragenden.",
@@ -1288,7 +1369,7 @@
     "preview_model_label": "Modèle de synthèse IA :",
     "preview_obsidian_label": "Répertoire du coffre de notes :",
     "settings_theme_label": "Mode d'affichage :",
-    "settings_theme_desc": "Synchroniser le thème sombre et clair",
+    "settings_theme_desc": "Basculer le thème sombre et clair pour cette fenêtre",
     "steps_tag": "COMMENT ÇA MARCHE",
     "steps_title": "Le principe en 3 étapes",
     "steps_subtitle": "Zéro stress, zéro frappe manuelle. Concentration totale sur l'orateur.",
@@ -1419,7 +1500,7 @@
     "preview_model_label": "Modelo de síntesis IA:",
     "preview_obsidian_label": "Directorio del baúl de notas:",
     "settings_theme_label": "Modo de apariencia:",
-    "settings_theme_desc": "Sincronizar tema oscuro y claro",
+    "settings_theme_desc": "Cambiar tema oscuro y claro para esta ventana",
     "steps_tag": "CÓMO FUNCIONA",
     "steps_title": "El principio de 3 pasos",
     "steps_subtitle": "Sin estrés ni tecleo apresurado. Concentración total en el ponente.",
@@ -1550,7 +1631,7 @@
     "preview_model_label": "AI 提炼模型：",
     "preview_obsidian_label": "笔记仓库目录：",
     "settings_theme_label": "外观模式：",
-    "settings_theme_desc": "实时同步深色与浅色主题",
+    "settings_theme_desc": "为此窗口切换深色或浅色外观",
     "steps_tag": "极简工作流",
     "steps_title": "三步极简体验",
     "steps_subtitle": "告别焦虑与键盘敲击。全身心倾听主讲人见解。",
@@ -2114,6 +2195,9 @@
       setMockupSlide(0);
       setMockupTab('notes');
       selectMockupTerm('beta');
+      applyMockupTheme('dark');
+      const snapsCount = document.getElementById('mockup-snaps-count');
+      if (snapsCount) snapsCount.textContent = '0 snaps merged';
       const chatInput = document.getElementById('mockup-chat-input');
       const chatMessages = document.getElementById('mockup-chat-messages');
       const snapsContainer = document.getElementById('mockup-merged-snaps');
@@ -2322,7 +2406,7 @@
     const heroCard = document.getElementById('hero-card');
     if (heroCard) {
       heroCard.addEventListener('mouseenter', () => {
-        heroCard.style.borderColor = 'rgba(255, 255, 255, 0.2)';
+        heroCard.style.borderColor = heroCard.classList.contains('mockup-theme-light') ? 'rgba(0, 0, 0, 0.2)' : 'rgba(255, 255, 255, 0.2)';
       });
       heroCard.addEventListener('mouseleave', () => {
         heroCard.style.borderColor = 'var(--chalk-border)';
@@ -2351,7 +2435,23 @@
       }
     }
 
-    // 3. Dual Theme Toggle
+    // Independent Mockup Window Theme Toggle (Only alters #hero-card, not the site)
+    function applyMockupTheme(theme) {
+      const card = document.getElementById('hero-card');
+      if (!card) return;
+      if (theme === 'light') {
+        card.classList.remove('mockup-theme-dark');
+        card.classList.add('mockup-theme-light');
+      } else {
+        card.classList.remove('mockup-theme-light');
+        card.classList.add('mockup-theme-dark');
+      }
+      localStorage.setItem('chalk-mockup-theme', theme);
+      syncMockupThemeBtns(theme);
+      renderHeroMath();
+    }
+
+    // 3. Site-Wide Theme Toggle (Navbar)
     function applyTheme(theme) {
       const html = document.documentElement;
       const darkIcon = document.getElementById('theme-icon-dark');
@@ -2369,8 +2469,7 @@
         if (lightIcon) lightIcon.classList.add('hidden');
         if (label) label.textContent = translations[currentLang] ? translations[currentLang].theme_dark : 'Dark';
       }
-      localStorage.setItem('chalk-theme', theme);
-      syncMockupThemeBtns(theme);
+      localStorage.setItem('chalk-site-theme', theme);
     }
 
     function toggleTheme() {
@@ -2378,12 +2477,13 @@
       applyTheme(isLight ? 'dark' : 'light');
     }
 
-    const savedTheme = localStorage.getItem('chalk-theme');
-    if (savedTheme) {
-      applyTheme(savedTheme);
-    } else {
-      applyTheme('dark');
-    }
+    // Initialize Mockup Window Theme (Scoped solely to #hero-card)
+    const savedMockupTheme = localStorage.getItem('chalk-mockup-theme') || 'dark';
+    applyMockupTheme(savedMockupTheme);
+
+    // Initialize Site Theme (Defaults to dark titanium)
+    const savedSiteTheme = localStorage.getItem('chalk-site-theme') || 'dark';
+    applyTheme(savedSiteTheme);
 
     // Load saved or default language
     const savedLang = localStorage.getItem('chalk-lang') || 'en';
