@@ -747,6 +747,16 @@ class FloatingHUDWindow(QWidget):
 
         header.addStretch()
 
+        # Settings button (BYOK & Models)
+        self.settings_btn = QPushButton("Einstellungen")
+        self.settings_btn.setStyleSheet(
+            "background-color: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.15);"
+            "color: #F8FAFC; font-size: 11px; font-weight: 500; padding: 4px 10px; border-radius: 12px;"
+        )
+        self.settings_btn.setToolTip("Modelle, API-Keys und BYOK-Sicherheit konfigurieren")
+        self.settings_btn.clicked.connect(self._open_settings_dialog)
+        header.addWidget(self.settings_btn)
+
         # Minimize / Hide button
         self.hide_btn = QPushButton("X")
         self.hide_btn.setFixedSize(28, 28)
@@ -1057,6 +1067,9 @@ class FloatingHUDWindow(QWidget):
         if hasattr(self, "synth_btn"):
             self.synth_btn.setText(tr("btn_finish"))
             self.synth_btn.setToolTip(tr("btn_finish"))
+        if hasattr(self, "settings_btn"):
+            self.settings_btn.setText(tr("btn_settings"))
+            self.settings_btn.setToolTip(tr("tray_settings"))
 
         if hasattr(self, "scratchpad_label"):
             self.scratchpad_label.setText(tr("scratchpad_label"))
@@ -1266,6 +1279,16 @@ class FloatingHUDWindow(QWidget):
                 logger.error("Could not start CompanionDaemon: %s", e)
         dialog = WhiteboardCamDialog(self, daemon=self.companion_daemon)
         dialog.exec()
+
+    def _open_settings_dialog(self):
+        """Opens the BYOK Key & Model Configuration modal."""
+        try:
+            from src.ui.settings_dialog import SettingsDialog
+            dialog = SettingsDialog(parent=self)
+            dialog.exec()
+            self.retranslate_ui()
+        except Exception as e:
+            logger.error("Failed to open settings dialog: %s", e)
 
     def _on_whiteboard_photo_received(self, image_path: str, timestamp_str: str):
         """Triggered on GUI main thread when phone uploads a chalkboard photo."""

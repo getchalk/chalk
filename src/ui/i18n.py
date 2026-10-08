@@ -164,6 +164,13 @@ TRANSLATIONS: Dict[str, Dict[str, str]] = {
         "es": "Editor del sistema",
         "zh": "系统编辑器",
     },
+    "btn_settings": {
+        "en": "Settings",
+        "de": "Einstellungen",
+        "fr": "Paramètres",
+        "es": "Ajustes",
+        "zh": "设置",
+    },
     "btn_finish": {
         "en": "Finish [F9]",
         "de": "Beenden [F9]",

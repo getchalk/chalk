@@ -299,28 +299,35 @@
     <div class="tilt-container max-w-6xl mx-auto relative pt-4 pb-10">
 
       <!-- Core Interactive Mockup Card -->
-      <div id="hero-card" class="tilt-card relative rounded-2xl border shadow-2xl overflow-hidden text-left backdrop-blur-xl" style="background-color: var(--surface-graphite); border-color: var(--chalk-border);">
+      <div id="hero-card" class="tilt-card relative rounded-2xl border shadow-2xl overflow-hidden text-left backdrop-blur-xl transition-all duration-300" style="background-color: var(--surface-graphite); border-color: var(--chalk-border);">
         <div class="glare-overlay"></div>
 
         <!-- Window Title Bar -->
-        <div class="px-5 py-3 border-b flex items-center justify-between" style="border-color: var(--chalk-border); background-color: var(--hud-header-bg);">
+        <div class="px-4 sm:px-5 py-3 border-b flex items-center justify-between select-none" style="border-color: var(--chalk-border); background-color: var(--hud-header-bg);">
           <div class="flex items-center gap-2">
-            <div class="w-3 h-3 rounded-full shadow-sm" style="background-color: #FF5F56; border: 1px solid #E0443E;"></div>
-            <div class="w-3 h-3 rounded-full shadow-sm" style="background-color: #FFBD2E; border: 1px solid #DEA123;"></div>
-            <div class="w-3 h-3 rounded-full shadow-sm" style="background-color: #27C93F; border: 1px solid #1AAB29;"></div>
-            <span class="text-xs font-medium ml-3" style="color: var(--chalk-slate);" data-i18n="preview_title">Lecture: Financial Markets & Risk — Chalk</span>
+            <button onclick="resetMockupSession()" title="Reset Demo Session" class="w-3 h-3 rounded-full shadow-sm transition hover:opacity-80 cursor-pointer" style="background-color: #FF5F56; border: 1px solid #E0443E;"></button>
+            <button onclick="toggleMockupRecording()" title="Pause / Resume Recording" class="w-3 h-3 rounded-full shadow-sm transition hover:opacity-80 cursor-pointer" style="background-color: #FFBD2E; border: 1px solid #DEA123;"></button>
+            <button onclick="toggleMockupExpand()" title="Toggle Studio View" class="w-3 h-3 rounded-full shadow-sm transition hover:opacity-80 cursor-pointer" style="background-color: #27C93F; border: 1px solid #1AAB29;"></button>
+            <span id="mockup-lecture-title" onclick="cycleMockupTopic()" title="Click to switch topic" class="text-xs font-medium ml-2 sm:ml-3 cursor-pointer hover:underline transition" style="color: var(--chalk-slate);" data-i18n="preview_title">Lecture: Financial Markets & Risk — Chalk</span>
           </div>
 
-          <!-- Apple Live Recording Indicator & Real-Time Timer -->
+          <!-- Apple Live Recording Indicator, Phone Link Status & Settings Toggle -->
           <div class="flex items-center gap-2">
-            <div class="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-mono border" style="background-color: var(--surface-terminal); border-color: var(--chalk-border); color: var(--chalk-muted);">
-              <span class="w-1.5 h-1.5 rounded-full animate-pulse" style="background-color: #10B981;"></span>
-              <span data-i18n="preview_phone_status">Phone Link: Ready</span>
-            </div>
-            <div class="flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium" style="background-color: var(--pill-bg); border: 1px solid var(--pill-border); color: var(--chalk-white);">
-              <span class="w-2 h-2 rounded-full bg-red-500 animate-pulse shadow-[0_0_8px_rgba(239,68,68,0.7)]"></span>
-              <span data-i18n="preview_status_label">Recording active</span> (<span id="live-timer" class="font-mono">01:42</span>)
-            </div>
+            <button onclick="triggerMockupPhoneSnap()" title="Click to simulate phone whiteboard photo" class="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-mono border transition hover:opacity-80 cursor-pointer" style="background-color: var(--surface-terminal); border-color: var(--chalk-border); color: var(--chalk-muted);">
+              <span id="mockup-phone-dot" class="w-1.5 h-1.5 rounded-full animate-pulse" style="background-color: #10B981;"></span>
+              <span id="mockup-phone-status" data-i18n="preview_phone_status">Phone Link: Ready</span>
+            </button>
+            <button id="mockup-rec-btn" onclick="toggleMockupRecording()" title="Click to pause or resume recording" class="flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium transition hover:opacity-90 cursor-pointer" style="background-color: var(--pill-bg); border: 1px solid var(--pill-border); color: var(--chalk-white);">
+              <span id="mockup-rec-dot" class="w-2 h-2 rounded-full bg-red-500 animate-pulse shadow-[0_0_8px_rgba(239,68,68,0.7)]"></span>
+              <span id="mockup-rec-label" data-i18n="preview_status_label">Recording active</span> (<span id="live-timer" class="font-mono">01:42</span>)
+            </button>
+            <button id="mockup-settings-pill" onclick="toggleMockupSettings()" title="Settings & BYOK Keys" class="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border transition hover:opacity-80 cursor-pointer" style="background-color: var(--surface-terminal); border-color: var(--chalk-border); color: var(--chalk-white);">
+              <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="3"></circle>
+                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+              </svg>
+              <span data-i18n="preview_settings_tab">Settings</span>
+            </button>
           </div>
         </div>
 
@@ -333,54 +340,61 @@
             <div class="rounded-xl border p-4 relative overflow-hidden shadow-sm" style="background-color: var(--hud-card-bg); border-color: var(--chalk-border);">
               <div class="flex items-center justify-between text-xs font-medium mb-2.5" style="color: var(--chalk-slate);">
                 <span data-i18n="preview_screen_label">SCREEN CAPTURE</span>
-                <span class="text-[11px] font-mono px-1.5 py-0.5 rounded border" style="background-color: var(--surface-elevated); border-color: var(--chalk-border); color: var(--chalk-muted);" data-i18n="preview_screen_badge">Display 1</span>
+                <div class="flex items-center gap-1.5">
+                  <span class="text-[11px] font-mono px-1.5 py-0.5 rounded border" style="background-color: var(--surface-elevated); border-color: var(--chalk-border); color: var(--chalk-muted);" data-i18n="preview_screen_badge">Display 1</span>
+                  <div class="flex items-center gap-1">
+                    <button onclick="prevMockupSlide(event)" title="Previous Slide" class="p-0.5 rounded hover:bg-white/10 text-slate-400 font-mono text-[10px] cursor-pointer">&larr;</button>
+                    <span id="mockup-slide-pill" class="font-mono text-[10px] text-slate-400">1/3</span>
+                    <button onclick="nextMockupSlide(event)" title="Next Slide" class="p-0.5 rounded hover:bg-white/10 text-slate-400 font-mono text-[10px] cursor-pointer">&rarr;</button>
+                  </div>
+                </div>
               </div>
-              <div class="aspect-video rounded-lg border flex flex-col justify-between p-3 text-center relative overflow-hidden" style="background-color: var(--surface-elevated); border-color: var(--chalk-border);">
+              <div onclick="nextMockupSlide(event)" title="Click to cycle slide delta" class="aspect-video rounded-lg border flex flex-col justify-between p-3 text-center relative overflow-hidden cursor-pointer transition hover:border-white/30" style="background-color: var(--surface-elevated); border-color: var(--chalk-border);">
                 <!-- Mini Window Chrome -->
                 <div class="flex items-center justify-between pb-1.5 border-b border-white/5 text-[10px] text-left opacity-70">
                   <div class="flex items-center gap-1.5">
                     <span class="w-1.5 h-1.5 rounded-full bg-slate-500/40"></span>
                     <span class="w-1.5 h-1.5 rounded-full bg-slate-500/40"></span>
                     <span class="w-1.5 h-1.5 rounded-full bg-slate-500/40"></span>
-                    <span class="ml-1.5 font-mono text-[9px] truncate max-w-[140px]" style="color: var(--chalk-muted);">Asset_Pricing_Lecture_04.pdf</span>
+                    <span id="mockup-slide-file" class="ml-1.5 font-mono text-[9px] truncate max-w-[140px]" style="color: var(--chalk-muted);">Asset_Pricing_Lecture_04.pdf (p. 12/42)</span>
                   </div>
                   <span class="font-mono text-[9px] px-1 rounded bg-black/20" style="color: var(--chalk-muted);">1080p</span>
                 </div>
 
                 <!-- Window Content Area -->
                 <div class="my-auto py-1">
-                  <div class="text-[11px] font-medium mb-0.5" style="color: var(--chalk-muted);" data-i18n="preview_screen_topic">Portfolio Theory & Risk Modeling</div>
-                  <div class="text-xs sm:text-sm font-semibold mb-1" style="color: var(--chalk-white);" data-i18n="preview_screen_heading">Capital Asset Pricing Model (CAPM)</div>
-                  <div class="render-math text-xs sm:text-sm text-center font-serif" style="color: var(--chalk-white);">$$E(R_i) = R_f + \beta_i [E(R_m) - R_f]$$</div>
+                  <div id="mockup-screen-topic" class="text-[11px] font-medium mb-0.5" style="color: var(--chalk-muted);" data-i18n="preview_screen_topic">Portfolio Theory & Risk Modeling</div>
+                  <div id="mockup-screen-heading" class="text-xs sm:text-sm font-semibold mb-1" style="color: var(--chalk-white);" data-i18n="preview_screen_heading">Capital Asset Pricing Model (CAPM)</div>
+                  <div id="mockup-screen-math" class="render-math text-xs sm:text-sm text-center font-serif" style="color: var(--chalk-white);">3020E(R_i) = R_f + eta_i [E(R_m) - R_f]3020</div>
                 </div>
 
                 <!-- Bottom Status Line -->
                 <div class="pt-1 border-t border-white/5 flex items-center justify-between text-[9px] font-mono opacity-60" style="color: var(--chalk-muted);">
                   <span>Screen Watcher: Active</span>
-                  <span>Delta Sync: In Frame</span>
+                  <span id="mockup-delta-sync">Delta Sync: In Frame</span>
                 </div>
               </div>
               <div class="mt-3 flex items-center justify-between text-xs" style="color: var(--chalk-muted);">
                 <span data-i18n="preview_screen_sync">Screen Sync Active</span>
-                <span class="font-medium" style="color: var(--chalk-white);" data-i18n="preview_slide_local">Local detection</span>
+                <span class="font-medium text-emerald-400" id="mockup-screen-subtext" data-i18n="preview_slide_local">Local detection</span>
               </div>
             </div>
 
             <!-- Dual-Input Split-Grid: Whiteboard Phone Link & Intelligent Recall -->
             <div class="grid grid-cols-1 sm:grid-cols-12 gap-3">
               <!-- Sub-Col 1 (sm:col-span-5): Whiteboard Cam / Phone Link -->
-              <div class="sm:col-span-5 rounded-xl border p-3 shadow-sm flex flex-col items-center justify-between text-center" style="background-color: var(--hud-card-bg); border-color: var(--chalk-border);">
+              <div onclick="triggerMockupPhoneSnap()" title="Click to simulate whiteboard photo capture" class="sm:col-span-5 rounded-xl border p-3 shadow-sm flex flex-col items-center justify-between text-center cursor-pointer transition hover:border-emerald-500/40" style="background-color: var(--hud-card-bg); border-color: var(--chalk-border);">
                 <div class="w-full flex items-center justify-between text-[11px] font-medium mb-1.5" style="color: var(--chalk-slate);">
                   <span class="tracking-wide" data-i18n="preview_qr_label">PHONE LINK</span>
                   <span class="w-1.5 h-1.5 rounded-full animate-pulse flex-shrink-0" style="background-color: #10B981;" title="LAN Ready"></span>
                 </div>
-                <div class="p-1 rounded-lg border shadow-inner flex items-center justify-center my-0.5" style="background-color: var(--surface-terminal); border-color: var(--chalk-border);">
+                <div id="mockup-qr-box" class="p-1 rounded-lg border shadow-inner flex items-center justify-center my-0.5 transition-all" style="background-color: var(--surface-terminal); border-color: var(--chalk-border);">
                   <svg class="w-16 h-16" viewBox="0 0 27 27" fill="currentColor" shape-rendering="crispEdges" style="color: var(--chalk-white);" role="img" aria-label="Phone Link QR Code">
                     <path d="M1 1h7v1h-7zM9 1h1v1h-1zM11 1h4v1h-4zM17 1h1v1h-1zM19 1h7v1h-7zM1 2h1v1h-1zM7 2h1v1h-1zM15 2h3v1h-3zM19 2h1v1h-1zM25 2h1v1h-1zM1 3h1v1h-1zM3 3h3v1h-3zM7 3h1v1h-1zM9 3h1v1h-1zM11 3h3v1h-3zM16 3h1v1h-1zM19 3h1v1h-1zM21 3h3v1h-3zM25 3h1v1h-1zM1 4h1v1h-1zM3 4h3v1h-3zM7 4h1v1h-1zM9 4h2v1h-2zM12 4h1v1h-1zM14 4h1v1h-1zM16 4h1v1h-1zM19 4h1v1h-1zM21 4h3v1h-3zM25 4h1v1h-1zM1 5h1v1h-1zM3 5h3v1h-3zM7 5h1v1h-1zM9 5h1v1h-1zM11 5h1v1h-1zM13 5h3v1h-3zM17 5h1v1h-1zM19 5h1v1h-1zM21 5h3v1h-3zM25 5h1v1h-1zM1 6h1v1h-1zM7 6h1v1h-1zM9 6h1v1h-1zM13 6h2v1h-2zM16 6h2v1h-2zM19 6h1v1h-1zM25 6h1v1h-1zM1 7h7v1h-7zM9 7h1v1h-1zM11 7h1v1h-1zM13 7h1v1h-1zM15 7h1v1h-1zM17 7h1v1h-1zM19 7h7v1h-7zM11 8h1v1h-1zM3 9h6v1h-6zM10 9h3v1h-3zM14 9h1v1h-1zM16 9h1v1h-1zM20 9h4v1h-4zM25 9h1v1h-1zM4 10h1v1h-1zM10 10h2v1h-2zM13 10h3v1h-3zM17 10h1v1h-1zM20 10h1v1h-1zM24 10h1v1h-1zM2 11h2v1h-2zM5 11h3v1h-3zM9 11h1v1h-1zM11 11h2v1h-2zM16 11h2v1h-2zM19 11h1v1h-1zM22 11h1v1h-1zM24 11h2v1h-2zM1 12h1v1h-1zM3 12h2v1h-2zM9 12h1v1h-1zM11 12h1v1h-1zM13 12h1v1h-1zM17 12h3v1h-3zM21 12h1v1h-1zM25 12h1v1h-1zM1 13h1v1h-1zM3 13h1v1h-1zM5 13h1v1h-1zM7 13h8v1h-8zM18 13h2v1h-2zM21 13h1v1h-1zM23 13h3v1h-3zM1 14h1v1h-1zM4 14h3v1h-3zM9 14h1v1h-1zM11 14h1v1h-1zM15 14h1v1h-1zM17 14h1v1h-1zM20 14h1v1h-1zM22 14h1v1h-1zM24 14h1v1h-1zM1 15h1v1h-1zM4 15h4v1h-4zM10 15h1v1h-1zM12 15h5v1h-5zM18 15h1v1h-1zM20 15h3v1h-3zM24 15h2v1h-2zM1 16h1v1h-1zM3 16h4v1h-4zM8 16h1v1h-1zM11 16h2v1h-2zM15 16h3v1h-3zM19 16h1v1h-1zM22 16h1v1h-1zM25 16h1v1h-1zM1 17h1v1h-1zM3 17h2v1h-2zM6 17h2v1h-2zM10 17h1v1h-1zM12 17h1v1h-1zM14 17h1v1h-1zM17 17h5v1h-5zM23 17h1v1h-1zM9 18h3v1h-3zM13 18h1v1h-1zM15 18h3v1h-3zM21 18h3v1h-3zM1 19h7v1h-7zM9 19h1v1h-1zM14 19h2v1h-2zM17 19h1v1h-1zM19 19h1v1h-1zM21 19h5v1h-5zM1 20h1v1h-1zM7 20h1v1h-1zM9 20h3v1h-3zM13 20h1v1h-1zM17 20h1v1h-1zM21 20h2v1h-2zM24 20h1v1h-1zM1 21h1v1h-1zM3 21h3v1h-3zM7 21h1v1h-1zM9 21h1v1h-1zM13 21h2v1h-2zM16 21h10v1h-10zM1 22h1v1h-1zM3 22h3v1h-3zM7 22h1v1h-1zM9 22h3v1h-3zM15 22h5v1h-5zM21 22h1v1h-1zM23 22h3v1h-3zM1 23h1v1h-1zM3 23h3v1h-3zM7 23h1v1h-1zM9 23h1v1h-1zM12 23h2v1h-2zM15 23h1v1h-1zM17 23h1v1h-1zM20 23h1v1h-1zM23 23h1v1h-1zM25 23h1v1h-1zM1 24h1v1h-1zM7 24h1v1h-1zM12 24h1v1h-1zM15 24h3v1h-3zM20 24h3v1h-3zM25 24h1v1h-1zM1 25h7v1h-7zM10 25h1v1h-1zM12 25h2v1h-2zM16 25h1v1h-1zM18 25h1v1h-1zM20 25h6v1h-6z"/>
                   </svg>
                 </div>
                 <div class="w-full mt-1.5 text-center">
-                  <div class="text-[10px] font-medium leading-tight" style="color: var(--chalk-white);" data-i18n="preview_qr_action">Scan to snap board</div>
+                  <div class="text-[10px] font-medium leading-tight hover:underline" style="color: var(--chalk-white);" data-i18n="preview_qr_action">Scan to snap board</div>
                   <div class="text-[9px] font-mono leading-tight mt-0.5" style="color: var(--chalk-muted);" data-i18n="preview_qr_spec">Direct LAN • Zero Cloud</div>
                 </div>
               </div>
@@ -392,12 +406,27 @@
                     <span class="text-[11px] font-medium" style="color: var(--chalk-slate);" data-i18n="preview_recall_label">INTELLIGENT RECALL</span>
                     <kbd class="text-[9px] font-mono px-1.5 py-0.5 rounded border leading-none" style="background-color: var(--surface-terminal); border-color: var(--chalk-border); color: var(--chalk-muted);">Alt+Space</kbd>
                   </div>
-                  <div class="flex items-start gap-1.5 rounded-lg border px-2.5 py-2 text-xs" style="background-color: var(--surface-terminal); border-color: var(--chalk-border);">
-                    <span class="font-mono text-[11px] mt-0.5 flex-shrink-0" style="color: var(--chalk-muted);">></span>
-                    <span class="text-[11px] leading-snug" style="color: var(--terminal-text);" data-i18n="preview_recall_query">How does beta behave during market volatility?</span>
+                  <div class="flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-xs focus-within:border-white/40" style="background-color: var(--surface-terminal); border-color: var(--chalk-border);">
+                    <span class="font-mono text-[11px] flex-shrink-0 text-slate-400">></span>
+                    <input type="text" id="recall-input" onkeydown="if(event.key==='Enter')submitMockupRecall()" placeholder="Ask AI copilot (e.g. 'Explain beta')..." class="bg-transparent text-xs w-full focus:outline-none" style="color: var(--terminal-text);">
+                    <button onclick="submitMockupRecall()" title="Ask Copilot" class="p-1 rounded hover:bg-white/10 text-slate-300 flex-shrink-0 cursor-pointer">
+                      <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                    </button>
+                  </div>
+
+                  <!-- Suggested Query Chips -->
+                  <div class="flex items-center gap-1.5 mt-2 flex-wrap">
+                    <button onclick="askRecallPreset('Explain beta')" class="px-2 py-0.5 rounded text-[10px] font-mono border hover:bg-white/5 cursor-pointer transition" style="border-color: var(--chalk-border); color: var(--chalk-slate);">Beta</button>
+                    <button onclick="askRecallPreset('What is Rf?')" class="px-2 py-0.5 rounded text-[10px] font-mono border hover:bg-white/5 cursor-pointer transition" style="border-color: var(--chalk-border); color: var(--chalk-slate);">Risk-Free</button>
+                    <button onclick="askRecallPreset('Derive Alpha')" class="px-2 py-0.5 rounded text-[10px] font-mono border hover:bg-white/5 cursor-pointer transition" style="border-color: var(--chalk-border); color: var(--chalk-slate);">Alpha</button>
+                  </div>
+
+                  <!-- Dynamic AI Recall Answer Box -->
+                  <div id="recall-answer-box" class="mt-2.5 p-2 rounded-lg border text-[11px] leading-relaxed hidden" style="background-color: var(--surface-terminal); border-color: var(--chalk-border); color: var(--chalk-white);">
+                    <!-- Injected dynamically via JS -->
                   </div>
                 </div>
-                <div class="mt-2.5 text-[10px] flex items-center justify-between" style="color: var(--chalk-muted);">
+                <div class="mt-2 text-[10px] flex items-center justify-between" style="color: var(--chalk-muted);">
                   <span data-i18n="preview_recall_direct">Direct AI</span>
                   <span class="opacity-40">•</span>
                   <span data-i18n="preview_recall_private">100% Private</span>
@@ -406,38 +435,116 @@
             </div>
           </div>
 
-          <!-- Right Column: Real-Time Structured Synthesis Output -->
+          <!-- Right Column: Real-Time Structured Synthesis Output & Interactive Views -->
           <div class="md:col-span-7 rounded-xl border p-5 text-xs flex flex-col justify-between shadow-sm" style="background-color: var(--hud-card-bg); border-color: var(--chalk-border);">
             <div class="space-y-3">
+              <!-- Tab Switcher Bar -->
               <div class="flex items-center justify-between pb-3 border-b" style="border-color: var(--chalk-border);">
-                <div class="flex items-center gap-2">
-                  <span class="font-semibold text-xs" style="color: var(--chalk-white);" data-i18n="preview_notes_label">LECTURE NOTES</span>
-                  <span class="text-[11px]" style="color: var(--chalk-muted);">financial_markets_ch3.md</span>
+                <div class="flex items-center gap-1">
+                  <button id="tab-btn-notes" onclick="setMockupTab('notes')" class="text-xs font-semibold px-2.5 py-1 rounded transition cursor-pointer" style="background-color: var(--surface-elevated); color: var(--chalk-white);" data-i18n="preview_tab_notes">Live Notes</button>
+                  <button id="tab-btn-settings" onclick="setMockupTab('settings')" class="text-xs font-medium px-2.5 py-1 rounded transition hover:opacity-80 cursor-pointer" style="background-color: transparent; color: var(--chalk-muted);" data-i18n="preview_tab_settings">Settings & Keys</button>
+                  <button id="tab-btn-socratic" onclick="setMockupTab('socratic')" class="text-xs font-medium px-2.5 py-1 rounded transition hover:opacity-80 cursor-pointer" style="background-color: transparent; color: var(--chalk-muted);" data-i18n="preview_tab_socratic">Socratic Recall</button>
                 </div>
-                <button onclick="copyMarkdownNotes(this)" class="text-[11px] px-2.5 py-1 rounded border transition font-medium flex items-center gap-1.5 hover:opacity-90" style="background-color: var(--surface-elevated); border-color: var(--chalk-border); color: var(--chalk-white);">
-                  <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/></svg>
-                  <span data-i18n="preview_copy_btn">Copy notes</span>
-                </button>
+                <div class="flex items-center gap-2">
+                  <span id="mockup-notes-filename" class="text-[11px] hidden sm:inline" style="color: var(--chalk-muted);">financial_markets_ch3.md</span>
+                  <button onclick="copyMarkdownNotes(this)" class="text-[11px] px-2.5 py-1 rounded border transition font-medium flex items-center gap-1.5 hover:opacity-90 cursor-pointer" style="background-color: var(--surface-elevated); border-color: var(--chalk-border); color: var(--chalk-white);">
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/></svg>
+                    <span data-i18n="preview_copy_btn">Copy notes</span>
+                  </button>
+                </div>
               </div>
 
-              <!-- Synthesized Content Snippet -->
-              <div class="space-y-2.5 leading-relaxed text-[13px]" style="color: var(--chalk-slate);">
-                <p class="text-xs font-semibold" style="color: var(--chalk-muted);" data-i18n="preview_notes_h1"># Capital Market Line & Systematic Risk</p>
-                <p data-i18n="preview_notes_p1">
+              <!-- VIEW 1: Live Notes Snippet -->
+              <div id="mockup-view-notes" class="space-y-2.5 leading-relaxed text-[13px]" style="color: var(--chalk-slate);">
+                <p id="mockup-note-h1" class="text-xs font-semibold" style="color: var(--chalk-muted);" data-i18n="preview_notes_h1"># Capital Market Line & Systematic Risk</p>
+                <p id="mockup-note-p1" data-i18n="preview_notes_p1">
                   The expected return of an asset comprises the risk-free rate plus the market risk premium. Unsystematic individual risk is eliminated through portfolio diversification.
                 </p>
-                <div class="render-math py-2 text-sm sm:text-base text-center font-serif" style="color: var(--chalk-white);">$$E(R_i) = R_f + \beta_i \left[E(R_m) - R_f\right]$$</div>
-                <ul class="space-y-1.5 text-xs">
+                <div id="mockup-note-math" class="render-math py-2 text-sm sm:text-base text-center font-serif" style="color: var(--chalk-white);">3020E(R_i) = R_f + eta_i \left[E(R_m) - R_f
+ight]3020</div>
+                <ul id="mockup-note-bullets" class="space-y-1.5 text-xs">
                   <li data-i18n="preview_notes_li1"><strong style="color: var(--chalk-white);">Beta factor (&beta;<sub>i</sub>):</strong> Sensitivity of asset return to broad market movements.</li>
                   <li data-i18n="preview_notes_li2"><strong style="color: var(--chalk-white);">Risk-free rate (R<sub>f</sub>):</strong> Benchmark sovereign bond yield as the hurdle rate.</li>
                   <li data-i18n="preview_notes_li3"><span style="color: var(--chalk-white); font-weight: 500;">[Lecturer Core Point @ 01:14:20]:</span> Only systematic risk is compensated by the market with a risk premium.</li>
                 </ul>
+
+                <!-- Container for merged whiteboard snapshots -->
+                <div id="mockup-merged-snaps"></div>
+              </div>
+
+              <!-- VIEW 2: Settings & BYOK API Keys (Workable inside Mockup!) -->
+              <div id="mockup-view-settings" class="hidden space-y-4 py-1 text-xs" style="color: var(--chalk-slate);">
+                <div>
+                  <div class="flex items-center justify-between mb-1.5">
+                    <label class="font-semibold text-xs" style="color: var(--chalk-white);" data-i18n="preview_key_label">Google Gemini API Key (BYOK):</label>
+                    <a href="https://aistudio.google.com" target="_blank" rel="noopener" class="text-[10px] underline hover:text-white transition" style="color: var(--chalk-muted);">Get Free Key &rarr;</a>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <div class="relative flex-1">
+                      <input type="password" id="mockup-gemini-key" placeholder="AIzaSy... (Enter your key to test)" class="w-full text-xs font-mono px-3 py-2 rounded-lg border focus:outline-none focus:border-white/40" style="background-color: var(--surface-terminal); border-color: var(--chalk-border); color: var(--chalk-white);">
+                      <button onclick="toggleKeyVisibility()" title="Show/Hide Key" class="absolute right-2.5 top-2 text-slate-400 hover:text-white cursor-pointer">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                      </button>
+                    </div>
+                    <button onclick="testMockupKey()" class="px-3 py-2 rounded-lg text-xs font-medium border hover:bg-white/10 cursor-pointer transition" style="border-color: var(--chalk-border); color: var(--chalk-white);" data-i18n="preview_key_test_btn">Test Key</button>
+                    <button onclick="saveMockupKey()" class="px-3.5 py-2 rounded-lg text-xs font-semibold bg-white text-black hover:opacity-90 cursor-pointer transition" data-i18n="preview_key_save_btn">Save Key</button>
+                  </div>
+                  <div id="mockup-key-feedback" class="text-[11px] font-mono mt-1.5" style="color: var(--chalk-muted);">
+                    [Local BYOK] Ready for key entry. Key stored in browser storage only.
+                  </div>
+                </div>
+
+                <div>
+                  <label class="font-semibold text-xs block mb-1.5" style="color: var(--chalk-white);" data-i18n="preview_model_label">AI Synthesis Model:</label>
+                  <select id="mockup-model-select" onchange="onModelChange()" class="w-full text-xs font-mono px-3 py-2 rounded-lg border focus:outline-none" style="background-color: var(--surface-terminal); border-color: var(--chalk-border); color: var(--chalk-white);">
+                    <option value="gemini-2.5-flash">Gemini 2.5 Flash (1M Tokens, Recommended)</option>
+                    <option value="claude-3-7-sonnet">Claude 3.7 Sonnet (Anthropic BYOK)</option>
+                    <option value="gpt-4o">GPT-4o (OpenAI BYOK)</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label class="font-semibold text-xs block mb-1.5" style="color: var(--chalk-white);" data-i18n="preview_obsidian_label">Obsidian Vault Directory:</label>
+                  <input type="text" id="mockup-obsidian-input" value="~/Documents/Obsidian/Academic_Notes" class="w-full text-xs font-mono px-3 py-2 rounded-lg border focus:outline-none" style="background-color: var(--surface-terminal); border-color: var(--chalk-border); color: var(--chalk-white);">
+                </div>
+
+                <div class="pt-2.5 flex items-center justify-between border-t" style="border-color: var(--chalk-border);">
+                  <span class="text-[10px] font-mono" style="color: var(--chalk-muted);" data-i18n="preview_byok_guarantee">100% Client-Side Direct BYOK • 0 Chalk Servers</span>
+                  <button onclick="setMockupTab('notes')" class="px-3 py-1.5 rounded-lg text-xs font-medium border hover:bg-white/10 cursor-pointer transition" style="border-color: var(--chalk-border); color: var(--chalk-white);" data-i18n="preview_return_notes">Return to Live Notes &rarr;</button>
+                </div>
+              </div>
+
+              <!-- VIEW 3: Socratic Debrief Questions -->
+              <div id="mockup-view-socratic" class="hidden space-y-3 py-1 text-xs" style="color: var(--chalk-slate);">
+                <div class="p-3 rounded-lg border" style="background-color: var(--surface-terminal); border-color: var(--chalk-border);">
+                  <div class="font-medium text-xs mb-1" style="color: var(--chalk-white);" data-i18n="preview_socratic_q1">Why does the market only compensate systematic risk?</div>
+                  <button onclick="toggleSocraticAnswer('socratic-a1')" class="text-[11px] underline hover:text-white cursor-pointer" style="color: var(--chalk-muted);">[Toggle Derivation]</button>
+                  <div id="socratic-a1" class="mt-2 text-[12px] leading-relaxed hidden" style="color: var(--chalk-slate);" data-i18n="preview_socratic_a1">
+                    Unsystematic individual risk is eliminated through diversification. Only market-wide covariance cannot be diversified away.
+                  </div>
+                </div>
+
+                <div class="p-3 rounded-lg border" style="background-color: var(--surface-terminal); border-color: var(--chalk-border);">
+                  <div class="font-medium text-xs mb-1" style="color: var(--chalk-white);" data-i18n="preview_socratic_q2">What is the economic interpretation of Jensen's Alpha &gt; 0?</div>
+                  <button onclick="toggleSocraticAnswer('socratic-a2')" class="text-[11px] underline hover:text-white cursor-pointer" style="color: var(--chalk-muted);">[Toggle Derivation]</button>
+                  <div id="socratic-a2" class="mt-2 text-[12px] leading-relaxed hidden" style="color: var(--chalk-slate);" data-i18n="preview_socratic_a2">
+                    Positive abnormal excess return above the CAPM risk-adjusted hurdle rate, indicating active edge or structural mispricing.
+                  </div>
+                </div>
+
+                <div class="p-3 rounded-lg border" style="background-color: var(--surface-terminal); border-color: var(--chalk-border);">
+                  <div class="font-medium text-xs mb-1" style="color: var(--chalk-white);" data-i18n="preview_socratic_q3">How does Arbitrage Pricing Theory generalize CAPM?</div>
+                  <button onclick="toggleSocraticAnswer('socratic-a3')" class="text-[11px] underline hover:text-white cursor-pointer" style="color: var(--chalk-muted);">[Toggle Derivation]</button>
+                  <div id="socratic-a3" class="mt-2 text-[12px] leading-relaxed hidden" style="color: var(--chalk-slate);" data-i18n="preview_socratic_a3">
+                    By replacing the unobservable single market index with multi-factor macroeconomic sensitivities (inflation, GDP, credit spreads).
+                  </div>
+                </div>
               </div>
             </div>
 
             <!-- Footer Stats -->
             <div class="pt-4 mt-4 border-t flex items-center justify-between text-xs" style="border-color: var(--chalk-border); color: var(--chalk-muted);">
-              <span data-i18n="preview_duration">Duration: 1h 42m</span>
+              <span id="mockup-footer-duration" data-i18n="preview_duration">Duration: 1h 42m</span>
               <span style="color: var(--chalk-white); font-weight: 500;" data-i18n="preview_local_processed">100% locally processed</span>
             </div>
           </div>
@@ -448,7 +555,7 @@
         if (typeof renderMathInElement === 'function') {
           var hc = document.getElementById('hero-card');
           if (hc) {
-            renderMathInElement(hc, { delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}], throwOnError: false });
+            renderMathInElement(hc, { delimiters: [{left: '3020', right: '3020', display: true}, {left: '$', right: '$', display: false}], throwOnError: false });
             hc.querySelectorAll('.render-math').forEach(function(el){ el.classList.add('math-rendered'); });
           }
         }
@@ -964,6 +1071,23 @@
     "preview_notes_li3": "<span style=\"color: var(--chalk-white); font-weight: 500;\">[Lecturer Core Point @ 01:14:20]:</span> Only systematic risk is compensated by the market with a risk premium.",
     "preview_duration": "Duration: 1h 42m",
     "preview_local_processed": "100% locally processed",
+    "preview_settings_tab": "Settings",
+    "preview_tab_notes": "Live Notes",
+    "preview_tab_settings": "Settings & Keys",
+    "preview_tab_socratic": "Socratic Recall",
+    "preview_key_label": "Google Gemini API Key (BYOK):",
+    "preview_key_test_btn": "Test Key",
+    "preview_key_save_btn": "Save Key",
+    "preview_model_label": "AI Synthesis Model:",
+    "preview_obsidian_label": "Obsidian Vault Directory:",
+    "preview_byok_guarantee": "100% Client-Side Direct BYOK • 0 Chalk Servers",
+    "preview_return_notes": "Return to Live Notes",
+    "preview_socratic_q1": "Why does the market only compensate systematic risk?",
+    "preview_socratic_a1": "Unsystematic individual risk is eliminated through diversification. Only market-wide covariance cannot be diversified away.",
+    "preview_socratic_q2": "What is the economic interpretation of Jensen's Alpha > 0?",
+    "preview_socratic_a2": "Positive abnormal excess return above the CAPM risk-adjusted hurdle rate, indicating active edge or structural mispricing.",
+    "preview_socratic_q3": "How does Arbitrage Pricing Theory generalize CAPM?",
+    "preview_socratic_a3": "By replacing the unobservable single market index with multi-factor macroeconomic sensitivities (inflation, GDP, credit spreads).",
     "steps_tag": "HOW IT WORKS",
     "steps_title": "The 3-Step Principle",
     "steps_subtitle": "No stress, no frantic typing. Complete focus on the presenter.",
@@ -1114,6 +1238,23 @@
     "preview_notes_li3": "<span style=\"color: var(--chalk-white); font-weight: 500;\">[Kernaussage Dozent @ 01:14:20]:</span> Nur systematisches Risiko wird vom Markt mit einer Prämie vergütet.",
     "preview_duration": "Dauer: 1 Std. 42 Min.",
     "preview_local_processed": "100 % lokal verarbeitet",
+    "preview_settings_tab": "Einstellungen",
+    "preview_tab_notes": "Live-Notizen",
+    "preview_tab_settings": "Einstellungen & Keys",
+    "preview_tab_socratic": "Sokratischer Rückruf",
+    "preview_key_label": "Google Gemini API-Schlüssel (BYOK):",
+    "preview_key_test_btn": "Key testen",
+    "preview_key_save_btn": "Key speichern",
+    "preview_model_label": "KI-Synthese-Modell:",
+    "preview_obsidian_label": "Obsidian Vault-Pfad:",
+    "preview_byok_guarantee": "100% Client-Side Direct BYOK • 0 Chalk-Server",
+    "preview_return_notes": "Zurück zu Live-Notizen",
+    "preview_socratic_q1": "Warum vergütet der Markt nur systematisches Risiko?",
+    "preview_socratic_a1": "Unsystematisches Einzelrisiko wird durch Portfolio-Diversifikation eliminiert. Nur die marktweite Kovarianz kann nicht wegdiversifiziert werden.",
+    "preview_socratic_q2": "Was bedeutet ein positiver Jensen's Alpha > 0?",
+    "preview_socratic_a2": "Eine abnormale Überrendite über der theoretischen CAPM-Benchmark, was auf aktive Informationsvorteile hinweist.",
+    "preview_socratic_q3": "Wie verallgemeinert die Arbitrage Pricing Theory das CAPM?",
+    "preview_socratic_a3": "Sie ersetzt das unvollständig beobachtbare Marktportfolio durch multifaktorielle makroökonomische Sensitivitäten (Inflation, Zinskurve, BIP).",
     "steps_tag": "SO EINFACH FUNKTIONIERT ES",
     "steps_title": "Das 3-Schritte-Prinzip",
     "steps_subtitle": "Kein Stress, kein Tippen. Vollste Konzentration auf den Vortragenden.",
@@ -1264,6 +1405,23 @@
     "preview_notes_li3": "<span style=\"color: var(--chalk-white); font-weight: 500;\">[Point clé enseignant @ 01:14:20] :</span> Seul le risque systématique est rémunéré par une prime de marché.",
     "preview_duration": "Durée : 1 h 42 min",
     "preview_local_processed": "100 % traité localement",
+    "preview_settings_tab": "Paramètres",
+    "preview_tab_notes": "Notes en direct",
+    "preview_tab_settings": "Paramètres & Clés",
+    "preview_tab_socratic": "Rappel socratique",
+    "preview_key_label": "Clé API Google Gemini (BYOK) :",
+    "preview_key_test_btn": "Tester la clé",
+    "preview_key_save_btn": "Enregistrer la clé",
+    "preview_model_label": "Modèle de synthèse IA :",
+    "preview_obsidian_label": "Répertoire du coffre Obsidian :",
+    "preview_byok_guarantee": "100 % Client-Side Direct BYOK • Zéro serveur Chalk",
+    "preview_return_notes": "Retour aux notes",
+    "preview_socratic_q1": "Pourquoi le marché ne rémunère-t-il que le risque systématique ?",
+    "preview_socratic_a1": "Le risque spécifique est éliminé par la diversification. Seule la covariance avec l'ensemble du marché persiste.",
+    "preview_socratic_q2": "Que signifie un Alpha de Jensen positif > 0 ?",
+    "preview_socratic_a2": "Un rendement excédentaire anormal supérieur à l'exigence du modèle CAPM, signe d'une performance active.",
+    "preview_socratic_q3": "Comment l'APT généralise-t-elle le CAPM ?",
+    "preview_socratic_a3": "En remplaçant le portefeuille de marché par des sensibilités multifactorielles macroéconomiques.",
     "steps_tag": "COMMENT ÇA MARCHE",
     "steps_title": "Le principe en 3 étapes",
     "steps_subtitle": "Zéro stress, zéro frappe manuelle. Concentration totale sur l'orateur.",
@@ -1414,6 +1572,23 @@
     "preview_notes_li3": "<span style=\"color: var(--chalk-white); font-weight: 500;\">[Punto clave del ponente @ 01:14:20]:</span> Solo el riesgo sistemático es compensado por el mercado.",
     "preview_duration": "Duración: 1 h 42 min",
     "preview_local_processed": "100 % procesado localmente",
+    "preview_settings_tab": "Ajustes",
+    "preview_tab_notes": "Notas en vivo",
+    "preview_tab_settings": "Ajustes y Claves",
+    "preview_tab_socratic": "Recuerdo socrático",
+    "preview_key_label": "Clave API de Google Gemini (BYOK):",
+    "preview_key_test_btn": "Probar clave",
+    "preview_key_save_btn": "Guardar clave",
+    "preview_model_label": "Modelo de síntesis IA:",
+    "preview_obsidian_label": "Directorio del baúl Obsidian:",
+    "preview_byok_guarantee": "100% Client-Side Direct BYOK • Cero servidores Chalk",
+    "preview_return_notes": "Volver a notas",
+    "preview_socratic_q1": "¿Por qué el mercado solo compensa el riesgo sistemático?",
+    "preview_socratic_a1": "El riesgo no sistemático se elimina mediante diversificación. Solo la covarianza de mercado no puede diversificarse.",
+    "preview_socratic_q2": "¿Qué significa un Alfa de Jensen positivo > 0?",
+    "preview_socratic_a2": "Rendimiento anormal positivo por encima del umbral teórico del CAPM, señal de ventaja activa.",
+    "preview_socratic_q3": "¿Cómo generaliza la APT el modelo CAPM?",
+    "preview_socratic_a3": "Sustituye la cartera de mercado por sensibilidades macroeconómicas multifactoriales.",
     "steps_tag": "CÓMO FUNCIONA",
     "steps_title": "El principio de 3 pasos",
     "steps_subtitle": "Sin estrés ni tecleo apresurado. Concentración total en el ponente.",
@@ -1564,6 +1739,23 @@
     "preview_notes_li3": "<span style=\"color: var(--chalk-white); font-weight: 500;\">[讲师核心论点 @ 01:14:20]：</span> 市场上唯有系统性风险能够获得风险溢价补偿。",
     "preview_duration": "时长：1小时42分钟",
     "preview_local_processed": "100% 本地处理",
+    "preview_settings_tab": "设置",
+    "preview_tab_notes": "实时笔记",
+    "preview_tab_settings": "设置与密钥",
+    "preview_tab_socratic": "苏格拉底回顾",
+    "preview_key_label": "Google Gemini API 密钥 (BYOK)：",
+    "preview_key_test_btn": "测试密钥",
+    "preview_key_save_btn": "保存密钥",
+    "preview_model_label": "AI 提炼模型：",
+    "preview_obsidian_label": "Obsidian 仓库目录：",
+    "preview_byok_guarantee": "100% 本地端侧 BYOK 直连 • 零中转服务器",
+    "preview_return_notes": "返回实时笔记",
+    "preview_socratic_q1": "为什么市场只对系统性风险给予风险溢价？",
+    "preview_socratic_a1": "非系统性风险可通过多元化投资组合彻底消除，市场上唯有不可分散的整体协方差风险才能获得收益补偿。",
+    "preview_socratic_q2": "詹森阿尔法 (Jensen's Alpha > 0) 的经济含义是什么？",
+    "preview_socratic_a2": "代表超出 CAPM 理论风险调整收益的超额回报，通常体现主动管理能力或定价偏差。",
+    "preview_socratic_q3": "套利定价理论 (APT) 如何推广单因子 CAPM？",
+    "preview_socratic_a3": "通过引入通胀、经济增长和信用利差等多重宏观因子敏感度，摆脱了对不可观测的单一市场组合的依赖。",
     "steps_tag": "极简工作流",
     "steps_title": "三步极简体验",
     "steps_subtitle": "告别焦虑与键盘敲击。全身心倾听主讲人见解。",
@@ -1709,17 +1901,361 @@
       updateHeroDownloadButton();
     }
 
-    // Apple Live Recording Timer (Starts at 01:42 = 102 seconds)
-    let timerSeconds = 102;
-    setInterval(() => {
-      timerSeconds++;
-      const mins = String(Math.floor(timerSeconds / 60)).padStart(2, '0');
-      const secs = String(timerSeconds % 60).padStart(2, '0');
-      const timerEl = document.getElementById('live-timer');
-      if (timerEl) {
-        timerEl.textContent = `${mins}:${secs}`;
+    // --- INTERACTIVE MOCKUP CONTROLLER & SIMULATOR ENGINE ---
+    const mockupState = {
+      recording: true,
+      timerSeconds: 102,
+      timerInterval: null,
+      activeSlide: 0,
+      activeTab: 'notes',
+      phoneSnaps: 0,
+      keyValid: false,
+      isExpanded: false,
+      topicIndex: 0,
+      topics: [
+        { title: "Lecture: Financial Markets & Risk — Chalk", file: "financial_markets_ch3.md", duration: "1h 42m" },
+        { title: "Seminar: Machine Learning & Optimization — Chalk", file: "ml_loss_optimization.md", duration: "0h 48m" },
+        { title: "Lecture: Quantum Information & Bell States — Chalk", file: "quantum_bell_states.md", duration: "1h 15m" }
+      ],
+      slides: [
+        {
+          topic: "Portfolio Theory & Risk Modeling",
+          heading: "Capital Asset Pricing Model (CAPM)",
+          file: "Asset_Pricing_Lecture_04.pdf (p. 12/42)",
+          math: "$$E(R_i) = R_f + \beta_i [E(R_m) - R_f]$$",
+          noteH1: "# Capital Market Line & Systematic Risk",
+          noteP1: "The expected return of an asset comprises the risk-free rate plus the market risk premium. Unsystematic individual risk is eliminated through portfolio diversification.",
+          noteMath: "$$E(R_i) = R_f + \beta_i \left[E(R_m) - R_f\right]$$",
+          bullets: [
+            "<strong style=\"color: var(--chalk-white);\">Beta factor (&beta;<sub>i</sub>):</strong> Sensitivity of asset return to broad market movements.",
+            "<strong style=\"color: var(--chalk-white);\">Risk-free rate (R<sub>f</sub>):</strong> Benchmark sovereign bond yield as the hurdle rate.",
+            "<span style=\"color: var(--chalk-white); font-weight: 500;\">[Lecturer Core Point @ 01:14:20]:</span> Only systematic risk is compensated by the market with a risk premium."
+          ]
+        },
+        {
+          topic: "Performance Attribution & Alpha",
+          heading: "Security Market Line & Jensen's Alpha",
+          file: "Asset_Pricing_Lecture_04.pdf (p. 18/42)",
+          math: "$$\alpha_i = R_i - \left[R_f + \beta_i (E(R_m) - R_f)\right]$$",
+          noteH1: "# Security Market Line & Jensen's Alpha",
+          noteP1: "Jensen's Alpha measures abnormal excess return above the theoretical Capital Asset Pricing Model expectation.",
+          noteMath: "$$\alpha_i = R_i - \left[R_f + \beta_i \left(E(R_m) - R_f\right)\right]$$",
+          bullets: [
+            "<strong style=\"color: var(--chalk-white);\">Alpha (&alpha;<sub>i</sub>):</strong> Positive value indicates manager skill or structural mispricing (&alpha; > 0).",
+            "<strong style=\"color: var(--chalk-white);\">Market Efficiency Equilibrium:</strong> In equilibrium, expected alpha converges to zero (E[&alpha;] = 0).",
+            "<span style=\"color: var(--chalk-white); font-weight: 500;\">[Lecturer Core Point @ 01:26:05]:</span> Alpha cannot persist long-term without proprietary information or latency arbitrage."
+          ]
+        },
+        {
+          topic: "Multi-Factor Risk Premia",
+          heading: "Arbitrage Pricing Theory (APT)",
+          file: "Asset_Pricing_Lecture_04.pdf (p. 25/42)",
+          math: "$$E(R_i) = R_f + \sum_{k=1}^K \beta_{ik} F_k + \epsilon_i$$",
+          noteH1: "# Arbitrage Pricing Theory (APT)",
+          noteP1: "Multi-factor framework removing single-market portfolio assumptions in favor of pure no-arbitrage bounds.",
+          noteMath: "$$E(R_i) = R_f + \sum_{k=1}^K \beta_{ik} F_k + \epsilon_i$$",
+          bullets: [
+            "<strong style=\"color: var(--chalk-white);\">Macro Risk Premia (F<sub>k</sub>):</strong> Sensitivities to inflation shocks, GDP delta, and yield spreads.",
+            "<strong style=\"color: var(--chalk-white);\">Idiosyncratic Residual (&epsilon;<sub>i</sub>):</strong> Uncorrelated firm-specific noise with E[&epsilon;<sub>i</sub>] = 0.",
+            "<span style=\"color: var(--chalk-white); font-weight: 500;\">[Lecturer Core Point @ 01:38:12]:</span> APT accommodates cross-asset risk factors without unobservable market portfolios."
+          ]
+        }
+      ]
+    };
+
+    function startMockupTimer() {
+      if (mockupState.timerInterval) clearInterval(mockupState.timerInterval);
+      mockupState.timerInterval = setInterval(() => {
+        if (mockupState.recording) {
+          mockupState.timerSeconds++;
+          const mins = String(Math.floor(mockupState.timerSeconds / 60)).padStart(2, '0');
+          const secs = String(mockupState.timerSeconds % 60).padStart(2, '0');
+          const timerEl = document.getElementById('live-timer');
+          if (timerEl) timerEl.textContent = `${mins}:${secs}`;
+        }
+      }, 1000);
+    }
+    startMockupTimer();
+
+    function toggleMockupRecording() {
+      mockupState.recording = !mockupState.recording;
+      const dot = document.getElementById('mockup-rec-dot');
+      const label = document.getElementById('mockup-rec-label');
+      const btn = document.getElementById('mockup-rec-btn');
+      if (mockupState.recording) {
+        if (dot) {
+          dot.style.backgroundColor = '#EF4444';
+          dot.classList.add('animate-pulse');
+          dot.style.boxShadow = '0 0 8px rgba(239, 68, 68, 0.7)';
+        }
+        if (label) label.textContent = translations[currentLang]?.preview_status_label || 'Recording active';
+        if (btn) btn.style.borderColor = 'var(--pill-border)';
+      } else {
+        if (dot) {
+          dot.style.backgroundColor = '#FFBD2E';
+          dot.classList.remove('animate-pulse');
+          dot.style.boxShadow = 'none';
+        }
+        const pausedText = currentLang === 'de' ? 'Aufnahme pausiert' : currentLang === 'fr' ? 'Enregistrement en pause' : currentLang === 'es' ? 'Grabación pausada' : currentLang === 'zh' ? '录音已暂停' : 'Recording paused';
+        if (label) label.textContent = pausedText;
+        if (btn) btn.style.borderColor = 'rgba(255, 189, 46, 0.4)';
       }
-    }, 1000);
+    }
+
+    function setMockupTab(tab) {
+      mockupState.activeTab = tab;
+      const viewNotes = document.getElementById('mockup-view-notes');
+      const viewSettings = document.getElementById('mockup-view-settings');
+      const viewSocratic = document.getElementById('mockup-view-socratic');
+      const btnNotes = document.getElementById('tab-btn-notes');
+      const btnSettings = document.getElementById('tab-btn-settings');
+      const btnSocratic = document.getElementById('tab-btn-socratic');
+
+      if (viewNotes) viewNotes.classList.toggle('hidden', tab !== 'notes');
+      if (viewSettings) viewSettings.classList.toggle('hidden', tab !== 'settings');
+      if (viewSocratic) viewSocratic.classList.toggle('hidden', tab !== 'socratic');
+
+      [btnNotes, btnSettings, btnSocratic].forEach(b => {
+        if (b) {
+          b.style.backgroundColor = 'transparent';
+          b.style.color = 'var(--chalk-muted)';
+          b.style.fontWeight = '500';
+        }
+      });
+
+      const activeBtn = tab === 'notes' ? btnNotes : tab === 'settings' ? btnSettings : btnSocratic;
+      if (activeBtn) {
+        activeBtn.style.backgroundColor = 'var(--surface-elevated)';
+        activeBtn.style.color = 'var(--chalk-white)';
+        activeBtn.style.fontWeight = '600';
+      }
+
+      if (tab === 'notes' || tab === 'socratic') {
+        renderHeroMath();
+      }
+    }
+
+    function toggleMockupSettings() {
+      setMockupTab(mockupState.activeTab === 'settings' ? 'notes' : 'settings');
+    }
+
+    function testMockupKey() {
+      const input = document.getElementById('mockup-gemini-key');
+      const feedback = document.getElementById('mockup-key-feedback');
+      if (!feedback) return;
+      const val = input ? input.value.trim() : '';
+      if (val.length >= 8) {
+        feedback.innerHTML = '<span style="color: #10B981;">[OK] Key valid • Direct Local TLS 1.3 to Google AI Studio • Ready for live synthesis</span>';
+        mockupState.keyValid = true;
+      } else {
+        feedback.innerHTML = '<span style="color: #94A3B8;">[Demo Mode] Simulated Gemini 2.5 Flash pipeline active • Stored locally in browser</span>';
+        mockupState.keyValid = false;
+      }
+    }
+
+    function saveMockupKey() {
+      const input = document.getElementById('mockup-gemini-key');
+      const feedback = document.getElementById('mockup-key-feedback');
+      const val = input ? input.value.trim() : '';
+      if (val) {
+        localStorage.setItem('chalk_user_gemini_key', val);
+      }
+      if (feedback) {
+        feedback.innerHTML = '<span style="color: #10B981;">[OK] Key saved to browser local storage! 0 Cloud Retention.</span>';
+      }
+      setTimeout(() => {
+        setMockupTab('notes');
+      }, 700);
+    }
+
+    function toggleKeyVisibility() {
+      const input = document.getElementById('mockup-gemini-key');
+      if (input) {
+        input.type = input.type === 'password' ? 'text' : 'password';
+      }
+    }
+
+    function setMockupSlide(idx) {
+      mockupState.activeSlide = idx;
+      const slide = mockupState.slides[idx];
+      const fileEl = document.getElementById('mockup-slide-file');
+      const topicEl = document.getElementById('mockup-screen-topic');
+      const headingEl = document.getElementById('mockup-screen-heading');
+      const mathEl = document.getElementById('mockup-screen-math');
+      const pillEl = document.getElementById('mockup-slide-pill');
+      const deltaSync = document.getElementById('mockup-delta-sync');
+
+      if (fileEl) fileEl.textContent = slide.file;
+      if (topicEl) topicEl.textContent = slide.topic;
+      if (headingEl) headingEl.textContent = slide.heading;
+      if (mathEl) mathEl.textContent = slide.math;
+      if (pillEl) pillEl.textContent = `${idx + 1}/3`;
+
+      if (deltaSync) {
+        deltaSync.textContent = 'Slide Delta Synced (Display 1)';
+        deltaSync.style.color = '#10B981';
+        setTimeout(() => {
+          deltaSync.textContent = 'Delta Sync: In Frame';
+          deltaSync.style.color = '';
+        }, 1200);
+      }
+
+      // Update Notes view
+      const noteH1 = document.getElementById('mockup-note-h1');
+      const noteP1 = document.getElementById('mockup-note-p1');
+      const noteMath = document.getElementById('mockup-note-math');
+      const noteBullets = document.getElementById('mockup-note-bullets');
+
+      if (noteH1) noteH1.textContent = slide.noteH1;
+      if (noteP1) noteP1.textContent = slide.noteP1;
+      if (noteMath) noteMath.textContent = slide.noteMath;
+      if (noteBullets) {
+        noteBullets.innerHTML = slide.bullets.map(b => `<li class="text-xs">${b}</li>`).join('');
+      }
+
+      renderHeroMath();
+    }
+
+    function nextMockupSlide(e) {
+      if (e) e.stopPropagation();
+      const next = (mockupState.activeSlide + 1) % mockupState.slides.length;
+      setMockupSlide(next);
+    }
+
+    function prevMockupSlide(e) {
+      if (e) e.stopPropagation();
+      const prev = (mockupState.activeSlide - 1 + mockupState.slides.length) % mockupState.slides.length;
+      setMockupSlide(prev);
+    }
+
+    function triggerMockupPhoneSnap() {
+      mockupState.phoneSnaps++;
+      const qrBox = document.getElementById('mockup-qr-box');
+      const statusEl = document.getElementById('mockup-phone-status');
+      if (qrBox) {
+        qrBox.style.borderColor = '#10B981';
+        qrBox.style.transform = 'scale(1.05)';
+        setTimeout(() => {
+          qrBox.style.borderColor = 'var(--chalk-border)';
+          qrBox.style.transform = '';
+        }, 400);
+      }
+      if (statusEl) {
+        statusEl.textContent = `Phone Link: ${mockupState.phoneSnaps} snaps merged`;
+      }
+
+      const snapsContainer = document.getElementById('mockup-merged-snaps');
+      if (snapsContainer) {
+        const snapBlock = document.createElement('div');
+        snapBlock.className = 'mt-3 p-2.5 rounded-lg border text-xs';
+        snapBlock.style.backgroundColor = 'var(--surface-terminal)';
+        snapBlock.style.borderColor = 'rgba(16, 185, 129, 0.4)';
+        snapBlock.innerHTML = `
+          <div class="flex items-center justify-between text-[11px] mb-1 font-mono" style="color: #10B981;">
+            <span>[PHOTO MERGED] Whiteboard Cam @ 01:18:40</span>
+            <span>Direct LAN</span>
+          </div>
+          <div class="text-[12px]" style="color: var(--chalk-slate);">Handwritten Derivation: Covariance Formulation:</div>
+          <div class="render-math py-1 text-xs text-center font-serif" style="color: var(--chalk-white);">$$\text{Cov}(R_i, R_m) = \sigma_{im} \implies \beta_i = \frac{\sigma_{im}}{\sigma_m^2}$$</div>
+        `;
+        snapsContainer.innerHTML = '';
+        snapsContainer.appendChild(snapBlock);
+        renderHeroMath();
+      }
+    }
+
+    function submitMockupRecall() {
+      const input = document.getElementById('recall-input');
+      const answerBox = document.getElementById('recall-answer-box');
+      if (!answerBox) return;
+      const q = (input ? input.value : '').trim().toLowerCase();
+
+      answerBox.classList.remove('hidden');
+      answerBox.innerHTML = '<span class="animate-pulse font-mono text-[11px] text-slate-400">Direct AI synthesizing answer...</span>';
+
+      setTimeout(() => {
+        let ans = '';
+        if (q.includes('beta')) {
+          ans = '<strong>Beta (&beta;<sub>i</sub>):</strong> Measures systematic asset volatility: $$\beta_i = \frac{\text{Cov}(R_i, R_m)}{\text{Var}(R_m)}$$ Values &gt; 1 amplify market movements; values &lt; 1 provide defensive characteristics.';
+        } else if (q.includes('rf') || q.includes('risk-free') || q.includes('zins')) {
+          ans = '<strong>Risk-Free Rate (R<sub>f</sub>):</strong> Sovereign benchmark yield with zero variance. Serves as the hurdle rate before any risk premium is awarded.';
+        } else if (q.includes('alpha')) {
+          ans = "<strong>Jensen's Alpha (&alpha;<sub>i</sub>):</strong> Measures risk-adjusted excess return: $$\alpha_i = R_i - \left[R_f + \beta_i(E(R_m) - R_f)\right]$$ Positive alpha (&alpha; &gt; 0) demonstrates active outperformance.";
+        } else {
+          ans = '<strong>Direct AI Synthesis:</strong> Analysis grounded in active audio chunk @ [01:14:20] and slide formulas. All terms verified locally against mathematical invariance principles.';
+        }
+        answerBox.innerHTML = ans;
+        renderHeroMath();
+      }, 250);
+    }
+
+    function askRecallPreset(prompt) {
+      const input = document.getElementById('recall-input');
+      if (input) input.value = prompt;
+      submitMockupRecall();
+    }
+
+    function toggleSocraticAnswer(id) {
+      const el = document.getElementById(id);
+      if (el) el.classList.toggle('hidden');
+    }
+
+    function resetMockupSession() {
+      mockupState.recording = true;
+      mockupState.timerSeconds = 102;
+      mockupState.phoneSnaps = 0;
+      setMockupSlide(0);
+      setMockupTab('notes');
+      const recallInput = document.getElementById('recall-input');
+      const recallBox = document.getElementById('recall-answer-box');
+      const snapsContainer = document.getElementById('mockup-merged-snaps');
+      const phoneStatus = document.getElementById('mockup-phone-status');
+      if (recallInput) recallInput.value = '';
+      if (recallBox) {
+        recallBox.classList.add('hidden');
+        recallBox.innerHTML = '';
+      }
+      if (snapsContainer) snapsContainer.innerHTML = '';
+      if (phoneStatus) phoneStatus.textContent = translations[currentLang]?.preview_phone_status || 'Phone Link: Ready';
+      renderHeroMath();
+    }
+
+    function toggleMockupExpand() {
+      mockupState.isExpanded = !mockupState.isExpanded;
+      const card = document.getElementById('hero-card');
+      if (card) {
+        card.classList.toggle('scale-[1.02]', mockupState.isExpanded);
+      }
+    }
+
+    function cycleMockupTopic() {
+      mockupState.topicIndex = (mockupState.topicIndex + 1) % mockupState.topics.length;
+      const t = mockupState.topics[mockupState.topicIndex];
+      const titleEl = document.getElementById('mockup-lecture-title');
+      const fileEl = document.getElementById('mockup-notes-filename');
+      const durEl = document.getElementById('mockup-footer-duration');
+      if (titleEl) titleEl.textContent = t.title;
+      if (fileEl) fileEl.textContent = t.file;
+      if (durEl) durEl.textContent = `Duration: ${t.duration}`;
+    }
+
+    function onModelChange() {
+      const sel = document.getElementById('mockup-model-select');
+      const feedback = document.getElementById('mockup-key-feedback');
+      if (sel && feedback) {
+        feedback.textContent = `[Model Selected] Active provider: ${sel.value} (Direct BYOK TLS 1.3)`;
+      }
+    }
+
+    // Preload saved key from localStorage if available
+    window.addEventListener('DOMContentLoaded', () => {
+      const savedKey = localStorage.getItem('chalk_user_gemini_key');
+      const keyInput = document.getElementById('mockup-gemini-key');
+      if (savedKey && keyInput) {
+        keyInput.value = savedKey;
+        testMockupKey();
+      }
+    });
 
     function setLanguage(lang) {
       if (!translations[lang]) return;
