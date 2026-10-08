@@ -49,52 +49,52 @@ from src.ui.i18n import (
 
 MONOCHROME_STYLESHEET = """
 QDialog {
-    background-color: #0A0A0C;
+    background-color: #121317;
     color: #F8FAFC;
     font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif;
 }
 QLabel {
     color: #94A3B8;
-    font-size: 13px;
+    font-size: 12px;
 }
 QLabel#titleLabel {
-    color: #FFFFFF;
-    font-size: 17px;
+    color: #F8FAFC;
+    font-size: 16px;
     font-weight: 700;
 }
 QLabel#subtitleLabel {
     color: #64748B;
-    font-size: 12px;
+    font-size: 11.5px;
 }
 QLineEdit, QComboBox {
-    background-color: #121318;
+    background-color: #15161B;
     color: #F8FAFC;
     border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 8px;
-    padding: 8px 12px;
-    font-size: 13px;
+    border-radius: 7px;
+    padding: 7px 11px;
+    font-size: 12.5px;
 }
 QLineEdit:focus, QComboBox:focus {
     border: 1px solid rgba(255, 255, 255, 0.3);
-    background-color: #181920;
+    background-color: #1A1C23;
 }
 QComboBox::drop-down {
     border: none;
     padding-right: 8px;
 }
 QComboBox QAbstractItemView {
-    background-color: #121318;
+    background-color: #15161B;
     color: #F8FAFC;
     border: 1px solid rgba(255, 255, 255, 0.15);
     selection-background-color: rgba(255, 255, 255, 0.1);
 }
 QPushButton#primaryButton {
     background-color: #FFFFFF;
-    color: #0A0A0C;
+    color: #121317;
     font-weight: 600;
-    font-size: 13px;
-    border-radius: 8px;
-    padding: 9px 18px;
+    font-size: 12.5px;
+    border-radius: 7px;
+    padding: 8px 16px;
     border: none;
 }
 QPushButton#primaryButton:hover {
@@ -105,15 +105,15 @@ QPushButton#primaryButton:disabled {
     color: #71717A;
 }
 QPushButton#secondaryButton {
-    background-color: #181920;
+    background-color: #1A1C23;
     color: #CBD5E1;
-    font-size: 13px;
-    border-radius: 8px;
-    padding: 9px 16px;
+    font-size: 12px;
+    border-radius: 7px;
+    padding: 7px 14px;
     border: 1px solid rgba(255, 255, 255, 0.1);
 }
 QPushButton#secondaryButton:hover {
-    background-color: #22232B;
+    background-color: #22252F;
     color: #FFFFFF;
     border-color: rgba(255, 255, 255, 0.2);
 }
@@ -122,7 +122,7 @@ QPushButton#linkButton {
     color: #94A3B8;
     text-align: left;
     border: none;
-    font-size: 12px;
+    font-size: 11.5px;
     text-decoration: underline;
     padding: 0;
 }
@@ -130,11 +130,30 @@ QPushButton#linkButton:hover {
     color: #FFFFFF;
 }
 QFrame#bannerCard {
-    background-color: #121318;
+    background-color: #1A1C23;
     border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 10px;
+    border-radius: 9px;
+}
+QFrame#guideCard {
+    background-color: #15161B;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 7px;
 }
 """
+
+SUPPORTED_MODELS = [
+    ("gemini-2.5-flash", "model_gemini_25_flash", "Gemini 2.5 Flash (Recommended • Free Tier)"),
+    ("gemini-2.5-pro", "model_gemini_25_pro", "Gemini 2.5 Pro (Deep Math & Reasoning)"),
+    ("gemini-2.0-flash", "model_gemini_20_flash", "Gemini 2.0 Flash (Next-Gen Real-Time)"),
+    ("gemini-2.0-flash-lite", "model_gemini_20_flash_lite", "Gemini 2.0 Flash-Lite (High Speed & Low Latency)"),
+    ("gemini-1.5-pro", "model_gemini_15_pro", "Gemini 1.5 Pro (2M Long Context Archive)"),
+    ("claude-3-7-sonnet", "model_claude_37_sonnet", "Claude 3.7 Sonnet (Hybrid Reasoning)"),
+    ("claude-3-5-sonnet", "model_claude_35_sonnet", "Claude 3.5 Sonnet (Technical Analysis)"),
+    ("claude-3-5-haiku", "model_claude_35_haiku", "Claude 3.5 Haiku (Rapid Extraction)"),
+    ("gpt-4o", "model_gpt_4o", "GPT-4o (Omnimodal Processing)"),
+    ("gpt-4o-mini", "model_gpt_4o_mini", "GPT-4o Mini (Fast & Lightweight)"),
+    ("o3-mini", "model_o3_mini", "o3-mini (STEM & Formula Reasoning)"),
+]
 
 
 class ValidationWorker(QThread):
@@ -156,7 +175,8 @@ class SettingsDialog(QDialog):
     def __init__(self, parent=None, is_initial_setup=False):
         super().__init__(parent)
         self.is_initial_setup = is_initial_setup
-        self.setFixedSize(580, 780)
+        self.setFixedWidth(580)
+        self.resize(580, 720)
         self.setStyleSheet(MONOCHROME_STYLESHEET)
         self.setWindowFlags(self.windowFlags() | Qt.WindowType.WindowStaysOnTopHint)
 
@@ -167,15 +187,15 @@ class SettingsDialog(QDialog):
 
     def _setup_ui(self):
         layout = QVBoxLayout(self)
-        layout.setContentsMargins(24, 20, 24, 20)
-        layout.setSpacing(11)
+        layout.setContentsMargins(22, 16, 22, 16)
+        layout.setSpacing(9)
 
         # Header Section
         header_layout = QHBoxLayout()
         logo_label = QLabel("CHALK")
         logo_label.setStyleSheet(
-            "background-color: #181920; border: 1px solid rgba(255,255,255,0.1);"
-            "border-radius: 8px; font-weight: 700; font-size: 11px; padding: 6px 10px; color: #FFFFFF;"
+            "background-color: #1A1C23; border: 1px solid rgba(255,255,255,0.12);"
+            "border-radius: 8px; font-weight: 700; font-size: 11px; padding: 5px 9px; color: #FFFFFF;"
         )
         header_layout.addWidget(logo_label)
 
@@ -201,9 +221,8 @@ class SettingsDialog(QDialog):
         model_box.addWidget(self.model_label)
 
         self.model_combo = QComboBox()
-        self.model_combo.addItem("Gemini 2.5 Flash (1M Token Context, Recommended)", "gemini-2.5-flash")
-        self.model_combo.addItem("Claude 3.7 Sonnet (Anthropic BYOK)", "claude-3.7-sonnet")
-        self.model_combo.addItem("GPT-4o (OpenAI BYOK)", "gpt-4o")
+        for model_id, key, default_label in SUPPORTED_MODELS:
+            self.model_combo.addItem(tr(key, lang=self._active_ui_lang) or default_label, model_id)
         self.model_combo.currentIndexChanged.connect(self._on_model_changed)
         model_box.addWidget(self.model_combo)
         layout.addLayout(model_box)
@@ -223,11 +242,54 @@ class SettingsDialog(QDialog):
         self.info_text.setStyleSheet("color: #94A3B8; font-size: 11px; line-height: 1.4;")
         card_layout.addWidget(self.info_text)
 
+        link_row = QHBoxLayout()
         self.link_btn = QPushButton("Create free Gemini API key at aistudio.google.com →")
         self.link_btn.setObjectName("linkButton")
         self.link_btn.setCursor(Qt.CursorShape.PointingHandCursor)
         self.link_btn.clicked.connect(self._open_ai_studio)
-        card_layout.addWidget(self.link_btn)
+        link_row.addWidget(self.link_btn)
+
+        link_row.addStretch()
+        self.guide_toggle_btn = QPushButton("How to get your free key (3 steps) ▾")
+        self.guide_toggle_btn.setObjectName("linkButton")
+        self.guide_toggle_btn.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.guide_toggle_btn.clicked.connect(self._toggle_free_guide)
+        link_row.addWidget(self.guide_toggle_btn)
+        card_layout.addLayout(link_row)
+
+        # Collapsible 3-step guide
+        self.guide_frame = QFrame()
+        self.guide_frame.setObjectName("guideCard")
+        guide_inner = QVBoxLayout(self.guide_frame)
+        guide_inner.setContentsMargins(10, 8, 10, 8)
+        guide_inner.setSpacing(5)
+
+        self.guide_step1_lbl = QLabel()
+        self.guide_step1_lbl.setWordWrap(True)
+        self.guide_step1_lbl.setStyleSheet("font-size: 10.5px; color: #CBD5E1; line-height: 1.3;")
+        guide_inner.addWidget(self.guide_step1_lbl)
+
+        self.guide_step2_lbl = QLabel()
+        self.guide_step2_lbl.setWordWrap(True)
+        self.guide_step2_lbl.setStyleSheet("font-size: 10.5px; color: #CBD5E1; line-height: 1.3;")
+        guide_inner.addWidget(self.guide_step2_lbl)
+
+        self.guide_step3_lbl = QLabel()
+        self.guide_step3_lbl.setWordWrap(True)
+        self.guide_step3_lbl.setStyleSheet("font-size: 10.5px; color: #CBD5E1; line-height: 1.3;")
+        guide_inner.addWidget(self.guide_step3_lbl)
+
+        guide_action_row = QHBoxLayout()
+        guide_action_row.addStretch()
+        self.guide_action_btn = QPushButton("Open Google AI Studio ↗")
+        self.guide_action_btn.setObjectName("secondaryButton")
+        self.guide_action_btn.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.guide_action_btn.clicked.connect(self._open_ai_studio)
+        guide_action_row.addWidget(self.guide_action_btn)
+        guide_inner.addLayout(guide_action_row)
+
+        self.guide_frame.hide()
+        card_layout.addWidget(self.guide_frame)
 
         # Transparent Onboarding Note on Free-Tier vs Paid-Tier
         self.tier_notice = QLabel(
@@ -398,6 +460,15 @@ class SettingsDialog(QDialog):
 
         layout.addLayout(btn_layout)
 
+    def _toggle_free_guide(self):
+        is_hidden = self.guide_frame.isHidden()
+        self.guide_frame.setVisible(is_hidden)
+        if is_hidden:
+            self.guide_toggle_btn.setText(tr("guide_toggle_btn_close", lang=self._active_ui_lang))
+        else:
+            self.guide_toggle_btn.setText(tr("guide_toggle_btn", lang=self._active_ui_lang))
+        self.adjustSize()
+
     def retranslate_ui(self, lang_code: Optional[str] = None):
         """Updates all visible texts in SettingsDialog according to specified or current language."""
         lang = lang_code or self._active_ui_lang
@@ -409,13 +480,20 @@ class SettingsDialog(QDialog):
 
         # Model options
         curr_model_idx = self.model_combo.currentIndex()
-        self.model_combo.setItemText(0, tr("settings_model_gemini", lang=lang))
-        self.model_combo.setItemText(1, tr("settings_model_claude", lang=lang))
-        self.model_combo.setItemText(2, tr("settings_model_gpt", lang=lang))
+        for i, (m_id, m_key, m_default) in enumerate(SUPPORTED_MODELS):
+            self.model_combo.setItemText(i, tr(m_key, lang=lang) or m_default)
         self.model_combo.setCurrentIndex(curr_model_idx)
 
         self.info_text.setText(tr("settings_info_banner", lang=lang))
         self.link_btn.setText(tr("settings_link_aistudio", lang=lang))
+
+        is_guide_open = hasattr(self, "guide_frame") and not self.guide_frame.isHidden()
+        self.guide_toggle_btn.setText(tr("guide_toggle_btn_close" if is_guide_open else "guide_toggle_btn", lang=lang))
+        self.guide_step1_lbl.setText(f"<b>{tr('guide_step1_title', lang=lang)}</b><br>{tr('guide_step1_desc', lang=lang)}")
+        self.guide_step2_lbl.setText(f"<b>{tr('guide_step2_title', lang=lang)}</b><br>{tr('guide_step2_desc', lang=lang)}")
+        self.guide_step3_lbl.setText(f"<b>{tr('guide_step3_title', lang=lang)}</b><br>{tr('guide_step3_desc', lang=lang)}")
+        self.guide_action_btn.setText(tr("guide_action_btn", lang=lang))
+
         self.tier_notice.setText(tr("settings_tier_notice", lang=lang))
         self.gemini_label.setText(tr("settings_gemini_key_label", lang=lang))
         self.anthropic_label.setText(tr("settings_anthropic_key_label", lang=lang))
@@ -448,8 +526,13 @@ class SettingsDialog(QDialog):
         # Load active model
         active_model = get_selected_model()
         idx = self.model_combo.findData(active_model)
+        if idx < 0 and active_model:
+            alt = active_model.replace(".", "-") if "." in active_model else active_model.replace("-3-7-", "-3.7-")
+            idx = self.model_combo.findData(alt)
         if idx >= 0:
             self.model_combo.setCurrentIndex(idx)
+        else:
+            self.model_combo.setCurrentIndex(0)
 
         # Load keys
         gemini_key = get_api_key("gemini")
@@ -548,7 +631,7 @@ class SettingsDialog(QDialog):
         if "claude" in selected_model:
             target_key = ant_key
             provider = "anthropic"
-        elif "gpt" in selected_model:
+        elif "gpt" in selected_model or "o3" in selected_model:
             target_key = oai_key
             provider = "openai"
         else:

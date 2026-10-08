@@ -1050,7 +1050,7 @@ class FloatingHUDWindow(QWidget):
         la_head.addStretch()
         la_layout.addLayout(la_head)
 
-        self.speaker_badge_lbl = QLabel("🎙 Speaker Active    @ 00:00")
+        self.speaker_badge_lbl = QLabel("Speaker Active    @ 00:00")
         self.speaker_badge_lbl.setStyleSheet("font-size: 10.5px; font-family: monospace; color: #CBD5E1;")
         la_layout.addWidget(self.speaker_badge_lbl)
 
@@ -1066,13 +1066,13 @@ class FloatingHUDWindow(QWidget):
         audio_btn_row = QHBoxLayout()
         audio_btn_row.setSpacing(8)
 
-        self.snap_photo_btn = QPushButton("📷 Snap Photo")
+        self.snap_photo_btn = QPushButton("Snap Photo")
         self.snap_photo_btn.setStyleSheet("font-weight: 600; padding: 6px 12px;")
         self.snap_photo_btn.clicked.connect(self.trigger_screen_snip)
         self.snip_btn = self.snap_photo_btn  # Backward compat alias
         audio_btn_row.addWidget(self.snap_photo_btn, stretch=2)
 
-        self.cam_btn = QPushButton("▦ Pair QR")
+        self.cam_btn = QPushButton("Pair QR")
         self.cam_btn.setStyleSheet("font-weight: 500; padding: 6px 10px;")
         self.cam_btn.clicked.connect(self._open_whiteboard_cam_dialog)
         audio_btn_row.addWidget(self.cam_btn, stretch=1)
@@ -1289,21 +1289,69 @@ class FloatingHUDWindow(QWidget):
         self.settings_key_feedback.setStyleSheet("font-size: 10.5px; font-family: monospace;")
         s_tab_layout.addWidget(self.settings_key_feedback)
 
+        # Free API key guide (collapsible 3-step drawer)
+        self.settings_guide_btn = QPushButton(tr("guide_toggle_btn"))
+        self.settings_guide_btn.setStyleSheet(
+            "border: none; background: transparent; color: #94A3B8; text-align: left; "
+            "font-size: 11px; text-decoration: underline; padding: 2px 0;"
+        )
+        self.settings_guide_btn.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.settings_guide_btn.clicked.connect(self._toggle_settings_free_guide)
+        s_tab_layout.addWidget(self.settings_guide_btn)
+
+        self.settings_guide_frame = QFrame()
+        self.settings_guide_frame.setObjectName("dockFrame")
+        sg_layout = QVBoxLayout(self.settings_guide_frame)
+        sg_layout.setContentsMargins(10, 8, 10, 8)
+        sg_layout.setSpacing(5)
+
+        self.settings_step1_lbl = QLabel(f"<b>{tr('guide_step1_title')}</b><br>{tr('guide_step1_desc')}")
+        self.settings_step1_lbl.setWordWrap(True)
+        self.settings_step1_lbl.setStyleSheet("font-size: 10px; color: #CBD5E1; line-height: 1.3;")
+        sg_layout.addWidget(self.settings_step1_lbl)
+
+        self.settings_step2_lbl = QLabel(f"<b>{tr('guide_step2_title')}</b><br>{tr('guide_step2_desc')}")
+        self.settings_step2_lbl.setWordWrap(True)
+        self.settings_step2_lbl.setStyleSheet("font-size: 10px; color: #CBD5E1; line-height: 1.3;")
+        sg_layout.addWidget(self.settings_step2_lbl)
+
+        self.settings_step3_lbl = QLabel(f"<b>{tr('guide_step3_title')}</b><br>{tr('guide_step3_desc')}")
+        self.settings_step3_lbl.setWordWrap(True)
+        self.settings_step3_lbl.setStyleSheet("font-size: 10px; color: #CBD5E1; line-height: 1.3;")
+        sg_layout.addWidget(self.settings_step3_lbl)
+
+        self.settings_guide_frame.hide()
+        s_tab_layout.addWidget(self.settings_guide_frame)
+
         # 2. Model
-        s_tab_layout.addWidget(QLabel("AI Synthesis Model:"))
+        self.settings_model_label = QLabel("AI Synthesis Model:")
+        s_tab_layout.addWidget(self.settings_model_label)
         self.settings_model_combo = QComboBox()
-        self.settings_model_combo.addItems([
-            "gemini-2.5-flash (Google Recommended)",
-            "claude-3-7-sonnet (Anthropic BYOK)",
-            "gpt-4o (OpenAI BYOK)",
-        ])
+        for model_id, key, default_label in [
+            ("gemini-2.5-flash", "model_gemini_25_flash", "Gemini 2.5 Flash (Recommended • Free Tier)"),
+            ("gemini-2.5-pro", "model_gemini_25_pro", "Gemini 2.5 Pro (Deep Math & Reasoning)"),
+            ("gemini-2.0-flash", "model_gemini_20_flash", "Gemini 2.0 Flash (Next-Gen Real-Time)"),
+            ("gemini-2.0-flash-lite", "model_gemini_20_flash_lite", "Gemini 2.0 Flash-Lite (High Speed & Low Latency)"),
+            ("gemini-1.5-pro", "model_gemini_15_pro", "Gemini 1.5 Pro (2M Long Context Archive)"),
+            ("claude-3-7-sonnet", "model_claude_37_sonnet", "Claude 3.7 Sonnet (Hybrid Reasoning)"),
+            ("claude-3-5-sonnet", "model_claude_35_sonnet", "Claude 3.5 Sonnet (Technical Analysis)"),
+            ("claude-3-5-haiku", "model_claude_35_haiku", "Claude 3.5 Haiku (Rapid Extraction)"),
+            ("gpt-4o", "model_gpt_4o", "GPT-4o (Omnimodal Processing)"),
+            ("gpt-4o-mini", "model_gpt_4o_mini", "GPT-4o Mini (Fast & Lightweight)"),
+            ("o3-mini", "model_o3_mini", "o3-mini (STEM & Formula Reasoning)"),
+        ]:
+            self.settings_model_combo.addItem(tr(key) or default_label, model_id)
+
         cur_model = get_selected_model()
-        if "claude" in cur_model:
-            self.settings_model_combo.setCurrentIndex(1)
-        elif "gpt" in cur_model:
-            self.settings_model_combo.setCurrentIndex(2)
+        idx = self.settings_model_combo.findData(cur_model)
+        if idx < 0 and cur_model:
+            alt = cur_model.replace(".", "-") if "." in cur_model else cur_model.replace("-3-7-", "-3.7-")
+            idx = self.settings_model_combo.findData(alt)
+        if idx >= 0:
+            self.settings_model_combo.setCurrentIndex(idx)
         else:
             self.settings_model_combo.setCurrentIndex(0)
+
         self.settings_model_combo.currentIndexChanged.connect(self._on_settings_model_changed)
         s_tab_layout.addWidget(self.settings_model_combo)
 
@@ -1597,7 +1645,7 @@ class FloatingHUDWindow(QWidget):
         if speaker or timestamp:
             spk = speaker or "Speaker Active"
             ts = timestamp or format_timestamp(time.time() - self.session_start_time)
-            self.speaker_badge_lbl.setText(f"🎙 {spk}    @ {ts}")
+            self.speaker_badge_lbl.setText(f"{spk}    @ {ts}")
 
     def _on_pin_user_directive(self):
         text = self.directive_input.text().strip()
@@ -1663,9 +1711,17 @@ class FloatingHUDWindow(QWidget):
         self.settings_key_feedback.setStyleSheet("color: #34D399;")
 
     def _on_settings_model_changed(self, idx: int):
-        models = ["gemini-2.5-flash", "claude-3-7-sonnet", "gpt-4o"]
-        if 0 <= idx < len(models):
-            set_selected_model(models[idx])
+        model_id = self.settings_model_combo.currentData()
+        if model_id:
+            set_selected_model(model_id)
+
+    def _toggle_settings_free_guide(self):
+        is_hidden = self.settings_guide_frame.isHidden()
+        self.settings_guide_frame.setVisible(is_hidden)
+        if is_hidden:
+            self.settings_guide_btn.setText(tr("guide_toggle_btn_close"))
+        else:
+            self.settings_guide_btn.setText(tr("guide_toggle_btn"))
 
     def _browse_vault_path(self):
         d = QFileDialog.getExistingDirectory(self, "Select Obsidian Vault Directory", self.settings_vault_input.text())
@@ -1771,10 +1827,10 @@ class FloatingHUDWindow(QWidget):
             self.synth_btn.setText(tr("btn_finish"))
             self.synth_btn.setToolTip(tr("btn_finish"))
         if hasattr(self, "snip_btn"):
-            self.snip_btn.setText(f"📷 {tr('btn_snip_screen')}")
+            self.snip_btn.setText(tr("btn_snip_screen"))
             self.snip_btn.setToolTip(f"{tr('btn_snip_screen')} ({snip_shortcut})")
         if hasattr(self, "cam_btn"):
-            self.cam_btn.setText(f"▦ {tr('btn_cam')}")
+            self.cam_btn.setText(tr("btn_cam"))
             self.cam_btn.setToolTip(tr("btn_cam"))
         if hasattr(self, "tab_btn_notes"):
             self.tab_btn_notes.setText(tr("tab_notes"))
@@ -1790,6 +1846,36 @@ class FloatingHUDWindow(QWidget):
             self.prompt_input.setPlaceholderText(tr("prompt_input_placeholder"))
         if hasattr(self, "directive_input"):
             self.directive_input.setPlaceholderText("Add note or instruction for the AI summary...")
+
+        # HUD Settings Tab translations
+        if hasattr(self, "settings_guide_btn"):
+            is_guide_open = hasattr(self, "settings_guide_frame") and not self.settings_guide_frame.isHidden()
+            self.settings_guide_btn.setText(tr("guide_toggle_btn_close" if is_guide_open else "guide_toggle_btn"))
+        if hasattr(self, "settings_step1_lbl"):
+            self.settings_step1_lbl.setText(f"<b>{tr('guide_step1_title')}</b><br>{tr('guide_step1_desc')}")
+        if hasattr(self, "settings_step2_lbl"):
+            self.settings_step2_lbl.setText(f"<b>{tr('guide_step2_title')}</b><br>{tr('guide_step2_desc')}")
+        if hasattr(self, "settings_step3_lbl"):
+            self.settings_step3_lbl.setText(f"<b>{tr('guide_step3_title')}</b><br>{tr('guide_step3_desc')}")
+        if hasattr(self, "settings_model_combo"):
+            curr_idx = self.settings_model_combo.currentIndex()
+            model_keys = [
+                ("gemini-2.5-flash", "model_gemini_25_flash"),
+                ("gemini-2.5-pro", "model_gemini_25_pro"),
+                ("gemini-2.0-flash", "model_gemini_20_flash"),
+                ("gemini-2.0-flash-lite", "model_gemini_20_flash_lite"),
+                ("gemini-1.5-pro", "model_gemini_15_pro"),
+                ("claude-3-7-sonnet", "model_claude_37_sonnet"),
+                ("claude-3-5-sonnet", "model_claude_35_sonnet"),
+                ("claude-3-5-haiku", "model_claude_35_haiku"),
+                ("gpt-4o", "model_gpt_4o"),
+                ("gpt-4o-mini", "model_gpt_4o_mini"),
+                ("o3-mini", "model_o3_mini"),
+            ]
+            for i, (m_id, m_key) in enumerate(model_keys):
+                if i < self.settings_model_combo.count():
+                    self.settings_model_combo.setItemText(i, tr(m_key))
+            self.settings_model_combo.setCurrentIndex(curr_idx)
 
         # Secondary actions
         if hasattr(self, "pdf_export_btn"):
