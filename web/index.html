@@ -95,31 +95,18 @@
       background-size: 24px 24px;
     }
 
-    /* 3D Perspective Tilt Container */
+    /* Interactive Card Container */
     .tilt-container {
-      perspective: 1200px;
-      transform-style: preserve-3d;
+      position: relative;
     }
 
     .tilt-card {
-      transition: box-shadow 0.25s ease;
-      transform-style: preserve-3d;
-      will-change: transform;
+      transition: box-shadow 0.25s ease, border-color 0.25s ease;
+      position: relative;
     }
 
     .glare-overlay {
-      position: absolute;
-      inset: 0;
-      pointer-events: none !important;
-      border-radius: inherit;
-      background: radial-gradient(circle at var(--glare-x, 50%) var(--glare-y, 50%), var(--card-glare), transparent 60%);
-      opacity: 0;
-      transition: opacity 0.3s ease;
-      z-index: 10;
-    }
-
-    .tilt-card:hover .glare-overlay {
-      opacity: 1;
+      display: none;
     }
 
     /* Code Block & Terminal Syntax */
@@ -303,7 +290,7 @@
         <div class="glare-overlay"></div>
 
         <!-- Window Title Bar -->
-        <div class="px-4 sm:px-5 py-3 border-b flex items-center justify-between select-none" style="border-color: var(--chalk-border); background-color: var(--hud-header-bg);">
+        <div class="px-4 sm:px-5 py-3 border-b flex items-center justify-between select-none relative z-20" style="border-color: var(--chalk-border); background-color: var(--hud-header-bg);">
           <div class="flex items-center gap-2">
             <button onclick="resetMockupSession()" title="Reset Demo Session" class="w-3 h-3 rounded-full shadow-sm transition hover:opacity-80 cursor-pointer" style="background-color: #FF5F56; border: 1px solid #E0443E;"></button>
             <button onclick="toggleMockupRecording()" title="Pause / Resume Recording" class="w-3 h-3 rounded-full shadow-sm transition hover:opacity-80 cursor-pointer" style="background-color: #FFBD2E; border: 1px solid #DEA123;"></button>
@@ -311,22 +298,11 @@
             <span id="mockup-lecture-title" onclick="cycleMockupTopic()" title="Click to switch topic" class="text-xs font-medium ml-2 sm:ml-3 cursor-pointer hover:underline transition" style="color: var(--chalk-slate);" data-i18n="preview_title">Lecture: Financial Markets & Risk — Chalk</span>
           </div>
 
-          <!-- Apple Live Recording Indicator, Phone Link Status & Settings Toggle -->
+          <!-- Apple Live Recording Indicator -->
           <div class="flex items-center gap-2">
-            <button onclick="triggerMockupPhoneSnap()" title="Click to simulate phone whiteboard photo" class="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-mono border transition hover:opacity-80 cursor-pointer" style="background-color: var(--surface-terminal); border-color: var(--chalk-border); color: var(--chalk-muted);">
-              <span id="mockup-phone-dot" class="w-1.5 h-1.5 rounded-full animate-pulse" style="background-color: #10B981;"></span>
-              <span id="mockup-phone-status" data-i18n="preview_phone_status">Phone Link: Ready</span>
-            </button>
             <button id="mockup-rec-btn" onclick="toggleMockupRecording()" title="Click to pause or resume recording" class="flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium transition hover:opacity-90 cursor-pointer" style="background-color: var(--pill-bg); border: 1px solid var(--pill-border); color: var(--chalk-white);">
               <span id="mockup-rec-dot" class="w-2 h-2 rounded-full bg-red-500 animate-pulse shadow-[0_0_8px_rgba(239,68,68,0.7)]"></span>
               <span id="mockup-rec-label" data-i18n="preview_status_label">Recording active</span> (<span id="live-timer" class="font-mono">01:42</span>)
-            </button>
-            <button id="mockup-settings-pill" onclick="toggleMockupSettings()" title="Settings & BYOK Keys" class="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border transition hover:opacity-80 cursor-pointer" style="background-color: var(--surface-terminal); border-color: var(--chalk-border); color: var(--chalk-white);">
-              <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="12" cy="12" r="3"></circle>
-                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
-              </svg>
-              <span data-i18n="preview_settings_tab">Settings</span>
             </button>
           </div>
         </div>
@@ -343,13 +319,13 @@
                 <div class="flex items-center gap-1.5">
                   <span class="text-[11px] font-mono px-1.5 py-0.5 rounded border" style="background-color: var(--surface-elevated); border-color: var(--chalk-border); color: var(--chalk-muted);" data-i18n="preview_screen_badge">Display 1</span>
                   <div class="flex items-center gap-1">
-                    <button onclick="prevMockupSlide(event)" title="Previous Slide" class="p-0.5 rounded hover:bg-white/10 text-slate-400 font-mono text-[10px] cursor-pointer">&larr;</button>
+                    <button onclick="prevMockupSlide(event)" title="Previous Slide" class="p-0.5 px-1 rounded hover:bg-white/10 text-slate-400 font-mono text-[10px] cursor-pointer">&larr;</button>
                     <span id="mockup-slide-pill" class="font-mono text-[10px] text-slate-400">1/3</span>
-                    <button onclick="nextMockupSlide(event)" title="Next Slide" class="p-0.5 rounded hover:bg-white/10 text-slate-400 font-mono text-[10px] cursor-pointer">&rarr;</button>
+                    <button onclick="nextMockupSlide(event)" title="Next Slide" class="p-0.5 px-1 rounded hover:bg-white/10 text-slate-400 font-mono text-[10px] cursor-pointer">&rarr;</button>
                   </div>
                 </div>
               </div>
-              <div onclick="nextMockupSlide(event)" title="Click to cycle slide delta" class="aspect-video rounded-lg border flex flex-col justify-between p-3 text-center relative overflow-hidden cursor-pointer transition hover:border-white/30" style="background-color: var(--surface-elevated); border-color: var(--chalk-border);">
+              <div onclick="nextMockupSlide(event)" class="aspect-video rounded-lg border flex flex-col justify-between p-3.5 text-center relative overflow-hidden cursor-pointer transition hover:border-white/30" style="background-color: var(--surface-elevated); border-color: var(--chalk-border);">
                 <!-- Mini Window Chrome -->
                 <div class="flex items-center justify-between pb-1.5 border-b border-white/5 text-[10px] text-left opacity-70">
                   <div class="flex items-center gap-1.5">
@@ -362,16 +338,10 @@
                 </div>
 
                 <!-- Window Content Area -->
-                <div class="my-auto py-1">
-                  <div id="mockup-screen-topic" class="text-[11px] font-medium mb-0.5" style="color: var(--chalk-muted);" data-i18n="preview_screen_topic">Portfolio Theory & Risk Modeling</div>
-                  <div id="mockup-screen-heading" class="text-xs sm:text-sm font-semibold mb-1" style="color: var(--chalk-white);" data-i18n="preview_screen_heading">Capital Asset Pricing Model (CAPM)</div>
-                  <div id="mockup-screen-math" class="render-math text-xs sm:text-sm text-center font-serif" style="color: var(--chalk-white);">3020E(R_i) = R_f + eta_i [E(R_m) - R_f]3020</div>
-                </div>
-
-                <!-- Bottom Status Line -->
-                <div class="pt-1 border-t border-white/5 flex items-center justify-between text-[9px] font-mono opacity-60" style="color: var(--chalk-muted);">
-                  <span>Screen Watcher: Active</span>
-                  <span id="mockup-delta-sync">Delta Sync: In Frame</span>
+                <div class="my-auto py-2">
+                  <div id="mockup-screen-topic" class="text-[11px] font-medium mb-1" style="color: var(--chalk-muted);" data-i18n="preview_screen_topic">Portfolio Theory & Risk Modeling</div>
+                  <div id="mockup-screen-heading" class="text-xs sm:text-sm font-semibold mb-1.5" style="color: var(--chalk-white);" data-i18n="preview_screen_heading">Capital Asset Pricing Model (CAPM)</div>
+                  <div id="mockup-screen-math" class="render-math text-xs sm:text-sm text-center font-serif" style="color: var(--chalk-white);">$$E(R_i) = R_f + \beta_i [E(R_m) - R_f]$$</div>
                 </div>
               </div>
               <div class="mt-3 flex items-center justify-between text-xs" style="color: var(--chalk-muted);">
@@ -380,7 +350,7 @@
               </div>
             </div>
 
-            <!-- Dual-Input Split-Grid: Whiteboard Phone Link & Intelligent Recall -->
+            <!-- Dual-Input Split-Grid: Whiteboard Phone Link & Recall -->
             <div class="grid grid-cols-1 sm:grid-cols-12 gap-3">
               <!-- Sub-Col 1 (sm:col-span-5): Whiteboard Cam / Phone Link -->
               <div onclick="triggerMockupPhoneSnap()" title="Click to simulate whiteboard photo capture" class="sm:col-span-5 rounded-xl border p-3 shadow-sm flex flex-col items-center justify-between text-center cursor-pointer transition hover:border-emerald-500/40" style="background-color: var(--hud-card-bg); border-color: var(--chalk-border);">
@@ -388,27 +358,26 @@
                   <span class="tracking-wide" data-i18n="preview_qr_label">PHONE LINK</span>
                   <span class="w-1.5 h-1.5 rounded-full animate-pulse flex-shrink-0" style="background-color: #10B981;" title="LAN Ready"></span>
                 </div>
-                <div id="mockup-qr-box" class="p-1 rounded-lg border shadow-inner flex items-center justify-center my-0.5 transition-all" style="background-color: var(--surface-terminal); border-color: var(--chalk-border);">
+                <div id="mockup-qr-box" class="p-1.5 rounded-lg border shadow-inner flex items-center justify-center my-1 transition-all" style="background-color: var(--surface-terminal); border-color: var(--chalk-border);">
                   <svg class="w-16 h-16" viewBox="0 0 27 27" fill="currentColor" shape-rendering="crispEdges" style="color: var(--chalk-white);" role="img" aria-label="Phone Link QR Code">
                     <path d="M1 1h7v1h-7zM9 1h1v1h-1zM11 1h4v1h-4zM17 1h1v1h-1zM19 1h7v1h-7zM1 2h1v1h-1zM7 2h1v1h-1zM15 2h3v1h-3zM19 2h1v1h-1zM25 2h1v1h-1zM1 3h1v1h-1zM3 3h3v1h-3zM7 3h1v1h-1zM9 3h1v1h-1zM11 3h3v1h-3zM16 3h1v1h-1zM19 3h1v1h-1zM21 3h3v1h-3zM25 3h1v1h-1zM1 4h1v1h-1zM3 4h3v1h-3zM7 4h1v1h-1zM9 4h2v1h-2zM12 4h1v1h-1zM14 4h1v1h-1zM16 4h1v1h-1zM19 4h1v1h-1zM21 4h3v1h-3zM25 4h1v1h-1zM1 5h1v1h-1zM3 5h3v1h-3zM7 5h1v1h-1zM9 5h1v1h-1zM11 5h1v1h-1zM13 5h3v1h-3zM17 5h1v1h-1zM19 5h1v1h-1zM21 5h3v1h-3zM25 5h1v1h-1zM1 6h1v1h-1zM7 6h1v1h-1zM9 6h1v1h-1zM13 6h2v1h-2zM16 6h2v1h-2zM19 6h1v1h-1zM25 6h1v1h-1zM1 7h7v1h-7zM9 7h1v1h-1zM11 7h1v1h-1zM13 7h1v1h-1zM15 7h1v1h-1zM17 7h1v1h-1zM19 7h7v1h-7zM11 8h1v1h-1zM3 9h6v1h-6zM10 9h3v1h-3zM14 9h1v1h-1zM16 9h1v1h-1zM20 9h4v1h-4zM25 9h1v1h-1zM4 10h1v1h-1zM10 10h2v1h-2zM13 10h3v1h-3zM17 10h1v1h-1zM20 10h1v1h-1zM24 10h1v1h-1zM2 11h2v1h-2zM5 11h3v1h-3zM9 11h1v1h-1zM11 11h2v1h-2zM16 11h2v1h-2zM19 11h1v1h-1zM22 11h1v1h-1zM24 11h2v1h-2zM1 12h1v1h-1zM3 12h2v1h-2zM9 12h1v1h-1zM11 12h1v1h-1zM13 12h1v1h-1zM17 12h3v1h-3zM21 12h1v1h-1zM25 12h1v1h-1zM1 13h1v1h-1zM3 13h1v1h-1zM5 13h1v1h-1zM7 13h8v1h-8zM18 13h2v1h-2zM21 13h1v1h-1zM23 13h3v1h-3zM1 14h1v1h-1zM4 14h3v1h-3zM9 14h1v1h-1zM11 14h1v1h-1zM15 14h1v1h-1zM17 14h1v1h-1zM20 14h1v1h-1zM22 14h1v1h-1zM24 14h1v1h-1zM1 15h1v1h-1zM4 15h4v1h-4zM10 15h1v1h-1zM12 15h5v1h-5zM18 15h1v1h-1zM20 15h3v1h-3zM24 15h2v1h-2zM1 16h1v1h-1zM3 16h4v1h-4zM8 16h1v1h-1zM11 16h2v1h-2zM15 16h3v1h-3zM19 16h1v1h-1zM22 16h1v1h-1zM25 16h1v1h-1zM1 17h1v1h-1zM3 17h2v1h-2zM6 17h2v1h-2zM10 17h1v1h-1zM12 17h1v1h-1zM14 17h1v1h-1zM17 17h5v1h-5zM23 17h1v1h-1zM9 18h3v1h-3zM13 18h1v1h-1zM15 18h3v1h-3zM21 18h3v1h-3zM1 19h7v1h-7zM9 19h1v1h-1zM14 19h2v1h-2zM17 19h1v1h-1zM19 19h1v1h-1zM21 19h5v1h-5zM1 20h1v1h-1zM7 20h1v1h-1zM9 20h3v1h-3zM13 20h1v1h-1zM17 20h1v1h-1zM21 20h2v1h-2zM24 20h1v1h-1zM1 21h1v1h-1zM3 21h3v1h-3zM7 21h1v1h-1zM9 21h1v1h-1zM13 21h2v1h-2zM16 21h10v1h-10zM1 22h1v1h-1zM3 22h3v1h-3zM7 22h1v1h-1zM9 22h3v1h-3zM15 22h5v1h-5zM21 22h1v1h-1zM23 22h3v1h-3zM1 23h1v1h-1zM3 23h3v1h-3zM7 23h1v1h-1zM9 23h1v1h-1zM12 23h2v1h-2zM15 23h1v1h-1zM17 23h1v1h-1zM20 23h1v1h-1zM23 23h1v1h-1zM25 23h1v1h-1zM1 24h1v1h-1zM7 24h1v1h-1zM12 24h1v1h-1zM15 24h3v1h-3zM20 24h3v1h-3zM25 24h1v1h-1zM1 25h7v1h-7zM10 25h1v1h-1zM12 25h2v1h-2zM16 25h1v1h-1zM18 25h1v1h-1zM20 25h6v1h-6z"/>
                   </svg>
                 </div>
-                <div class="w-full mt-1.5 text-center">
-                  <div class="text-[10px] font-medium leading-tight hover:underline" style="color: var(--chalk-white);" data-i18n="preview_qr_action">Scan to snap board</div>
-                  <div class="text-[9px] font-mono leading-tight mt-0.5" style="color: var(--chalk-muted);" data-i18n="preview_qr_spec">Direct LAN • Zero Cloud</div>
+                <div class="w-full mt-1 text-center">
+                  <div class="text-[10px] font-medium leading-tight" style="color: var(--chalk-white);" data-i18n="preview_qr_action">Scan to snap board</div>
                 </div>
               </div>
 
-              <!-- Sub-Col 2 (sm:col-span-7): Intelligent Recall -->
+              <!-- Sub-Col 2 (sm:col-span-7): Recall -->
               <div class="sm:col-span-7 rounded-xl border p-3.5 shadow-sm flex flex-col justify-between" style="background-color: var(--hud-card-bg); border-color: var(--chalk-border);">
                 <div>
                   <div class="flex items-center justify-between mb-2">
-                    <span class="text-[11px] font-medium" style="color: var(--chalk-slate);" data-i18n="preview_recall_label">INTELLIGENT RECALL</span>
+                    <span class="text-[11px] font-medium uppercase tracking-wide" style="color: var(--chalk-slate);" data-i18n="preview_recall_label">RECALL</span>
                     <kbd class="text-[9px] font-mono px-1.5 py-0.5 rounded border leading-none" style="background-color: var(--surface-terminal); border-color: var(--chalk-border); color: var(--chalk-muted);">Alt+Space</kbd>
                   </div>
                   <div class="flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-xs focus-within:border-white/40" style="background-color: var(--surface-terminal); border-color: var(--chalk-border);">
                     <span class="font-mono text-[11px] flex-shrink-0 text-slate-400">></span>
-                    <input type="text" id="recall-input" onkeydown="if(event.key==='Enter')submitMockupRecall()" placeholder="Ask AI copilot (e.g. 'Explain beta')..." class="bg-transparent text-xs w-full focus:outline-none" style="color: var(--terminal-text);">
+                    <input type="text" id="recall-input" onkeydown="if(event.key==='Enter')submitMockupRecall()" placeholder="Ask question (e.g. 'Explain beta')..." class="bg-transparent text-xs w-full focus:outline-none" style="color: var(--terminal-text);">
                     <button onclick="submitMockupRecall()" title="Ask Copilot" class="p-1 rounded hover:bg-white/10 text-slate-300 flex-shrink-0 cursor-pointer">
                       <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg>
                     </button>
@@ -426,11 +395,6 @@
                     <!-- Injected dynamically via JS -->
                   </div>
                 </div>
-                <div class="mt-2 text-[10px] flex items-center justify-between" style="color: var(--chalk-muted);">
-                  <span data-i18n="preview_recall_direct">Direct AI</span>
-                  <span class="opacity-40">•</span>
-                  <span data-i18n="preview_recall_private">100% Private</span>
-                </div>
               </div>
             </div>
           </div>
@@ -442,8 +406,8 @@
               <div class="flex items-center justify-between pb-3 border-b" style="border-color: var(--chalk-border);">
                 <div class="flex items-center gap-1">
                   <button id="tab-btn-notes" onclick="setMockupTab('notes')" class="text-xs font-semibold px-2.5 py-1 rounded transition cursor-pointer" style="background-color: var(--surface-elevated); color: var(--chalk-white);" data-i18n="preview_tab_notes">Live Notes</button>
-                  <button id="tab-btn-settings" onclick="setMockupTab('settings')" class="text-xs font-medium px-2.5 py-1 rounded transition hover:opacity-80 cursor-pointer" style="background-color: transparent; color: var(--chalk-muted);" data-i18n="preview_tab_settings">Settings & Keys</button>
-                  <button id="tab-btn-socratic" onclick="setMockupTab('socratic')" class="text-xs font-medium px-2.5 py-1 rounded transition hover:opacity-80 cursor-pointer" style="background-color: transparent; color: var(--chalk-muted);" data-i18n="preview_tab_socratic">Socratic Recall</button>
+                  <button id="tab-btn-settings" onclick="setMockupTab('settings')" class="text-xs font-medium px-2.5 py-1 rounded transition hover:opacity-80 cursor-pointer" style="background-color: transparent; color: var(--chalk-muted);" data-i18n="preview_tab_settings">Settings</button>
+                  <button id="tab-btn-socratic" onclick="setMockupTab('socratic')" class="text-xs font-medium px-2.5 py-1 rounded transition hover:opacity-80 cursor-pointer" style="background-color: transparent; color: var(--chalk-muted);" data-i18n="preview_tab_socratic">Recall</button>
                 </div>
                 <div class="flex items-center gap-2">
                   <span id="mockup-notes-filename" class="text-[11px] hidden sm:inline" style="color: var(--chalk-muted);">financial_markets_ch3.md</span>
@@ -460,8 +424,7 @@
                 <p id="mockup-note-p1" data-i18n="preview_notes_p1">
                   The expected return of an asset comprises the risk-free rate plus the market risk premium. Unsystematic individual risk is eliminated through portfolio diversification.
                 </p>
-                <div id="mockup-note-math" class="render-math py-2 text-sm sm:text-base text-center font-serif" style="color: var(--chalk-white);">3020E(R_i) = R_f + eta_i \left[E(R_m) - R_f
-ight]3020</div>
+                <div id="mockup-note-math" class="render-math py-2 text-sm sm:text-base text-center font-serif" style="color: var(--chalk-white);">$$E(R_i) = R_f + \beta_i \left[E(R_m) - R_f\right]$$</div>
                 <ul id="mockup-note-bullets" class="space-y-1.5 text-xs">
                   <li data-i18n="preview_notes_li1"><strong style="color: var(--chalk-white);">Beta factor (&beta;<sub>i</sub>):</strong> Sensitivity of asset return to broad market movements.</li>
                   <li data-i18n="preview_notes_li2"><strong style="color: var(--chalk-white);">Risk-free rate (R<sub>f</sub>):</strong> Benchmark sovereign bond yield as the hurdle rate.</li>
@@ -514,7 +477,7 @@ ight]3020</div>
                 </div>
               </div>
 
-              <!-- VIEW 3: Socratic Debrief Questions -->
+              <!-- VIEW 3: Recall Debrief Questions -->
               <div id="mockup-view-socratic" class="hidden space-y-3 py-1 text-xs" style="color: var(--chalk-slate);">
                 <div class="p-3 rounded-lg border" style="background-color: var(--surface-terminal); border-color: var(--chalk-border);">
                   <div class="font-medium text-xs mb-1" style="color: var(--chalk-white);" data-i18n="preview_socratic_q1">Why does the market only compensate systematic risk?</div>
@@ -545,21 +508,11 @@ ight]3020</div>
             <!-- Footer Stats -->
             <div class="pt-4 mt-4 border-t flex items-center justify-between text-xs" style="border-color: var(--chalk-border); color: var(--chalk-muted);">
               <span id="mockup-footer-duration" data-i18n="preview_duration">Duration: 1h 42m</span>
-              <span style="color: var(--chalk-white); font-weight: 500;" data-i18n="preview_local_processed">100% locally processed</span>
             </div>
           </div>
 
         </div>
       </div>
-      <script>
-        if (typeof renderMathInElement === 'function') {
-          var hc = document.getElementById('hero-card');
-          if (hc) {
-            renderMathInElement(hc, { delimiters: [{left: '3020', right: '3020', display: true}, {left: '$', right: '$', display: false}], throwOnError: false });
-            hc.querySelectorAll('.render-math').forEach(function(el){ el.classList.add('math-rendered'); });
-          }
-        }
-      </script>
     </div>
   </header>
  
@@ -1055,13 +1008,10 @@ ight]3020</div>
     "preview_screen_heading": "Capital Asset Pricing Model (CAPM)",
     "preview_screen_sync": "Screen Sync Active",
     "preview_slide_local": "Local detection",
-    "preview_recall_label": "INTELLIGENT RECALL",
+    "preview_recall_label": "RECALL",
     "preview_recall_query": "How does beta behave during market volatility?",
-    "preview_recall_direct": "Direct AI",
-    "preview_recall_private": "100% Private",
     "preview_qr_label": "PHONE LINK",
     "preview_qr_action": "Scan to snap board",
-    "preview_qr_spec": "Direct LAN • Zero Cloud",
     "preview_notes_label": "LECTURE NOTES",
     "preview_copy_btn": "Copy notes",
     "preview_notes_h1": "# Capital Market Line & Systematic Risk",
@@ -1070,11 +1020,10 @@ ight]3020</div>
     "preview_notes_li2": "<strong style=\"color: var(--chalk-white);\">Risk-free rate (R<sub>f</sub>):</strong> Benchmark sovereign bond yield as the hurdle rate.",
     "preview_notes_li3": "<span style=\"color: var(--chalk-white); font-weight: 500;\">[Lecturer Core Point @ 01:14:20]:</span> Only systematic risk is compensated by the market with a risk premium.",
     "preview_duration": "Duration: 1h 42m",
-    "preview_local_processed": "100% locally processed",
     "preview_settings_tab": "Settings",
     "preview_tab_notes": "Live Notes",
-    "preview_tab_settings": "Settings & Keys",
-    "preview_tab_socratic": "Socratic Recall",
+    "preview_tab_settings": "Settings",
+    "preview_tab_socratic": "Recall",
     "preview_key_label": "Google Gemini API Key (BYOK):",
     "preview_key_test_btn": "Test Key",
     "preview_key_save_btn": "Save Key",
@@ -1222,13 +1171,10 @@ ight]3020</div>
     "preview_screen_heading": "Capital Asset Pricing Model (CAPM)",
     "preview_screen_sync": "Bildschirm-Sync aktiv",
     "preview_slide_local": "Lokale Erkennung",
-    "preview_recall_label": "INTELLIGENTE RÜCKFRAGE",
+    "preview_recall_label": "RECALL",
     "preview_recall_query": "Wie verhält sich das Beta bei Marktvolatilität?",
-    "preview_recall_direct": "Direkte KI",
-    "preview_recall_private": "100 % Privat",
     "preview_qr_label": "HANDY-KOPPLUNG",
     "preview_qr_action": "Tafel fotografieren",
-    "preview_qr_spec": "Direktes LAN • 0% Cloud",
     "preview_notes_label": "VORLESUNGSNOTIZEN",
     "preview_copy_btn": "Notizen kopieren",
     "preview_notes_h1": "# Kapitalmarktlinie & Systematisches Risiko",
@@ -1237,11 +1183,10 @@ ight]3020</div>
     "preview_notes_li2": "<strong style=\"color: var(--chalk-white);\">Risikofreier Zins (R<sub>f</sub>):</strong> Rendite erstklassiger Staatsanleihen als Mindesthürde.",
     "preview_notes_li3": "<span style=\"color: var(--chalk-white); font-weight: 500;\">[Kernaussage Dozent @ 01:14:20]:</span> Nur systematisches Risiko wird vom Markt mit einer Prämie vergütet.",
     "preview_duration": "Dauer: 1 Std. 42 Min.",
-    "preview_local_processed": "100 % lokal verarbeitet",
     "preview_settings_tab": "Einstellungen",
     "preview_tab_notes": "Live-Notizen",
-    "preview_tab_settings": "Einstellungen & Keys",
-    "preview_tab_socratic": "Sokratischer Rückruf",
+    "preview_tab_settings": "Einstellungen",
+    "preview_tab_socratic": "Recall",
     "preview_key_label": "Google Gemini API-Schlüssel (BYOK):",
     "preview_key_test_btn": "Key testen",
     "preview_key_save_btn": "Key speichern",
@@ -1389,13 +1334,10 @@ ight]3020</div>
     "preview_screen_heading": "Capital Asset Pricing Model (CAPM)",
     "preview_screen_sync": "Sync écran active",
     "preview_slide_local": "Détection locale",
-    "preview_recall_label": "REQUÊTE INTELLIGENTE",
+    "preview_recall_label": "RAPPEL",
     "preview_recall_query": "Comment le bêta réagit-il à la volatilité du marché ?",
-    "preview_recall_direct": "IA directe",
-    "preview_recall_private": "100 % Privé",
     "preview_qr_label": "LIEN MOBILE",
     "preview_qr_action": "Scanner pour tableau",
-    "preview_qr_spec": "LAN direct • Sans cloud",
     "preview_notes_label": "NOTES DE COURS",
     "preview_copy_btn": "Copier les notes",
     "preview_notes_h1": "# Droite de marché et risque systématique",
@@ -1404,11 +1346,10 @@ ight]3020</div>
     "preview_notes_li2": "<strong style=\"color: var(--chalk-white);\">Taux sans risque (R<sub>f</sub>) :</strong> Rendement des emprunts d'État de référence comme taux minimal.",
     "preview_notes_li3": "<span style=\"color: var(--chalk-white); font-weight: 500;\">[Point clé enseignant @ 01:14:20] :</span> Seul le risque systématique est rémunéré par une prime de marché.",
     "preview_duration": "Durée : 1 h 42 min",
-    "preview_local_processed": "100 % traité localement",
     "preview_settings_tab": "Paramètres",
     "preview_tab_notes": "Notes en direct",
-    "preview_tab_settings": "Paramètres & Clés",
-    "preview_tab_socratic": "Rappel socratique",
+    "preview_tab_settings": "Paramètres",
+    "preview_tab_socratic": "Rappel",
     "preview_key_label": "Clé API Google Gemini (BYOK) :",
     "preview_key_test_btn": "Tester la clé",
     "preview_key_save_btn": "Enregistrer la clé",
@@ -1556,13 +1497,10 @@ ight]3020</div>
     "preview_screen_heading": "Capital Asset Pricing Model (CAPM)",
     "preview_screen_sync": "Sincronización de pantalla",
     "preview_slide_local": "Detección local",
-    "preview_recall_label": "CONSULTA INTELIGENTE",
+    "preview_recall_label": "RECUERDO",
     "preview_recall_query": "¿Cómo se comporta la beta ante la volatilidad del mercado?",
-    "preview_recall_direct": "IA directa",
-    "preview_recall_private": "100 % Privado",
     "preview_qr_label": "ENLACE MÓVIL",
     "preview_qr_action": "Escanear pizarra",
-    "preview_qr_spec": "LAN directa • Cero nube",
     "preview_notes_label": "NOTAS DE CLASE",
     "preview_copy_btn": "Copiar notas",
     "preview_notes_h1": "# Línea del mercado de capitales y riesgo sistemático",
@@ -1571,11 +1509,10 @@ ight]3020</div>
     "preview_notes_li2": "<strong style=\"color: var(--chalk-white);\">Tasa libre de riesgo (R<sub>f</sub>):</strong> Rendimiento de bonos soberanos de máxima calificación como umbral.",
     "preview_notes_li3": "<span style=\"color: var(--chalk-white); font-weight: 500;\">[Punto clave del ponente @ 01:14:20]:</span> Solo el riesgo sistemático es compensado por el mercado.",
     "preview_duration": "Duración: 1 h 42 min",
-    "preview_local_processed": "100 % procesado localmente",
     "preview_settings_tab": "Ajustes",
     "preview_tab_notes": "Notas en vivo",
-    "preview_tab_settings": "Ajustes y Claves",
-    "preview_tab_socratic": "Recuerdo socrático",
+    "preview_tab_settings": "Ajustes",
+    "preview_tab_socratic": "Recuerdo",
     "preview_key_label": "Clave API de Google Gemini (BYOK):",
     "preview_key_test_btn": "Probar clave",
     "preview_key_save_btn": "Guardar clave",
@@ -1723,13 +1660,10 @@ ight]3020</div>
     "preview_screen_heading": "资本资产定价模型 (CAPM)",
     "preview_screen_sync": "实时画面同步",
     "preview_slide_local": "本地智能识别",
-    "preview_recall_label": "智能即时问答",
+    "preview_recall_label": "回顾",
     "preview_recall_query": "市场剧烈波动时贝塔系数如何变化？",
-    "preview_recall_direct": "直连 AI",
-    "preview_recall_private": "100% 本地隐私",
     "preview_qr_label": "手机互联",
     "preview_qr_action": "扫码拍板书",
-    "preview_qr_spec": "局域网直连 • 零云端",
     "preview_notes_label": "课堂精要笔记",
     "preview_copy_btn": "复制笔记",
     "preview_notes_h1": "# 资本市场线与系统性风险",
@@ -1738,11 +1672,10 @@ ight]3020</div>
     "preview_notes_li2": "<strong style=\"color: var(--chalk-white);\">无风险利率 (R<sub>f</sub>)：</strong> 高评级国债收益率作为投资回报的基准门槛。",
     "preview_notes_li3": "<span style=\"color: var(--chalk-white); font-weight: 500;\">[讲师核心论点 @ 01:14:20]：</span> 市场上唯有系统性风险能够获得风险溢价补偿。",
     "preview_duration": "时长：1小时42分钟",
-    "preview_local_processed": "100% 本地处理",
     "preview_settings_tab": "设置",
     "preview_tab_notes": "实时笔记",
-    "preview_tab_settings": "设置与密钥",
-    "preview_tab_socratic": "苏格拉底回顾",
+    "preview_tab_settings": "设置",
+    "preview_tab_socratic": "回顾",
     "preview_key_label": "Google Gemini API 密钥 (BYOK)：",
     "preview_key_test_btn": "测试密钥",
     "preview_key_save_btn": "保存密钥",
@@ -1922,10 +1855,10 @@ ight]3020</div>
           topic: "Portfolio Theory & Risk Modeling",
           heading: "Capital Asset Pricing Model (CAPM)",
           file: "Asset_Pricing_Lecture_04.pdf (p. 12/42)",
-          math: "$$E(R_i) = R_f + \beta_i [E(R_m) - R_f]$$",
+          math: "$$E(R_i) = R_f + \\beta_i [E(R_m) - R_f]$$",
           noteH1: "# Capital Market Line & Systematic Risk",
           noteP1: "The expected return of an asset comprises the risk-free rate plus the market risk premium. Unsystematic individual risk is eliminated through portfolio diversification.",
-          noteMath: "$$E(R_i) = R_f + \beta_i \left[E(R_m) - R_f\right]$$",
+          noteMath: "$$E(R_i) = R_f + \\beta_i \\left[E(R_m) - R_f\\right]$$",
           bullets: [
             "<strong style=\"color: var(--chalk-white);\">Beta factor (&beta;<sub>i</sub>):</strong> Sensitivity of asset return to broad market movements.",
             "<strong style=\"color: var(--chalk-white);\">Risk-free rate (R<sub>f</sub>):</strong> Benchmark sovereign bond yield as the hurdle rate.",
@@ -1936,10 +1869,10 @@ ight]3020</div>
           topic: "Performance Attribution & Alpha",
           heading: "Security Market Line & Jensen's Alpha",
           file: "Asset_Pricing_Lecture_04.pdf (p. 18/42)",
-          math: "$$\alpha_i = R_i - \left[R_f + \beta_i (E(R_m) - R_f)\right]$$",
+          math: "$$\\alpha_i = R_i - [R_f + \\beta_i (E(R_m) - R_f)]$$",
           noteH1: "# Security Market Line & Jensen's Alpha",
           noteP1: "Jensen's Alpha measures abnormal excess return above the theoretical Capital Asset Pricing Model expectation.",
-          noteMath: "$$\alpha_i = R_i - \left[R_f + \beta_i \left(E(R_m) - R_f\right)\right]$$",
+          noteMath: "$$\\alpha_i = R_i - \\left[R_f + \\beta_i \\left(E(R_m) - R_f\\right)\\right]$$",
           bullets: [
             "<strong style=\"color: var(--chalk-white);\">Alpha (&alpha;<sub>i</sub>):</strong> Positive value indicates manager skill or structural mispricing (&alpha; > 0).",
             "<strong style=\"color: var(--chalk-white);\">Market Efficiency Equilibrium:</strong> In equilibrium, expected alpha converges to zero (E[&alpha;] = 0).",
@@ -1950,10 +1883,10 @@ ight]3020</div>
           topic: "Multi-Factor Risk Premia",
           heading: "Arbitrage Pricing Theory (APT)",
           file: "Asset_Pricing_Lecture_04.pdf (p. 25/42)",
-          math: "$$E(R_i) = R_f + \sum_{k=1}^K \beta_{ik} F_k + \epsilon_i$$",
+          math: "$$E(R_i) = R_f + \\sum_{k=1}^K \\beta_{ik} F_k + \\epsilon_i$$",
           noteH1: "# Arbitrage Pricing Theory (APT)",
           noteP1: "Multi-factor framework removing single-market portfolio assumptions in favor of pure no-arbitrage bounds.",
-          noteMath: "$$E(R_i) = R_f + \sum_{k=1}^K \beta_{ik} F_k + \epsilon_i$$",
+          noteMath: "$$E(R_i) = R_f + \\sum_{k=1}^K \\beta_{ik} F_k + \\epsilon_i$$",
           bullets: [
             "<strong style=\"color: var(--chalk-white);\">Macro Risk Premia (F<sub>k</sub>):</strong> Sensitivities to inflation shocks, GDP delta, and yield spreads.",
             "<strong style=\"color: var(--chalk-white);\">Idiosyncratic Residual (&epsilon;<sub>i</sub>):</strong> Uncorrelated firm-specific noise with E[&epsilon;<sub>i</sub>] = 0.",
@@ -2131,7 +2064,6 @@ ight]3020</div>
     function triggerMockupPhoneSnap() {
       mockupState.phoneSnaps++;
       const qrBox = document.getElementById('mockup-qr-box');
-      const statusEl = document.getElementById('mockup-phone-status');
       if (qrBox) {
         qrBox.style.borderColor = '#10B981';
         qrBox.style.transform = 'scale(1.05)';
@@ -2139,9 +2071,6 @@ ight]3020</div>
           qrBox.style.borderColor = 'var(--chalk-border)';
           qrBox.style.transform = '';
         }, 400);
-      }
-      if (statusEl) {
-        statusEl.textContent = `Phone Link: ${mockupState.phoneSnaps} snaps merged`;
       }
 
       const snapsContainer = document.getElementById('mockup-merged-snaps');
@@ -2153,10 +2082,9 @@ ight]3020</div>
         snapBlock.innerHTML = `
           <div class="flex items-center justify-between text-[11px] mb-1 font-mono" style="color: #10B981;">
             <span>[PHOTO MERGED] Whiteboard Cam @ 01:18:40</span>
-            <span>Direct LAN</span>
           </div>
           <div class="text-[12px]" style="color: var(--chalk-slate);">Handwritten Derivation: Covariance Formulation:</div>
-          <div class="render-math py-1 text-xs text-center font-serif" style="color: var(--chalk-white);">$$\text{Cov}(R_i, R_m) = \sigma_{im} \implies \beta_i = \frac{\sigma_{im}}{\sigma_m^2}$$</div>
+          <div class="render-math py-1 text-xs text-center font-serif" style="color: var(--chalk-white);" data-tex="\\text{Cov}(R_i, R_m) = \\sigma_{im} \\implies \\beta_i = \\frac{\\sigma_{im}}{\\sigma_m^2}"></div>
         `;
         snapsContainer.innerHTML = '';
         snapsContainer.appendChild(snapBlock);
@@ -2171,18 +2099,18 @@ ight]3020</div>
       const q = (input ? input.value : '').trim().toLowerCase();
 
       answerBox.classList.remove('hidden');
-      answerBox.innerHTML = '<span class="animate-pulse font-mono text-[11px] text-slate-400">Direct AI synthesizing answer...</span>';
+      answerBox.innerHTML = '<span class="animate-pulse font-mono text-[11px] text-slate-400">Synthesizing answer...</span>';
 
       setTimeout(() => {
         let ans = '';
         if (q.includes('beta')) {
-          ans = '<strong>Beta (&beta;<sub>i</sub>):</strong> Measures systematic asset volatility: $$\beta_i = \frac{\text{Cov}(R_i, R_m)}{\text{Var}(R_m)}$$ Values &gt; 1 amplify market movements; values &lt; 1 provide defensive characteristics.';
+          ans = '<strong>Beta (&beta;<sub>i</sub>):</strong> Measures systematic volatility: <div class="render-math text-xs py-1" data-tex="\\beta_i = \\frac{\\text{Cov}(R_i, R_m)}{\\text{Var}(R_m)}"></div> Values &gt; 1 amplify market movements; values &lt; 1 provide defensive characteristics.';
         } else if (q.includes('rf') || q.includes('risk-free') || q.includes('zins')) {
-          ans = '<strong>Risk-Free Rate (R<sub>f</sub>):</strong> Sovereign benchmark yield with zero variance. Serves as the hurdle rate before any risk premium is awarded.';
+          ans = '<strong>Risk-Free Rate (R<sub>f</sub>):</strong> Benchmark sovereign bond yield with zero variance. Serves as the hurdle rate before any risk premium is awarded.';
         } else if (q.includes('alpha')) {
-          ans = "<strong>Jensen's Alpha (&alpha;<sub>i</sub>):</strong> Measures risk-adjusted excess return: $$\alpha_i = R_i - \left[R_f + \beta_i(E(R_m) - R_f)\right]$$ Positive alpha (&alpha; &gt; 0) demonstrates active outperformance.";
+          ans = "<strong>Jensen's Alpha (&alpha;<sub>i</sub>):</strong> Measures risk-adjusted excess return: <div class=\"render-math text-xs py-1\" data-tex=\"\\alpha_i = R_i - \\left[R_f + \\beta_i(E(R_m) - R_f)\\right]\"></div> Positive alpha (&alpha; &gt; 0) demonstrates active outperformance.";
         } else {
-          ans = '<strong>Direct AI Synthesis:</strong> Analysis grounded in active audio chunk @ [01:14:20] and slide formulas. All terms verified locally against mathematical invariance principles.';
+          ans = '<strong>Recall Synthesis:</strong> Grounded in active lecture chunk @ 01:14:20 and current slide formulas. Verified against mathematical invariance principles.';
         }
         answerBox.innerHTML = ans;
         renderHeroMath();
@@ -2320,38 +2248,47 @@ ight]3020</div>
       renderHeroMath();
     }
 
-    // KaTeX Math Rendering in Mockup with Offline Fallback
+    // Robust KaTeX Math Rendering with Direct Node Injection
+    function renderKatexElement(el, texString) {
+      if (!el || !texString) return;
+      let clean = texString.trim();
+      if (clean.startsWith('$$') && clean.endsWith('$$')) {
+        clean = clean.slice(2, -2).trim();
+      }
+      if (typeof katex !== 'undefined' && typeof katex.render === 'function') {
+        try {
+          katex.render(clean, el, { displayMode: true, throwOnError: false });
+          el.classList.add('math-rendered');
+          return;
+        } catch (e) {
+          console.warn('KaTeX render warning:', e);
+        }
+      }
+      el.textContent = clean;
+    }
+
     let katexRetries = 0;
     function renderHeroMath() {
-      const heroCard = document.getElementById('hero-card');
-      if (typeof renderMathInElement === 'function') {
-        if (heroCard) {
-          renderMathInElement(heroCard, {
-            delimiters: [
-              { left: '$$', right: '$$', display: true },
-              { left: '$', right: '$', display: false }
-            ],
-            throwOnError: false
-          });
-          heroCard.querySelectorAll('.render-math').forEach(el => {
-            el.classList.add('math-rendered');
-          });
-        }
-      } else {
+      const mathEl = document.getElementById('mockup-screen-math');
+      const noteMath = document.getElementById('mockup-note-math');
+      if (mockupState.slides && mockupState.slides[mockupState.activeSlide]) {
+        const cur = mockupState.slides[mockupState.activeSlide];
+        if (mathEl) renderKatexElement(mathEl, cur.math);
+        if (noteMath) renderKatexElement(noteMath, cur.noteMath);
+      }
+      document.querySelectorAll('#mockup-merged-snaps .render-math, #recall-answer-box .render-math').forEach(el => {
+        const tex = el.getAttribute('data-tex') || el.textContent;
+        renderKatexElement(el, tex);
+      });
+      if (typeof katex === 'undefined') {
         katexRetries++;
-        if (katexRetries < 25) {
+        if (katexRetries < 30) {
           setTimeout(renderHeroMath, 100);
-        } else {
-          // Offline / CDN Blocked Fallback: Show raw formula cleanly in monospace container
-          if (heroCard) {
-            heroCard.querySelectorAll('.render-math').forEach(el => {
-              el.classList.add('math-fallback');
-            });
-          }
         }
       }
     }
     window.addEventListener('load', renderHeroMath);
+    window.addEventListener('DOMContentLoaded', renderHeroMath);
 
     // Smooth Vertical Centering for Explore Live Session Button
     const exploreBtn = document.getElementById('hero-explore-btn');
@@ -2387,56 +2324,15 @@ ight]3020</div>
       }
     });
 
-    // 2. 3D Card Hover Perspective (Smooth Apple Damping)
+    // 2. Interactive Card Subtle Focus Glow (Stable 2D Plane - No Click Dropping)
     const heroCard = document.getElementById('hero-card');
     if (heroCard) {
-      let currentX = 0, currentY = 0;
-      let targetX = 0, targetY = 0;
-      let glareX = 50, glareY = 50;
-      let targetGlareX = 50, targetGlareY = 50;
-      let enterProgress = 0;
-
       heroCard.addEventListener('mouseenter', () => {
-        enterProgress = 0;
+        heroCard.style.borderColor = 'rgba(255, 255, 255, 0.2)';
       });
-
-      heroCard.addEventListener('mousemove', (e) => {
-        const rect = heroCard.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const y = e.clientY - rect.top;
-        const centerX = rect.width / 2;
-        const centerY = rect.height / 2;
-
-        enterProgress = Math.min(1, enterProgress + 0.1);
-        const rawTargetX = ((y - centerY) / centerY) * -3.5;
-        const rawTargetY = ((x - centerX) / centerX) * 3.5;
-
-        targetX = rawTargetX * enterProgress;
-        targetY = rawTargetY * enterProgress;
-        targetGlareX = (x / rect.width) * 100;
-        targetGlareY = (y / rect.height) * 100;
-      });
-
       heroCard.addEventListener('mouseleave', () => {
-        targetX = 0;
-        targetY = 0;
-        targetGlareX = 50;
-        targetGlareY = 50;
-        enterProgress = 0;
+        heroCard.style.borderColor = 'var(--chalk-border)';
       });
-
-      function animateTilt() {
-        currentX += (targetX - currentX) * 0.05;
-        currentY += (targetY - currentY) * 0.05;
-        glareX += (targetGlareX - glareX) * 0.08;
-        glareY += (targetGlareY - glareY) * 0.08;
-
-        heroCard.style.transform = `perspective(1200px) rotateX(${currentX.toFixed(3)}deg) rotateY(${currentY.toFixed(3)}deg)`;
-        heroCard.style.setProperty('--glare-x', `${glareX.toFixed(1)}%`);
-        heroCard.style.setProperty('--glare-y', `${glareY.toFixed(1)}%`);
-        requestAnimationFrame(animateTilt);
-      }
-      animateTilt();
     }
 
     // 3. Dual Theme Toggle
@@ -2476,14 +2372,45 @@ ight]3020</div>
     const savedLang = localStorage.getItem('chalk-lang') || 'en';
     setLanguage(savedLang);
 
-    // 4. Copy Feedback Helpers (Zero Unicode Emojis - Clean SVG Icons)
+    // 4. Safe Clipboard Helpers with Guaranteed Fallback (Zero Unicode Emojis)
     const checkSvg = `<svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
+
+    function safeClipboardCopy(text, onSuccess) {
+      if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+        navigator.clipboard.writeText(text).then(() => {
+          if (onSuccess) onSuccess();
+        }).catch(() => {
+          fallbackClipboardCopy(text, onSuccess);
+        });
+      } else {
+        fallbackClipboardCopy(text, onSuccess);
+      }
+    }
+
+    function fallbackClipboardCopy(text, onSuccess) {
+      try {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        ta.style.left = '-9999px';
+        document.body.appendChild(ta);
+        ta.focus();
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+        if (onSuccess) onSuccess();
+      } catch (e) {
+        console.warn('Clipboard fallback failed:', e);
+      }
+    }
 
     function copyMarkdownNotes(btn) {
       const markdown = notesTranslations[currentLang] || notesTranslations.en;
-      navigator.clipboard.writeText(markdown).then(() => {
+      safeClipboardCopy(markdown, () => {
         const originalHtml = btn.innerHTML;
-        btn.innerHTML = `${checkSvg}<span>${translations[currentLang].btn_copied}</span>`;
+        const copiedLabel = translations[currentLang]?.btn_copied || 'Copied';
+        btn.innerHTML = `${checkSvg}<span>${copiedLabel}</span>`;
         setTimeout(() => {
           btn.innerHTML = originalHtml;
         }, 2000);
@@ -2491,9 +2418,10 @@ ight]3020</div>
     }
 
     function copyCommand(btn, text) {
-      navigator.clipboard.writeText(text).then(() => {
+      safeClipboardCopy(text, () => {
         const originalHtml = btn.innerHTML;
-        btn.innerHTML = `${checkSvg}<span>${translations[currentLang].btn_copied}</span>`;
+        const copiedLabel = translations[currentLang]?.btn_copied || 'Copied';
+        btn.innerHTML = `${checkSvg}<span>${copiedLabel}</span>`;
         setTimeout(() => {
           btn.innerHTML = originalHtml;
         }, 2000);
@@ -2501,9 +2429,9 @@ ight]3020</div>
     }
 
     function copyMeetingNotice(btn) {
-      navigator.clipboard.writeText(MEETING_NOTICE).then(() => {
+      safeClipboardCopy(MEETING_NOTICE, () => {
         const originalHtml = btn.innerHTML;
-        const copiedText = (translations[currentLang] && translations[currentLang].modal_copied_notice_btn) || translations[currentLang].btn_copied;
+        const copiedText = (translations[currentLang] && translations[currentLang].modal_copied_notice_btn) || translations[currentLang]?.btn_copied || 'Copied';
         btn.innerHTML = `${checkSvg}<span>${copiedText}</span>`;
         setTimeout(() => {
           btn.innerHTML = originalHtml;

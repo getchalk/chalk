@@ -179,11 +179,11 @@ TRANSLATIONS: Dict[str, Dict[str, str]] = {
         "zh": "完成 [F9]",
     },
     "btn_socratic_debrief": {
-        "en": "Debrief [Socratic]",
-        "de": "Debrief [Sokrates]",
-        "fr": "Débriefing [Socratique]",
-        "es": "Debrief [Socrático]",
-        "zh": "苏格拉底回顾",
+        "en": "Recall [F9]",
+        "de": "Recall [F9]",
+        "fr": "Rappel [F9]",
+        "es": "Recuerdo [F9]",
+        "zh": "回顾 [F9]",
     },
     "btn_send": {
         "en": "Send",
@@ -758,14 +758,14 @@ TRANSLATIONS: Dict[str, Dict[str, str]] = {
     },
 
     # ----------------------------------------------------
-    # Socratic Debrief
+    # Recall Debrief
     # ----------------------------------------------------
     "debrief_header": {
-        "en": "[SOCRATIC ACTIVE RECALL — F9 DEBRIEF]",
-        "de": "[SOKRATISCHER AKTIVER ABRUF — F9 DEBRIEF]",
-        "fr": "[RAPPEL ACTIF SOCRATIQUE — DÉBRIEFING F9]",
-        "es": "[RECUERDO ACTIVO SOCRÁTICO — DEBRIEF F9]",
-        "zh": "[苏格拉底主动回忆 — F9 回顾]",
+        "en": "[ACTIVE RECALL — F9 DEBRIEF]",
+        "de": "[AKTIVER ABRUF — F9 DEBRIEF]",
+        "fr": "[RAPPEL ACTIF — DÉBRIEFING F9]",
+        "es": "[RECUERDO ACTIVO — DEBRIEF F9]",
+        "zh": "[主动回忆 — F9 回顾]",
     },
     "debrief_q1": {
         "en": "What is the fundamental invariant or mathematical core assumption of today's lecture?",
