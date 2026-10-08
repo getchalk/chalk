@@ -275,6 +275,7 @@
         <a href="#how-it-works" class="hidden sm:inline-block transition hover:opacity-100" style="color: var(--chalk-slate);" data-i18n="nav_how_it_works">How it works</a>
         <a href="#use-cases" class="hidden sm:inline-block transition hover:opacity-100" style="color: var(--chalk-slate);" data-i18n="nav_use_cases">Use cases</a>
         <a href="#privacy" class="hidden sm:inline-block transition hover:opacity-100" style="color: var(--chalk-slate);" data-i18n="nav_privacy">Privacy</a>
+        <a href="#try-free" class="hidden sm:inline-block transition hover:opacity-100" style="color: var(--chalk-slate);" data-i18n="nav_try_free">Try for free</a>
 
         <!-- Dual Theme Toggle -->
         <button id="theme-toggle" onclick="toggleTheme()" class="px-3 py-1.5 rounded-lg border font-medium transition flex items-center gap-1.5" style="background-color: var(--surface-graphite); border-color: var(--chalk-border); color: var(--chalk-white);" title="Toggle theme">
@@ -386,7 +387,7 @@
             <!-- Active Screen Capture Card -->
             <div class="rounded-xl border p-4 relative overflow-hidden shadow-sm flex flex-col justify-between flex-1" style="background-color: var(--hud-card-bg); border-color: var(--chalk-border);">
               <div class="flex items-center gap-1.5 text-xs font-medium mb-2.5" style="color: var(--chalk-slate);">
-                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                <span class="w-1.5 h-1.5 rounded-full" style="background-color: var(--chalk-white);"></span>
                 <span class="text-[11px] font-medium uppercase tracking-wide" data-i18n="preview_screen_label">SCREEN CAPTURE</span>
               </div>
               <div id="mockup-screen-container" onclick="manualTransitionMockupSlide(event)" title="Presentation slide preview (click to cycle)" class="aspect-video rounded-lg border flex flex-col justify-between p-3.5 text-center relative overflow-hidden cursor-pointer hover:border-white/30" style="background-color: var(--surface-elevated); border-color: var(--chalk-border); transition: opacity 0.4s ease-in-out;">
@@ -604,8 +605,9 @@
                 <div>
                   <div class="flex items-center justify-between mb-1">
                     <label class="font-semibold text-xs" style="color: var(--chalk-white);" data-i18n="preview_key_label">Google Gemini API Key (BYOK):</label>
-                    <button type="button" onclick="openFreeKeyGuide()" class="text-[10px] underline hover:text-white transition flex items-center gap-1 font-mono text-emerald-400 cursor-pointer">
-                      <span data-i18n="preview_free_guide_link">Free Key Guide ▾</span>
+                    <button type="button" onclick="openFreeKeyGuide()" class="text-[11px] font-medium px-2.5 py-1 rounded-md border transition cursor-pointer flex items-center gap-1.5 shadow-sm hover:border-slate-400" style="background-color: var(--surface-elevated); border-color: var(--chalk-border); color: var(--chalk-white);">
+                      <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+                      <span data-i18n="preview_free_guide_link">Get Free Key ↗</span>
                     </button>
                   </div>
                   <div class="flex items-center gap-2">
@@ -888,69 +890,64 @@
     </div>
   </section>
 
-  <!-- Free Gemini API Guide Section -->
-  <section id="free-api-guide" class="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16 py-12 border-t z-10 relative" style="border-color: var(--chalk-border);">
-    <div class="rounded-2xl border p-6 sm:p-8 transition shadow-sm" style="background-color: var(--surface-graphite); border-color: var(--chalk-border);">
-      <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
-        <div class="max-w-2xl">
-          <div class="flex items-center gap-2 mb-2">
-            <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
-            <span class="text-xs font-mono uppercase tracking-wider text-emerald-400" data-i18n="free_api_tag">100% FREE TO START</span>
+  <!-- Try Chalk for Free Section -->
+  <section id="try-free" class="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16 py-24 border-t z-10 relative" style="border-color: var(--chalk-border);">
+    <div class="text-center max-w-2xl mx-auto mb-16">
+      <div class="text-xs font-mono uppercase tracking-widest mb-3" style="color: var(--chalk-muted);" data-i18n="free_api_tag">FREE TIER</div>
+      <h2 class="text-3xl sm:text-4xl font-bold tracking-tight" style="color: var(--chalk-white);" data-i18n="free_api_title">Try Chalk with a Free Google Gemini API Key</h2>
+      <p class="text-sm mt-3" style="color: var(--chalk-slate);" data-i18n="free_api_desc">No credit card, no subscription fees, no commitments. Get started in minutes directly on your workstation.</p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+      <!-- Step 01 -->
+      <div class="rounded-2xl border p-7 transition flex flex-col justify-between shadow-sm" style="background-color: var(--surface-graphite); border-color: var(--chalk-border);">
+        <div>
+          <div class="w-10 h-10 rounded-xl border flex items-center justify-center font-mono text-sm font-bold mb-5" style="background-color: var(--surface-elevated); border-color: var(--chalk-border); color: var(--chalk-white);">
+            01
           </div>
-          <h3 class="text-xl sm:text-2xl font-bold tracking-tight mb-2" style="color: var(--chalk-white);" data-i18n="free_api_title">Try Chalk with a Free Google Gemini API Key</h3>
-          <p class="text-sm leading-relaxed" style="color: var(--chalk-slate);" data-i18n="free_api_desc">
-            No credit card, no subscription fees, no commitments. Google AI Studio provides generous free-tier API quotas for Gemini that easily cover all your daily lectures and meetings.
+          <h3 class="text-lg font-semibold mb-2" style="color: var(--chalk-white);" data-i18n="guide_step1_title">Visit Google AI Studio</h3>
+          <p class="text-sm leading-relaxed" style="color: var(--chalk-slate);" data-i18n="guide_step1_desc">
+            Open aistudio.google.com and sign in with any Google account. No credit card or billing details required.
           </p>
-        </div>
-        <div class="flex-shrink-0">
-          <button id="guide-toggle-btn" onclick="toggleFreeGuideAccordion()" class="py-3 px-5 rounded-xl border font-semibold text-xs transition cursor-pointer flex items-center gap-2 hover:border-white/40" style="background-color: var(--surface-elevated); border-color: var(--chalk-border); color: var(--chalk-white);">
-            <svg class="w-4 h-4 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-            <span id="guide-toggle-text" data-i18n="free_api_btn">How to get your free key (3 steps) ▾</span>
-          </button>
         </div>
       </div>
 
-      <!-- Collapsible Clickable Instruction (Hidden by default, appears on click) -->
-      <div id="free-guide-content" class="hidden mt-6 pt-6 border-t transition-all" style="border-color: var(--chalk-border);">
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-          <div class="p-4 rounded-xl border flex flex-col justify-between" style="background-color: var(--surface-terminal); border-color: var(--chalk-border);">
-            <div>
-              <div class="font-mono text-xs font-bold mb-1.5" style="color: var(--chalk-muted);">01 / SIGN IN</div>
-              <div class="font-semibold text-sm mb-1" style="color: var(--chalk-white);" data-i18n="guide_step1_title">Visit Google AI Studio</div>
-              <p class="text-xs leading-relaxed" style="color: var(--chalk-slate);" data-i18n="guide_step1_desc">
-                Open aistudio.google.com and sign in with any Google account. No credit card or billing details required.
-              </p>
-            </div>
+      <!-- Step 02 -->
+      <div class="rounded-2xl border p-7 transition flex flex-col justify-between shadow-sm" style="background-color: var(--surface-graphite); border-color: var(--chalk-border);">
+        <div>
+          <div class="w-10 h-10 rounded-xl border flex items-center justify-center font-mono text-sm font-bold mb-5" style="background-color: var(--surface-elevated); border-color: var(--chalk-border); color: var(--chalk-white);">
+            02
           </div>
-          <div class="p-4 rounded-xl border flex flex-col justify-between" style="background-color: var(--surface-terminal); border-color: var(--chalk-border);">
-            <div>
-              <div class="font-mono text-xs font-bold mb-1.5" style="color: var(--chalk-muted);">02 / GENERATE</div>
-              <div class="font-semibold text-sm mb-1" style="color: var(--chalk-white);" data-i18n="guide_step2_title">Create your API Key</div>
-              <p class="text-xs leading-relaxed" style="color: var(--chalk-slate);" data-i18n="guide_step2_desc">
-                Click 'Get API key' in the sidebar, then select 'Create API key in new project'. It is ready instantly.
-              </p>
-            </div>
-          </div>
-          <div class="p-4 rounded-xl border flex flex-col justify-between" style="background-color: var(--surface-terminal); border-color: var(--chalk-border);">
-            <div>
-              <div class="font-mono text-xs font-bold mb-1.5" style="color: var(--chalk-muted);">03 / PASTE & RUN</div>
-              <div class="font-semibold text-sm mb-1" style="color: var(--chalk-white);" data-i18n="guide_step3_title">Paste into Chalk</div>
-              <p class="text-xs leading-relaxed" style="color: var(--chalk-slate);" data-i18n="guide_step3_desc">
-                Copy your key string (starting with AIzaSy...) and paste it into Chalk. You are ready to synthesize live notes!
-              </p>
-            </div>
-          </div>
-        </div>
-        <div class="flex flex-wrap items-center justify-between gap-3 text-xs" style="color: var(--chalk-muted);">
-          <div class="flex items-center gap-2">
-            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
-            <span data-i18n="guide_note">Free-tier limits are more than generous for daily university & meeting use.</span>
-          </div>
-          <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener" class="py-2 px-4 rounded-lg font-semibold transition flex items-center gap-1.5 hover:opacity-90 cursor-pointer" style="background-color: var(--chalk-white); color: var(--bg-obsidian);">
-            <span data-i18n="guide_action_btn">Open Google AI Studio ↗</span>
-          </a>
+          <h3 class="text-lg font-semibold mb-2" style="color: var(--chalk-white);" data-i18n="guide_step2_title">Create your API Key</h3>
+          <p class="text-sm leading-relaxed" style="color: var(--chalk-slate);" data-i18n="guide_step2_desc">
+            Click 'Get API key' in the sidebar, then select 'Create API key in new project'. It is ready instantly.
+          </p>
         </div>
       </div>
+
+      <!-- Step 03 -->
+      <div class="rounded-2xl border p-7 transition flex flex-col justify-between shadow-sm" style="background-color: var(--surface-graphite); border-color: var(--chalk-border);">
+        <div>
+          <div class="w-10 h-10 rounded-xl border flex items-center justify-center font-mono text-sm font-bold mb-5" style="background-color: var(--surface-elevated); border-color: var(--chalk-border); color: var(--chalk-white);">
+            03
+          </div>
+          <h3 class="text-lg font-semibold mb-2" style="color: var(--chalk-white);" data-i18n="guide_step3_title">Paste into Chalk</h3>
+          <p class="text-sm leading-relaxed" style="color: var(--chalk-slate);" data-i18n="guide_step3_desc">
+            Copy your key string (starting with AIzaSy...) and paste it into Chalk. You are ready to synthesize live notes!
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom Notice & Direct Action Link -->
+    <div class="rounded-xl border p-4 sm:p-5 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-sm" style="background-color: var(--surface-graphite); border-color: var(--chalk-border);">
+      <div class="flex items-center gap-2.5 text-xs">
+        <span class="w-1.5 h-1.5 rounded-full flex-shrink-0" style="background-color: var(--chalk-white);"></span>
+        <span style="color: var(--chalk-slate);" data-i18n="guide_note">Free-tier limits are more than generous for daily university & meeting use.</span>
+      </div>
+      <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener" class="py-2.5 px-5 rounded-xl font-semibold text-xs transition flex items-center gap-2 hover:opacity-90 cursor-pointer shadow-sm flex-shrink-0" style="background-color: var(--chalk-white); color: var(--bg-obsidian);">
+        <span data-i18n="guide_action_btn">Open Google AI Studio ↗</span>
+      </a>
     </div>
   </section>
 
@@ -1158,6 +1155,7 @@
     "nav_how_it_works": "How it works",
     "nav_use_cases": "Use cases",
     "nav_privacy": "Privacy",
+    "nav_try_free": "Try for free",
     "nav_download": "Download App",
     "theme_dark": "Dark",
     "theme_light": "Light",
@@ -1204,7 +1202,7 @@
     "preview_chat_chip_intuition": "Explain Intuition",
     "preview_chat_chip_proof": "Step-by-Step Proof",
     "preview_key_label": "Google Gemini API Key (BYOK):",
-    "preview_free_guide_link": "Free Key Guide ▾",
+    "preview_free_guide_link": "Get Free Key ↗",
     "preview_key_test_btn": "Test Key",
     "preview_key_save_btn": "Save Key",
     "preview_model_label": "AI Synthesis Model:",
@@ -1254,9 +1252,9 @@
     "privacy_card2_desc": "Synthesis requests travel without detours from your device directly to Google, Anthropic, or OpenAI.",
     "privacy_card3_title": "Zero Telemetry & Tracking",
     "privacy_card3_desc": "Zero telemetry, zero tracking cookies (§ 165 TKG), zero central relay servers.",
-    "free_api_tag": "100% FREE TO START",
+    "free_api_tag": "FREE TIER",
     "free_api_title": "Try Chalk with a Free Google Gemini API Key",
-    "free_api_desc": "No credit card, no subscription fees, no commitments. Google AI Studio provides generous free-tier API quotas for Gemini that easily cover all your daily lectures and meetings.",
+    "free_api_desc": "No credit card, no subscription fees, no commitments. Get started in minutes directly on your workstation.",
     "free_api_btn": "How to get your free key (3 steps) ▾",
     "free_api_btn_close": "Hide guide ▴",
     "guide_step1_title": "Visit Google AI Studio",
@@ -1309,6 +1307,7 @@
     "nav_how_it_works": "Funktionsweise",
     "nav_use_cases": "Einsatzbereiche",
     "nav_privacy": "Privatsphäre",
+    "nav_try_free": "Kostenlos testen",
     "nav_download": "App herunterladen",
     "theme_dark": "Dunkel",
     "theme_light": "Hell",
@@ -1355,7 +1354,7 @@
     "preview_chat_chip_intuition": "Intuition",
     "preview_chat_chip_proof": "Herleitung",
     "preview_key_label": "Google Gemini API-Schlüssel (BYOK):",
-    "preview_free_guide_link": "Kostenloser Key-Leitfaden ▾",
+    "preview_free_guide_link": "Gratis-Key holen ↗",
     "preview_key_test_btn": "Key testen",
     "preview_key_save_btn": "Key speichern",
     "preview_model_label": "KI-Synthese-Modell:",
@@ -1405,9 +1404,9 @@
     "privacy_card2_desc": "Syntheseanfragen laufen direkt von Ihrem Gerät zu Google, Anthropic oder OpenAI ohne zwischengeschaltete Server.",
     "privacy_card3_title": "Keine Telemetrie & kein Tracking",
     "privacy_card3_desc": "Keine Telemetrie, keine Tracking-Cookies (§ 165 TKG), keine zentralen Relay-Server.",
-    "free_api_tag": "100% KOSTENLOS STARTEN",
+    "free_api_tag": "FREE TIER",
     "free_api_title": "Chalk mit einem kostenlosen Google Gemini API-Schlüssel testen",
-    "free_api_desc": "Keine Kreditkarte, keine Abogebühren, keine Bindung. Google AI Studio bietet ein großzügiges kostenloses Kontingent für Gemini, das tägliche Vorlesungen und Meetings abdeckt.",
+    "free_api_desc": "Keine Kreditkarte, keine Abogebühren, keine Bindung. Starte in wenigen Minuten direkt auf deinem Rechner.",
     "free_api_btn": "Kostenlosen Schlüssel anfordern (3 Schritte) ▾",
     "free_api_btn_close": "Leitfaden ausblenden ▴",
     "guide_step1_title": "Google AI Studio aufrufen",
@@ -1460,6 +1459,7 @@
     "nav_how_it_works": "Fonctionnement",
     "nav_use_cases": "Cas d'usage",
     "nav_privacy": "Confidentialité",
+    "nav_try_free": "Essayer gratuitement",
     "nav_download": "Télécharger",
     "theme_dark": "Sombre",
     "theme_light": "Clair",
@@ -1506,7 +1506,7 @@
     "preview_chat_chip_intuition": "Intuition",
     "preview_chat_chip_proof": "Démonstration",
     "preview_key_label": "Clé API Google Gemini (BYOK) :",
-    "preview_free_guide_link": "Guide Clé Gratuite ▾",
+    "preview_free_guide_link": "Clé gratuite ↗",
     "preview_key_test_btn": "Tester la clé",
     "preview_key_save_btn": "Enregistrer la clé",
     "preview_model_label": "Modèle de synthèse IA :",
@@ -1556,9 +1556,9 @@
     "privacy_card2_desc": "Les requêtes de synthèse transitent directement de votre appareil vers Google, Anthropic ou OpenAI sans serveur relais.",
     "privacy_card3_title": "Zéro télémétrie & zéro traceur",
     "privacy_card3_desc": "Zéro télémétrie, zéro cookie traceur (§ 165 TKG), aucun serveur relais central.",
-    "free_api_tag": "100 % GRATUIT POUR COMMENCER",
+    "free_api_tag": "FREE TIER",
     "free_api_title": "Essayez Chalk avec une clé d'API Google Gemini gratuite",
-    "free_api_desc": "Sans carte bancaire ni abonnement. Google AI Studio propose des quotas gratuits généreux pour Gemini, couvrant largement vos cours et réunions au quotidien.",
+    "free_api_desc": "Sans carte bancaire, sans abonnement ni engagement. Démarrez en quelques minutes directement sur votre machine.",
     "free_api_btn": "Obtenir votre clé gratuite (3 étapes) ▾",
     "free_api_btn_close": "Masquer le guide ▴",
     "guide_step1_title": "Accéder à Google AI Studio",
@@ -1611,6 +1611,7 @@
     "nav_how_it_works": "Cómo funciona",
     "nav_use_cases": "Casos de uso",
     "nav_privacy": "Privacidad",
+    "nav_try_free": "Probar gratis",
     "nav_download": "Descargar",
     "theme_dark": "Oscuro",
     "theme_light": "Claro",
@@ -1657,7 +1658,7 @@
     "preview_chat_chip_intuition": "Intuición",
     "preview_chat_chip_proof": "Demostración",
     "preview_key_label": "Clave API de Google Gemini (BYOK):",
-    "preview_free_guide_link": "Guía de Clave Gratuita ▾",
+    "preview_free_guide_link": "Clave gratis ↗",
     "preview_key_test_btn": "Probar clave",
     "preview_key_save_btn": "Guardar clave",
     "preview_model_label": "Modelo de síntesis IA:",
@@ -1707,9 +1708,9 @@
     "privacy_card2_desc": "Las solicitudes de síntesis viajan directamente desde tu dispositivo a Google, Anthropic u OpenAI sin servidores intermediarios.",
     "privacy_card3_title": "Cero telemetría y rastreo",
     "privacy_card3_desc": "Cero telemetría, cero cookies de seguimiento (§ 165 TKG), cero servidores de retransmisión.",
-    "free_api_tag": "100% GRATUITO PARA EMPEZAR",
+    "free_api_tag": "FREE TIER",
     "free_api_title": "Prueba Chalk con una clave de API gratuita de Google Gemini",
-    "free_api_desc": "Sin tarjeta de crédito ni cuotas de suscripción. Google AI Studio ofrece cuotas gratuitas generosas para Gemini que cubren de sobra tus clases y reuniones diarias.",
+    "free_api_desc": "Sin tarjeta de crédito, sin suscripciones ni compromisos. Empieza en minutos directamente en tu equipo.",
     "free_api_btn": "Cómo obtener tu clave gratuita (3 pasos) ▾",
     "free_api_btn_close": "Ocultar guía ▴",
     "guide_step1_title": "Visitar Google AI Studio",
@@ -1762,6 +1763,7 @@
     "nav_how_it_works": "工作原理",
     "nav_use_cases": "应用场景",
     "nav_privacy": "隐私保障",
+    "nav_try_free": "免费体验",
     "nav_download": "下载应用",
     "theme_dark": "深色",
     "theme_light": "浅色",
@@ -1808,7 +1810,7 @@
     "preview_chat_chip_intuition": "直观原理",
     "preview_chat_chip_proof": "公式推导",
     "preview_key_label": "Google Gemini API 密钥 (BYOK)：",
-    "preview_free_guide_link": "免费密钥获取指南 ▾",
+    "preview_free_guide_link": "获取免费密钥 ↗",
     "preview_key_test_btn": "测试密钥",
     "preview_key_save_btn": "保存密钥",
     "preview_model_label": "AI 提炼模型：",
@@ -1858,9 +1860,9 @@
     "privacy_card2_desc": "AI 合成请求直接从您的本机发送至 Google、Anthropic 或 OpenAI，无需任何中继服务器。",
     "privacy_card3_title": "零遥测与零追踪",
     "privacy_card3_desc": "零遥测收集、零追踪 Cookie (§ 165 TKG)，无任何集中式中转服务器。",
-    "free_api_tag": "100% 免费起步",
+    "free_api_tag": "FREE TIER",
     "free_api_title": "使用免费的 Google Gemini API 密钥即刻体验 Chalk",
-    "free_api_desc": "无需信用卡，无任何订阅费用。Google AI Studio 为 Gemini 提供慷慨的免费配额，足以完全覆盖日常所有课程与会议记录。",
+    "free_api_desc": "无需信用卡，无任何订阅费用与承诺约束。数分钟内即可在你的本地工作站直接启用。",
     "free_api_btn": "如何获取免费密钥（只需3步）▾",
     "free_api_btn_close": "收起指南 ▴",
     "guide_step1_title": "访问 Google AI Studio",
@@ -2596,31 +2598,8 @@
       }
     }
 
-    function toggleFreeGuideAccordion(forceOpen) {
-      const content = document.getElementById('free-guide-content');
-      const btnText = document.getElementById('guide-toggle-text');
-      if (!content) return;
-      const isCurrentlyOpen = !content.classList.contains('hidden');
-      const shouldOpen = forceOpen !== undefined ? forceOpen : !isCurrentlyOpen;
-
-      if (shouldOpen) {
-        content.classList.remove('hidden');
-        if (btnText) {
-          const tClose = (translations[currentLang] && translations[currentLang].free_api_btn_close) || 'Hide guide ▴';
-          btnText.textContent = tClose;
-        }
-      } else {
-        content.classList.add('hidden');
-        if (btnText) {
-          const tOpen = (translations[currentLang] && translations[currentLang].free_api_btn) || 'How to get your free key (3 steps) ▾';
-          btnText.textContent = tOpen;
-        }
-      }
-    }
-
     function openFreeKeyGuide() {
-      toggleFreeGuideAccordion(true);
-      const target = document.getElementById('free-api-guide');
+      const target = document.getElementById('try-free');
       if (target) {
         target.scrollIntoView({ behavior: 'smooth' });
       }
@@ -2690,13 +2669,6 @@
 
       // Update dynamic hero download button & switch text
       updateHeroDownloadButton();
-
-      // Update guide accordion label if currently expanded
-      const guideContent = document.getElementById('free-guide-content');
-      const guideBtn = document.getElementById('guide-toggle-text');
-      if (guideContent && guideBtn && !guideContent.classList.contains('hidden')) {
-        guideBtn.textContent = (translations[lang] && translations[lang].free_api_btn_close) || 'Hide guide ▴';
-      }
 
       // Update document title and meta description
       if (translations[lang].page_title) {

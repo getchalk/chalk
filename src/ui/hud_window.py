@@ -736,7 +736,7 @@ class WhiteboardCamDialog(QDialog):
 
         # Live Status
         self.live_status = QLabel()
-        self.live_status.setStyleSheet("font-size: 11px; color: #10B981; font-weight: 600;")
+        self.live_status.setStyleSheet("font-size: 11px; color: #F8FAFC; font-weight: 600;")
         self.live_status.setAlignment(Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(self.live_status)
 
@@ -1260,7 +1260,11 @@ class FloatingHUDWindow(QWidget):
         key_head.addWidget(key_lbl)
         key_head.addStretch()
         free_key_link = QPushButton("Get Free Key ↗")
-        free_key_link.setStyleSheet("border: none; background: transparent; color: #38BDF8; font-size: 10px; font-weight: 600;")
+        free_key_link.setStyleSheet(
+            "QPushButton { background-color: #22252F; border: 1px solid rgba(255, 255, 255, 0.12); "
+            "color: #F8FAFC; font-size: 10.5px; font-weight: 600; padding: 2px 8px; border-radius: 5px; } "
+            "QPushButton:hover { border-color: #94A3B8; background-color: #2A2D37; }"
+        )
         free_key_link.clicked.connect(lambda: QDesktopServices.openUrl(QUrl("https://aistudio.google.com/app/apikey")))
         key_head.addWidget(free_key_link)
         s_tab_layout.addLayout(key_head)
@@ -1288,40 +1292,6 @@ class FloatingHUDWindow(QWidget):
         self.settings_key_feedback = QLabel("")
         self.settings_key_feedback.setStyleSheet("font-size: 10.5px; font-family: monospace;")
         s_tab_layout.addWidget(self.settings_key_feedback)
-
-        # Free API key guide (collapsible 3-step drawer)
-        self.settings_guide_btn = QPushButton(tr("guide_toggle_btn"))
-        self.settings_guide_btn.setStyleSheet(
-            "border: none; background: transparent; color: #94A3B8; text-align: left; "
-            "font-size: 11px; text-decoration: underline; padding: 2px 0;"
-        )
-        self.settings_guide_btn.setCursor(Qt.CursorShape.PointingHandCursor)
-        self.settings_guide_btn.clicked.connect(self._toggle_settings_free_guide)
-        s_tab_layout.addWidget(self.settings_guide_btn)
-
-        self.settings_guide_frame = QFrame()
-        self.settings_guide_frame.setObjectName("dockFrame")
-        sg_layout = QVBoxLayout(self.settings_guide_frame)
-        sg_layout.setContentsMargins(10, 8, 10, 8)
-        sg_layout.setSpacing(5)
-
-        self.settings_step1_lbl = QLabel(f"<b>{tr('guide_step1_title')}</b><br>{tr('guide_step1_desc')}")
-        self.settings_step1_lbl.setWordWrap(True)
-        self.settings_step1_lbl.setStyleSheet("font-size: 10px; color: #CBD5E1; line-height: 1.3;")
-        sg_layout.addWidget(self.settings_step1_lbl)
-
-        self.settings_step2_lbl = QLabel(f"<b>{tr('guide_step2_title')}</b><br>{tr('guide_step2_desc')}")
-        self.settings_step2_lbl.setWordWrap(True)
-        self.settings_step2_lbl.setStyleSheet("font-size: 10px; color: #CBD5E1; line-height: 1.3;")
-        sg_layout.addWidget(self.settings_step2_lbl)
-
-        self.settings_step3_lbl = QLabel(f"<b>{tr('guide_step3_title')}</b><br>{tr('guide_step3_desc')}")
-        self.settings_step3_lbl.setWordWrap(True)
-        self.settings_step3_lbl.setStyleSheet("font-size: 10px; color: #CBD5E1; line-height: 1.3;")
-        sg_layout.addWidget(self.settings_step3_lbl)
-
-        self.settings_guide_frame.hide()
-        s_tab_layout.addWidget(self.settings_guide_frame)
 
         # 2. Model
         self.settings_model_label = QLabel("AI Synthesis Model:")
@@ -1695,7 +1665,7 @@ class FloatingHUDWindow(QWidget):
         valid, msg = validate_api_key(key)
         if valid:
             self.settings_key_feedback.setText("✓ API key is valid and working.")
-            self.settings_key_feedback.setStyleSheet("color: #34D399;")
+            self.settings_key_feedback.setStyleSheet("color: #F8FAFC; font-weight: 600;")
         else:
             self.settings_key_feedback.setText(f"✗ Validation failed: {msg[:60]}")
             self.settings_key_feedback.setStyleSheet("color: #F87171;")
@@ -1708,20 +1678,12 @@ class FloatingHUDWindow(QWidget):
             return
         set_api_key(key, "gemini")
         self.settings_key_feedback.setText("✓ API key saved securely to OS Vault.")
-        self.settings_key_feedback.setStyleSheet("color: #34D399;")
+        self.settings_key_feedback.setStyleSheet("color: #F8FAFC; font-weight: 600;")
 
     def _on_settings_model_changed(self, idx: int):
         model_id = self.settings_model_combo.currentData()
         if model_id:
             set_selected_model(model_id)
-
-    def _toggle_settings_free_guide(self):
-        is_hidden = self.settings_guide_frame.isHidden()
-        self.settings_guide_frame.setVisible(is_hidden)
-        if is_hidden:
-            self.settings_guide_btn.setText(tr("guide_toggle_btn_close"))
-        else:
-            self.settings_guide_btn.setText(tr("guide_toggle_btn"))
 
     def _browse_vault_path(self):
         d = QFileDialog.getExistingDirectory(self, "Select Obsidian Vault Directory", self.settings_vault_input.text())
@@ -2086,15 +2048,15 @@ class FloatingHUDWindow(QWidget):
 
         self.status_pill.setText(f"[CAM] PHOTO CAPTURED ({timestamp_str})")
         self.status_pill.setStyleSheet(
-            "background-color: rgba(16, 185, 129, 0.2); border: 1px solid #10B981;"
-            "color: #10B981; font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 12px;"
+            "background-color: rgba(255, 255, 255, 0.12); border: 1px solid rgba(255, 255, 255, 0.28);"
+            "color: #F8FAFC; font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 12px;"
         )
         QTimer.singleShot(3500, self._restore_pill_status)
         self._update_attachment_banner()
 
         n_photos = len(self.whiteboard_photos)
         self.chat_history.append(
-            f"<span style='color:#10B981;'><b>[CAM] Photo #{n_photos} captured ({timestamp_str}).</b> Prioritized in lecture notes.</span><br>"
+            f"<span style='color:#F8FAFC;'><b>[CAM] Photo #{n_photos} captured ({timestamp_str}).</b> Prioritized in lecture notes.</span><br>"
         )
 
     def _restore_pill_status(self):
