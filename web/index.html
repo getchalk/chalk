@@ -310,10 +310,10 @@
         <!-- Mockup Content Grid -->
         <div class="p-6 grid grid-cols-1 md:grid-cols-12 gap-6" style="background-color: var(--hud-body-bg);">
 
-          <!-- Left Column: Presentation & Assistant Query -->
-          <div class="md:col-span-5 space-y-4">
+          <!-- Left Column: Presentation & Multimodal Capture Studio -->
+          <div class="md:col-span-5 flex flex-col justify-between space-y-4">
             <!-- Active Screen Capture Card -->
-            <div class="rounded-xl border p-4 relative overflow-hidden shadow-sm" style="background-color: var(--hud-card-bg); border-color: var(--chalk-border);">
+            <div class="rounded-xl border p-4 relative overflow-hidden shadow-sm flex flex-col justify-between" style="background-color: var(--hud-card-bg); border-color: var(--chalk-border);">
               <div class="flex items-center justify-between text-xs font-medium mb-2.5" style="color: var(--chalk-slate);">
                 <span data-i18n="preview_screen_label">SCREEN CAPTURE</span>
                 <div class="flex items-center gap-1 font-mono text-[10px] text-slate-400">
@@ -334,44 +334,79 @@
                   <div id="mockup-screen-heading" class="text-xs sm:text-sm font-semibold mb-1.5" style="color: var(--chalk-white);" data-i18n="preview_screen_heading">Capital Asset Pricing Model (CAPM)</div>
                   <div id="mockup-screen-math" class="render-math text-xs sm:text-sm text-center font-serif" style="color: var(--chalk-white);">$$E(R_i) = R_f + \beta_i [E(R_m) - R_f]$$</div>
                 </div>
+
+                <!-- Slide Footer Status -->
+                <div class="flex items-center justify-between pt-1 border-t border-white/5 text-[9px] font-mono opacity-70">
+                  <span style="color: var(--chalk-muted);">1080p Screen Sync</span>
+                  <span style="color: var(--chalk-muted);">OCR: Active</span>
+                </div>
               </div>
             </div>
 
-            <!-- Dual-Input Split-Grid: Whiteboard Phone Link & Recall -->
-            <div class="grid grid-cols-1 sm:grid-cols-12 gap-3">
-              <!-- Sub-Col 1 (sm:col-span-5): Whiteboard Cam / Phone Link -->
-              <div onclick="triggerMockupPhoneSnap()" title="Click to simulate whiteboard photo capture" class="sm:col-span-5 rounded-xl border p-3 shadow-sm flex flex-col items-center justify-between text-center cursor-pointer transition hover:border-white/30" style="background-color: var(--hud-card-bg); border-color: var(--chalk-border);">
-                <div class="w-full flex items-center justify-between text-[11px] font-medium mb-1.5" style="color: var(--chalk-slate);">
-                  <span class="tracking-wide" data-i18n="preview_qr_label">PHONE LINK</span>
+            <!-- Lower-Left Window: Live Audio & Whiteboard Sync Dock -->
+            <div class="rounded-xl border p-4 shadow-sm flex flex-col justify-between space-y-3" style="background-color: var(--hud-card-bg); border-color: var(--chalk-border);">
+              <!-- Card Header -->
+              <div class="flex items-center justify-between text-xs font-medium">
+                <div class="flex items-center gap-1.5">
+                  <span class="w-1.5 h-1.5 rounded-full" style="background-color: var(--chalk-white);"></span>
+                  <span class="text-[11px] font-medium uppercase tracking-wide" style="color: var(--chalk-slate);" data-i18n="preview_audio_label">LIVE AUDIO & CAPTURE</span>
                 </div>
-                <div id="mockup-qr-box" class="p-1.5 rounded-lg border shadow-inner flex items-center justify-center my-1 transition-all" style="background-color: var(--surface-terminal); border-color: var(--chalk-border);">
-                  <svg class="w-16 h-16" viewBox="0 0 27 27" fill="currentColor" shape-rendering="crispEdges" style="color: var(--chalk-white);" role="img" aria-label="Phone Link QR Code">
-                    <path d="M1 1h7v1h-7zM9 1h1v1h-1zM11 1h4v1h-4zM17 1h1v1h-1zM19 1h7v1h-7zM1 2h1v1h-1zM7 2h1v1h-1zM15 2h3v1h-3zM19 2h1v1h-1zM25 2h1v1h-1zM1 3h1v1h-1zM3 3h3v1h-3zM7 3h1v1h-1zM9 3h1v1h-1zM11 3h3v1h-3zM16 3h1v1h-1zM19 3h1v1h-1zM21 3h3v1h-3zM25 3h1v1h-1zM1 4h1v1h-1zM3 4h3v1h-3zM7 4h1v1h-1zM9 4h2v1h-2zM12 4h1v1h-1zM14 4h1v1h-1zM16 4h1v1h-1zM19 4h1v1h-1zM21 4h3v1h-3zM25 4h1v1h-1zM1 5h1v1h-1zM3 5h3v1h-3zM7 5h1v1h-1zM9 5h1v1h-1zM11 5h1v1h-1zM13 5h3v1h-3zM17 5h1v1h-1zM19 5h1v1h-1zM21 5h3v1h-3zM25 5h1v1h-1zM1 6h1v1h-1zM7 6h1v1h-1zM9 6h1v1h-1zM13 6h2v1h-2zM16 6h2v1h-2zM19 6h1v1h-1zM25 6h1v1h-1zM1 7h7v1h-7zM9 7h1v1h-1zM11 7h1v1h-1zM13 7h1v1h-1zM15 7h1v1h-1zM17 7h1v1h-1zM19 7h7v1h-7zM11 8h1v1h-1zM3 9h6v1h-6zM10 9h3v1h-3zM14 9h1v1h-1zM16 9h1v1h-1zM20 9h4v1h-4zM25 9h1v1h-1zM4 10h1v1h-1zM10 10h2v1h-2zM13 10h3v1h-3zM17 10h1v1h-1zM20 10h1v1h-1zM24 10h1v1h-1zM2 11h2v1h-2zM5 11h3v1h-3zM9 11h1v1h-1zM11 11h2v1h-2zM16 11h2v1h-2zM19 11h1v1h-1zM22 11h1v1h-1zM24 11h2v1h-2zM1 12h1v1h-1zM3 12h2v1h-2zM9 12h1v1h-1zM11 12h1v1h-1zM13 12h1v1h-1zM17 12h3v1h-3zM21 12h1v1h-1zM25 12h1v1h-1zM1 13h1v1h-1zM3 13h1v1h-1zM5 13h1v1h-1zM7 13h8v1h-8zM18 13h2v1h-2zM21 13h1v1h-1zM23 13h3v1h-3zM1 14h1v1h-1zM4 14h3v1h-3zM9 14h1v1h-1zM11 14h1v1h-1zM15 14h1v1h-1zM17 14h1v1h-1zM20 14h1v1h-1zM22 14h1v1h-1zM24 14h1v1h-1zM1 15h1v1h-1zM4 15h4v1h-4zM10 15h1v1h-1zM12 15h5v1h-5zM18 15h1v1h-1zM20 15h3v1h-3zM24 15h2v1h-2zM1 16h1v1h-1zM3 16h4v1h-4zM8 16h1v1h-1zM11 16h2v1h-2zM15 16h3v1h-3zM19 16h1v1h-1zM22 16h1v1h-1zM25 16h1v1h-1zM1 17h1v1h-1zM3 17h2v1h-2zM6 17h2v1h-2zM10 17h1v1h-1zM12 17h1v1h-1zM14 17h1v1h-1zM17 17h5v1h-5zM23 17h1v1h-1zM9 18h3v1h-3zM13 18h1v1h-1zM15 18h3v1h-3zM21 18h3v1h-3zM1 19h7v1h-7zM9 19h1v1h-1zM14 19h2v1h-2zM17 19h1v1h-1zM19 19h1v1h-1zM21 19h5v1h-5zM1 20h1v1h-1zM7 20h1v1h-1zM9 20h3v1h-3zM13 20h1v1h-1zM17 20h1v1h-1zM21 20h2v1h-2zM24 20h1v1h-1zM1 21h1v1h-1zM3 21h3v1h-3zM7 21h1v1h-1zM9 21h1v1h-1zM13 21h2v1h-2zM16 21h10v1h-10zM1 22h1v1h-1zM3 22h3v1h-3zM7 22h1v1h-1zM9 22h3v1h-3zM15 22h5v1h-5zM21 22h1v1h-1zM23 22h3v1h-3zM1 23h1v1h-1zM3 23h3v1h-3zM7 23h1v1h-1zM9 23h1v1h-1zM12 23h2v1h-2zM15 23h1v1h-1zM17 23h1v1h-1zM20 23h1v1h-1zM23 23h1v1h-1zM25 23h1v1h-1zM1 24h1v1h-1zM7 24h1v1h-1zM12 24h1v1h-1zM15 24h3v1h-3zM20 24h3v1h-3zM25 24h1v1h-1zM1 25h7v1h-7zM10 25h1v1h-1zM12 25h2v1h-2zM16 25h1v1h-1zM18 25h1v1h-1zM20 25h6v1h-6z"/>
-                  </svg>
+                <span class="text-[10px] font-mono px-1.5 py-0.5 rounded border" style="background-color: var(--surface-terminal); border-color: var(--chalk-border); color: var(--chalk-muted);" data-i18n="preview_audio_vad">16 kHz • Local VAD</span>
+              </div>
+
+              <!-- Live Spoken Audio Feed -->
+              <div class="p-2.5 rounded-lg border text-xs" style="background-color: var(--surface-terminal); border-color: var(--chalk-border);">
+                <div class="flex items-center justify-between text-[10px] font-mono mb-1" style="color: var(--chalk-muted);">
+                  <span class="flex items-center gap-1.5">
+                    <span class="inline-flex items-center gap-0.5 h-3">
+                      <span class="w-0.5 h-2 rounded-full animate-pulse" style="background-color: var(--chalk-white);"></span>
+                      <span class="w-0.5 h-3 rounded-full animate-pulse" style="background-color: var(--chalk-white); animation-delay: 150ms;"></span>
+                      <span class="w-0.5 h-1.5 rounded-full animate-pulse" style="background-color: var(--chalk-white); animation-delay: 300ms;"></span>
+                    </span>
+                    <span>Prof. Vance (Speaker)</span>
+                  </span>
+                  <span>@ 01:14:20</span>
                 </div>
-                <div class="w-full mt-1 text-center">
-                  <div class="text-[10px] font-medium leading-tight" style="color: var(--chalk-white);" data-i18n="preview_qr_action">Scan to snap board</div>
+                <div class="text-[11px] leading-relaxed italic" style="color: var(--chalk-white);" data-i18n="preview_audio_speech">
+                  "...unsystematic risk is eliminated by diversification. The market only prices systematic covariance..."
                 </div>
               </div>
 
-              <!-- Sub-Col 2 (sm:col-span-7): Keywords & Core Concepts (Auto-Detected) -->
-              <div class="sm:col-span-7 rounded-xl border p-3.5 shadow-sm flex flex-col justify-between" style="background-color: var(--hud-card-bg); border-color: var(--chalk-border);">
-                <div>
-                  <div class="flex items-center justify-between mb-2">
-                    <span class="text-[11px] font-medium uppercase tracking-wide" style="color: var(--chalk-slate);" data-i18n="preview_terms_label">KEYWORDS</span>
-                    <span class="text-[10px] font-mono px-1.5 py-0.5 rounded border" style="background-color: var(--surface-terminal); border-color: var(--chalk-border); color: var(--chalk-muted);" data-i18n="preview_terms_badge">Detected</span>
-                  </div>
+              <!-- Whiteboard Snap Bar (Instant Phone Sync) -->
+              <div class="pt-2 border-t space-y-2" style="border-color: var(--chalk-border);">
+                <div class="flex items-center gap-2">
+                  <button id="mockup-snap-btn" onclick="triggerMockupPhoneSnap()" title="Snap whiteboard with linked phone" class="flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-lg text-xs font-semibold border transition cursor-pointer hover:border-white/40" style="background-color: var(--surface-elevated); border-color: var(--chalk-border); color: var(--chalk-white);">
+                    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                    <span data-i18n="preview_snap_btn">Snap Whiteboard Photo</span>
+                  </button>
+                  <button onclick="toggleMockupQrPopover(event)" title="Show QR pairing code" class="py-2 px-2.5 rounded-lg border text-xs font-mono transition cursor-pointer hover:bg-white/5 flex items-center gap-1.5 flex-shrink-0" style="background-color: var(--surface-terminal); border-color: var(--chalk-border); color: var(--chalk-muted);">
+                    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+                    <span class="text-[10px] hidden sm:inline" data-i18n="preview_qr_toggle">Pair QR</span>
+                  </button>
+                </div>
+                <div class="flex items-center justify-between text-[10px] font-mono" style="color: var(--chalk-muted);">
+                  <span class="flex items-center gap-1.5">
+                    <span class="w-1.5 h-1.5 rounded-full" style="background-color: var(--chalk-white);"></span>
+                    <span data-i18n="preview_snap_status">iPhone 16 Pro Linked • 1-tap insert</span>
+                  </span>
+                  <span id="mockup-snaps-count">0 snaps merged</span>
+                </div>
 
-                  <!-- Auto-Suggested Term Chips -->
-                  <div class="flex items-center gap-1.5 mb-2.5 flex-wrap" id="mockup-term-chips">
-                    <button id="term-chip-beta" onclick="selectMockupTerm('beta')" class="px-2 py-0.5 rounded text-[10px] font-mono border cursor-pointer transition font-medium" style="background-color: var(--surface-elevated); border-color: var(--chalk-border); color: var(--chalk-white);">Beta (&beta;<sub>i</sub>)</button>
-                    <button id="term-chip-rf" onclick="selectMockupTerm('rf')" class="px-2 py-0.5 rounded text-[10px] font-mono border cursor-pointer transition hover:bg-white/5" style="border-color: var(--chalk-border); color: var(--chalk-slate);">Risk-Free (R<sub>f</sub>)</button>
-                    <button id="term-chip-alpha" onclick="selectMockupTerm('alpha')" class="px-2 py-0.5 rounded text-[10px] font-mono border cursor-pointer transition hover:bg-white/5" style="border-color: var(--chalk-border); color: var(--chalk-slate);">Alpha (&alpha;<sub>i</sub>)</button>
-                  </div>
-
-                  <!-- Term Definition Card -->
-                  <div id="mockup-term-detail" class="p-2.5 rounded-lg border text-[11px] leading-relaxed" style="background-color: var(--surface-terminal); border-color: var(--chalk-border); color: var(--chalk-white);">
-                    <!-- Populated dynamically via selectMockupTerm -->
+                <!-- Smooth QR Drawer Popover -->
+                <div id="mockup-qr-popover" class="hidden pt-2 text-center transition-all">
+                  <div class="p-3 rounded-lg border text-center" style="background-color: var(--surface-terminal); border-color: var(--chalk-border);">
+                    <div class="flex items-center justify-between text-[11px] font-mono mb-2" style="color: var(--chalk-white);">
+                      <span>Local Smartphone Camera Pairing</span>
+                      <button onclick="toggleMockupQrPopover(event)" class="text-slate-400 hover:text-white cursor-pointer px-1">&times;</button>
+                    </div>
+                    <div class="inline-block p-2 rounded-lg bg-white shadow-inner my-1">
+                      <svg class="w-20 h-20 text-black" viewBox="0 0 27 27" fill="currentColor" shape-rendering="crispEdges" role="img" aria-label="Phone Link QR Code">
+                        <path d="M1 1h7v1h-7zM9 1h1v1h-1zM11 1h4v1h-4zM17 1h1v1h-1zM19 1h7v1h-7zM1 2h1v1h-1zM7 2h1v1h-1zM15 2h3v1h-3zM19 2h1v1h-1zM25 2h1v1h-1zM1 3h1v1h-1zM3 3h3v1h-3zM7 3h1v1h-1zM9 3h1v1h-1zM11 3h3v1h-3zM16 3h1v1h-1zM19 3h1v1h-1zM21 3h3v1h-3zM25 3h1v1h-1zM1 4h1v1h-1zM3 4h3v1h-3zM7 4h1v1h-1zM9 4h2v1h-2zM12 4h1v1h-1zM14 4h1v1h-1zM16 4h1v1h-1zM19 4h1v1h-1zM21 4h3v1h-3zM25 4h1v1h-1zM1 5h1v1h-1zM3 5h3v1h-3zM7 5h1v1h-1zM9 5h1v1h-1zM11 5h1v1h-1zM13 5h3v1h-3zM17 5h1v1h-1zM19 5h1v1h-1zM21 5h3v1h-3zM25 5h1v1h-1zM1 6h1v1h-1zM7 6h1v1h-1zM9 6h1v1h-1zM13 6h2v1h-2zM16 6h2v1h-2zM19 6h1v1h-1zM25 6h1v1h-1zM1 7h7v1h-7zM9 7h1v1h-1zM11 7h1v1h-1zM13 7h1v1h-1zM15 7h1v1h-1zM17 7h1v1h-1zM19 7h7v1h-7zM11 8h1v1h-1zM3 9h6v1h-6zM10 9h3v1h-3zM14 9h1v1h-1zM16 9h1v1h-1zM20 9h4v1h-4zM25 9h1v1h-1zM4 10h1v1h-1zM10 10h2v1h-2zM13 10h3v1h-3zM17 10h1v1h-1zM20 10h1v1h-1zM24 10h1v1h-1zM2 11h2v1h-2zM5 11h3v1h-3zM9 11h1v1h-1zM11 11h2v1h-2zM16 11h2v1h-2zM19 11h1v1h-1zM22 11h1v1h-1zM24 11h2v1h-2zM1 12h1v1h-1zM3 12h2v1h-2zM9 12h1v1h-1zM11 12h1v1h-1zM13 12h1v1h-1zM17 12h3v1h-3zM21 12h1v1h-1zM25 12h1v1h-1zM1 13h1v1h-1zM3 13h1v1h-1zM5 13h1v1h-1zM7 13h8v1h-8zM18 13h2v1h-2zM21 13h1v1h-1zM23 13h3v1h-3zM1 14h1v1h-1zM4 14h3v1h-3zM9 14h1v1h-1zM11 14h1v1h-1zM15 14h1v1h-1zM17 14h1v1h-1zM20 14h1v1h-1zM22 14h1v1h-1zM24 14h1v1h-1zM1 15h1v1h-1zM4 15h4v1h-4zM10 15h1v1h-1zM12 15h5v1h-5zM18 15h1v1h-1zM20 15h3v1h-3zM24 15h2v1h-2zM1 16h1v1h-1zM3 16h4v1h-4zM8 16h1v1h-1zM11 16h2v1h-2zM15 16h3v1h-3zM19 16h1v1h-1zM22 16h1v1h-1zM25 16h1v1h-1zM1 17h1v1h-1zM3 17h2v1h-2zM6 17h2v1h-2zM10 17h1v1h-1zM12 17h1v1h-1zM14 17h1v1h-1zM17 17h5v1h-5zM23 17h1v1h-1zM9 18h3v1h-3zM13 18h1v1h-1zM15 18h3v1h-3zM21 18h3v1h-3zM1 19h7v1h-7zM9 19h1v1h-1zM14 19h2v1h-2zM17 19h1v1h-1zM19 19h1v1h-1zM21 19h5v1h-5zM1 20h1v1h-1zM7 20h1v1h-1zM9 20h3v1h-3zM13 20h1v1h-1zM17 20h1v1h-1zM21 20h2v1h-2zM24 20h1v1h-1zM1 21h1v1h-1zM3 21h3v1h-3zM7 21h1v1h-1zM9 21h1v1h-1zM13 21h2v1h-2zM16 21h10v1h-10zM1 22h1v1h-1zM3 22h3v1h-3zM7 22h1v1h-1zM9 22h3v1h-3zM15 22h5v1h-5zM21 22h1v1h-1zM23 22h3v1h-3zM1 23h1v1h-1zM3 23h3v1h-3zM7 23h1v1h-1zM9 23h1v1h-1zM12 23h2v1h-2zM15 23h1v1h-1zM17 23h1v1h-1zM20 23h1v1h-1zM23 23h1v1h-1zM25 23h1v1h-1zM1 24h1v1h-1zM7 24h1v1h-1zM12 24h1v1h-1zM15 24h3v1h-3zM20 24h3v1h-3zM25 24h1v1h-1zM1 25h7v1h-7zM10 25h1v1h-1zM12 25h2v1h-2zM16 25h1v1h-1zM18 25h1v1h-1zM20 25h6v1h-6z"/>
+                      </svg>
+                    </div>
+                    <div class="text-[10px]" style="color: var(--chalk-muted);">
+                      Scan with camera to snap physical whiteboards via local Wi-Fi / hotspot
+                    </div>
                   </div>
                 </div>
               </div>
@@ -380,7 +415,7 @@
 
           <!-- Right Column: Real-Time Structured Synthesis Output & Interactive Views -->
           <div class="md:col-span-7 rounded-xl border p-5 text-xs flex flex-col justify-between shadow-sm" style="background-color: var(--hud-card-bg); border-color: var(--chalk-border);">
-            <div class="space-y-3">
+            <div class="flex-1 flex flex-col space-y-3">
               <!-- Tab Switcher Bar: Live Notes -> AI Chat -> Settings -->
               <div class="flex items-center justify-between pb-3 border-b" style="border-color: var(--chalk-border);">
                 <div class="flex items-center gap-1">
@@ -398,8 +433,8 @@
               </div>
 
               <!-- VIEW 1: Live Notes Snippet -->
-              <div id="mockup-view-notes" class="space-y-2.5 leading-relaxed text-[13px]" style="color: var(--chalk-slate);">
-                <p id="mockup-note-h1" class="text-xs font-semibold" style="color: var(--chalk-muted);" data-i18n="preview_notes_h1"># Capital Market Line & Systematic Risk</p>
+              <div id="mockup-view-notes" class="flex-1 space-y-2.5 leading-relaxed text-[13px]" style="color: var(--chalk-slate);">
+                <p id="mockup-note-h1" class="text-xs font-semibold" style="color: var(--chalk-muted);" data-i18n="preview_notes_h1">Capital Market Line & Systematic Risk</p>
                 <p id="mockup-note-p1" data-i18n="preview_notes_p1">
                   The expected return of an asset comprises the risk-free rate plus the market risk premium. Unsystematic individual risk is eliminated through portfolio diversification.
                 </p>
@@ -415,7 +450,7 @@
               </div>
 
               <!-- VIEW 2: Interactive AI Chat Tab -->
-              <div id="mockup-view-chat" class="hidden flex flex-col justify-between py-1 text-xs" style="color: var(--chalk-slate); min-height: 250px;">
+              <div id="mockup-view-chat" class="hidden flex-1 flex flex-col justify-between py-1 text-xs" style="color: var(--chalk-slate);">
                 <!-- Chat Context Sub-Bar -->
                 <div class="flex items-center justify-between pb-2 mb-2 border-b" style="border-color: var(--chalk-border);">
                   <span class="text-[11px] font-medium" style="color: var(--chalk-muted);" data-i18n="preview_chat_grounded">AI grounded in live audio, slides & whiteboard</span>
@@ -423,7 +458,7 @@
                 </div>
 
                 <!-- Scrollable Messages Area -->
-                <div id="mockup-chat-messages" class="space-y-2.5 overflow-y-auto pr-1 max-h-[175px]">
+                <div id="mockup-chat-messages" class="flex-1 space-y-2.5 overflow-y-auto pr-1 my-2 min-h-[220px] max-h-[300px]">
                   <!-- AI Message 1 -->
                   <div class="flex gap-2 items-start text-xs">
                     <div class="w-5 h-5 rounded flex items-center justify-center font-mono font-bold text-[9px] flex-shrink-0" style="background-color: var(--surface-elevated); border: 1px solid var(--chalk-border); color: var(--chalk-white);">AI</div>
@@ -451,11 +486,17 @@
                 </div>
 
                 <!-- Chat Suggestion Chips & Input -->
-                <div class="pt-2 mt-2 border-t" style="border-color: var(--chalk-border);">
+                <div class="pt-2 border-t" style="border-color: var(--chalk-border);">
                   <div class="flex items-center gap-1.5 mb-2 flex-wrap">
-                    <button onclick="sendMockupPresetChat('Explain Jensen\'s Alpha')" class="px-2 py-0.5 rounded text-[10px] font-mono border hover:bg-white/5 cursor-pointer transition" style="border-color: var(--chalk-border); color: var(--chalk-slate);">Explain Alpha</button>
-                    <button onclick="sendMockupPresetChat('Derive CAPM formula')" class="px-2 py-0.5 rounded text-[10px] font-mono border hover:bg-white/5 cursor-pointer transition" style="border-color: var(--chalk-border); color: var(--chalk-slate);">Derive CAPM</button>
-                    <button onclick="sendMockupPresetChat('Give an exam question')" class="px-2 py-0.5 rounded text-[10px] font-mono border hover:bg-white/5 cursor-pointer transition" style="border-color: var(--chalk-border); color: var(--chalk-slate);">Exam Question</button>
+                    <button onclick="sendMockupPresetChat('Summarize key takeaways')" class="px-2.5 py-1 rounded-full text-[11px] font-medium border hover:bg-white/5 cursor-pointer transition flex items-center gap-1" style="background-color: var(--surface-terminal); border-color: var(--chalk-border); color: var(--chalk-white);">
+                      <span data-i18n="preview_chat_chip_summary">Summarize Takeaways</span>
+                    </button>
+                    <button onclick="sendMockupPresetChat('Explain practical intuition')" class="px-2.5 py-1 rounded-full text-[11px] font-medium border hover:bg-white/5 cursor-pointer transition flex items-center gap-1" style="background-color: var(--surface-terminal); border-color: var(--chalk-border); color: var(--chalk-white);">
+                      <span data-i18n="preview_chat_chip_intuition">Explain Intuition</span>
+                    </button>
+                    <button onclick="sendMockupPresetChat('Step-by-step derivation proof')" class="px-2.5 py-1 rounded-full text-[11px] font-medium border hover:bg-white/5 cursor-pointer transition flex items-center gap-1" style="background-color: var(--surface-terminal); border-color: var(--chalk-border); color: var(--chalk-white);">
+                      <span data-i18n="preview_chat_chip_proof">Step-by-Step Proof</span>
+                    </button>
                   </div>
                   <div class="flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-xs focus-within:border-white/40" style="background-color: var(--surface-terminal); border-color: var(--chalk-border);">
                     <input type="text" id="mockup-chat-input" onkeydown="if(event.key==='Enter')submitMockupChat()" placeholder="Ask AI about this lecture..." class="bg-transparent text-xs w-full focus:outline-none" style="color: var(--terminal-text);" data-i18n-placeholder="preview_chat_placeholder">
@@ -956,13 +997,15 @@
     "preview_screen_label": "SCREEN CAPTURE",
     "preview_screen_topic": "Portfolio Theory & Risk Modeling",
     "preview_screen_heading": "Capital Asset Pricing Model (CAPM)",
-    "preview_terms_label": "KEYWORDS",
-    "preview_terms_badge": "Detected",
-    "preview_qr_label": "PHONE LINK",
-    "preview_qr_action": "Scan to snap board",
+    "preview_audio_label": "LIVE AUDIO & CAPTURE",
+    "preview_audio_vad": "16 kHz • Local VAD",
+    "preview_audio_speech": "\"...unsystematic risk is eliminated by diversification. The market only prices systematic covariance...\"",
+    "preview_snap_btn": "Snap Whiteboard Photo",
+    "preview_snap_status": "iPhone 16 Pro Linked • 1-tap insert",
+    "preview_qr_toggle": "Pair QR",
     "preview_notes_label": "LECTURE NOTES",
     "preview_copy_btn": "Copy notes",
-    "preview_notes_h1": "# Capital Market Line & Systematic Risk",
+    "preview_notes_h1": "Capital Market Line & Systematic Risk",
     "preview_notes_p1": "The expected return of an asset comprises the risk-free rate plus the market risk premium. Unsystematic individual risk is eliminated through portfolio diversification.",
     "preview_notes_li1": "<strong style=\"color: var(--chalk-white);\">Beta factor (&beta;<sub>i</sub>):</strong> Sensitivity of asset return to broad market movements.",
     "preview_notes_li2": "<strong style=\"color: var(--chalk-white);\">Risk-free rate (R<sub>f</sub>):</strong> Benchmark sovereign bond yield as the hurdle rate.",
@@ -974,6 +1017,9 @@
     "preview_tab_chat": "AI Chat",
     "preview_chat_grounded": "AI grounded in live audio, slides & whiteboard",
     "preview_chat_placeholder": "Ask AI about this lecture...",
+    "preview_chat_chip_summary": "Summarize Takeaways",
+    "preview_chat_chip_intuition": "Explain Intuition",
+    "preview_chat_chip_proof": "Step-by-Step Proof",
     "preview_key_label": "Google Gemini API Key (BYOK):",
     "preview_key_test_btn": "Test Key",
     "preview_key_save_btn": "Save Key",
@@ -1082,13 +1128,15 @@
     "preview_screen_label": "BILDSCHIRMAUFNAHME",
     "preview_screen_topic": "Portfoliotheorie & Risikomodellierung",
     "preview_screen_heading": "Capital Asset Pricing Model (CAPM)",
-    "preview_terms_label": "SCHLAGWÖRTER",
-    "preview_terms_badge": "Erkannt",
-    "preview_qr_label": "HANDY-KOPPLUNG",
-    "preview_qr_action": "Tafel fotografieren",
+    "preview_audio_label": "LIVE-AUDIO & ERFASSUNG",
+    "preview_audio_vad": "16 kHz • Lokales VAD",
+    "preview_audio_speech": "„...unsystematisches Risiko wird durch Diversifikation eliminiert. Der Markt vergütet nur systematische Kovarianz...“",
+    "preview_snap_btn": "Tafel-Foto aufnehmen",
+    "preview_snap_status": "iPhone 16 Pro verbunden • 1 Klick",
+    "preview_qr_toggle": "QR koppeln",
     "preview_notes_label": "VORLESUNGSNOTIZEN",
     "preview_copy_btn": "Notizen kopieren",
-    "preview_notes_h1": "# Kapitalmarktlinie & Systematisches Risiko",
+    "preview_notes_h1": "Kapitalmarktlinie & Systematisches Risiko",
     "preview_notes_p1": "Die erwartete Rendite eines Wertpapiers setzt sich aus dem risikofreien Zins und der marktweiten Risikoprämie zusammen. Das unsystematische Einzelrisiko wird durch Portfolio-Diversifikation eliminiert.",
     "preview_notes_li1": "<strong style=\"color: var(--chalk-white);\">Beta-Faktor (&beta;<sub>i</sub>):</strong> Sensitivität der Rendite gegenüber Schwankungen des Gesamtmarktes.",
     "preview_notes_li2": "<strong style=\"color: var(--chalk-white);\">Risikofreier Zins (R<sub>f</sub>):</strong> Rendite erstklassiger Staatsanleihen als Mindesthürde.",
@@ -1100,6 +1148,9 @@
     "preview_tab_chat": "KI-Chat",
     "preview_chat_grounded": "KI synchronisiert mit Audio, Folien & Tafel",
     "preview_chat_placeholder": "Frage zur Vorlesung stellen...",
+    "preview_chat_chip_summary": "Kernpunkte",
+    "preview_chat_chip_intuition": "Intuition",
+    "preview_chat_chip_proof": "Herleitung",
     "preview_key_label": "Google Gemini API-Schlüssel (BYOK):",
     "preview_key_test_btn": "Key testen",
     "preview_key_save_btn": "Key speichern",
@@ -1208,13 +1259,15 @@
     "preview_screen_label": "CAPTURE D'ÉCRAN",
     "preview_screen_topic": "Théorie du portefeuille & Risque",
     "preview_screen_heading": "Capital Asset Pricing Model (CAPM)",
-    "preview_terms_label": "MOTS-CLÉS",
-    "preview_terms_badge": "Détecté",
-    "preview_qr_label": "LIEN MOBILE",
-    "preview_qr_action": "Scanner pour tableau",
+    "preview_audio_label": "AUDIO & CAPTURE EN DIRECT",
+    "preview_audio_vad": "16 kHz • VAD local",
+    "preview_audio_speech": "«...le risque non systématique est éliminé par diversification. Le marché ne rémunère que la covariance systématique...»",
+    "preview_snap_btn": "Capturer le tableau",
+    "preview_snap_status": "iPhone 16 Pro lié • 1 clic",
+    "preview_qr_toggle": "Lier QR",
     "preview_notes_label": "NOTES DE COURS",
     "preview_copy_btn": "Copier les notes",
-    "preview_notes_h1": "# Droite de marché et risque systématique",
+    "preview_notes_h1": "Droite de marché et risque systématique",
     "preview_notes_p1": "Le rendement attendu d'un actif se compose du taux sans risque et de la prime de risque du marché. Le risque spécifique non systématique est éliminé par la diversification.",
     "preview_notes_li1": "<strong style=\"color: var(--chalk-white);\">Facteur Bêta (&beta;<sub>i</sub>) :</strong> Sensibilité du rendement aux fluctuations de l'ensemble du marché.",
     "preview_notes_li2": "<strong style=\"color: var(--chalk-white);\">Taux sans risque (R<sub>f</sub>) :</strong> Rendement des emprunts d'État de référence comme taux minimal.",
@@ -1226,6 +1279,9 @@
     "preview_tab_chat": "Chat IA",
     "preview_chat_grounded": "IA synchronisée avec l'audio, les diapositives & le tableau",
     "preview_chat_placeholder": "Poser une question sur le cours...",
+    "preview_chat_chip_summary": "Points clés",
+    "preview_chat_chip_intuition": "Intuition",
+    "preview_chat_chip_proof": "Démonstration",
     "preview_key_label": "Clé API Google Gemini (BYOK) :",
     "preview_key_test_btn": "Tester la clé",
     "preview_key_save_btn": "Enregistrer la clé",
@@ -1334,13 +1390,15 @@
     "preview_screen_label": "CAPTURA DE PANTALLA",
     "preview_screen_topic": "Teoría de carteras y riesgo",
     "preview_screen_heading": "Capital Asset Pricing Model (CAPM)",
-    "preview_terms_label": "PALABRAS CLAVE",
-    "preview_terms_badge": "Detectado",
-    "preview_qr_label": "ENLACE MÓVIL",
-    "preview_qr_action": "Escanear pizarra",
+    "preview_audio_label": "AUDIO EN VIVO Y CAPTURA",
+    "preview_audio_vad": "16 kHz • VAD local",
+    "preview_audio_speech": "«...el riesgo no sistemático se elimina mediante diversificación. El mercado solo remunera la covarianza sistemática...»",
+    "preview_snap_btn": "Capturar pizarra",
+    "preview_snap_status": "iPhone 16 Pro vinculado • 1 clic",
+    "preview_qr_toggle": "Vincular QR",
     "preview_notes_label": "NOTAS DE CLASE",
     "preview_copy_btn": "Copiar notas",
-    "preview_notes_h1": "# Línea del mercado de capitales y riesgo sistemático",
+    "preview_notes_h1": "Línea del mercado de capitales y riesgo sistemático",
     "preview_notes_p1": "El rendimiento esperado de un activo se compone de la tasa libre de riesgo y la prima de riesgo del mercado. El riesgo no sistemático se elimina mediante la diversificación.",
     "preview_notes_li1": "<strong style=\"color: var(--chalk-white);\">Factor Beta (&beta;<sub>i</sub>):</strong> Sensibilidad del rendimiento ante fluctuaciones del mercado global.",
     "preview_notes_li2": "<strong style=\"color: var(--chalk-white);\">Tasa libre de riesgo (R<sub>f</sub>):</strong> Rendimiento de bonos soberanos de máxima calificación como umbral.",
@@ -1352,6 +1410,9 @@
     "preview_tab_chat": "Chat IA",
     "preview_chat_grounded": "IA sincronizada con audio, diapositivas y pizarra",
     "preview_chat_placeholder": "Hacer una pregunta sobre la clase...",
+    "preview_chat_chip_summary": "Puntos clave",
+    "preview_chat_chip_intuition": "Intuición",
+    "preview_chat_chip_proof": "Demostración",
     "preview_key_label": "Clave API de Google Gemini (BYOK):",
     "preview_key_test_btn": "Probar clave",
     "preview_key_save_btn": "Guardar clave",
@@ -1460,13 +1521,15 @@
     "preview_screen_label": "屏幕画面捕获",
     "preview_screen_topic": "投资组合理论与风险建模",
     "preview_screen_heading": "资本资产定价模型 (CAPM)",
-    "preview_terms_label": "关键词",
-    "preview_terms_badge": "实时提取",
-    "preview_qr_label": "手机互联",
-    "preview_qr_action": "扫码拍板书",
+    "preview_audio_label": "实时音频与采集",
+    "preview_audio_vad": "16 kHz • 本地 VAD",
+    "preview_audio_speech": "“……非系统性风险通过分散投资被完全消除。市场仅对不可分散的系统性协方差给予风险溢价……”",
+    "preview_snap_btn": "拍摄黑板板书",
+    "preview_snap_status": "iPhone 16 Pro 已连接 • 一键插入",
+    "preview_qr_toggle": "扫码配对",
     "preview_notes_label": "课堂精要笔记",
     "preview_copy_btn": "复制笔记",
-    "preview_notes_h1": "# 资本市场线与系统性风险",
+    "preview_notes_h1": "资本市场线与系统性风险",
     "preview_notes_p1": "证券的预期收益率由无风险利率与全市场风险溢价共同决定。非系统性个股风险可通过资产组合多元化配置彻底消除。",
     "preview_notes_li1": "<strong style=\"color: var(--chalk-white);\">贝塔系数 (&beta;<sub>i</sub>)：</strong> 资产收益对整个市场波动的敏感程度。",
     "preview_notes_li2": "<strong style=\"color: var(--chalk-white);\">无风险利率 (R<sub>f</sub>)：</strong> 高评级国债收益率作为投资回报的基准门槛。",
@@ -1478,6 +1541,9 @@
     "preview_tab_chat": "AI 对话",
     "preview_chat_grounded": "AI 实时同步语音、讲义与黑板推导",
     "preview_chat_placeholder": "向 AI 提问本节讲座内容...",
+    "preview_chat_chip_summary": "核心要点",
+    "preview_chat_chip_intuition": "直观原理",
+    "preview_chat_chip_proof": "公式推导",
     "preview_key_label": "Google Gemini API 密钥 (BYOK)：",
     "preview_key_test_btn": "测试密钥",
     "preview_key_save_btn": "保存密钥",
@@ -1815,16 +1881,29 @@
       setMockupSlide(prev);
     }
 
+    function toggleMockupQrPopover(e) {
+      if (e) e.stopPropagation();
+      const popover = document.getElementById('mockup-qr-popover');
+      if (popover) {
+        popover.classList.toggle('hidden');
+      }
+    }
+
     function triggerMockupPhoneSnap() {
       mockupState.phoneSnaps++;
-      const qrBox = document.getElementById('mockup-qr-box');
-      if (qrBox) {
-        qrBox.style.borderColor = 'var(--chalk-white)';
-        qrBox.style.transform = 'scale(1.04)';
+      const snapBtn = document.getElementById('mockup-snap-btn');
+      if (snapBtn) {
+        snapBtn.style.borderColor = 'var(--chalk-white)';
+        snapBtn.style.transform = 'scale(0.98)';
         setTimeout(() => {
-          qrBox.style.borderColor = 'var(--chalk-border)';
-          qrBox.style.transform = '';
-        }, 350);
+          snapBtn.style.borderColor = 'var(--chalk-border)';
+          snapBtn.style.transform = '';
+        }, 200);
+      }
+
+      const countEl = document.getElementById('mockup-snaps-count');
+      if (countEl) {
+        countEl.textContent = `${mockupState.phoneSnaps} snap${mockupState.phoneSnaps > 1 ? 's' : ''} merged`;
       }
 
       const snapsContainer = document.getElementById('mockup-merged-snaps');
@@ -1836,7 +1915,7 @@
         snapBlock.innerHTML = `
           <div class="flex items-center justify-between text-[11px] mb-1 font-mono" style="color: var(--chalk-white);">
             <span class="flex items-center gap-1.5">
-              <span class="w-1.5 h-1.5 rounded-full" style="background-color: var(--chalk-muted);"></span>
+              <span class="w-1.5 h-1.5 rounded-full" style="background-color: var(--chalk-white);"></span>
               <span>[PHOTO LINKED] Whiteboard Capture @ 01:18:40</span>
             </span>
             <span class="text-[10px]" style="color: var(--chalk-muted);">0.4s local sync</span>
@@ -1847,6 +1926,10 @@
         snapsContainer.innerHTML = '';
         snapsContainer.appendChild(snapBlock);
         renderHeroMath();
+      }
+
+      if (mockupState.activeTab !== 'notes') {
+        setMockupTab('notes');
       }
     }
 
@@ -1891,41 +1974,6 @@
 
     function selectMockupTerm(termKey) {
       mockupState.activeTerm = termKey;
-      const term = mockupTermsData[termKey];
-      if (!term) return;
-
-      // Update chip styling
-      ['beta', 'rf', 'alpha'].forEach(k => {
-        const chip = document.getElementById(`term-chip-${k}`);
-        if (chip) {
-          if (k === termKey) {
-            chip.style.backgroundColor = 'var(--surface-elevated)';
-            chip.style.borderColor = 'var(--chalk-border)';
-            chip.style.color = 'var(--chalk-white)';
-            chip.style.fontWeight = '600';
-          } else {
-            chip.style.backgroundColor = 'transparent';
-            chip.style.borderColor = 'var(--chalk-border)';
-            chip.style.color = 'var(--chalk-slate)';
-            chip.style.fontWeight = '400';
-          }
-        }
-      });
-
-      // Update definition container
-      const detailContainer = document.getElementById('mockup-term-detail');
-      if (detailContainer) {
-        const descText = typeof term.desc === 'object' ? (term.desc[currentLang] || term.desc.en) : term.desc;
-        detailContainer.innerHTML = `
-          <div class="flex items-center justify-between mb-1 font-mono text-[11px]" style="color: var(--chalk-white);">
-            <span>${term.title}</span>
-            <span class="text-[10px]" style="color: var(--chalk-muted);">${term.timestamp}</span>
-          </div>
-          <div class="render-math text-xs py-1 text-center font-serif" style="color: var(--chalk-white);" data-tex="${term.latex}"></div>
-          <div class="text-[11px] leading-relaxed mt-1" style="color: var(--chalk-slate);">${descText}</div>
-        `;
-        renderHeroMath();
-      }
     }
 
     const initialMockupChatMessagesHtml = `
@@ -2004,23 +2052,32 @@
         const lower = q.toLowerCase();
         let aiContent = '';
 
-        if (lower.includes('alpha')) {
+        if (lower.includes('takeaway') || lower.includes('summary') || lower.includes('kernpunkt') || lower.includes('zusammenfass') || lower.includes('résumé') || lower.includes('resumen') || lower.includes('总结')) {
+          aiContent = `
+            <strong>Executive Takeaways (@ 01:14:20):</strong>
+            <ul class="mt-1 space-y-1 text-xs">
+              <li>• <strong>Diversification:</strong> Unsystematic idiosyncratic risk is fully eliminated across large portfolios ($\lim_{N \to \infty} \text{Var} = 0$).</li>
+              <li>• <strong>Compensated Exposure:</strong> The market prices exclusively non-diversifiable covariance with the macro economy ($\beta_i$).</li>
+              <li>• <strong>Security Market Line:</strong> Required hurdle rate scales linearly: $E(R_i) = R_f + \beta_i[E(R_m) - R_f]$.</li>
+            </ul>
+          `;
+        } else if (lower.includes('intuition') || lower.includes('praktisch') || lower.includes('intuitive') || lower.includes('intuitif') || lower.includes('直观')) {
+          aiContent = `
+            <strong>Practical Intuition:</strong>
+            Why does the market refuse to compensate firm-specific risk? Because any rational market participant can eliminate individual shocks for free simply by holding a diversified index. The market only offers a risk premium for systematic risks that no investor can diversify away.
+          `;
+        } else if (lower.includes('derive') || lower.includes('proof') || lower.includes('herleitung') || lower.includes('démonstration') || lower.includes('demostración') || lower.includes('推导') || lower.includes('formel')) {
+          aiContent = `
+            <strong>Step-by-Step Derivation:</strong>
+            In portfolio equilibrium, total portfolio variance decomposes into individual asset variance and pairwise covariance:
+            <div class="render-math text-xs py-1 text-center font-serif" style="color: var(--chalk-white);" data-tex="\\sigma_p^2 = \\frac{1}{N}\\bar{\\sigma}_i^2 + \\frac{N-1}{N}\\bar{\\sigma}_{ij} \\implies \\lim_{N \\to \\infty} \\sigma_p^2 = \\bar{\\sigma}_{ij}"></div>
+            Individual noise drops to zero, establishing that beta $\\beta_i = \\frac{\\text{Cov}(R_i, R_m)}{\\sigma_m^2}$ uniquely determines the required return. ∎
+          `;
+        } else if (lower.includes('alpha')) {
           aiContent = `
             <strong>Jensen's Alpha (&alpha;<sub>i</sub>)</strong> quantifies abnormal excess return above the CAPM hurdle rate:
             <div class="render-math text-xs py-1 text-center font-serif" style="color: var(--chalk-white);" data-tex="\\alpha_i = R_i - \\left[R_f + \\beta_i(E(R_m) - R_f)\\right]"></div>
             A positive &alpha; &gt; 0 indicates structural outperformance or active informational advantage.
-          `;
-        } else if (lower.includes('derive') || lower.includes('capm') || lower.includes('herleitung') || lower.includes('formel')) {
-          aiContent = `
-            <strong>CAPM Derivation:</strong> In Markowitz equilibrium, all investors hold the tangent market portfolio <em>M</em>. Risk premium scales strictly with systematic covariance:
-            <div class="render-math text-xs py-1 text-center font-serif" style="color: var(--chalk-white);" data-tex="E(R_i) = R_f + \\frac{\\text{Cov}(R_i, R_m)}{\\sigma_m^2}\\left[E(R_m) - R_f\\right]"></div>
-            Substituting &beta;<sub>i</sub> = Cov(R<sub>i</sub>, R<sub>m</sub>) / &sigma;<sub>m</sub><sup>2</sup> yields the Security Market Line.
-          `;
-        } else if (lower.includes('exam') || lower.includes('klausur') || lower.includes('question') || lower.includes('frage')) {
-          aiContent = `
-            <strong>Mock Exam Question:</strong> An asset has &beta; = 1.4, risk-free rate R<sub>f</sub> = 2.5%, and expected market return E(R<sub>m</sub>) = 8.5%.
-            <div class="render-math text-xs py-1 text-center font-serif" style="color: var(--chalk-white);" data-tex="E(R) = 2.5\\% + 1.4 \\times (8.5\\% - 2.5\\%) = 10.9\\%"></div>
-            If actual return is 12.0%, calculate Jensen's Alpha. <em>(Answer: &alpha; = +1.1% active outperformance)</em>.
           `;
         } else if (lower.includes('beta')) {
           aiContent = `
@@ -2032,7 +2089,7 @@
           aiContent = `
             <strong>Grounded Response (@ 01:14:20):</strong> Indexed directly from live audio and slide <em>${mockupState.slides[mockupState.activeSlide].file}</em>.
             <div class="render-math text-xs py-1 text-center font-serif" style="color: var(--chalk-white);" data-tex="E(R_i) = R_f + \\beta_i \\left[E(R_m) - R_f\\right]"></div>
-            The lecturer emphasizes that unsystematic idiosyncratic variance earns zero market compensation.
+            The speaker emphasizes that unsystematic idiosyncratic variance earns zero market compensation.
           `;
         }
 
