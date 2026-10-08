@@ -1531,6 +1531,11 @@ class FloatingHUDWindow(QWidget):
             btn.style().polish(btn)
 
         is_settings = (index == 2)
+        is_notes = (index == 0)
+        if hasattr(self, "note_filename_lbl"):
+            self.note_filename_lbl.setVisible(is_notes)
+        if hasattr(self, "copy_notes_btn"):
+            self.copy_notes_btn.setVisible(is_notes)
         if hasattr(self, "attach_doc_btn"):
             self.attach_doc_btn.setVisible(not is_settings)
         if hasattr(self, "pdf_export_btn"):

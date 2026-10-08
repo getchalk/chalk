@@ -256,6 +256,53 @@
       border: 1px solid var(--chalk-border);
     }
 
+    /* macOS Authentic Traffic Lights: Inactive Grey outside window, Vibrant on Hover or Focus */
+    .traffic-dot {
+      display: inline-block;
+      width: 12px;
+      height: 12px;
+      border-radius: 9999px;
+      border-width: 1px;
+      border-style: solid;
+      transition: background-color 0.22s ease, border-color 0.22s ease, opacity 0.22s ease;
+      cursor: default;
+    }
+
+    /* Inactive Grey when outside window / not hovered */
+    #hero-card:not(:hover) .traffic-dot-red,
+    #hero-card:not(:hover) .traffic-dot-yellow,
+    #hero-card:not(:hover) .traffic-dot-green,
+    #hero-card.window-inactive .traffic-dot-red,
+    #hero-card.window-inactive .traffic-dot-yellow,
+    #hero-card.window-inactive .traffic-dot-green {
+      background-color: #3C3E47 !important;
+      border-color: rgba(255, 255, 255, 0.08) !important;
+    }
+
+    html.theme-light #hero-card:not(:hover) .traffic-dot-red,
+    html.theme-light #hero-card:not(:hover) .traffic-dot-yellow,
+    html.theme-light #hero-card:not(:hover) .traffic-dot-green,
+    html.theme-light #hero-card.window-inactive .traffic-dot-red,
+    html.theme-light #hero-card.window-inactive .traffic-dot-yellow,
+    html.theme-light #hero-card.window-inactive .traffic-dot-green {
+      background-color: #D1D5DB !important;
+      border-color: #9CA3AF !important;
+    }
+
+    /* Vibrant Apple Colors when hovered or window is focused */
+    #hero-card:hover .traffic-dot-red {
+      background-color: #FF5F56 !important;
+      border-color: #E0443E !important;
+    }
+    #hero-card:hover .traffic-dot-yellow {
+      background-color: #FFBD2E !important;
+      border-color: #DEA123 !important;
+    }
+    #hero-card:hover .traffic-dot-green {
+      background-color: #27C93F !important;
+      border-color: #1AAB29 !important;
+    }
+
     /* Precision Scroll Anchor Alignment for Sticky Navigation */
     section[id] {
       scroll-margin-top: calc(var(--nav-height, 67px) - 1px);
@@ -380,11 +427,10 @@
         <!-- Window Title Bar -->
         <div class="px-4 sm:px-5 py-3 border-b flex items-center justify-between select-none relative z-20" style="border-color: var(--chalk-border); background-color: var(--hud-header-bg);">
           <div class="flex items-center gap-2">
-            <button onclick="toggleMockupClose()" title="Close / Reset HUD (Cmd+Shift+Space)" class="w-3 h-3 rounded-full shadow-sm transition hover:opacity-80 cursor-pointer" style="background-color: #FF5F56; border: 1px solid #E0443E;"></button>
-            <button onclick="toggleMockupMinimize()" title="Minimize / Restore HUD" class="w-3 h-3 rounded-full shadow-sm transition hover:opacity-80 cursor-pointer" style="background-color: #FFBD2E; border: 1px solid #DEA123;"></button>
-            <button onclick="toggleMockupExpand()" title="Expand / Shrink Window" class="w-3 h-3 rounded-full shadow-sm transition hover:opacity-80 cursor-pointer" style="background-color: #27C93F; border: 1px solid #1AAB29;"></button>
-            <span id="mockup-lecture-title" onclick="restoreMockupWindow(); cycleMockupTopic();" title="Click to switch topic" class="text-xs font-medium ml-2 sm:ml-3 cursor-pointer hover:underline transition" style="color: var(--chalk-slate);" data-i18n="preview_title">Lecture: Financial Markets & Risk — Chalk</span>
-            <span id="mockup-window-state-badge" class="hidden text-[10.5px] font-mono px-2 py-0.5 rounded-full border transition cursor-pointer" onclick="restoreMockupWindow()"></span>
+            <span class="traffic-dot traffic-dot-red shadow-sm" title="macOS Window Chrome"></span>
+            <span class="traffic-dot traffic-dot-yellow shadow-sm" title="macOS Window Chrome"></span>
+            <span class="traffic-dot traffic-dot-green shadow-sm" title="macOS Window Chrome"></span>
+            <span id="mockup-lecture-title" onclick="cycleMockupTopic()" title="Click to switch topic" class="text-xs font-medium ml-2 sm:ml-3 cursor-pointer hover:underline transition" style="color: var(--chalk-slate);" data-i18n="preview_title">Lecture: Financial Markets & Risk — Chalk</span>
           </div>
 
           <!-- Apple Live Recording Indicator & Attachment Badge -->
@@ -496,7 +542,7 @@
                   <button id="tab-btn-chat" onclick="setMockupTab('chat')" class="text-xs font-medium px-2.5 py-1 rounded transition hover:opacity-80 cursor-pointer" style="background-color: transparent; color: var(--chalk-muted);" data-i18n="preview_tab_chat">AI Chat</button>
                   <button id="tab-btn-settings" onclick="setMockupTab('settings')" class="text-xs font-medium px-2.5 py-1 rounded transition hover:opacity-80 cursor-pointer" style="background-color: transparent; color: var(--chalk-muted);" data-i18n="preview_tab_settings">Settings</button>
                 </div>
-                <div class="flex items-center gap-2">
+                <div id="mockup-notes-header-actions" class="flex items-center gap-2">
                   <span id="mockup-notes-filename" class="text-[11px] hidden sm:inline" style="color: var(--chalk-muted);">financial_markets_ch3.md</span>
                   <button onclick="copyMarkdownNotes(this)" class="text-[11px] px-2.5 py-1 rounded border transition font-medium flex items-center gap-1.5 hover:opacity-90 cursor-pointer" style="background-color: var(--surface-elevated); border-color: var(--chalk-border); color: var(--chalk-white);">
                     <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/></svg>
@@ -807,78 +853,70 @@
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
 
       <!-- Case 1: University Lectures -->
-      <div class="rounded-2xl border p-6 transition flex flex-col justify-between shadow-sm" style="background-color: var(--surface-graphite); border-color: var(--chalk-border);">
+      <div class="rounded-2xl border p-7 transition flex flex-col justify-between shadow-sm" style="background-color: var(--surface-graphite); border-color: var(--chalk-border);">
         <div>
-          <div class="flex items-center gap-3 mb-2">
-            <div class="w-8 h-8 rounded-lg border flex items-center justify-center font-mono text-xs font-bold flex-shrink-0" style="background-color: var(--surface-elevated); border-color: var(--chalk-border); color: var(--chalk-white);">
-              01
-            </div>
-            <h3 class="text-base font-bold" style="color: var(--chalk-white);" data-i18n="case1_title">University Lectures & Academic Seminars</h3>
+          <div class="w-10 h-10 rounded-xl border flex items-center justify-center mb-5 font-mono text-sm font-bold" style="background-color: var(--surface-elevated); border-color: var(--chalk-border); color: var(--chalk-white);">
+            01
           </div>
-          <p class="text-xs leading-relaxed" style="color: var(--chalk-slate);" data-i18n="case1_desc">
+          <h3 class="text-lg font-semibold mb-2" style="color: var(--chalk-white);" data-i18n="case1_title">University Lectures & Academic Seminars</h3>
+          <p class="text-sm leading-relaxed" style="color: var(--chalk-slate);" data-i18n="case1_desc">
             Captures every derivation, side remark, and slide during multi-hour lectures without omission. Delivers pristine LaTeX equations.
           </p>
         </div>
       </div>
 
       <!-- Case 2: Technical Seminars & Architecture Reviews -->
-      <div class="rounded-2xl border p-6 transition flex flex-col justify-between shadow-sm" style="background-color: var(--surface-graphite); border-color: var(--chalk-border);">
+      <div class="rounded-2xl border p-7 transition flex flex-col justify-between shadow-sm" style="background-color: var(--surface-graphite); border-color: var(--chalk-border);">
         <div>
-          <div class="flex items-center gap-3 mb-2">
-            <div class="w-8 h-8 rounded-lg border flex items-center justify-center font-mono text-xs font-bold flex-shrink-0" style="background-color: var(--surface-elevated); border-color: var(--chalk-border); color: var(--chalk-white);">
-              02
-            </div>
-            <h3 class="text-base font-bold" style="color: var(--chalk-white);" data-i18n="case2_title">Technical Reviews & Architecture Walkthroughs</h3>
+          <div class="w-10 h-10 rounded-xl border flex items-center justify-center mb-5 font-mono text-sm font-bold" style="background-color: var(--surface-elevated); border-color: var(--chalk-border); color: var(--chalk-white);">
+            02
           </div>
-          <p class="text-xs leading-relaxed" style="color: var(--chalk-slate);" data-i18n="case2_desc">
+          <h3 class="text-lg font-semibold mb-2" style="color: var(--chalk-white);" data-i18n="case2_title">Technical Reviews & Architecture Walkthroughs</h3>
+          <p class="text-sm leading-relaxed" style="color: var(--chalk-slate);" data-i18n="case2_desc">
             Engage actively in architecture decisions. Chalk captures code snippets, data schemas, and technical trade-offs directly from shared screens.
           </p>
         </div>
       </div>
 
       <!-- Case 3: Executive Strategy & Board Calls -->
-      <div class="rounded-2xl border p-6 transition flex flex-col justify-between shadow-sm" style="background-color: var(--surface-graphite); border-color: var(--chalk-border);">
+      <div class="rounded-2xl border p-7 transition flex flex-col justify-between shadow-sm" style="background-color: var(--surface-graphite); border-color: var(--chalk-border);">
         <div>
-          <div class="flex items-center gap-3 mb-2">
-            <div class="w-8 h-8 rounded-lg border flex items-center justify-center font-mono text-xs font-bold flex-shrink-0" style="background-color: var(--surface-elevated); border-color: var(--chalk-border); color: var(--chalk-white);">
-              03
-            </div>
-            <h3 class="text-base font-bold" style="color: var(--chalk-white);" data-i18n="case3_title">Executive Strategy & Board Meetings</h3>
+          <div class="w-10 h-10 rounded-xl border flex items-center justify-center mb-5 font-mono text-sm font-bold" style="background-color: var(--surface-elevated); border-color: var(--chalk-border); color: var(--chalk-white);">
+            03
           </div>
-          <p class="text-xs leading-relaxed" style="color: var(--chalk-slate);" data-i18n="case3_desc">
+          <h3 class="text-lg font-semibold mb-2" style="color: var(--chalk-white);" data-i18n="case3_title">Executive Strategy & Board Meetings</h3>
+          <p class="text-sm leading-relaxed" style="color: var(--chalk-slate);" data-i18n="case3_desc">
             Maintain eye contact and presence in crucial negotiations. Chalk records commitments, metrics from slide decks, and produces prioritized action items.
           </p>
         </div>
       </div>
 
       <!-- Case 4: Webinars & Remote Conferences -->
-      <div class="rounded-2xl border p-6 transition flex flex-col justify-between shadow-sm" style="background-color: var(--surface-graphite); border-color: var(--chalk-border);">
+      <div class="rounded-2xl border p-7 transition flex flex-col justify-between shadow-sm" style="background-color: var(--surface-graphite); border-color: var(--chalk-border);">
         <div>
-          <div class="flex items-center gap-3 mb-2">
-            <div class="w-8 h-8 rounded-lg border flex items-center justify-center font-mono text-xs font-bold flex-shrink-0" style="background-color: var(--surface-elevated); border-color: var(--chalk-border); color: var(--chalk-white);">
-              04
-            </div>
-            <h3 class="text-base font-bold" style="color: var(--chalk-white);" data-i18n="case4_title">Webinars & Virtual Conferences</h3>
+          <div class="w-10 h-10 rounded-xl border flex items-center justify-center mb-5 font-mono text-sm font-bold" style="background-color: var(--surface-elevated); border-color: var(--chalk-border); color: var(--chalk-white);">
+            04
           </div>
-          <p class="text-xs leading-relaxed" style="color: var(--chalk-slate);" data-i18n="case4_desc">
+          <h3 class="text-lg font-semibold mb-2" style="color: var(--chalk-white);" data-i18n="case4_title">Webinars & Virtual Conferences</h3>
+          <p class="text-sm leading-relaxed" style="color: var(--chalk-slate);" data-i18n="case4_desc">
             Captures Zoom, Teams, and keynote livestreams via direct system audio and slide change detection, building searchable knowledge archives automatically.
           </p>
         </div>
       </div>
 
       <!-- Case 5: Instant Smartphone Camera via Local QR Code -->
-      <div class="col-span-1 md:col-span-2 lg:col-span-4 rounded-2xl border p-6 transition shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4" style="background-color: var(--surface-graphite); border-color: var(--chalk-border);">
+      <div class="col-span-1 md:col-span-2 lg:col-span-4 rounded-2xl border p-7 transition shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4" style="background-color: var(--surface-graphite); border-color: var(--chalk-border);">
         <div class="flex-1">
           <div class="flex items-center gap-3 mb-2">
-            <div class="w-8 h-8 rounded-lg border flex items-center justify-center flex-shrink-0" style="background-color: var(--surface-elevated); border-color: var(--chalk-border); color: var(--chalk-white);">
-              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <div class="w-10 h-10 rounded-xl border flex items-center justify-center flex-shrink-0" style="background-color: var(--surface-elevated); border-color: var(--chalk-border); color: var(--chalk-white);">
+              <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <rect x="5" y="2" width="14" height="20" rx="3" ry="3"></rect>
                 <line x1="12" y1="18" x2="12.01" y2="18"></line>
               </svg>
             </div>
-            <h3 class="text-base sm:text-lg font-bold" style="color: var(--chalk-white);" data-i18n="case5_title">Instant Smartphone Camera via Local QR Code</h3>
+            <h3 class="text-lg font-semibold" style="color: var(--chalk-white);" data-i18n="case5_title">Instant Smartphone Camera via Local QR Code</h3>
           </div>
-          <p class="text-xs sm:text-sm leading-relaxed" style="color: var(--chalk-slate);" data-i18n="case5_desc">
+          <p class="text-sm leading-relaxed" style="color: var(--chalk-slate);" data-i18n="case5_desc">
             Scan a QR code from the HUD with your phone. Snap photos of handwritten notes, sketches, or projector screens — uploaded instantly over your local Wi-Fi or hotspot in under a second. Formulas and derivations are immediately synthesized into mathematical LaTeX.
           </p>
         </div>
@@ -2195,6 +2233,12 @@
         activeBtn.style.fontWeight = '600';
       }
 
+      // Hide filename and copy notes button unless on Live Notes tab
+      const notesHeaderActions = document.getElementById('mockup-notes-header-actions');
+      if (notesHeaderActions) {
+        notesHeaderActions.classList.toggle('hidden', tab !== 'notes');
+      }
+
       const footerActions = document.getElementById('mockup-footer-actions');
       const footerSettingsInfo = document.getElementById('mockup-footer-settings-info');
       if (footerActions) {
@@ -2665,57 +2709,15 @@
       }, 300);
     }
 
-    function restoreMockupWindow() {
-      const body = document.getElementById('mockup-window-body');
-      const badge = document.getElementById('mockup-window-state-badge');
-      mockupState.isMinimized = false;
-      mockupState.isClosed = false;
-      if (body) body.classList.remove('hidden');
-      if (badge) badge.classList.add('hidden');
-    }
-
-    function toggleMockupMinimize() {
-      const body = document.getElementById('mockup-window-body');
-      const badge = document.getElementById('mockup-window-state-badge');
-      if (!body) return;
-      if (mockupState.isClosed) {
-        mockupState.isClosed = false;
-      }
-      mockupState.isMinimized = !mockupState.isMinimized;
-      if (mockupState.isMinimized) {
-        body.classList.add('hidden');
-        if (badge) {
-          badge.textContent = 'HUD Minimized • Click to Restore';
-          badge.className = 'text-[10px] font-mono px-2 py-0.5 rounded-full border border-yellow-500/40 text-yellow-300 bg-yellow-500/10 cursor-pointer hover:bg-yellow-500/20 transition';
-          badge.classList.remove('hidden');
-        }
-      } else {
-        body.classList.remove('hidden');
-        if (badge) badge.classList.add('hidden');
-      }
-    }
-
-    function toggleMockupClose() {
-      const body = document.getElementById('mockup-window-body');
-      const badge = document.getElementById('mockup-window-state-badge');
-      if (!body) return;
-      if (mockupState.isMinimized) {
-        mockupState.isMinimized = false;
-      }
-      mockupState.isClosed = !mockupState.isClosed;
-      if (mockupState.isClosed) {
-        body.classList.add('hidden');
-        if (badge) {
-          badge.textContent = 'HUD Closed • Click to Reopen [Cmd+Shift+Space]';
-          badge.className = 'text-[10px] font-mono px-2 py-0.5 rounded-full border border-red-500/40 text-red-300 bg-red-500/10 cursor-pointer hover:bg-red-500/20 transition';
-          badge.classList.remove('hidden');
-        }
-      } else {
-        body.classList.remove('hidden');
-        if (badge) badge.classList.add('hidden');
-        resetMockupSession();
-      }
-    }
+    // Apple macOS Authentic Traffic Light State: Greys out when tab/window is unfocused
+    window.addEventListener('blur', () => {
+      const card = document.getElementById('hero-card');
+      if (card) card.classList.add('window-inactive');
+    });
+    window.addEventListener('focus', () => {
+      const card = document.getElementById('hero-card');
+      if (card) card.classList.remove('window-inactive');
+    });
 
     function resetMockupSession() {
       mockupState.recording = true;
@@ -2739,12 +2741,6 @@
       const recDot = document.getElementById('mockup-rec-dot');
       const recLabel = document.getElementById('mockup-rec-label');
       const completeText = document.getElementById('mockup-complete-text');
-      const body = document.getElementById('mockup-window-body');
-      const stateBadge = document.getElementById('mockup-window-state-badge');
-      if (body) body.classList.remove('hidden');
-      if (stateBadge) stateBadge.classList.add('hidden');
-      mockupState.isMinimized = false;
-      mockupState.isClosed = false;
       if (badge) badge.classList.add('hidden');
       if (recDot) {
         recDot.className = 'w-2 h-2 rounded-full bg-red-500 animate-pulse shadow-[0_0_8px_rgba(239,68,68,0.7)]';
