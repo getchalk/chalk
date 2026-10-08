@@ -39,6 +39,7 @@ from PyQt6.QtWidgets import (
     QGraphicsDropShadowEffect,
     QSlider,
     QStackedWidget,
+    QComboBox,
 )
 
 from src.ui.snip_overlay import SnipOverlayWidget
@@ -50,32 +51,54 @@ from src.export.pdf_exporter import export_notes_to_pdf
 from src.api.synthesis_pipeline import export_flashcards_to_tsv, extract_flashcards_from_markdown
 from src.ui.search_dialog import SessionArchiveSearchDialog
 from src.ui.i18n import tr, get_ui_language
+from src.security.key_manager import (
+    get_api_key,
+    set_api_key,
+    validate_api_key,
+    get_selected_model,
+    set_selected_model,
+)
+from src.engine.config import (
+    get_obsidian_vault_path,
+    set_obsidian_vault_path,
+)
 
 logger = logging.getLogger("chalk.ui.hud")
 
 
-HUD_STYLESHEET = """
+
+HUD_STYLESHEET_DARK = """
 QWidget#hudRoot {
-    background-color: rgba(18, 19, 23, 0.96);
+    background-color: rgba(18, 19, 23, 0.98);
     border: 1px solid rgba(255, 255, 255, 0.12);
     border-radius: 16px;
     color: #F8FAFC;
     font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif;
 }
+QFrame#cardFrame {
+    background-color: rgba(26, 28, 35, 0.92);
+    border: 1px solid rgba(255, 255, 255, 0.10);
+    border-radius: 12px;
+}
+QFrame#dockFrame {
+    background-color: rgba(21, 22, 27, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.10);
+    border-radius: 10px;
+}
 QLabel {
     color: #E2E8F0;
 }
 QPushButton {
-    background-color: rgba(26, 28, 35, 0.85);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 8px;
+    background-color: rgba(30, 32, 40, 0.85);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 7px;
     color: #CBD5E1;
-    padding: 6px 12px;
-    font-size: 12px;
+    padding: 5px 10px;
+    font-size: 11px;
     font-weight: 500;
 }
 QPushButton:hover {
-    background-color: rgba(38, 41, 52, 0.95);
+    background-color: rgba(45, 48, 60, 0.95);
     color: #FFFFFF;
     border-color: rgba(255, 255, 255, 0.25);
 }
@@ -89,40 +112,52 @@ QPushButton#primaryAction:hover {
     background-color: #FFFFFF;
     color: #000000;
 }
-QTextEdit, QTextBrowser, QLineEdit {
+QPushButton#tabActive {
+    background-color: rgba(255, 255, 255, 0.16);
+    color: #FFFFFF;
+    font-weight: 600;
+    border: 1px solid rgba(255, 255, 255, 0.22);
+}
+QPushButton#tabInactive {
+    background-color: transparent;
+    color: #94A3B8;
+    font-weight: 500;
+    border: 1px solid transparent;
+}
+QPushButton#tabInactive:hover {
+    background-color: rgba(255, 255, 255, 0.06);
+    color: #F8FAFC;
+}
+QPushButton#chipBtn {
+    background-color: rgba(21, 22, 27, 0.9);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 12px;
+    color: #E2E8F0;
+    padding: 2px 9px;
+    font-size: 10.5px;
+    font-weight: 500;
+}
+QPushButton#chipBtn:hover {
+    background-color: rgba(255, 255, 255, 0.12);
+    color: #FFFFFF;
+    border-color: rgba(255, 255, 255, 0.25);
+}
+QTextEdit, QTextBrowser, QLineEdit, QComboBox {
     background-color: rgba(21, 22, 27, 0.95);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.12);
     border-radius: 8px;
     color: #F8FAFC;
-    padding: 8px;
+    padding: 6px 10px;
     font-size: 12px;
 }
-QTextEdit:focus, QTextBrowser:focus, QLineEdit:focus {
-    border: 1px solid rgba(255, 255, 255, 0.4);
+QTextEdit:focus, QTextBrowser:focus, QLineEdit:focus, QComboBox:focus {
+    border: 1px solid rgba(255, 255, 255, 0.35);
 }
-QFrame#playerBar {
-    background-color: rgba(26, 28, 35, 0.9);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 10px;
-    padding: 4px 10px;
-}
-QSlider::groove:horizontal {
-    border: none;
-    height: 4px;
-    background: rgba(255, 255, 255, 0.15);
-    border-radius: 2px;
-}
-QSlider::sub-page:horizontal {
-    background: #FFFFFF;
-    border-radius: 2px;
-}
-QSlider::handle:horizontal {
-    background: #FFFFFF;
-    border: none;
-    width: 10px;
-    height: 10px;
-    margin: -3px 0;
-    border-radius: 5px;
+QComboBox QAbstractItemView {
+    background-color: #15161B;
+    color: #F8FAFC;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    selection-background-color: rgba(255, 255, 255, 0.15);
 }
 QFrame#playerPill {
     background-color: rgba(22, 24, 30, 0.95);
@@ -139,23 +174,131 @@ QPushButton#pillBtn {
     font-size: 11px;
     font-weight: 600;
 }
-QPushButton#pillBtn:hover {
-    background-color: rgba(55, 60, 75, 0.95);
-    color: #FFFFFF;
-    border-color: rgba(255, 255, 255, 0.3);
-}
 QPushButton#pillCloseBtn {
     background: transparent;
     border: none;
     color: #94A3B8;
     font-size: 13px;
     font-weight: 700;
-    padding: 2px 6px;
-}
-QPushButton#pillCloseBtn:hover {
-    color: #FFFFFF;
 }
 """
+
+HUD_STYLESHEET_LIGHT = """
+QWidget#hudRoot {
+    background-color: rgba(248, 250, 252, 0.98);
+    border: 1px solid rgba(15, 23, 42, 0.15);
+    border-radius: 16px;
+    color: #0F172A;
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif;
+}
+QFrame#cardFrame {
+    background-color: #FFFFFF;
+    border: 1px solid rgba(15, 23, 42, 0.12);
+    border-radius: 12px;
+}
+QFrame#dockFrame {
+    background-color: #F1F5F9;
+    border: 1px solid rgba(15, 23, 42, 0.12);
+    border-radius: 10px;
+}
+QLabel {
+    color: #334155;
+}
+QPushButton {
+    background-color: #F8FAFC;
+    border: 1px solid rgba(15, 23, 42, 0.15);
+    border-radius: 7px;
+    color: #334155;
+    padding: 5px 10px;
+    font-size: 11px;
+    font-weight: 500;
+}
+QPushButton:hover {
+    background-color: #E2E8F0;
+    color: #0F172A;
+    border-color: rgba(15, 23, 42, 0.25);
+}
+QPushButton#primaryAction {
+    background-color: #0F172A;
+    color: #FFFFFF;
+    font-weight: 600;
+    border: 1px solid #0F172A;
+}
+QPushButton#primaryAction:hover {
+    background-color: #000000;
+    color: #FFFFFF;
+}
+QPushButton#tabActive {
+    background-color: #0F172A;
+    color: #FFFFFF;
+    font-weight: 600;
+    border: 1px solid #0F172A;
+}
+QPushButton#tabInactive {
+    background-color: transparent;
+    color: #64748B;
+    font-weight: 500;
+    border: 1px solid transparent;
+}
+QPushButton#tabInactive:hover {
+    background-color: rgba(15, 23, 42, 0.06);
+    color: #0F172A;
+}
+QPushButton#chipBtn {
+    background-color: #FFFFFF;
+    border: 1px solid rgba(15, 23, 42, 0.15);
+    border-radius: 12px;
+    color: #334155;
+    padding: 2px 9px;
+    font-size: 10.5px;
+    font-weight: 500;
+}
+QPushButton#chipBtn:hover {
+    background-color: #E2E8F0;
+    color: #0F172A;
+}
+QTextEdit, QTextBrowser, QLineEdit, QComboBox {
+    background-color: #FFFFFF;
+    border: 1px solid rgba(15, 23, 42, 0.15);
+    border-radius: 8px;
+    color: #0F172A;
+    padding: 6px 10px;
+    font-size: 12px;
+}
+QTextEdit:focus, QTextBrowser:focus, QLineEdit:focus, QComboBox:focus {
+    border: 1px solid rgba(15, 23, 42, 0.4);
+}
+QComboBox QAbstractItemView {
+    background-color: #FFFFFF;
+    color: #0F172A;
+    border: 1px solid rgba(15, 23, 42, 0.15);
+    selection-background-color: #E2E8F0;
+}
+QFrame#playerPill {
+    background-color: #FFFFFF;
+    border: 1px solid rgba(15, 23, 42, 0.15);
+    border-radius: 12px;
+    padding: 3px 8px;
+}
+QPushButton#pillBtn {
+    background-color: #F1F5F9;
+    border: 1px solid rgba(15, 23, 42, 0.15);
+    border-radius: 6px;
+    color: #0F172A;
+    padding: 3px 8px;
+    font-size: 11px;
+    font-weight: 600;
+}
+QPushButton#pillCloseBtn {
+    background: transparent;
+    border: none;
+    color: #64748B;
+    font-size: 13px;
+    font-weight: 700;
+}
+"""
+
+HUD_STYLESHEET = HUD_STYLESHEET_DARK
 
 
 def parse_audio_timestamp(url_or_str: str) -> float:
@@ -643,9 +786,23 @@ class WhiteboardCamDialog(QDialog):
 
 
 
+
 class FloatingHUDWindow(QWidget):
     """
-    Floating Agent HUD window triggered via Alt + Space.
+    1:1 Desktop HUD Window matching the Chalk Web Simulation experience.
+    Frameless, floating (Alt+Space / Cmd+Shift+Space), dual-column layout:
+    - Left Column:
+        * Card 1: SCREEN CAPTURE (with slide navigation, topic, heading, KaTeX math preview)
+        * Card 2: LIVE AUDIO & CAPTURE (speaker status, live transcribed speech, Snap Photo, Pair QR)
+    - Right Column:
+        * Navigation Tabs: [Live Notes] [AI Chat] [Settings] + filename + [Copy notes]
+        * Tab 0: Live KaTeX Notes + Bottom Directive Dock (+ chips, input, attach)
+        * Tab 1: AI Chat (grounded Copilot + prompt chips)
+        * Tab 2: Integrated Settings (BYOK Gemini key, model dropdown, vault path, Dark/Light, EN/DE/FR/ES/ZH)
+    - Top Window Bar:
+        * macOS Traffic Lights (red/yellow/green), Lecture Title, Live Recording Status Pill
+    - Bottom Footer:
+        * Real-time Duration Timer (hours/mins/secs live counter) + Secondary Quick Tools
     """
     request_toggle_recording = pyqtSignal()
     request_force_flush = pyqtSignal()
@@ -664,6 +821,29 @@ class FloatingHUDWindow(QWidget):
         self.attached_snip_image: Optional[Image.Image] = None
         self.imported_pdf_slides = []  # List of dicts: {"page": int, "text": str}
         self.imported_pdf_name: Optional[str] = None
+        self.current_slide_idx = 0
+
+        # Sample / Demo Slide keyframes for pristine initial presentation
+        self.sample_slides = [
+            {
+                "file": "Asset_Pricing_Lecture_04.pdf (p. 12/42)",
+                "topic": "Portfolio Theory & Risk Modeling",
+                "heading": "Capital Asset Pricing Model (CAPM)",
+                "math": "$$E(R_i) = R_f + \\beta_i [E(R_m) - R_f]$$",
+            },
+            {
+                "file": "Asset_Pricing_Lecture_04.pdf (p. 18/42)",
+                "topic": "Performance Attribution & Alpha",
+                "heading": "Security Market Line & Jensen's Alpha",
+                "math": "$$\\alpha_i = R_i - [R_f + \\beta_i (E(R_m) - R_f)]$$",
+            },
+            {
+                "file": "Asset_Pricing_Lecture_04.pdf (p. 25/42)",
+                "topic": "Arbitrage Pricing & Multi-Factor",
+                "heading": "Fama-French Three-Factor Model",
+                "math": "$$E(R_i) - R_f = \\beta_{i1}(R_m - R_f) + \\beta_{i2}SMB + \\beta_{i3}HML$$",
+            },
+        ]
 
         # Whiteboard Camera & Mobile Companion
         self.whiteboard_photos: List[str] = []
@@ -681,6 +861,8 @@ class FloatingHUDWindow(QWidget):
         self.is_playing_audio = False
         self._current_daemon_state = "recording"
         self._current_daemon_msg = ""
+        self.current_theme = "dark"
+        self.pinned_directives = []
 
         # Snip overlay tool
         self.snip_overlay = SnipOverlayWidget()
@@ -703,248 +885,538 @@ class FloatingHUDWindow(QWidget):
         )
         self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground, True)
         self.setAcceptDrops(True)
-        self.resize(780, 560)
-        self.setStyleSheet(HUD_STYLESHEET)
+        self.resize(860, 580)
+        self.setStyleSheet(HUD_STYLESHEET_DARK)
 
         # Center on upper part of primary screen
         screen = self.screen().geometry()
-        x = (screen.width() - self.width()) // 2
-        y = max(40, (screen.height() - self.height()) // 4)
+        x = max(20, (screen.width() - self.width()) // 2)
+        y = max(40, (screen.height() - self.height()) // 5)
         self.move(x, y)
 
     def _setup_ui(self):
         main_layout = QVBoxLayout(self)
-        main_layout.setContentsMargins(18, 16, 18, 16)
-        main_layout.setSpacing(12)
+        main_layout.setContentsMargins(14, 12, 14, 12)
+        main_layout.setSpacing(8)
 
-        # Header Row (Window Drag Handle & Status)
-        header = QHBoxLayout()
-        header.setSpacing(10)
+        # ------------------------------------------------------------------
+        # 1. TOP HEADER: Window Chrome (macOS traffic lights, title, status)
+        # ------------------------------------------------------------------
+        header_bar = QHBoxLayout()
+        header_bar.setSpacing(10)
 
-        # Logo & App Title
-        logo_layout = QHBoxLayout()
-        logo_layout.setSpacing(6)
+        # Traffic Lights
+        lights_layout = QHBoxLayout()
+        lights_layout.setSpacing(7)
 
-        logo_icon_lbl = QLabel()
-        icon_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "assets", "app.png"))
-        if os.path.exists(icon_path):
-            pix = QPixmap(icon_path).scaled(18, 18, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation)
-            logo_icon_lbl.setPixmap(pix)
-            logo_layout.addWidget(logo_icon_lbl)
+        self.mac_close_btn = QPushButton()
+        self.mac_close_btn.setFixedSize(12, 12)
+        self.mac_close_btn.setStyleSheet("background-color: #FF5F56; border-radius: 6px; border: 1px solid rgba(0,0,0,0.2);")
+        self.mac_close_btn.setToolTip("HUD ausblenden (Cmd+Shift+Space / Ctrl+Shift+Space)")
+        self.mac_close_btn.clicked.connect(self.hide)
+        self.hide_btn = self.mac_close_btn  # Backward compat alias
 
-        app_badge = QLabel("CHALK")
-        app_badge.setStyleSheet("font-weight: 700; font-size: 13px; letter-spacing: 1.5px; color: #F8FAFC;")
-        logo_layout.addWidget(app_badge)
-        header.addLayout(logo_layout)
+        self.mac_min_btn = QPushButton()
+        self.mac_min_btn.setFixedSize(12, 12)
+        self.mac_min_btn.setStyleSheet("background-color: #FFBD2E; border-radius: 6px; border: 1px solid rgba(0,0,0,0.2);")
+        self.mac_min_btn.setToolTip("Minimieren")
+        self.mac_min_btn.clicked.connect(self.showMinimized)
+
+        self.mac_expand_btn = QPushButton()
+        self.mac_expand_btn.setFixedSize(12, 12)
+        self.mac_expand_btn.setStyleSheet("background-color: #27C93F; border-radius: 6px; border: 1px solid rgba(0,0,0,0.2);")
+        self.mac_expand_btn.setToolTip("Fenstergröße anpassen")
+        self.mac_expand_btn.clicked.connect(self.toggle_expand)
+
+        lights_layout.addWidget(self.mac_close_btn)
+        lights_layout.addWidget(self.mac_min_btn)
+        lights_layout.addWidget(self.mac_expand_btn)
+        header_bar.addLayout(lights_layout)
+
+        # Title
+        topic_title = getattr(self.notes_manager, "topic", "") if self.notes_manager else ""
+        if not topic_title:
+            topic_title = "Financial Markets & Risk"
+        self.window_title_label = QLabel(f"Lecture: {topic_title} — Chalk")
+        self.window_title_label.setStyleSheet("font-size: 12px; font-weight: 600; color: #F8FAFC;")
+        header_bar.addWidget(self.window_title_label)
+
+        header_bar.addStretch()
+
+        # Attachment Banner
+        self.attachment_label = QLabel("")
+        self.attachment_label.setStyleSheet(
+            "background-color: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.18);"
+            "color: #CBD5E1; font-size: 10.5px; font-weight: 500; padding: 2px 8px; border-radius: 10px;"
+        )
+        self.attachment_label.hide()
+        header_bar.addWidget(self.attachment_label)
 
         # Recording Status Pill
-        self.status_pill = QLabel("AUFNAHME AKTIV (00:00)")
+        self.status_pill = QLabel("● Recording active (00:00)")
         self.status_pill.setStyleSheet(
             "background-color: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.18);"
-            "color: #FFFFFF; font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 12px;"
+            "color: #FFFFFF; font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 12px;"
         )
-        header.addWidget(self.status_pill)
+        header_bar.addWidget(self.status_pill)
 
-        header.addStretch()
+        main_layout.addLayout(header_bar)
 
-        # Settings button (BYOK & Models)
-        self.settings_btn = QPushButton("Einstellungen")
-        self.settings_btn.setStyleSheet(
-            "background-color: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.15);"
-            "color: #F8FAFC; font-size: 11px; font-weight: 500; padding: 4px 10px; border-radius: 12px;"
+        # ------------------------------------------------------------------
+        # 2. MAIN 2-COLUMN BODY LAYOUT
+        # ------------------------------------------------------------------
+        body_layout = QHBoxLayout()
+        body_layout.setSpacing(10)
+
+        # LEFT COLUMN (340px)
+        left_col = QVBoxLayout()
+        left_col.setSpacing(10)
+
+        # Card 1: SCREEN CAPTURE
+        self.screen_capture_card = QFrame()
+        self.screen_capture_card.setObjectName("cardFrame")
+        sc_layout = QVBoxLayout(self.screen_capture_card)
+        sc_layout.setContentsMargins(12, 10, 12, 10)
+        sc_layout.setSpacing(6)
+
+        sc_head = QHBoxLayout()
+        sc_title_lbl = QLabel("SCREEN CAPTURE")
+        sc_title_lbl.setStyleSheet("font-size: 10px; font-weight: 700; letter-spacing: 1px; color: #94A3B8;")
+        sc_head.addWidget(sc_title_lbl)
+        sc_head.addStretch()
+
+        self.prev_slide_btn = QPushButton("‹")
+        self.prev_slide_btn.setFixedSize(22, 20)
+        self.prev_slide_btn.clicked.connect(lambda: self._navigate_slide(-1))
+        sc_head.addWidget(self.prev_slide_btn)
+
+        self.slide_counter_lbl = QLabel("1/3")
+        self.slide_counter_lbl.setStyleSheet("font-size: 11px; font-family: monospace; color: #CBD5E1;")
+        sc_head.addWidget(self.slide_counter_lbl)
+
+        self.next_slide_btn = QPushButton("›")
+        self.next_slide_btn.setFixedSize(22, 20)
+        self.next_slide_btn.clicked.connect(lambda: self._navigate_slide(1))
+        sc_head.addWidget(self.next_slide_btn)
+
+        sc_layout.addLayout(sc_head)
+
+        self.slide_file_lbl = QLabel("Asset_Pricing_Lecture_04.pdf (p. 12/42)")
+        self.slide_file_lbl.setStyleSheet("font-size: 10px; font-family: monospace; color: #64748B;")
+        sc_layout.addWidget(self.slide_file_lbl)
+
+        self.slide_topic_lbl = QLabel("Portfolio Theory & Risk Modeling")
+        self.slide_topic_lbl.setStyleSheet("font-size: 11px; color: #94A3B8; margin-top: 2px;")
+        sc_layout.addWidget(self.slide_topic_lbl)
+
+        self.slide_heading_lbl = QLabel("Capital Asset Pricing Model (CAPM)")
+        self.slide_heading_lbl.setStyleSheet("font-size: 13px; font-weight: 700; color: #F8FAFC;")
+        sc_layout.addWidget(self.slide_heading_lbl)
+
+        self.slide_math_view = QTextBrowser()
+        self.slide_math_view.setStyleSheet("background-color: rgba(21, 22, 27, 0.7); border: none; border-radius: 6px;")
+        self.slide_math_view.setFixedHeight(75)
+        sc_layout.addWidget(self.slide_math_view)
+
+        left_col.addWidget(self.screen_capture_card)
+
+        # Card 2: LIVE AUDIO & CAPTURE
+        self.live_audio_card = QFrame()
+        self.live_audio_card.setObjectName("cardFrame")
+        la_layout = QVBoxLayout(self.live_audio_card)
+        la_layout.setContentsMargins(12, 10, 12, 10)
+        la_layout.setSpacing(6)
+
+        la_head = QHBoxLayout()
+        la_title_lbl = QLabel("● LIVE AUDIO & CAPTURE")
+        la_title_lbl.setStyleSheet("font-size: 10px; font-weight: 700; letter-spacing: 1px; color: #94A3B8;")
+        la_head.addWidget(la_title_lbl)
+        la_head.addStretch()
+        la_layout.addLayout(la_head)
+
+        self.speaker_badge_lbl = QLabel("🎙 Prof. Vance (Speaker)    @ 01:14:20")
+        self.speaker_badge_lbl.setStyleSheet("font-size: 10.5px; font-family: monospace; color: #CBD5E1;")
+        la_layout.addWidget(self.speaker_badge_lbl)
+
+        self.live_speech_lbl = QLabel(
+            '"...unsystematic risk is eliminated by diversification. '
+            'The market only prices systematic covariance..."'
         )
-        self.settings_btn.setToolTip("Modelle, API-Keys und BYOK-Sicherheit konfigurieren")
-        self.settings_btn.clicked.connect(self._open_settings_dialog)
-        header.addWidget(self.settings_btn)
+        self.live_speech_lbl.setStyleSheet(
+            "font-size: 11.5px; font-style: italic; color: #94A3B8; "
+            "background-color: rgba(21, 22, 27, 0.7); padding: 8px 10px; border-radius: 6px; border: 1px solid rgba(255, 255, 255, 0.06);"
+        )
+        self.live_speech_lbl.setWordWrap(True)
+        la_layout.addWidget(self.live_speech_lbl)
 
-        # Minimize / Hide button
-        self.hide_btn = QPushButton("X")
-        self.hide_btn.setFixedSize(28, 28)
-        hud_shortcut = "Cmd+Shift+Space" if sys.platform == "darwin" else "Ctrl+Shift+Space"
-        self.hide_btn.setToolTip(f"HUD ausblenden ({hud_shortcut} zum Einblenden)")
-        self.hide_btn.clicked.connect(self.hide)
-        header.addWidget(self.hide_btn)
+        # Snap & QR Bar
+        audio_btn_row = QHBoxLayout()
+        audio_btn_row.setSpacing(8)
 
-        main_layout.addLayout(header)
+        self.snap_photo_btn = QPushButton("📷 Snap Photo")
+        self.snap_photo_btn.setStyleSheet("font-weight: 600; padding: 6px 12px;")
+        self.snap_photo_btn.clicked.connect(self.trigger_screen_snip)
+        self.snip_btn = self.snap_photo_btn  # Backward compat alias
+        audio_btn_row.addWidget(self.snap_photo_btn, stretch=2)
 
-
-        # Quick Actions Bar
-        actions_bar = QHBoxLayout()
-        actions_bar.setSpacing(6)
-
-        self.attach_doc_btn = QPushButton("Folien anhängen")
-        self.attach_doc_btn.setToolTip("Folien oder Skript einbinden (.pdf, .pptx)")
-        self.attach_doc_btn.clicked.connect(self._open_document_dialog)
-        actions_bar.addWidget(self.attach_doc_btn)
-
-        snip_shortcut = "Cmd+Shift+S" if sys.platform == "darwin" else "Ctrl+Shift+S"
-        self.snip_btn = QPushButton("Snip Screen [Alt+S]")
-        self.snip_btn.setToolTip(f"Bildschirmbereich zuschneiden ({snip_shortcut} / Alt+S)")
-        self.snip_btn.clicked.connect(self.trigger_screen_snip)
-        actions_bar.addWidget(self.snip_btn)
-
-        self.cam_btn = QPushButton("Tafel-Kamera [QR]")
-        self.cam_btn.setToolTip("Smartphone via QR-Code verbinden, um Tafel-Fotos direkt einzubinden")
+        self.cam_btn = QPushButton("▦ Pair QR")
+        self.cam_btn.setStyleSheet("font-weight: 500; padding: 6px 10px;")
         self.cam_btn.clicked.connect(self._open_whiteboard_cam_dialog)
-        actions_bar.addWidget(self.cam_btn)
+        audio_btn_row.addWidget(self.cam_btn, stretch=1)
 
-        self.rewind_btn = QPushButton("Rewind 90s")
-        self.rewind_btn.setToolTip("Letzte 90 Sekunden Audio abrufen, abspielen und transkribieren")
-        self.rewind_btn.clicked.connect(self._trigger_audio_rewind)
-        actions_bar.addWidget(self.rewind_btn)
+        la_layout.addLayout(audio_btn_row)
+        left_col.addWidget(self.live_audio_card)
 
-        self.search_btn = QPushButton("Suche (Alt+F)")
-        self.search_btn.setToolTip("Volltext- und Formel-Archivsuche über alle Vorlesungen (Alt+F)")
-        self.search_btn.clicked.connect(self._open_archive_search)
-        actions_bar.addWidget(self.search_btn)
+        body_layout.addLayout(left_col, stretch=4)
 
-        self.anki_export_btn = QPushButton("Export Anki [TSV]")
-        self.anki_export_btn.setToolTip("Generierte Spaced-Repetition Karteikarten für Anki exportieren")
-        self.anki_export_btn.clicked.connect(self._export_anki_flashcards)
-        actions_bar.addWidget(self.anki_export_btn)
+        # RIGHT COLUMN: Main Workspace (Notes, Chat, Settings)
+        self.workspace_card = QFrame()
+        self.workspace_card.setObjectName("cardFrame")
+        ws_layout = QVBoxLayout(self.workspace_card)
+        ws_layout.setContentsMargins(12, 10, 12, 10)
+        ws_layout.setSpacing(8)
 
-        self.pdf_export_btn = QPushButton("Export PDF")
-        self.pdf_export_btn.setToolTip("Notizen direkt als akademisches Vektor-PDF drucken")
-        self.pdf_export_btn.clicked.connect(self._export_notes_pdf)
-        actions_bar.addWidget(self.pdf_export_btn)
+        # Tab bar
+        tab_bar = QHBoxLayout()
+        tab_bar.setSpacing(6)
 
-        self.copy_notes_btn = QPushButton("Copy Notes")
-        self.copy_notes_btn.setToolTip("Notizen und Gliederung in Zwischenablage kopieren")
+        self.tab_btn_notes = QPushButton("Live Notes")
+        self.tab_btn_notes.setObjectName("tabActive")
+        self.tab_btn_notes.clicked.connect(lambda: self.switch_tab(0))
+        tab_bar.addWidget(self.tab_btn_notes)
+        self.btn_view_notes = self.tab_btn_notes  # Alias
+
+        self.tab_btn_chat = QPushButton("AI Chat")
+        self.tab_btn_chat.setObjectName("tabInactive")
+        self.tab_btn_chat.clicked.connect(lambda: self.switch_tab(1))
+        tab_bar.addWidget(self.tab_btn_chat)
+        self.btn_view_chat = self.tab_btn_chat  # Alias
+
+        self.tab_btn_settings = QPushButton("Settings")
+        self.tab_btn_settings.setObjectName("tabInactive")
+        self.tab_btn_settings.clicked.connect(lambda: self.switch_tab(2))
+        tab_bar.addWidget(self.tab_btn_settings)
+        self.settings_btn = self.tab_btn_settings  # Alias
+
+        tab_bar.addStretch()
+
+        self.note_filename_lbl = QLabel("financial_markets_ch3.md")
+        self.note_filename_lbl.setStyleSheet("font-size: 11px; font-family: monospace; color: #64748B;")
+        tab_bar.addWidget(self.note_filename_lbl)
+
+        self.copy_notes_btn = QPushButton("Copy notes")
         self.copy_notes_btn.clicked.connect(self._copy_notes_to_clipboard)
-        actions_bar.addWidget(self.copy_notes_btn)
+        tab_bar.addWidget(self.copy_notes_btn)
 
-        self.obsidian_btn = QPushButton("Obsidian")
-        self.obsidian_btn.setToolTip("Notizen direkt in Obsidian öffnen")
-        self.obsidian_btn.clicked.connect(self._open_in_obsidian)
-        actions_bar.addWidget(self.obsidian_btn)
+        ws_layout.addLayout(tab_bar)
 
-        self.editor_btn = QPushButton("System Editor")
-        self.editor_btn.setToolTip("Notizen im Standard-Markdown-Editor öffnen")
-        self.editor_btn.clicked.connect(self._open_in_default_editor)
-        actions_bar.addWidget(self.editor_btn)
-
-        actions_bar.addStretch()
-
-        self.synth_btn = QPushButton("Beenden (F9)")
-        self.synth_btn.setObjectName("primaryAction")
-        self.synth_btn.setToolTip("Sitzung beenden und finale Notizen synthetisieren")
-        self.synth_btn.clicked.connect(lambda: self.request_master_synthesis.emit())
-        actions_bar.addWidget(self.synth_btn)
-
-        main_layout.addLayout(actions_bar)
-
-        # Keyboard shortcuts for archive search
-        self.search_shortcut = QShortcut(QKeySequence("Alt+F"), self)
-        self.search_shortcut.activated.connect(self._open_archive_search)
-        self.search_shortcut_cmd = QShortcut(QKeySequence("Ctrl+F"), self)
-        self.search_shortcut_cmd.activated.connect(self._open_archive_search)
-
-        # Attachments Banner (if doc or snip attached)
-        self.attachment_label = QLabel("")
-        self.attachment_label.setStyleSheet("color: #E2E8F0; font-size: 11px;")
-        self.attachment_label.hide()
-        main_layout.addWidget(self.attachment_label)
-
-        # Splitter: Left = User Scratchpad, Right = Copilot & Scrub Transcript
-        splitter = QSplitter(Qt.Orientation.Horizontal)
-        splitter.setStyleSheet("QSplitter::handle { background-color: rgba(255, 255, 255, 0.08); width: 2px; }")
-
-        # Left Column: User Scratchpad
-        left_widget = QWidget()
-        left_layout = QVBoxLayout(left_widget)
-        left_layout.setContentsMargins(0, 0, 6, 0)
-        left_layout.setSpacing(6)
-
-        self.scratchpad_label = QLabel("User Scratchpad (Shorthand & Outline Anchor):")
-        self.scratchpad_label.setStyleSheet("font-size: 11px; font-weight: 600; color: #94A3B8;")
-        left_layout.addWidget(self.scratchpad_label)
-
-        self.scratchpad_text = QTextEdit()
-        self.scratchpad_text.setPlaceholderText(
-            "- Jot shorthand bullets or quick thoughts here...\n"
-            "- Chalk weaves your bullets into the structured synthesis\n"
-            "- Scrubbable audio timestamp links created automatically\n"
-            "- Drag & drop slides (.pdf, .pptx) anywhere onto HUD"
-        )
-        left_layout.addWidget(self.scratchpad_text)
-
-        # Quick Directive Pin Bar
-        pin_row = QHBoxLayout()
-        self.pin_directive_btn = QPushButton("Notiz anheften (An KI & Zusammenfassung)")
-        self.pin_directive_btn.setStyleSheet(
-            "background-color: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.15);"
-            "color: #F8FAFC; font-size: 10.5px; font-weight: 500; padding: 4px 8px; border-radius: 6px;"
-        )
-        self.pin_directive_btn.setToolTip("Fügt Notiz mit Audio-Zeitstempel in Notizdatei ein und verknüpft sie mit der KI-Zusammenfassung")
-        self.pin_directive_btn.clicked.connect(self._on_pin_user_directive)
-        pin_row.addWidget(self.pin_directive_btn)
-        pin_row.addStretch()
-        left_layout.addLayout(pin_row)
-
-        splitter.addWidget(left_widget)
-
-        # Right Column: Interactive Copilot & Scrub Transcript
-        right_widget = QWidget()
-        right_layout = QVBoxLayout(right_widget)
-        right_layout.setContentsMargins(6, 0, 0, 0)
-        right_layout.setSpacing(6)
-
-        # Right Column Header Switcher: [Copilot & Verlauf] [Live KaTeX Notizen]
-        switcher_row = QHBoxLayout()
-        switcher_row.setSpacing(6)
-
-        self.btn_view_chat = QPushButton("Copilot & Verlauf")
-        self.btn_view_chat.setStyleSheet("background-color: rgba(255, 255, 255, 0.16); color: #FFFFFF; font-weight: 600; padding: 4px 10px; font-size: 11px;")
-        self.btn_view_chat.clicked.connect(self._show_chat_view)
-        switcher_row.addWidget(self.btn_view_chat)
-
-        self.btn_view_notes = QPushButton("Live KaTeX Notizen")
-        self.btn_view_notes.setStyleSheet("background-color: rgba(26, 28, 35, 0.85); color: #94A3B8; font-weight: 500; padding: 4px 10px; font-size: 11px;")
-        self.btn_view_notes.clicked.connect(self._show_notes_view)
-        switcher_row.addWidget(self.btn_view_notes)
-
-        switcher_row.addStretch()
-        right_layout.addLayout(switcher_row)
-
-        # Stacked viewer: 0 = Chat & Scrubber, 1 = Live KaTeX Notes
+        # Stacked Widget
         self.right_stack = QStackedWidget()
 
-        self.chat_history = QTextBrowser()
-        self.chat_history.setReadOnly(True)
-        self.chat_history.setOpenExternalLinks(False)
-        self.chat_history.setOpenLinks(False)
-        self.chat_history.anchorClicked.connect(self._on_anchor_clicked)
-        self.chat_history.setPlaceholderText("Antworten, Rewind-Transkripte und klickbare Zeitstempel [HH:MM:SS] erscheinen hier...")
-        self.right_stack.addWidget(self.chat_history)
+        # ---------------- PAGE 0: Live Notes ----------------
+        self.notes_tab_widget = QWidget()
+        n_tab_layout = QVBoxLayout(self.notes_tab_widget)
+        n_tab_layout.setContentsMargins(0, 0, 0, 0)
+        n_tab_layout.setSpacing(6)
 
         self.notes_browser = QTextBrowser()
-        self.notes_browser.setReadOnly(True)
         self.notes_browser.setOpenExternalLinks(False)
         self.notes_browser.setOpenLinks(False)
         self.notes_browser.anchorClicked.connect(self._on_anchor_clicked)
-        self.notes_browser.setPlaceholderText("Live KaTeX gerenderte Notizen mit echten mathematischen Formeln erscheinen hier...")
-        self.right_stack.addWidget(self.notes_browser)
+        n_tab_layout.addWidget(self.notes_browser)
 
-        right_layout.addWidget(self.right_stack)
+        # Directive Dock Frame
+        self.directive_dock_card = QFrame()
+        self.directive_dock_card.setObjectName("dockFrame")
+        dd_layout = QVBoxLayout(self.directive_dock_card)
+        dd_layout.setContentsMargins(10, 8, 10, 8)
+        dd_layout.setSpacing(5)
 
-        prompt_row = QHBoxLayout()
-        prompt_row.setSpacing(8)
+        dd_head = QHBoxLayout()
+        dd_title_lbl = QLabel("✍ Note or Directive to AI")
+        dd_title_lbl.setStyleSheet("font-size: 11px; font-weight: 600; color: #E2E8F0;")
+        dd_head.addWidget(dd_title_lbl)
+        dd_head.addStretch()
+        dd_sub_lbl = QLabel("Synced with audio & summary")
+        dd_sub_lbl.setStyleSheet("font-size: 9.5px; color: #64748B;")
+        dd_head.addWidget(dd_sub_lbl)
+        dd_layout.addLayout(dd_head)
+
+        chips_row = QHBoxLayout()
+        chips_row.setSpacing(6)
+
+        self.chip_exam_btn = QPushButton("+ Exam Hint")
+        self.chip_exam_btn.setObjectName("chipBtn")
+        self.chip_exam_btn.clicked.connect(lambda: self._insert_directive_chip("Exam Hint: Key calculation step"))
+        chips_row.addWidget(self.chip_exam_btn)
+
+        self.chip_proof_btn = QPushButton("+ Detail Proof")
+        self.chip_proof_btn.setObjectName("chipBtn")
+        self.chip_proof_btn.clicked.connect(lambda: self._insert_directive_chip("Detail Proof: Expand covariance derivation step-by-step"))
+        chips_row.addWidget(self.chip_proof_btn)
+
+        self.chip_note_btn = QPushButton("+ Side Note")
+        self.chip_note_btn.setObjectName("chipBtn")
+        self.chip_note_btn.clicked.connect(lambda: self._insert_directive_chip("Side Note: Connect to Sharpe Ratio"))
+        chips_row.addWidget(self.chip_note_btn)
+        chips_row.addStretch()
+        dd_layout.addLayout(chips_row)
+
+        dir_input_row = QHBoxLayout()
+        dir_input_row.setSpacing(6)
+        self.directive_input = QLineEdit()
+        self.directive_input.setPlaceholderText("Add note or instruction for the AI summary...")
+        self.directive_input.returnPressed.connect(self._on_pin_user_directive)
+        dir_input_row.addWidget(self.directive_input)
+
+        self.attach_directive_btn = QPushButton("Attach ✈")
+        self.attach_directive_btn.setStyleSheet("font-weight: 600; padding: 6px 12px;")
+        self.attach_directive_btn.clicked.connect(self._on_pin_user_directive)
+        self.pin_directive_btn = self.attach_directive_btn  # Alias
+        dir_input_row.addWidget(self.attach_directive_btn)
+        dd_layout.addLayout(dir_input_row)
+
+        self.pinned_directive_lbl = QLabel("")
+        self.pinned_directive_lbl.setStyleSheet("font-size: 10px; color: #38BDF8; font-style: italic;")
+        self.pinned_directive_lbl.hide()
+        dd_layout.addWidget(self.pinned_directive_lbl)
+
+        n_tab_layout.addWidget(self.directive_dock_card)
+        self.right_stack.addWidget(self.notes_tab_widget)
+
+        # ---------------- PAGE 1: AI Chat ----------------
+        self.chat_tab_widget = QWidget()
+        c_tab_layout = QVBoxLayout(self.chat_tab_widget)
+        c_tab_layout.setContentsMargins(0, 0, 0, 0)
+        c_tab_layout.setSpacing(6)
+
+        c_info_lbl = QLabel("AI grounded in live audio, slides & photos")
+        c_info_lbl.setStyleSheet("font-size: 10.5px; color: #64748B; padding-left: 2px;")
+        c_tab_layout.addWidget(c_info_lbl)
+
+        self.chat_history = QTextBrowser()
+        self.chat_history.setOpenExternalLinks(False)
+        self.chat_history.setOpenLinks(False)
+        self.chat_history.anchorClicked.connect(self._on_anchor_clicked)
+        c_tab_layout.addWidget(self.chat_history)
+
+        chat_chips_row = QHBoxLayout()
+        chat_chips_row.setSpacing(6)
+
+        self.chat_chip_summary = QPushButton("Summarize Takeaways")
+        self.chat_chip_summary.setObjectName("chipBtn")
+        self.chat_chip_summary.clicked.connect(lambda: self._send_quick_chat("Summarize the key takeaways and core formulas from this lecture so far."))
+        chat_chips_row.addWidget(self.chat_chip_summary)
+
+        self.chat_chip_intuition = QPushButton("Explain Intuition")
+        self.chat_chip_intuition.setObjectName("chipBtn")
+        self.chat_chip_intuition.clicked.connect(lambda: self._send_quick_chat("Explain the intuitive economic rationale behind CAPM risk-pricing."))
+        chat_chips_row.addWidget(self.chat_chip_intuition)
+
+        self.chat_chip_proof = QPushButton("Step-by-Step Proof")
+        self.chat_chip_proof.setObjectName("chipBtn")
+        self.chat_chip_proof.clicked.connect(lambda: self._send_quick_chat("Provide the step-by-step mathematical derivation of the CAPM formula."))
+        chat_chips_row.addWidget(self.chat_chip_proof)
+        chat_chips_row.addStretch()
+        c_tab_layout.addLayout(chat_chips_row)
+
+        c_input_row = QHBoxLayout()
+        c_input_row.setSpacing(6)
         self.prompt_input = QLineEdit()
-        self.prompt_input.setPlaceholderText("Frage stellen oder Folie erklären lassen...")
+        self.prompt_input.setPlaceholderText("Ask AI about this lecture...")
         self.prompt_input.returnPressed.connect(self._send_copilot_prompt)
-        prompt_row.addWidget(self.prompt_input)
+        c_input_row.addWidget(self.prompt_input)
 
-        self.send_btn = QPushButton("Senden")
+        self.send_btn = QPushButton("Send")
         self.send_btn.clicked.connect(self._send_copilot_prompt)
-        prompt_row.addWidget(self.send_btn)
+        c_input_row.addWidget(self.send_btn)
+        c_tab_layout.addLayout(c_input_row)
 
-        right_layout.addLayout(prompt_row)
-        splitter.addWidget(right_widget)
+        self.right_stack.addWidget(self.chat_tab_widget)
 
-        splitter.setSizes([330, 410])
-        main_layout.addWidget(splitter)
+        # ---------------- PAGE 2: Settings ----------------
+        self.settings_tab_widget = QWidget()
+        s_tab_layout = QVBoxLayout(self.settings_tab_widget)
+        s_tab_layout.setContentsMargins(6, 6, 6, 6)
+        s_tab_layout.setSpacing(10)
 
-        # Floating Mini-Player Pill ([-5s] [Play/Pause] [+5s] [00:00] X)
+        # 1. API Key
+        key_head = QHBoxLayout()
+        key_lbl = QLabel("Google Gemini API Key (BYOK):")
+        key_lbl.setStyleSheet("font-size: 11px; font-weight: 600; color: #F8FAFC;")
+        key_head.addWidget(key_lbl)
+        key_head.addStretch()
+        free_key_link = QPushButton("Get Free Key ↗")
+        free_key_link.setStyleSheet("border: none; background: transparent; color: #38BDF8; font-size: 10px; font-weight: 600;")
+        free_key_link.clicked.connect(lambda: QDesktopServices.openUrl(QUrl("https://aistudio.google.com/app/apikey")))
+        key_head.addWidget(free_key_link)
+        s_tab_layout.addLayout(key_head)
+
+        key_row = QHBoxLayout()
+        key_row.setSpacing(6)
+        self.settings_key_input = QLineEdit()
+        self.settings_key_input.setEchoMode(QLineEdit.EchoMode.Password)
+        self.settings_key_input.setPlaceholderText("AIzaSy... (Enter your key to test)")
+        saved_key = get_api_key("gemini") or ""
+        if saved_key:
+            self.settings_key_input.setText(saved_key)
+        key_row.addWidget(self.settings_key_input)
+
+        self.settings_test_key_btn = QPushButton("Test Key")
+        self.settings_test_key_btn.clicked.connect(self._test_settings_key)
+        key_row.addWidget(self.settings_test_key_btn)
+
+        self.settings_save_key_btn = QPushButton("Save Key")
+        self.settings_save_key_btn.setObjectName("primaryAction")
+        self.settings_save_key_btn.clicked.connect(self._save_settings_key)
+        key_row.addWidget(self.settings_save_key_btn)
+        s_tab_layout.addLayout(key_row)
+
+        self.settings_key_feedback = QLabel("")
+        self.settings_key_feedback.setStyleSheet("font-size: 10.5px; font-family: monospace;")
+        s_tab_layout.addWidget(self.settings_key_feedback)
+
+        # 2. Model
+        s_tab_layout.addWidget(QLabel("AI Synthesis Model:"))
+        self.settings_model_combo = QComboBox()
+        self.settings_model_combo.addItems([
+            "gemini-2.5-flash (Google Recommended)",
+            "claude-3-7-sonnet (Anthropic BYOK)",
+            "gpt-4o (OpenAI BYOK)",
+        ])
+        cur_model = get_selected_model()
+        if "claude" in cur_model:
+            self.settings_model_combo.setCurrentIndex(1)
+        elif "gpt" in cur_model:
+            self.settings_model_combo.setCurrentIndex(2)
+        else:
+            self.settings_model_combo.setCurrentIndex(0)
+        self.settings_model_combo.currentIndexChanged.connect(self._on_settings_model_changed)
+        s_tab_layout.addWidget(self.settings_model_combo)
+
+        # 3. Notes Vault Directory
+        s_tab_layout.addWidget(QLabel("Notes Vault Directory:"))
+        vault_row = QHBoxLayout()
+        vault_row.setSpacing(6)
+        self.settings_vault_input = QLineEdit()
+        v_path = get_obsidian_vault_path() or find_local_obsidian_vault() or os.path.expanduser("~/Documents/Notes")
+        self.settings_vault_input.setText(v_path)
+        vault_row.addWidget(self.settings_vault_input)
+        self.settings_vault_browse_btn = QPushButton("Browse")
+        self.settings_vault_browse_btn.clicked.connect(self._browse_vault_path)
+        vault_row.addWidget(self.settings_vault_browse_btn)
+        s_tab_layout.addLayout(vault_row)
+
+        # 4. Appearance Mode
+        theme_row = QHBoxLayout()
+        theme_row.addWidget(QLabel("Appearance Mode (This Window):"))
+        theme_row.addStretch()
+        self.theme_dark_btn = QPushButton("Dark")
+        self.theme_dark_btn.setObjectName("tabActive")
+        self.theme_dark_btn.clicked.connect(lambda: self.apply_theme("dark"))
+        theme_row.addWidget(self.theme_dark_btn)
+
+        self.theme_light_btn = QPushButton("Light")
+        self.theme_light_btn.setObjectName("tabInactive")
+        self.theme_light_btn.clicked.connect(lambda: self.apply_theme("light"))
+        theme_row.addWidget(self.theme_light_btn)
+        s_tab_layout.addLayout(theme_row)
+
+        # 5. Interface Language Switcher (EN, DE, FR, ES, ZH)
+        lang_row = QHBoxLayout()
+        lang_row.addWidget(QLabel("Interface Language:"))
+        lang_row.addStretch()
+
+        self.lang_en_btn = QPushButton("EN")
+        self.lang_en_btn.clicked.connect(lambda: self.change_language("en"))
+        lang_row.addWidget(self.lang_en_btn)
+
+        self.lang_de_btn = QPushButton("DE")
+        self.lang_de_btn.clicked.connect(lambda: self.change_language("de"))
+        lang_row.addWidget(self.lang_de_btn)
+
+        self.lang_fr_btn = QPushButton("FR")
+        self.lang_fr_btn.clicked.connect(lambda: self.change_language("fr"))
+        lang_row.addWidget(self.lang_fr_btn)
+
+        self.lang_es_btn = QPushButton("ES")
+        self.lang_es_btn.clicked.connect(lambda: self.change_language("es"))
+        lang_row.addWidget(self.lang_es_btn)
+
+        self.lang_zh_btn = QPushButton("ZH")
+        self.lang_zh_btn.clicked.connect(lambda: self.change_language("zh"))
+        lang_row.addWidget(self.lang_zh_btn)
+        s_tab_layout.addLayout(lang_row)
+
+        # 6. Disclaimer Box
+        disclaimer_box = QFrame()
+        disclaimer_box.setObjectName("dockFrame")
+        d_layout = QVBoxLayout(disclaimer_box)
+        d_layout.setContentsMargins(10, 8, 10, 8)
+        d_head = QLabel("Direct Connection & Local Storage")
+        d_head.setStyleSheet("font-size: 11px; font-weight: 600; color: #F8FAFC;")
+        d_layout.addWidget(d_head)
+        d_body = QLabel(
+            "Your API key is saved locally in your system keychain. "
+            "Synthesis requests connect directly from localhost to the AI provider with zero middleman servers."
+        )
+        d_body.setStyleSheet("font-size: 10px; color: #94A3B8;")
+        d_body.setWordWrap(True)
+        d_layout.addWidget(d_body)
+        s_tab_layout.addWidget(disclaimer_box)
+
+        s_tab_layout.addStretch()
+        self.right_stack.addWidget(self.settings_tab_widget)
+
+        ws_layout.addWidget(self.right_stack)
+        body_layout.addWidget(self.workspace_card, stretch=6)
+
+        main_layout.addLayout(body_layout)
+
+        # ------------------------------------------------------------------
+        # 3. FOOTER ROW: Live Duration Counter & Quick Actions
+        # ------------------------------------------------------------------
+        footer_bar = QHBoxLayout()
+        footer_bar.setContentsMargins(4, 2, 4, 2)
+        footer_bar.setSpacing(8)
+
+        self.footer_duration_lbl = QLabel("Duration: 1h 42m 45s")
+        self.footer_duration_lbl.setStyleSheet("font-size: 11px; font-family: monospace; color: #94A3B8;")
+        footer_bar.addWidget(self.footer_duration_lbl)
+
+        footer_bar.addStretch()
+
+        self.attach_doc_btn = QPushButton("Folien anhängen")
+        self.attach_doc_btn.clicked.connect(self._open_document_dialog)
+        footer_bar.addWidget(self.attach_doc_btn)
+
+        self.pdf_export_btn = QPushButton("Export PDF")
+        self.pdf_export_btn.clicked.connect(self._export_notes_pdf)
+        footer_bar.addWidget(self.pdf_export_btn)
+
+        self.obsidian_btn = QPushButton("Obsidian")
+        self.obsidian_btn.clicked.connect(self._open_in_obsidian)
+        footer_bar.addWidget(self.obsidian_btn)
+
+        self.synth_btn = QPushButton("Beenden [F9]")
+        self.synth_btn.setObjectName("primaryAction")
+        self.synth_btn.clicked.connect(lambda: self.request_master_synthesis.emit())
+        footer_bar.addWidget(self.synth_btn)
+
+        main_layout.addLayout(footer_bar)
+
+        # Hidden & backward-compatibility widgets
+        self.rewind_btn = QPushButton("Rewind 90s")
+        self.rewind_btn.clicked.connect(self._trigger_audio_rewind)
+        self.search_btn = QPushButton("Suche (Alt+F)")
+        self.search_btn.clicked.connect(self._open_archive_search)
+        self.anki_export_btn = QPushButton("Export Anki")
+        self.anki_export_btn.clicked.connect(self._export_anki_flashcards)
+        self.editor_btn = QPushButton("System Editor")
+        self.editor_btn.clicked.connect(self._open_in_default_editor)
+        self.scratchpad_text = QTextEdit()  # For legacy test compat
+
+        # Floating Mini-Player Pill
         self.player_pill = QFrame()
         self.player_pill.setObjectName("playerPill")
         pill_layout = QHBoxLayout(self.player_pill)
@@ -953,27 +1425,22 @@ class FloatingHUDWindow(QWidget):
 
         self.player_rewind_btn = QPushButton("-5s")
         self.player_rewind_btn.setObjectName("pillBtn")
-        self.player_rewind_btn.setToolTip("5 Sekunden zurückspringen")
         self.player_rewind_btn.clicked.connect(self._step_backward_5s)
         pill_layout.addWidget(self.player_rewind_btn)
 
         self.player_play_btn = QPushButton("Play")
         self.player_play_btn.setObjectName("pillBtn")
         self.player_play_btn.setFixedSize(50, 26)
-        self.player_play_btn.setToolTip("Wiedergabe starten/anhalten")
         self.player_play_btn.clicked.connect(self._toggle_audio_playback)
         pill_layout.addWidget(self.player_play_btn)
 
         self.player_forward_btn = QPushButton("+5s")
         self.player_forward_btn.setObjectName("pillBtn")
-        self.player_forward_btn.setToolTip("5 Sekunden vorwärtsspringen")
         self.player_forward_btn.clicked.connect(self._step_forward_5s)
         pill_layout.addWidget(self.player_forward_btn)
 
         self.player_time_badge = QLabel("[00:00]")
-        self.player_time_badge.setStyleSheet(
-            "color: #FFFFFF; font-weight: 700; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11px;"
-        )
+        self.player_time_badge.setStyleSheet("color: #FFFFFF; font-weight: 700; font-family: monospace; font-size: 11px;")
         pill_layout.addWidget(self.player_time_badge)
 
         self.player_status_lbl = QLabel("20s Audio-Ausschnitt")
@@ -984,49 +1451,186 @@ class FloatingHUDWindow(QWidget):
         self.player_speed_btn = QPushButton("1.0x")
         self.player_speed_btn.setObjectName("pillBtn")
         self.player_speed_btn.setFixedSize(42, 26)
-        self.player_speed_btn.setToolTip("Wiedergabegeschwindigkeit umschalten (1.0x, 1.25x, 1.5x, 2.0x)")
         self.player_speed_btn.clicked.connect(self._cycle_playback_speed)
         pill_layout.addWidget(self.player_speed_btn)
-
         pill_layout.addStretch()
 
         self.player_close_btn = QPushButton("X")
         self.player_close_btn.setObjectName("pillCloseBtn")
-        self.player_close_btn.setToolTip("Mini-Player schließen")
         self.player_close_btn.clicked.connect(self.hide_audio_player_pill)
         pill_layout.addWidget(self.player_close_btn)
 
         main_layout.addWidget(self.player_pill)
         self.player_pill.hide()
 
+        # Keyboard shortcuts
+        self.search_shortcut = QShortcut(QKeySequence("Alt+F"), self)
+        self.search_shortcut.activated.connect(self._open_archive_search)
+        self.search_shortcut_cmd = QShortcut(QKeySequence("Ctrl+F"), self)
+        self.search_shortcut_cmd.activated.connect(self._open_archive_search)
+
+        # Initial view population
+        self._navigate_slide(0)
+        self.refresh_live_notes_view()
+        self.retranslate_ui()
+
+    def switch_tab(self, index: int):
+        self.right_stack.setCurrentIndex(index)
+        buttons = [self.tab_btn_notes, self.tab_btn_chat, self.tab_btn_settings]
+        for idx, btn in enumerate(buttons):
+            if idx == index:
+                btn.setObjectName("tabActive")
+            else:
+                btn.setObjectName("tabInactive")
+            btn.style().unpolish(btn)
+            btn.style().polish(btn)
+        if index == 0:
+            self.refresh_live_notes_view()
+
+    def _show_notes_view(self):
+        self.switch_tab(0)
+
+    def _show_chat_view(self):
+        self.switch_tab(1)
+
+    def _show_settings_view(self):
+        self.switch_tab(2)
+
+    def toggle_expand(self):
+        if self.width() > 950:
+            self.resize(860, 580)
+        else:
+            self.resize(1040, 680)
+
+    def _navigate_slide(self, step: int):
+        if self.imported_pdf_slides:
+            total = len(self.imported_pdf_slides)
+            self.current_slide_idx = (self.current_slide_idx + step) % total
+            slide = self.imported_pdf_slides[self.current_slide_idx]
+            self.slide_counter_lbl.setText(f"{self.current_slide_idx + 1}/{total}")
+            deck_name = self.imported_pdf_name or "Presentation.pdf"
+            self.slide_file_lbl.setText(f"{deck_name} (p. {slide['page']}/{total})")
+            p_text = slide.get("text", "")
+            lines = [l for l in p_text.splitlines() if l.strip()]
+            first_line = lines[0] if lines else "Slide content"
+            self.slide_heading_lbl.setText(first_line[:40])
+            self.slide_topic_lbl.setText(f"Page {slide['page']}")
+            self.slide_math_view.setHtml(render_markdown_with_katex(p_text[:300]))
+        else:
+            total = len(self.sample_slides)
+            self.current_slide_idx = (self.current_slide_idx + step) % total
+            slide = self.sample_slides[self.current_slide_idx]
+            self.slide_counter_lbl.setText(f"{self.current_slide_idx + 1}/{total}")
+            self.slide_file_lbl.setText(slide["file"])
+            self.slide_topic_lbl.setText(slide["topic"])
+            self.slide_heading_lbl.setText(slide["heading"])
+            self.slide_math_view.setHtml(render_markdown_with_katex(slide["math"]))
+
+    def _on_pin_user_directive(self):
+        text = self.directive_input.text().strip()
+        if not text:
+            text = self.scratchpad_text.toPlainText().strip()
+        if not text:
+            return
+
+        now_sec = time.time() - self.session_start_time
+        time_str = format_timestamp(now_sec)
+        self.pinned_directives.append({"text": text, "time": time_str})
+
+        # Append to active session notes
+        if self.notes_manager and hasattr(self.notes_manager, "append_user_directive"):
+            self.notes_manager.append_user_directive(text, time_str)
+
+        count = len(self.pinned_directives)
+        count_suffix = f" ({count} active notes recorded)" if count > 1 else ""
+        self.pinned_directive_lbl.setText(f'Active Directive: "{text}" [{time_str}] - Synced with AI summary{count_suffix}')
+        self.pinned_directive_lbl.show()
+        self.directive_input.clear()
+
+        # Acknowledge in chat history
+        self.chat_history.append(
+            f"<div style='background:rgba(255,255,255,0.06); padding:6px 10px; border-radius:6px; margin:4px 0;'>"
+            f"<b>[SYNC] Synchronized note:</b> <em>'{text}'</em> ({time_str}) with live audio & AI summary.</div>"
+        )
+        self.refresh_live_notes_view()
+
+    def _insert_directive_chip(self, chip_text: str):
+        self.directive_input.setText(chip_text)
+        self.directive_input.setFocus()
+
+    def _send_quick_chat(self, prompt: str):
+        self.prompt_input.setText(prompt)
+        self._send_copilot_prompt()
+
+    def _test_settings_key(self):
+        key = self.settings_key_input.text().strip()
+        if not key:
+            self.settings_key_feedback.setText("Please enter an API key.")
+            self.settings_key_feedback.setStyleSheet("color: #F87171;")
+            return
+        self.settings_key_feedback.setText("Testing key...")
+        self.settings_key_feedback.setStyleSheet("color: #94A3B8;")
+
+        valid, msg = validate_api_key(key)
+        if valid:
+            self.settings_key_feedback.setText("✓ API key is valid and working.")
+            self.settings_key_feedback.setStyleSheet("color: #34D399;")
+        else:
+            self.settings_key_feedback.setText(f"✗ Validation failed: {msg[:60]}")
+            self.settings_key_feedback.setStyleSheet("color: #F87171;")
+
+    def _save_settings_key(self):
+        key = self.settings_key_input.text().strip()
+        if not key:
+            self.settings_key_feedback.setText("Key cannot be empty.")
+            self.settings_key_feedback.setStyleSheet("color: #F87171;")
+            return
+        set_api_key(key, "gemini")
+        self.settings_key_feedback.setText("✓ API key saved securely to OS Vault.")
+        self.settings_key_feedback.setStyleSheet("color: #34D399;")
+
+    def _on_settings_model_changed(self, idx: int):
+        models = ["gemini-2.5-flash", "claude-3-7-sonnet", "gpt-4o"]
+        if 0 <= idx < len(models):
+            set_selected_model(models[idx])
+
+    def _browse_vault_path(self):
+        d = QFileDialog.getExistingDirectory(self, "Select Obsidian Vault Directory", self.settings_vault_input.text())
+        if d:
+            self.settings_vault_input.setText(d)
+            set_obsidian_vault_path(d)
+
+    def apply_theme(self, theme: str):
+        self.current_theme = theme
+        if theme == "light":
+            self.setStyleSheet(HUD_STYLESHEET_LIGHT)
+            self.theme_light_btn.setObjectName("tabActive")
+            self.theme_dark_btn.setObjectName("tabInactive")
+        else:
+            self.setStyleSheet(HUD_STYLESHEET_DARK)
+            self.theme_dark_btn.setObjectName("tabActive")
+            self.theme_light_btn.setObjectName("tabInactive")
+        for b in [self.theme_dark_btn, self.theme_light_btn]:
+            b.style().unpolish(b)
+            b.style().polish(b)
+        self.refresh_live_notes_view()
+        self._navigate_slide(0)
+
+    def change_language(self, lang: str):
+        set_ui_language(lang)
         self.retranslate_ui()
 
     def get_scratchpad_content(self) -> str:
-        """Returns the current student scratchpad text."""
-        return self.scratchpad_text.toPlainText()
-
-    def _on_pin_user_directive(self):
-        """Pins the current scratchpad text to the notes file with audio timestamp."""
-        text = self.scratchpad_text.toPlainText().strip()
-        if not text:
-            return
-        now_sec = time.time() - self.session_start_time
-        m, s = int(now_sec // 60), int(now_sec % 60)
-        time_str = f"{m:02d}:{s:02d}"
-        if self.notes_manager and hasattr(self.notes_manager, "append_user_directive"):
-            self.notes_manager.append_user_directive(text, timestamp_str=time_str)
-        if hasattr(self, "notes_browser"):
-            self.notes_browser.append(f"\n> [!note] User Note & Directive (@ {time_str})\n> {text}\n")
-        if hasattr(self, "chat_history"):
-            self.chat_history.append(
-                f"<div style='color: #94A3B8; font-size: 11px; margin: 4px 0;'>"
-                f"<b>[Notiz erfasst @ {time_str}]</b>: {text}</div>"
-            )
-        self.scratchpad_text.clear()
-        self.scratchpad_text.setPlaceholderText("Notiz mit Audio-Zeitstempel verknüpft! Weitere Gedanken hier notieren...")
+        parts = []
+        if hasattr(self, "directive_input") and self.directive_input.text().strip():
+            parts.append(self.directive_input.text().strip())
+        if hasattr(self, "scratchpad_text") and self.scratchpad_text.toPlainText().strip():
+            parts.append(self.scratchpad_text.toPlainText().strip())
+        for p in self.pinned_directives:
+            parts.append(f"[{p['time']}] {p['text']}")
+        return "\n".join(parts)
 
     def toggle_visibility(self):
-        """Toggle HUD window visibility (Alt+Space)."""
         if self.isVisible():
             self.hide()
         else:
@@ -1037,99 +1641,94 @@ class FloatingHUDWindow(QWidget):
     def set_daemon_status(self, state: str, message: str = ""):
         self._current_daemon_state = state
         self._current_daemon_msg = message
-        mins = int((time.time() - self.session_start_time) // 60)
-        secs = int((time.time() - self.session_start_time) % 60)
-        time_str = f"{mins:02d}:{secs:02d}"
 
         if state == "recording":
-            self.status_pill.setText(tr("status_recording", time=time_str))
             self.status_pill.setStyleSheet(
-                "background-color: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.2);"
-                "color: #FFFFFF; font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 12px;"
-            )
-        elif state in ("paused", "standby"):
-            lbl = f"{tr('status_standby')} ({message})" if message else tr("status_paused", time=time_str)
-            self.status_pill.setText(lbl)
-            self.status_pill.setStyleSheet(
-                "background-color: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.1);"
-                "color: #94A3B8; font-size: 11px; font-weight: 500; padding: 4px 10px; border-radius: 12px;"
+                "background-color: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.18);"
+                "color: #FFFFFF; font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 12px;"
             )
         elif state == "processing":
-            self.status_pill.setText(tr("status_processing"))
+            self.status_pill.setText("⚡ Processing Chunk...")
             self.status_pill.setStyleSheet(
-                "background-color: rgba(255, 255, 255, 0.12); border: 1px solid rgba(255, 255, 255, 0.25);"
-                "color: #FFFFFF; font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 12px;"
+                "background-color: rgba(56, 189, 248, 0.15); border: 1px solid #38BDF8;"
+                "color: #38BDF8; font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 12px;"
+            )
+        elif state == "paused":
+            msg = f" ({message})" if message else ""
+            self.status_pill.setText(f"⏸ Paused{msg}")
+            self.status_pill.setStyleSheet(
+                "background-color: rgba(251, 191, 36, 0.15); border: 1px solid #FBBF24;"
+                "color: #FBBF24; font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 12px;"
+            )
+        elif state == "standby":
+            self.status_pill.setText("Standby")
+            self.status_pill.setStyleSheet(
+                "background-color: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.15);"
+                "color: #94A3B8; font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 12px;"
             )
 
     def retranslate_ui(self):
-        """Updates all visible texts in the HUD according to the active language."""
         hud_shortcut = "Cmd+Shift+Space" if sys.platform == "darwin" else "Ctrl+Shift+Space"
         snip_shortcut = "Cmd+Shift+S" if sys.platform == "darwin" else "Ctrl+Shift+S"
+
+        # Update language buttons
+        cur_lang = get_ui_language()
+        lang_btns = {
+            "en": getattr(self, "lang_en_btn", None),
+            "de": getattr(self, "lang_de_btn", None),
+            "fr": getattr(self, "lang_fr_btn", None),
+            "es": getattr(self, "lang_es_btn", None),
+            "zh": getattr(self, "lang_zh_btn", None),
+        }
+        for l, btn in lang_btns.items():
+            if btn:
+                if l == cur_lang:
+                    btn.setObjectName("tabActive")
+                else:
+                    btn.setObjectName("tabInactive")
+                btn.style().unpolish(btn)
+                btn.style().polish(btn)
 
         if hasattr(self, "hide_btn"):
             self.hide_btn.setToolTip(f"{tr('tray_hide_hud')} ({hud_shortcut})")
         if hasattr(self, "attach_doc_btn"):
             self.attach_doc_btn.setText(tr("btn_attach_slides"))
             self.attach_doc_btn.setToolTip(tr("btn_attach_slides"))
-        if hasattr(self, "snip_btn"):
-            self.snip_btn.setText(tr("btn_snip_screen"))
-            self.snip_btn.setToolTip(f"{tr('btn_snip_screen')} ({snip_shortcut})")
-        if hasattr(self, "cam_btn"):
-            self.cam_btn.setText(tr("btn_cam"))
-            self.cam_btn.setToolTip(tr("btn_cam"))
-        if hasattr(self, "rewind_btn"):
-            self.rewind_btn.setText(tr("btn_rewind_90s"))
-            self.rewind_btn.setToolTip(tr("btn_rewind_90s"))
-        if hasattr(self, "search_btn"):
-            self.search_btn.setText(tr("btn_search_archive"))
-            self.search_btn.setToolTip(f"{tr('btn_search_archive')} (Alt+F)")
-        if hasattr(self, "anki_export_btn"):
-            self.anki_export_btn.setText(tr("btn_anki_export"))
-            self.anki_export_btn.setToolTip(tr("btn_anki_export"))
-        if hasattr(self, "pdf_export_btn"):
-            self.pdf_export_btn.setText(tr("btn_pdf_export"))
-            self.pdf_export_btn.setToolTip(tr("btn_pdf_export"))
-        if hasattr(self, "copy_notes_btn"):
-            self.copy_notes_btn.setText(tr("btn_copy_notes"))
-            self.copy_notes_btn.setToolTip(tr("btn_copy_notes"))
-        if hasattr(self, "obsidian_btn"):
-            self.obsidian_btn.setText(tr("btn_obsidian"))
-            self.obsidian_btn.setToolTip(tr("tray_open_obsidian"))
-        if hasattr(self, "editor_btn"):
-            self.editor_btn.setText(tr("btn_system_editor"))
-            self.editor_btn.setToolTip(tr("tray_open_default_editor"))
         if hasattr(self, "synth_btn"):
             self.synth_btn.setText(tr("btn_finish"))
             self.synth_btn.setToolTip(tr("btn_finish"))
-        if hasattr(self, "settings_btn"):
-            self.settings_btn.setText(tr("btn_settings"))
-            self.settings_btn.setToolTip(tr("tray_settings"))
-
-        if hasattr(self, "scratchpad_label"):
-            self.scratchpad_label.setText(tr("scratchpad_label"))
-        if hasattr(self, "scratchpad_text"):
-            self.scratchpad_text.setPlaceholderText(tr("scratchpad_placeholder"))
-
-        if hasattr(self, "btn_view_chat"):
-            self.btn_view_chat.setText(tr("tab_copilot"))
-        if hasattr(self, "btn_view_notes"):
-            self.btn_view_notes.setText(tr("tab_notes"))
-        if hasattr(self, "chat_history"):
-            self.chat_history.setPlaceholderText(tr("chat_history_placeholder"))
-        if hasattr(self, "notes_browser"):
-            self.notes_browser.setPlaceholderText(tr("notes_browser_placeholder"))
-        if hasattr(self, "prompt_input"):
-            self.prompt_input.setPlaceholderText(tr("prompt_input_placeholder"))
+        if hasattr(self, "snip_btn"):
+            self.snip_btn.setText(f"📷 {tr('btn_snip_screen')}")
+            self.snip_btn.setToolTip(f"{tr('btn_snip_screen')} ({snip_shortcut})")
+        if hasattr(self, "cam_btn"):
+            self.cam_btn.setText(f"▦ {tr('btn_cam')}")
+            self.cam_btn.setToolTip(tr("btn_cam"))
+        if hasattr(self, "tab_btn_notes"):
+            self.tab_btn_notes.setText(tr("tab_notes"))
+        if hasattr(self, "tab_btn_chat"):
+            self.tab_btn_chat.setText(tr("tab_copilot"))
+        if hasattr(self, "tab_btn_settings"):
+            self.tab_btn_settings.setText(tr("btn_settings"))
+        if hasattr(self, "copy_notes_btn"):
+            self.copy_notes_btn.setText(tr("btn_copy_notes"))
         if hasattr(self, "send_btn"):
             self.send_btn.setText(tr("btn_send"))
+        if hasattr(self, "prompt_input"):
+            self.prompt_input.setPlaceholderText(tr("prompt_input_placeholder"))
+        if hasattr(self, "directive_input"):
+            self.directive_input.setPlaceholderText("Add note or instruction for the AI summary...")
 
-        if hasattr(self, "player_status_lbl"):
-            self.player_status_lbl.setText(tr("player_time_label", duration=20))
+        # Secondary actions
+        if hasattr(self, "pdf_export_btn"):
+            self.pdf_export_btn.setText(tr("btn_pdf_export"))
+        if hasattr(self, "obsidian_btn"):
+            self.obsidian_btn.setText(tr("btn_obsidian"))
+        if hasattr(self, "rewind_btn"):
+            self.rewind_btn.setText(tr("btn_rewind_90s"))
+        if hasattr(self, "search_btn"):
+            self.search_btn.setText(tr("btn_search_archive"))
 
-        if hasattr(self, "_current_daemon_state"):
-            self.set_daemon_status(self._current_daemon_state, getattr(self, "_current_daemon_msg", ""))
-        self._update_attachment_banner()
-
+        self._update_hud_status()
 
     def _update_hud_status(self):
         if self.recorder and self.recorder.is_recording:
@@ -1138,9 +1737,28 @@ class FloatingHUDWindow(QWidget):
             else:
                 self.set_daemon_status("recording")
 
-        mins = int((time.time() - self.session_start_time) // 60)
-        secs = int((time.time() - self.session_start_time) % 60)
-        self.player_time_lbl.setText(f"{mins:02d}:{secs:02d}")
+        elapsed_sec = int(time.time() - self.session_start_time)
+        hrs = elapsed_sec // 3600
+        mins = (elapsed_sec % 3600) // 60
+        secs = elapsed_sec % 60
+
+        cur_lang = get_ui_language()
+        if self._current_daemon_state == "recording":
+            state_text = tr("recording_status") if "recording_status" in tr.__globals__["TRANSLATIONS"].get(cur_lang, {}) else "Recording active"
+            self.status_pill.setText(f"● {state_text} ({mins:02d}:{secs:02d})")
+
+        # Live Duration Timer in Footer
+        if cur_lang == "de":
+            dur_str = f"Dauer: {hrs}h {mins:02d}m {secs:02d}s"
+        elif cur_lang == "fr":
+            dur_str = f"Durée : {hrs}h {mins:02d}m {secs:02d}s"
+        elif cur_lang == "es":
+            dur_str = f"Duración: {hrs}h {mins:02d}m {secs:02d}s"
+        elif cur_lang == "zh":
+            dur_str = f"时长：{hrs}小时{mins:02d}分{secs:02d}秒"
+        else:
+            dur_str = f"Duration: {hrs}h {mins:02d}m {secs:02d}s"
+        self.footer_duration_lbl.setText(dur_str)
 
     def trigger_screen_snip(self):
         self.snip_overlay.start_snip()
@@ -1151,6 +1769,7 @@ class FloatingHUDWindow(QWidget):
         self.show()
         self.raise_()
         self.activateWindow()
+        self.switch_tab(1)
         self.prompt_input.setFocus()
 
     def _open_document_dialog(self):
@@ -1188,7 +1807,6 @@ class FloatingHUDWindow(QWidget):
                 self.imported_pdf_name = os.path.basename(clean_path)
                 self.attached_document_name = self.imported_pdf_name
 
-                # Build full structured slide deck markdown with page markers
                 deck_sections = []
                 for s in self.imported_pdf_slides:
                     p_num = s["page"]
@@ -1211,6 +1829,8 @@ class FloatingHUDWindow(QWidget):
                     "<i>In-Person Vorlesungsmodus: Gesprochene Inhalte werden automatisch den Folienseiten zugeordnet.</i>\n"
                 )
                 logger.info("Pre-imported %d PDF slide pages from '%s'", total_pages, clean_path)
+                self.current_slide_idx = 0
+                self._navigate_slide(0)
             except Exception as e:
                 logger.error("pypdf extraction failed for '%s': %s", clean_path, e)
                 self.imported_pdf_slides = []
@@ -1226,22 +1846,15 @@ class FloatingHUDWindow(QWidget):
         self._update_attachment_banner()
 
     def get_relevant_reference_text(self, query_hint: str = "", max_chars: int = 40000) -> Optional[str]:
-        """
-        Returns relevant reference text for live chunk synthesis.
-        If PDF slides are imported, formats the relevant slide pages (or all if under max_chars)
-        so that live audio maps directly to the correct PDF slide page during in-person lectures.
-        """
         if not self.attached_document_text and not self.imported_pdf_slides:
             return None
 
         if not self.imported_pdf_slides:
             return self.attached_document_text
 
-        # If total text fits within max_chars, return full attached_document_text
         if len(self.attached_document_text) <= max_chars:
             return self.attached_document_text
 
-        # For large slide decks (>max_chars): prioritize matching pages
         tokens = set(t.lower() for t in query_hint.split() if len(t) >= 4)
         scored_pages = []
         for s in self.imported_pdf_slides:
@@ -1252,15 +1865,11 @@ class FloatingHUDWindow(QWidget):
                     score += 1
             scored_pages.append((score, s["page"], s["text"]))
 
-        # Sort by score descending, preserving page order for ties
         scored_pages.sort(key=lambda x: (x[0], -x[1]), reverse=True)
-
         selected_pages = {}
-        # Pick top scoring pages (or first pages if score == 0)
         for _, p_num, p_text in scored_pages[:25]:
             selected_pages[p_num] = p_text
 
-        # Format selected pages in ascending page order
         total_pages = len(self.imported_pdf_slides)
         sections = [
             f"IN-PERSON LECTURE SLIDE DECK (RELEVANT EXTRACT): {self.imported_pdf_name} ({total_pages} Seiten)\n"
@@ -1293,19 +1902,11 @@ class FloatingHUDWindow(QWidget):
 
         if tags:
             self.attachment_label.setText(" | ".join(tags))
-            self.attachment_label.setStyleSheet(
-                "background-color: rgba(255, 255, 255, 0.08); "
-                "border: 1px solid rgba(255, 255, 255, 0.2); "
-                "color: #F8FAFC; font-size: 11px; padding: 4px 10px; "
-                "border-radius: 8px; font-weight: 600;"
-            )
             self.attachment_label.show()
         else:
             self.attachment_label.hide()
 
-
     def _open_whiteboard_cam_dialog(self):
-        """Starts the companion daemon if not running, and opens the QR modal."""
         if not self.companion_daemon.is_running:
             try:
                 self.companion_daemon.start()
@@ -1315,45 +1916,32 @@ class FloatingHUDWindow(QWidget):
         dialog.exec()
 
     def _open_settings_dialog(self):
-        """Opens the BYOK Key & Model Configuration modal."""
-        try:
-            from src.ui.settings_dialog import SettingsDialog
-            dialog = SettingsDialog(parent=self)
-            dialog.exec()
-            self.retranslate_ui()
-        except Exception as e:
-            logger.error("Failed to open settings dialog: %s", e)
+        self.switch_tab(2)
 
     def _on_whiteboard_photo_received(self, image_path: str, timestamp_str: str):
-        """Triggered on GUI main thread when phone uploads a chalkboard photo."""
         self.whiteboard_photos.append(image_path)
         logger.info("Whiteboard photo registered in HUD: %s", image_path)
 
-        # 1. Subtle transient confirmation badge on status pill
-        self.status_pill.setText(f"[CAM] TAFEL-FOTO ERFASST ({timestamp_str})")
+        self.status_pill.setText(f"[CAM] PHOTO CAPTURED ({timestamp_str})")
         self.status_pill.setStyleSheet(
             "background-color: rgba(16, 185, 129, 0.2); border: 1px solid #10B981;"
             "color: #10B981; font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 12px;"
         )
         QTimer.singleShot(3500, self._restore_pill_status)
-
-        # 2. Update attachment label
         self._update_attachment_banner()
 
-        # 3. Add to chat history
         n_photos = len(self.whiteboard_photos)
         self.chat_history.append(
-            f"<span style='color:#10B981;'><b>[CAM] Tafel-Kamera:</b> Foto #{n_photos} erfasst ({timestamp_str}). Fließt mit höchster Priorität in die nächsten Notizen ein.</span><br>"
+            f"<span style='color:#10B981;'><b>[CAM] Photo #{n_photos} captured ({timestamp_str}).</b> Prioritized in lecture notes.</span><br>"
         )
 
     def _restore_pill_status(self):
         self.status_pill.setStyleSheet(
             "background-color: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.18);"
-            "color: #FFFFFF; font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 12px;"
+            "color: #FFFFFF; font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 12px;"
         )
 
     def pop_unprocessed_whiteboard_photos(self) -> List[str]:
-        """Pops and returns all pending whiteboard photos for live chunk synthesis."""
         photos = list(self.whiteboard_photos)
         self.whiteboard_photos.clear()
         self._update_attachment_banner()
@@ -1361,10 +1949,11 @@ class FloatingHUDWindow(QWidget):
 
     def _trigger_audio_rewind(self):
         if not self.recorder or not self.pipeline:
-            self.chat_history.append("<i>[Audio-Aufnahme nicht aktiv]</i>")
+            self.chat_history.append("<i>[Audio recording inactive]</i>")
             return
 
-        self.chat_history.append("<b>[REWIND] Rufe letzte 90 Sekunden Audio ab...</b>")
+        self.switch_tab(1)
+        self.chat_history.append("<b>[REWIND] Fetching last 90s audio...</b>")
         self.play_audio_scrub(offset_seconds=0.0, duration=90.0)
 
         self.rewind_worker = RewindWorker(self.recorder, self.pipeline, seconds=90)
@@ -1373,7 +1962,7 @@ class FloatingHUDWindow(QWidget):
 
     def _on_rewind_finished(self, transcript: str):
         rendered_html = render_markdown_with_katex(transcript)
-        self.chat_history.append(f"<b>[Rewind 90s Transkript]:</b><div style='margin-top:4px;'>{rendered_html}</div><br>")
+        self.chat_history.append(f"<b>[Rewind 90s Transcript]:</b><div style='margin-top:4px;'>{rendered_html}</div><br>")
         self.refresh_live_notes_view()
 
     def _send_copilot_prompt(self):
@@ -1382,7 +1971,7 @@ class FloatingHUDWindow(QWidget):
             return
 
         escaped_prompt = html.escape(prompt)
-        self.chat_history.append(f"<b>Du:</b> {escaped_prompt}")
+        self.chat_history.append(f"<b>You:</b> {escaped_prompt}")
         self.prompt_input.clear()
         self.send_btn.setEnabled(False)
 
@@ -1401,21 +1990,7 @@ class FloatingHUDWindow(QWidget):
         self.chat_history.append(f"<b>Chalk:</b><div style='margin-top:4px;'>{rendered_html}</div><br>")
         self.refresh_live_notes_view()
 
-    def _show_chat_view(self):
-        """Switches right pane to Copilot & Audio-Scrubbing history."""
-        self.right_stack.setCurrentIndex(0)
-        self.btn_view_chat.setStyleSheet("background-color: rgba(255, 255, 255, 0.16); color: #FFFFFF; font-weight: 600; padding: 4px 10px; font-size: 11px;")
-        self.btn_view_notes.setStyleSheet("background-color: rgba(26, 28, 35, 0.85); color: #94A3B8; font-weight: 500; padding: 4px 10px; font-size: 11px;")
-
-    def _show_notes_view(self):
-        """Switches right pane to Live KaTeX mathematical notes browser."""
-        self.right_stack.setCurrentIndex(1)
-        self.btn_view_notes.setStyleSheet("background-color: rgba(255, 255, 255, 0.16); color: #FFFFFF; font-weight: 600; padding: 4px 10px; font-size: 11px;")
-        self.btn_view_chat.setStyleSheet("background-color: rgba(26, 28, 35, 0.85); color: #94A3B8; font-weight: 500; padding: 4px 10px; font-size: 11px;")
-        self.refresh_live_notes_view()
-
     def refresh_live_notes_view(self):
-        """Loads and live-renders active lecture notes with KaTeX equations."""
         notes_path = self._get_active_notes_path()
         content = ""
         if notes_path and os.path.exists(notes_path):
@@ -1428,22 +2003,34 @@ class FloatingHUDWindow(QWidget):
         if not content.strip():
             scratchpad = self.get_scratchpad_content().strip()
             if scratchpad:
-                content = f"# Aktueller Notizen-Entwurf\n\n{scratchpad}"
+                content = f"# Active Notes Draft\n\n{scratchpad}"
             else:
-                content = (
-                    "# Chalk Live Notizen\n\n"
-                    "> [!theorem] KaTeX Mathematical Live-Rendering Aktiv\n"
-                    "> Mathematische Formeln wie $$E(R_i) = R_f + \\beta_i [E(R_m) - R_f]$$ "
-                    "oder $$P(A|B) = \\frac{P(B|A)P(A)}{P(B)}$$ werden live mit echten "
-                    "Wurzeln, Brüchen und Summenzeichen gerendert. ∎\n\n"
-                    "Sobald der Dozent spricht oder Folien wechseln, wachsen deine Notizen hier synchron mit."
-                )
+                cur_lang = get_ui_language()
+                if cur_lang == "de":
+                    content = (
+                        "# Kapitalmarktlinie & Systematisches Risiko\n\n"
+                        "Die erwartete Rendite eines Wertpapiers setzt sich aus dem risikofreien Zins und der marktweiten Risikoprämie zusammen. "
+                        "Das unsystematische Einzelrisiko wird durch Portfolio-Diversifikation eliminiert.\n\n"
+                        "$$E(R_i) = R_f + \\beta_i \\left[E(R_m) - R_f\\right]$$\n\n"
+                        "- **Beta-Faktor (\\beta_i):** Sensitivität der Rendite gegenüber Schwankungen des Gesamtmarktes.\n"
+                        "- **Risikofreier Zins (R_f):** Rendite erstklassiger Staatsanleihen als Mindesthürde.\n"
+                        "- **[Kernaussage Dozent @ 01:14:20]:** Nur systematisches Risiko wird vom Markt mit einer Prämie vergütet."
+                    )
+                else:
+                    content = (
+                        "# Capital Market Line & Systematic Risk\n\n"
+                        "The expected return of an asset comprises the risk-free rate plus the market risk premium. "
+                        "Unsystematic individual risk is eliminated through portfolio diversification.\n\n"
+                        "$$E(R_i) = R_f + \\beta_i \\left[E(R_m) - R_f\\right]$$\n\n"
+                        "- **Beta factor (\\beta_i):** Sensitivity of asset return to broad market movements.\n"
+                        "- **Risk-free rate (R_f):** Benchmark sovereign bond yield as the hurdle rate.\n"
+                        "- **[Lecturer Core Point @ 01:14:20]:** Only systematic risk is compensated by the market with a risk premium."
+                    )
 
         rendered_html = render_markdown_with_katex(content)
         self.notes_browser.setHtml(rendered_html)
 
     def display_live_notes(self, markdown_notes: str):
-        """Explicitly sets and updates the live KaTeX rendered notes."""
         rendered_html = render_markdown_with_katex(markdown_notes)
         self.notes_browser.setHtml(rendered_html)
 
@@ -1460,7 +2047,6 @@ class FloatingHUDWindow(QWidget):
             logger.warning("Blocked potentially unsafe URL schema in HUD anchor click: %s", url_str)
 
     def open_audio_url(self, url_or_str: str):
-        """Called when a chalk-audio:// URL is triggered via custom scheme or anchor click."""
         sec = parse_audio_timestamp(url_or_str)
         self.current_playback_offset = sec
         self.player_time_badge.setText(f"[{format_timestamp(sec)}]")
@@ -1468,12 +2054,10 @@ class FloatingHUDWindow(QWidget):
         self.play_audio_slice(offset_seconds=sec, duration=20.0)
 
     def play_audio_slice(self, offset_seconds: float = 0.0, duration: float = 20.0):
-        """Plays a 20-second audio slice around offset_seconds via sounddevice/journal without freezing UI."""
         try:
             import sounddevice as sd
             import numpy as np
 
-            # Immediately stop existing stream and timer to eliminate overlapping audio and GUI lag
             sd.stop()
             if hasattr(self, "_play_timer") and self._play_timer:
                 self._play_timer.stop()
@@ -1481,7 +2065,6 @@ class FloatingHUDWindow(QWidget):
             audio = None
             sr = 16000
 
-            # 1. Try disk journal if available
             if self.recorder and hasattr(self.recorder, "journal") and self.recorder.journal:
                 audio, seg_sr = self.recorder.journal.get_audio_slice(
                     target_timestamp_sec=offset_seconds, slice_duration=duration
@@ -1489,7 +2072,6 @@ class FloatingHUDWindow(QWidget):
                 if len(audio) > 0:
                     sr = seg_sr
 
-            # 2. Fallback to recorder rewind buffer
             if (audio is None or len(audio) == 0) and self.recorder:
                 audio = self.recorder.get_rewind_audio(seconds=int(duration + 10))
 
@@ -1521,7 +2103,6 @@ class FloatingHUDWindow(QWidget):
             self.is_playing_audio = False
 
     def play_audio_scrub(self, offset_seconds: float = 0.0, duration: float = 20.0):
-        """Backward-compatible alias for play_audio_slice."""
         self.current_playback_offset = offset_seconds
         self.player_time_badge.setText(f"[{format_timestamp(offset_seconds)}]")
         self.player_pill.show()
@@ -1569,7 +2150,6 @@ class FloatingHUDWindow(QWidget):
         self.player_pill.hide()
 
     def _cycle_playback_speed(self):
-        """Cycles playback speed between 1.0x -> 1.25x -> 1.5x -> 2.0x."""
         speeds = [1.0, 1.25, 1.5, 2.0]
         cur = getattr(self, "player_speed", 1.0)
         try:
@@ -1582,7 +2162,6 @@ class FloatingHUDWindow(QWidget):
             self.play_audio_slice(offset_seconds=getattr(self, "current_playback_offset", 0.0), duration=20.0)
 
     def _export_anki_flashcards(self):
-        """Exports high-yield Spaced Repetition flashcards from current notes to .tsv file."""
         notes_path = self._get_active_notes_path()
         content = ""
         if notes_path and os.path.exists(notes_path):
@@ -1615,7 +2194,6 @@ class FloatingHUDWindow(QWidget):
             self.chat_history.append("<span style='color: #F87171;'>Fehler beim Exportieren der Anki-Karteikarten.</span>")
 
     def _export_notes_pdf(self):
-        """Exports current lecture notes directly to academic vector PDF via QPdfWriter."""
         notes_path = self._get_active_notes_path()
         content = ""
         if notes_path and os.path.exists(notes_path):
@@ -1649,19 +2227,17 @@ class FloatingHUDWindow(QWidget):
             self.chat_history.append("<span style='color: #F87171;'>Fehler beim Generieren des PDFs.</span>")
 
     def _open_archive_search(self):
-        """Opens the spotlight-style archive & formula search modal."""
         dialog = SessionArchiveSearchDialog(self)
         dialog.result_selected.connect(self._on_search_result_selected)
         dialog.exec()
 
     def _on_search_result_selected(self, file_path: str, timestamp_sec: float):
-        """Handles selection of a note from archive search."""
         if os.path.exists(file_path):
             try:
                 with open(file_path, "r", encoding="utf-8", errors="ignore") as f:
                     content = f.read()
                 self.notes_browser.setHtml(f"<div style='font-family: -apple-system, sans-serif; color: #F8FAFC;'><pre>{content}</pre></div>")
-                self._show_notes_view()
+                self.switch_tab(0)
                 self.chat_history.append(f"<i>[Geladene Notiz aus Archiv: {os.path.basename(file_path)}]</i>")
             except Exception as e:
                 logger.warning("Failed to preview search file: %s", e)
@@ -1669,9 +2245,7 @@ class FloatingHUDWindow(QWidget):
         if timestamp_sec > 0:
             self.open_audio_url(f"chalk-audio://{int(timestamp_sec)}")
 
-    # Note Export & Open Handlers
     def _get_active_notes_path(self) -> Optional[str]:
-        """Resolves the active session notes markdown path."""
         if self.notes_manager and hasattr(self.notes_manager, "session_file"):
             if os.path.exists(self.notes_manager.session_file):
                 return self.notes_manager.session_file
@@ -1689,7 +2263,6 @@ class FloatingHUDWindow(QWidget):
         return None
 
     def _copy_notes_to_clipboard(self):
-        """Copies session notes (or scratchpad shorthand) to system clipboard."""
         notes_path = self._get_active_notes_path()
         content = ""
         if notes_path and os.path.exists(notes_path):
@@ -1707,11 +2280,10 @@ class FloatingHUDWindow(QWidget):
         if clipboard:
             clipboard.setText(content)
             orig_text = self.copy_notes_btn.text()
-            self.copy_notes_btn.setText("Kopiert [OK]")
+            self.copy_notes_btn.setText("Copied [OK]")
             QTimer.singleShot(2000, lambda: self.copy_notes_btn.setText(orig_text))
 
     def _open_in_obsidian(self):
-        """Opens active session notes inside Obsidian via obsidian:// URI scheme."""
         notes_path = self._get_active_notes_path()
         if not notes_path:
             notes_dir = os.path.abspath("Notes")
@@ -1725,7 +2297,6 @@ class FloatingHUDWindow(QWidget):
                 except Exception:
                     pass
 
-        # Check for local Obsidian vault
         vault_path = find_local_obsidian_vault()
         if vault_path and os.path.exists(vault_path) and notes_path:
             if not notes_path.startswith(vault_path):
@@ -1749,7 +2320,6 @@ class FloatingHUDWindow(QWidget):
                 self.chat_history.append(f"<i>[In Obsidian geöffnet: {os.path.basename(notes_path)}]</i>")
 
     def _open_in_default_editor(self):
-        """Opens active notes markdown file in the system default editor."""
         notes_path = self._get_active_notes_path()
         if not notes_path:
             notes_dir = os.path.abspath("Notes")
@@ -1772,7 +2342,6 @@ class FloatingHUDWindow(QWidget):
                 subprocess.Popen(["xdg-open", notes_path])
             self.chat_history.append(f"<i>[Im Standard-Editor geöffnet: {os.path.basename(notes_path)}]</i>")
 
-    # Drag and Drop support for slide decks (.pdf, .pptx)
     def dragEnterEvent(self, event):
         if event.mimeData().hasUrls():
             for url in event.mimeData().urls():
@@ -1797,7 +2366,6 @@ class FloatingHUDWindow(QWidget):
         else:
             super().dropEvent(event)
 
-    # Window drag handling
     def mousePressEvent(self, event):
         if event.button() == Qt.MouseButton.LeftButton:
             self.drag_position = event.globalPosition().toPoint() - self.frameGeometry().topLeft()
@@ -1809,16 +2377,10 @@ class FloatingHUDWindow(QWidget):
             event.accept()
 
     def show_socratic_debrief(self, source: Union[str, List[str]]):
-        """
-        Displays a compact Socratic Active Recall debrief card with 3 targeted comprehension questions
-        in the HUD Copilot view upon lecture completion (F9).
-        Also ensures the callout is appended to the active session notes if not already present.
-        """
         questions = []
         if isinstance(source, list):
             questions = [str(q).strip() for q in source if str(q).strip()]
         elif isinstance(source, str):
-            # Parse from markdown callout if present
             pattern = re.compile(
                 r">\s*\[!question\]\s*Socratic Active Recall(.*?)(?=\n> \[|\n## |\n<!-- CHUNK_STATE|\Z)",
                 re.DOTALL | re.IGNORECASE,
@@ -1838,9 +2400,7 @@ class FloatingHUDWindow(QWidget):
                 tr("debrief_q3"),
             ]
 
-        # Make sure questions are at most 3
         questions = questions[:3]
-
         qs_html = "".join([f"<li style='margin-bottom: 5px; color: #E2E8F0; line-height: 1.4;'>{html.escape(q)}</li>" for q in questions])
         header_text = tr("debrief_header")
         debrief_card = (
@@ -1852,11 +2412,9 @@ class FloatingHUDWindow(QWidget):
             "</div>"
         )
 
-
-        self._show_chat_view()
+        self.switch_tab(1)
         self.chat_history.append(debrief_card)
 
-        # Check if active session notes need this appended
         notes_path = self._get_active_notes_path()
         if notes_path and os.path.exists(notes_path):
             try:
