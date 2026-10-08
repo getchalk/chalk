@@ -1203,9 +1203,21 @@ class FloatingHUDWindow(QWidget):
         c_tab_layout.setContentsMargins(0, 0, 0, 0)
         c_tab_layout.setSpacing(6)
 
-        c_info_lbl = QLabel("AI grounded in live audio, slides & photos")
+        c_header_row = QHBoxLayout()
+        c_header_row.setContentsMargins(0, 0, 0, 0)
+        c_info_lbl = QLabel(tr("preview_chat_grounded") or "AI grounded in live audio, slides & photos")
         c_info_lbl.setStyleSheet("font-size: 10.5px; color: #64748B; padding-left: 2px;")
-        c_tab_layout.addWidget(c_info_lbl)
+        c_header_row.addWidget(c_info_lbl)
+        c_header_row.addStretch()
+
+        self.chat_model_badge = QLabel("Gemini 2.5 Flash")
+        self.chat_model_badge.setStyleSheet(
+            "font-size: 10px; font-family: monospace; color: #94A3B8; "
+            "background-color: #15161B; border: 1px solid rgba(255, 255, 255, 0.1); "
+            "border-radius: 4px; padding: 2px 6px;"
+        )
+        c_header_row.addWidget(self.chat_model_badge)
+        c_tab_layout.addLayout(c_header_row)
 
         self.chat_history = QTextBrowser()
         self.chat_history.setOpenExternalLinks(False)
@@ -1324,6 +1336,8 @@ class FloatingHUDWindow(QWidget):
 
         self.settings_model_combo.currentIndexChanged.connect(self._on_settings_model_changed)
         s_tab_layout.addWidget(self.settings_model_combo)
+        if hasattr(self, "chat_model_badge"):
+            self.chat_model_badge.setText(self.settings_model_combo.currentText().split("(")[0].strip())
 
         # 3. Notes Vault Directory
         s_tab_layout.addWidget(QLabel("Notes Vault Directory:"))
@@ -1515,6 +1529,17 @@ class FloatingHUDWindow(QWidget):
                 btn.setObjectName("tabInactive")
             btn.style().unpolish(btn)
             btn.style().polish(btn)
+
+        is_settings = (index == 2)
+        if hasattr(self, "attach_doc_btn"):
+            self.attach_doc_btn.setVisible(not is_settings)
+        if hasattr(self, "pdf_export_btn"):
+            self.pdf_export_btn.setVisible(not is_settings)
+        if hasattr(self, "obsidian_btn"):
+            self.obsidian_btn.setVisible(not is_settings)
+        if hasattr(self, "synth_btn"):
+            self.synth_btn.setVisible(not is_settings)
+
         if index == 0:
             self.refresh_live_notes_view()
 
@@ -1684,6 +1709,15 @@ class FloatingHUDWindow(QWidget):
         model_id = self.settings_model_combo.currentData()
         if model_id:
             set_selected_model(model_id)
+            model_text = self.settings_model_combo.currentText().split("(")[0].strip()
+            if hasattr(self, "chat_model_badge"):
+                self.chat_model_badge.setText(model_text)
+            if hasattr(self, "chat_history"):
+                self.chat_history.append(
+                    f"<div style='font-size:10px; font-family:monospace; color:#94A3B8; "
+                    f"background:#15161B; border:1px solid rgba(255,255,255,0.1); border-radius:4px; padding:4px 8px; margin:4px 0;'>"
+                    f"<b style='color:#F8FAFC;'>[Model Updated]:</b> Active AI synthesis model switched to <b>{model_text}</b>.</div>"
+                )
 
     def _browse_vault_path(self):
         d = QFileDialog.getExistingDirectory(self, "Select Obsidian Vault Directory", self.settings_vault_input.text())

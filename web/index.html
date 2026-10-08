@@ -333,7 +333,7 @@
         </div>
 
         <a href="#download" class="px-3.5 sm:px-4 py-2 rounded-lg font-medium transition flex items-center gap-2" style="background-color: var(--surface-graphite); border: 1px solid var(--chalk-border); color: var(--chalk-white);">
-          <span data-i18n="nav_download">Download App</span>
+          <span data-i18n="nav_download">Download</span>
         </a>
       </div>
     </div>
@@ -559,7 +559,7 @@
                 <!-- Chat Context Sub-Bar -->
                 <div class="flex items-center justify-between pb-1.5 mb-1 border-b flex-shrink-0" style="border-color: var(--chalk-border);">
                   <span class="text-[11px] font-medium" style="color: var(--chalk-muted);" data-i18n="preview_chat_grounded">AI grounded in live audio, slides & photos</span>
-                  <span class="text-[10px] font-mono px-1.5 py-0.5 rounded border" style="background-color: var(--surface-terminal); border-color: var(--chalk-border); color: var(--chalk-muted);">Gemini 2.5 Flash</span>
+                  <span id="mockup-chat-model-badge" class="text-[10px] font-mono px-1.5 py-0.5 rounded border" style="background-color: var(--surface-terminal); border-color: var(--chalk-border); color: var(--chalk-muted);">Gemini 2.5 Flash</span>
                 </div>
 
                 <!-- Scrollable Messages Area -->
@@ -709,7 +709,11 @@
             <!-- Footer Stats & Actions -->
             <div class="pt-2.5 mt-2.5 border-t flex flex-wrap items-center justify-between gap-2 text-xs flex-shrink-0" style="border-color: var(--chalk-border); color: var(--chalk-muted);">
               <span id="mockup-footer-duration" class="font-mono text-[11px]" data-i18n="preview_duration">Duration: 1h 42m 12s</span>
-              <div class="flex items-center gap-1.5 flex-wrap">
+              <div id="mockup-footer-settings-info" class="hidden items-center gap-2 text-[11px] font-mono" style="color: var(--chalk-muted);">
+                <svg class="w-3.5 h-3.5 opacity-70" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                <span data-i18n="settings_footer_note">Preferences saved locally on device</span>
+              </div>
+              <div id="mockup-footer-actions" class="flex items-center gap-1.5 flex-wrap">
                 <button type="button" id="mockup-btn-slides" onclick="triggerMockupAttachSlides()" class="px-2 py-1 rounded text-[11px] font-medium border transition cursor-pointer hover:border-white/40 flex items-center gap-1" style="background-color: var(--surface-terminal); border-color: var(--chalk-border); color: var(--chalk-white);" title="Attach in-person lecture PDF slides">
                   <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path></svg>
                   <span data-i18n="btn_attach_slides">Attach Slides</span>
@@ -872,7 +876,7 @@
   <!-- Privacy & Local-First Architecture Section -->
   <section id="privacy" class="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16 py-24 border-t z-10 relative" style="border-color: var(--chalk-border);">
     <div class="text-center max-w-2xl mx-auto mb-16">
-      <div class="text-xs font-mono uppercase tracking-widest mb-3" style="color: var(--chalk-muted);" data-i18n="privacy_tag">LOCAL-FIRST PRIVACY</div>
+      <div class="text-xs font-mono uppercase tracking-widest mb-3" style="color: var(--chalk-muted);" data-i18n="privacy_tag">PRIVACY</div>
       <h2 class="text-3xl sm:text-4xl font-bold tracking-tight" style="color: var(--chalk-white);" data-i18n="privacy_title">Your data belongs to you.<br>No middlemen. No servers.</h2>
       <p class="text-sm mt-3" style="color: var(--chalk-slate);" data-i18n="privacy_subtitle">Unlike cloud meeting bots, Chalk processes audio and screen captures exclusively locally on your hardware.</p>
     </div>
@@ -922,7 +926,7 @@
   <!-- Try Chalk for Free Section -->
   <section id="try-free" class="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16 py-24 border-t z-10 relative" style="border-color: var(--chalk-border);">
     <div class="text-center max-w-2xl mx-auto mb-16">
-      <div class="text-xs font-mono uppercase tracking-widest mb-3" style="color: var(--chalk-muted);" data-i18n="free_api_tag">FREE TIER</div>
+      <div class="text-xs font-mono uppercase tracking-widest mb-3" style="color: var(--chalk-muted);" data-i18n="free_api_tag">TRY FOR FREE</div>
       <h2 class="text-3xl sm:text-4xl font-bold tracking-tight" style="color: var(--chalk-white);" data-i18n="free_api_title">Try Chalk with a Free Google Gemini API Key</h2>
       <p class="text-sm mt-3" style="color: var(--chalk-slate);" data-i18n="free_api_desc">No credit card, no subscription fees, no commitments. Get started in minutes directly on your workstation.</p>
     </div>
@@ -968,13 +972,26 @@
       </div>
     </div>
 
-    <!-- Bottom Notice & Direct Action Link -->
-    <div class="rounded-xl border p-4 sm:p-5 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-sm" style="background-color: var(--surface-graphite); border-color: var(--chalk-border);">
-      <div class="flex items-center gap-2.5 text-xs">
-        <span class="w-1.5 h-1.5 rounded-full flex-shrink-0" style="background-color: var(--chalk-white);"></span>
-        <span style="color: var(--chalk-slate);" data-i18n="guide_note">Free-tier limits are more than generous for daily university & meeting use.</span>
+    <!-- Bottom Quota Assurance Banner & Direct Action Link -->
+    <div class="rounded-2xl border p-5 sm:p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-5 shadow-sm" style="background-color: var(--surface-graphite); border-color: var(--chalk-border);">
+      <div class="flex items-start sm:items-center gap-4">
+        <div class="w-10 h-10 rounded-xl border flex items-center justify-center flex-shrink-0" style="background-color: var(--surface-elevated); border-color: var(--chalk-border); color: var(--chalk-white);">
+          <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <polyline points="12 6 12 12 16 14"></polyline>
+          </svg>
+        </div>
+        <div>
+          <div class="flex items-center gap-2 flex-wrap mb-1">
+            <span class="font-semibold text-xs tracking-tight" style="color: var(--chalk-white);" data-i18n="guide_quota_title">Generous Free Quota Guarantee</span>
+            <span class="text-[10px] font-mono px-2 py-0.5 rounded border font-medium" style="background-color: var(--surface-terminal); border-color: var(--chalk-border); color: var(--chalk-white);">15 Req/Min</span>
+            <span class="text-[10px] font-mono px-2 py-0.5 rounded border font-medium" style="background-color: var(--surface-terminal); border-color: var(--chalk-border); color: var(--chalk-white);">1.5M Tokens/Day</span>
+            <span class="text-[10px] font-mono px-2 py-0.5 rounded border font-medium" style="background-color: var(--surface-terminal); border-color: var(--chalk-border); color: var(--chalk-white);">0€ Forever</span>
+          </div>
+          <p class="text-xs leading-relaxed" style="color: var(--chalk-slate);" data-i18n="guide_note">Free-tier limits are more than generous for continuous daily university lectures, meetings, and deep mathematical synthesis without unexpected costs.</p>
+        </div>
       </div>
-      <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener" class="py-2.5 px-5 rounded-xl font-semibold text-xs transition flex items-center gap-2 hover:opacity-90 cursor-pointer shadow-sm flex-shrink-0" style="background-color: var(--chalk-white); color: var(--bg-obsidian);">
+      <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener" class="w-full md:w-auto py-2.5 px-5 rounded-xl font-semibold text-xs transition flex items-center justify-center gap-2 hover:opacity-90 cursor-pointer shadow-sm flex-shrink-0" style="background-color: var(--chalk-white); color: var(--bg-obsidian);">
         <span data-i18n="guide_action_btn">Open Google AI Studio ↗</span>
       </a>
     </div>
@@ -1185,7 +1202,7 @@
     "nav_use_cases": "Use cases",
     "nav_privacy": "Privacy",
     "nav_try_free": "Try for free",
-    "nav_download": "Download App",
+    "nav_download": "Download",
     "theme_dark": "Dark",
     "theme_light": "Light",
     "hero_badge": "LOCAL-FIRST • DIRECT BYOK • NO CHALK SERVERS",
@@ -1270,7 +1287,7 @@
     "case4_desc": "Captures Zoom, Teams, and keynote livestreams via direct system audio and slide change detection, building searchable knowledge archives automatically.",
     "case5_title": "Instant Smartphone Camera via Local QR Code",
     "case5_desc": "Scan a QR code from the HUD with your phone. Snap photos of handwritten notes, sketches, or projector screens — uploaded instantly over your local Wi-Fi or hotspot in under a second. Formulas and derivations are immediately synthesized into mathematical LaTeX.",
-    "privacy_tag": "LOCAL-FIRST PRIVACY",
+    "privacy_tag": "PRIVACY",
     "privacy_title": "Your data belongs to you.<br>No middlemen. No servers.",
     "privacy_subtitle": "Unlike cloud meeting bots, Chalk processes audio and screen captures exclusively locally on your hardware.",
     "privacy_box_title": "Zero cloud relays. Absolute data sovereignty.",
@@ -1287,7 +1304,7 @@
     "privacy_card2_desc": "Synthesis requests travel without detours from your device directly to Google, Anthropic, or OpenAI.",
     "privacy_card3_title": "Zero Telemetry & Tracking",
     "privacy_card3_desc": "Zero telemetry, zero tracking cookies (§ 165 TKG), zero central relay servers.",
-    "free_api_tag": "FREE TIER",
+    "free_api_tag": "TRY FOR FREE",
     "free_api_title": "Try Chalk with a Free Google Gemini API Key",
     "free_api_desc": "No credit card, no subscription fees, no commitments. Get started in minutes directly on your workstation.",
     "free_api_btn": "How to get your free key (3 steps) ▾",
@@ -1298,7 +1315,9 @@
     "guide_step2_desc": "Click 'Get API key' in the sidebar, then select 'Create API key in new project'. It is ready instantly.",
     "guide_step3_title": "Paste into Chalk",
     "guide_step3_desc": "Copy your key string (starting with AIzaSy...) and paste it into Chalk. You are ready to synthesize live notes!",
-    "guide_note": "Free-tier limits are more than generous for daily university & meeting use.",
+    "guide_quota_title": "Generous Free Quota Guarantee",
+    "guide_note": "Free-tier limits are more than generous for continuous daily university lectures, meetings, and deep mathematical synthesis without unexpected costs.",
+    "settings_footer_note": "Preferences saved locally on device",
     "guide_action_btn": "Open Google AI Studio ↗",
     "download_tag": "DOWNLOAD",
     "download_title": "Chalk for your Desktop",
@@ -1343,7 +1362,7 @@
     "nav_use_cases": "Einsatzbereiche",
     "nav_privacy": "Privatsphäre",
     "nav_try_free": "Kostenlos testen",
-    "nav_download": "App herunterladen",
+    "nav_download": "Download",
     "theme_dark": "Dunkel",
     "theme_light": "Hell",
     "hero_badge": "LOCAL-FIRST • DIREKTES BYOK • KEINE CHALK-SERVER",
@@ -1428,7 +1447,7 @@
     "case4_desc": "Erfasst Zoom-, Teams- und YouTube-Keynotes über direkte Audioschnittstellen und Bildwechsel, sodass automatisiert durchsuchbare Wissensarchive entstehen.",
     "case5_title": "Smartphone-Kamera via lokalem QR-Code",
     "case5_desc": "QR-Code direkt im HUD mit dem Smartphone scannen. Notizen, Skizzen oder Beamer fotografieren — in unter einer Sekunde lautlos über lokales WLAN oder Hotspot übertragen. Mathematische Herleitungen fließen sofort als LaTeX in die Notizen ein.",
-    "privacy_tag": "LOCAL-FIRST DATENSCHUTZ",
+    "privacy_tag": "DATENSCHUTZ",
     "privacy_title": "Deine Daten gehören dir.<br>Keine Mittelsmänner. Keine Server.",
     "privacy_subtitle": "Im Gegensatz zu Cloud-Meeting-Bots verarbeitet Chalk Ton und Bildschirmaufnahmen ausschließlich lokal auf deiner Hardware.",
     "privacy_box_title": "Keine Cloud-Relays. Absolute Datenhoheit.",
@@ -1445,7 +1464,7 @@
     "privacy_card2_desc": "Syntheseanfragen laufen direkt von Ihrem Gerät zu Google, Anthropic oder OpenAI ohne zwischengeschaltete Server.",
     "privacy_card3_title": "Keine Telemetrie & kein Tracking",
     "privacy_card3_desc": "Keine Telemetrie, keine Tracking-Cookies (§ 165 TKG), keine zentralen Relay-Server.",
-    "free_api_tag": "FREE TIER",
+    "free_api_tag": "KOSTENLOS TESTEN",
     "free_api_title": "Chalk mit einem kostenlosen Google Gemini API-Schlüssel testen",
     "free_api_desc": "Keine Kreditkarte, keine Abogebühren, keine Bindung. Starte in wenigen Minuten direkt auf deinem Rechner.",
     "free_api_btn": "Kostenlosen Schlüssel anfordern (3 Schritte) ▾",
@@ -1456,7 +1475,9 @@
     "guide_step2_desc": "Klicke links auf 'Get API key' und wähle 'Create API key in new project'. Der Schlüssel wird sofort erstellt.",
     "guide_step3_title": "In Chalk einfügen",
     "guide_step3_desc": "Kopiere deinen Schlüssel (beginnt mit AIzaSy...) und füge ihn in Chalk ein. Fertig für strukturierte Live-Notizen!",
-    "guide_note": "Das kostenlose Kontingent reicht problemlos für den täglichen Vorlesungs- und Meeting-Alltag.",
+    "guide_quota_title": "Großzügiges Kontingent garantiert",
+    "guide_note": "Das kostenlose Kontingent reicht mit 15 Anfragen/Min und 1,5 Mio. Tokens/Tag vollkommen für den täglichen Vorlesungs- und Meeting-Alltag ohne Zusatzkosten.",
+    "settings_footer_note": "Einstellungen lokal auf dem Gerät gespeichert",
     "guide_action_btn": "Google AI Studio öffnen ↗",
     "download_tag": "DOWNLOAD",
     "download_title": "Chalk für deinen Desktop",
@@ -1586,7 +1607,7 @@
     "case4_desc": "Capture les présentations Zoom, Teams ou en streaming grâce à l'audio système et la détection d'écrans, créant des archives consultables.",
     "case5_title": "Caméra Smartphone via QR Code Local",
     "case5_desc": "Scannez un code QR depuis le HUD avec votre téléphone. Photographiez des notes manuscrites, schémas ou écrans de projection — transféré instantanément via Wi-Fi local ou point d'accès en moins d'une seconde. Les formules et démonstrations sont intégrées immédiatement en LaTeX mathématique.",
-    "privacy_tag": "CONFIDENTIALITÉ 100 % LOCALE",
+    "privacy_tag": "CONFIDENTIALITÉ",
     "privacy_title": "Vos données vous appartiennent.<br>Aucun intermédiaire. Aucun serveur.",
     "privacy_subtitle": "Contrairement aux assistants cloud, Chalk traite le son et les captures d'écran exclusivement en local sur votre matériel.",
     "privacy_box_title": "Zéro relais cloud. Souveraineté totale des données.",
@@ -1603,7 +1624,7 @@
     "privacy_card2_desc": "Les requêtes de synthèse transitent directement de votre appareil vers Google, Anthropic ou OpenAI sans serveur relais.",
     "privacy_card3_title": "Zéro télémétrie & zéro traceur",
     "privacy_card3_desc": "Zéro télémétrie, zéro cookie traceur (§ 165 TKG), aucun serveur relais central.",
-    "free_api_tag": "FREE TIER",
+    "free_api_tag": "ESSAI GRATUIT",
     "free_api_title": "Essayez Chalk avec une clé d'API Google Gemini gratuite",
     "free_api_desc": "Sans carte bancaire, sans abonnement ni engagement. Démarrez en quelques minutes directement sur votre machine.",
     "free_api_btn": "Obtenir votre clé gratuite (3 étapes) ▾",
@@ -1614,7 +1635,9 @@
     "guide_step2_desc": "Cliquez sur 'Get API key' dans la barre latérale, puis sur 'Create API key in new project'. C'est instantané.",
     "guide_step3_title": "Coller dans Chalk",
     "guide_step3_desc": "Copiez votre clé (commençant par AIzaSy...) et collez-la dans Chalk. Prêt pour générer des notes en direct !",
-    "guide_note": "Les limites gratuites sont largement suffisantes pour vos cours et réunions au quotidien.",
+    "guide_quota_title": "Quota gratuit généreux garanti",
+    "guide_note": "Les limites de l'offre gratuite (15 requêtes/min, 1,5M jetons/jour) suffisent largement pour tous vos cours universitaires et réunions professionnelles sans frais imprévus.",
+    "settings_footer_note": "Préférences enregistrées localement sur l'appareil",
     "guide_action_btn": "Ouvrir Google AI Studio ↗",
     "download_tag": "TÉLÉCHARGEMENT",
     "download_title": "Chalk pour votre bureau",
@@ -1744,7 +1767,7 @@
     "case4_desc": "Registra eventos de Zoom, Teams y streaming con audio directo y detección de diapositivas, creando archivos de consulta automática.",
     "case5_title": "Cámara de Smartphone mediante Código QR Local",
     "case5_desc": "Escanee un código QR desde el HUD con su teléfono. Fotografíe notas manuscritas, esquemas o pantallas de proyector — transferido al instante a través de Wi-Fi local o punto de acceso en menos de un segundo. Las fórmulas y derivaciones se integran de inmediato como LaTeX matemático.",
-    "privacy_tag": "PRIVACIDAD LOCAL-FIRST",
+    "privacy_tag": "PRIVACIDAD",
     "privacy_title": "Tus datos te pertenecen.<br>Sin intermediarios. Sin servidores.",
     "privacy_subtitle": "A diferencia de los bots en la nube, Chalk procesa el audio y las capturas de pantalla exclusivamente en local en tu hardware.",
     "privacy_box_title": "Cero repetidores en la nube. Soberanía total.",
@@ -1761,7 +1784,7 @@
     "privacy_card2_desc": "Las solicitudes de síntesis viajan directamente desde tu dispositivo a Google, Anthropic u OpenAI sin servidores intermediarios.",
     "privacy_card3_title": "Cero telemetría y rastreo",
     "privacy_card3_desc": "Cero telemetría, cero cookies de seguimiento (§ 165 TKG), cero servidores de retransmisión.",
-    "free_api_tag": "FREE TIER",
+    "free_api_tag": "PROBAR GRATIS",
     "free_api_title": "Prueba Chalk con una clave de API gratuita de Google Gemini",
     "free_api_desc": "Sin tarjeta de crédito, sin suscripciones ni compromisos. Empieza en minutos directamente en tu equipo.",
     "free_api_btn": "Cómo obtener tu clave gratuita (3 pasos) ▾",
@@ -1772,7 +1795,9 @@
     "guide_step2_desc": "Haz clic en 'Get API key' en la barra lateral y selecciona 'Create API key in new project'. Se genera al instante.",
     "guide_step3_title": "Pegar en Chalk",
     "guide_step3_desc": "Copia tu clave (que empieza por AIzaSy...) y pégala en Chalk. ¡Listo para sintetizar notas en vivo!",
-    "guide_note": "Los límites gratuitos son más que suficientes para el uso diario en clases y reuniones.",
+    "guide_quota_title": "Cuota gratuita generosa garantizada",
+    "guide_note": "Los límites del nivel gratuito (15 peticiones/min, 1,5M tokens/día) son más que generosos para clases universitarias y reuniones de trabajo diarias sin sorpresas.",
+    "settings_footer_note": "Preferencias guardadas localmente en el dispositivo",
     "guide_action_btn": "Abrir Google AI Studio ↗",
     "download_tag": "DESCARGA",
     "download_title": "Chalk para tu escritorio",
@@ -1817,7 +1842,7 @@
     "nav_use_cases": "应用场景",
     "nav_privacy": "隐私保障",
     "nav_try_free": "免费体验",
-    "nav_download": "下载应用",
+    "nav_download": "下载",
     "theme_dark": "深色",
     "theme_light": "浅色",
     "hero_badge": "100% 本地优先 • 密钥直连 BYOK • 无中转服务器",
@@ -1902,7 +1927,7 @@
     "case4_desc": "通过系统内录与画面识别无损记录 Zoom、Teams 等线上会议，自动沉淀为可全盘检索的知识库资产。",
     "case5_title": "手机随拍相机（本地二维码直连）",
     "case5_desc": "用手机直接扫描桌面HUD中的二维码。拍摄手写笔记、幕布或课件——1秒内通过局域网或热点无感回传至电脑。随拍公式与数学推导即刻作为高精度LaTeX整合进笔记中。",
-    "privacy_tag": "本地优先隐私保护",
+    "privacy_tag": "隐私保护",
     "privacy_title": "数据资产完全归你所有。<br>无中介。无中转服务器。",
     "privacy_subtitle": "与云端会议机器人不同，Chalk 仅在你的本地硬件上离线处理音频与屏幕画面。",
     "privacy_box_title": "零云端中继。绝对数据主权。",
@@ -1919,7 +1944,7 @@
     "privacy_card2_desc": "AI 合成请求直接从您的本机发送至 Google、Anthropic 或 OpenAI，无需任何中继服务器。",
     "privacy_card3_title": "零遥测与零追踪",
     "privacy_card3_desc": "零遥测收集、零追踪 Cookie (§ 165 TKG)，无任何集中式中转服务器。",
-    "free_api_tag": "FREE TIER",
+    "free_api_tag": "免费试用",
     "free_api_title": "使用免费的 Google Gemini API 密钥即刻体验 Chalk",
     "free_api_desc": "无需信用卡，无任何订阅费用与承诺约束。数分钟内即可在你的本地工作站直接启用。",
     "free_api_btn": "如何获取免费密钥（只需3步）▾",
@@ -1930,7 +1955,9 @@
     "guide_step2_desc": "在左侧菜单点击“Get API key”，然后选择“Create API key in new project”。密钥将瞬间生成。",
     "guide_step3_title": "粘贴至 Chalk",
     "guide_step3_desc": "复制密钥字符串（以 AIzaSy... 开头）并粘贴到 Chalk 中。即可立即开始高精度笔记实时合成！",
-    "guide_note": "免费层级配额完全能够轻松胜任日常高校听课与多场会议记录需求。",
+    "guide_quota_title": "充足的免费额度保障",
+    "guide_note": "免费层配额（每分钟 15 次请求，每日 150 万 Token）完全满足全天高强度大学课程记录与数学推导，无需任何绑定费用。",
+    "settings_footer_note": "偏好设置已安全保存在本地设备",
     "guide_action_btn": "打开 Google AI Studio ↗",
     "download_tag": "立即下载",
     "download_title": "获取 Chalk 桌面客户端",
@@ -2152,6 +2179,17 @@
         activeBtn.style.backgroundColor = 'var(--surface-elevated)';
         activeBtn.style.color = 'var(--chalk-white)';
         activeBtn.style.fontWeight = '600';
+      }
+
+      const footerActions = document.getElementById('mockup-footer-actions');
+      const footerSettingsInfo = document.getElementById('mockup-footer-settings-info');
+      if (footerActions) {
+        footerActions.classList.toggle('hidden', tab === 'settings');
+      }
+      if (footerSettingsInfo) {
+        footerSettingsInfo.classList.toggle('hidden', tab !== 'settings');
+        if (tab === 'settings') footerSettingsInfo.classList.add('flex');
+        else footerSettingsInfo.classList.remove('flex');
       }
 
       if (tab === 'notes' || tab === 'chat') {
@@ -2532,13 +2570,14 @@
       messagesContainer.scrollTop = messagesContainer.scrollHeight;
 
       // Append thinking indicator
+      const curModel = mockupState.selectedModelName || 'Gemini 2.5 Flash';
       const typingIndicator = document.createElement('div');
       typingIndicator.id = 'mockup-chat-typing';
       typingIndicator.className = 'flex gap-2 items-start text-xs';
       typingIndicator.innerHTML = `
         <div class="w-5 h-5 rounded flex items-center justify-center font-mono font-bold text-[9px] flex-shrink-0" style="background-color: var(--surface-elevated); border: 1px solid var(--chalk-border); color: var(--chalk-white);">AI</div>
         <div class="p-2.5 rounded-lg border flex-1 leading-relaxed animate-pulse font-mono text-[11px]" style="background-color: var(--surface-terminal); border-color: var(--chalk-border); color: var(--chalk-muted);">
-          Synthesizing grounded response...
+          Synthesizing response via ${curModel}...
         </div>
       `;
       messagesContainer.appendChild(typingIndicator);
@@ -2592,12 +2631,17 @@
           `;
         }
 
+        const activeModelName = mockupState.selectedModelName || 'Gemini 2.5 Flash';
         const aiBubble = document.createElement('div');
         aiBubble.className = 'flex gap-2 items-start text-xs';
         aiBubble.innerHTML = `
           <div class="w-5 h-5 rounded flex items-center justify-center font-mono font-bold text-[9px] flex-shrink-0" style="background-color: var(--surface-elevated); border: 1px solid var(--chalk-border); color: var(--chalk-white);">AI</div>
           <div class="p-2.5 rounded-lg border flex-1 leading-relaxed" style="background-color: var(--surface-terminal); border-color: var(--chalk-border); color: var(--chalk-slate);">
             ${aiContent}
+            <div class="mt-2 pt-1 border-t text-[10px] font-mono flex items-center justify-between opacity-60" style="border-color: var(--chalk-border);">
+              <span>Model: ${activeModelName}</span>
+              <span>Grounding: 100% On-Device</span>
+            </div>
           </div>
         `;
         messagesContainer.appendChild(aiBubble);
@@ -2633,6 +2677,8 @@
       if (recLabel) recLabel.textContent = (translations[currentLang] && translations[currentLang].preview_status_label) || 'Recording active';
       if (completeText) completeText.textContent = (translations[currentLang] && translations[currentLang].btn_finish) || 'Finish [F9]';
       if (chatInput) chatInput.value = '';
+      const modelBadge = document.getElementById('mockup-chat-model-badge');
+      if (modelBadge) modelBadge.textContent = mockupState.selectedModelName || 'Gemini 2.5 Flash';
       if (chatMessages) {
         chatMessages.innerHTML = getMockupChatMessagesHtml(mockupState.lang || currentLang);
       }
@@ -2759,8 +2805,35 @@
     function onModelChange() {
       const sel = document.getElementById('mockup-model-select');
       const feedback = document.getElementById('mockup-key-feedback');
-      if (sel && feedback) {
-        feedback.textContent = `Model switched to: ${sel.options[sel.selectedIndex].text}`;
+      const modelBadge = document.getElementById('mockup-chat-model-badge');
+      const messagesContainer = document.getElementById('mockup-chat-messages');
+
+      if (!sel) return;
+      const selectedOption = sel.options[sel.selectedIndex];
+      const modelName = selectedOption ? selectedOption.text.split('(')[0].trim() : 'Gemini 2.5 Flash';
+      const fullLabel = selectedOption ? selectedOption.text : 'Gemini 2.5 Flash';
+
+      mockupState.selectedModelName = modelName;
+
+      if (feedback) {
+        feedback.textContent = `Model switched to: ${fullLabel}`;
+      }
+
+      if (modelBadge) {
+        modelBadge.textContent = modelName;
+      }
+
+      if (messagesContainer) {
+        const bubble = document.createElement('div');
+        bubble.className = 'flex gap-2 items-start text-xs';
+        bubble.innerHTML = `
+          <div class="w-5 h-5 rounded flex items-center justify-center font-mono font-bold text-[9px] flex-shrink-0" style="background-color: var(--surface-elevated); border: 1px solid var(--chalk-border); color: var(--chalk-white);">AI</div>
+          <div class="p-2.5 rounded-lg border flex-1 leading-relaxed" style="background-color: var(--surface-terminal); border-color: var(--chalk-border); color: var(--chalk-white);">
+            <strong style="color: var(--chalk-white);">[Model Updated]:</strong> Active AI synthesis model switched to <strong>${modelName}</strong>. All subsequent questions and mathematical derivations will be synthesized using this model.
+          </div>
+        `;
+        messagesContainer.appendChild(bubble);
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
       }
     }
 
