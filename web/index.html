@@ -181,6 +181,15 @@
       color: var(--chalk-white);
     }
 
+    /* Precision In-Page Navigation Anchor Target Margin */
+    #how-it-works,
+    #use-cases,
+    #privacy,
+    #try-free,
+    #download {
+      scroll-margin-top: var(--nav-height, 67px);
+    }
+
     /* Micro-Dot Architectural Grid */
     .bg-dot-grid {
       background-image: radial-gradient(var(--dot-color) 1px, transparent 1px);
@@ -1022,12 +1031,6 @@
             Open aistudio.google.com and sign in with any Google account. No credit card or billing details required.
           </p>
         </div>
-        <div class="mt-6 pt-4 border-t flex items-center" style="border-color: var(--chalk-border);">
-          <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer" class="text-xs font-medium inline-flex items-center gap-1.5 transition hover:opacity-80" style="color: var(--chalk-white);">
-            <span>aistudio.google.com</span>
-            <svg class="w-3.5 h-3.5 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
-          </a>
-        </div>
       </div>
 
       <!-- Step 02 -->
@@ -1041,9 +1044,6 @@
             Click 'Get API key' in the sidebar, then select 'Create API key in new project'. It is ready instantly.
           </p>
         </div>
-        <div class="mt-6 pt-4 border-t flex items-center" style="border-color: var(--chalk-border);">
-          <span class="text-xs font-mono" style="color: var(--chalk-muted);" data-i18n="guide_step2_tag">Instant • Free Forever</span>
-        </div>
       </div>
 
       <!-- Step 03 -->
@@ -1056,9 +1056,6 @@
           <p class="text-sm leading-relaxed" style="color: var(--chalk-slate);" data-i18n="guide_step3_desc">
             Copy your key string (starting with AIzaSy...) and paste it into Chalk. You are ready to synthesize live notes!
           </p>
-        </div>
-        <div class="mt-6 pt-4 border-t flex items-center" style="border-color: var(--chalk-border);">
-          <span class="text-xs font-mono" style="color: var(--chalk-muted);" data-i18n="guide_step3_tag">Encrypted in OS Vault</span>
         </div>
       </div>
     </div>
@@ -1098,7 +1095,7 @@
             <span class="text-[10px] font-mono border px-2 py-0.5 rounded" style="border-color: var(--chalk-border); color: var(--chalk-muted);" data-i18n="mac_arch">Apple Silicon (M1/M2/M3/M4) & Intel</span>
           </div>
           <h3 class="text-2xl font-bold mb-2" style="color: var(--chalk-white);" data-i18n="mac_title">Chalk for Mac</h3>
-          <p class="text-xs leading-relaxed mb-8" style="color: var(--chalk-slate);" data-i18n="mac_desc">
+          <p class="text-xs leading-relaxed mb-8 min-h-[44px]" style="color: var(--chalk-slate);" data-i18n="mac_desc">
             Standalone application requiring zero setup. Runs discreetly in the menu bar and toggles instantly with Alt+Space.
           </p>
         </div>
@@ -1108,7 +1105,7 @@
             <span data-i18n="mac_btn">Download for macOS (Apple Silicon)</span>
           </a>
           <div class="text-[11px] font-mono text-center mt-3" style="color: var(--chalk-muted);" data-i18n="mac_os_req">macOS 13+ (Ventura, Sonoma, Sequoia)</div>
-          <div class="mt-4 p-3 rounded-xl border text-[11px] leading-relaxed" style="background-color: var(--surface-terminal); border-color: var(--chalk-border); color: var(--chalk-slate);">
+          <div class="mt-4 p-3 rounded-xl border text-[11px] leading-relaxed min-h-[84px] flex flex-col justify-center" style="background-color: var(--surface-terminal); border-color: var(--chalk-border); color: var(--chalk-slate);">
             <div class="font-semibold mb-0.5" style="color: var(--chalk-white);" data-i18n="mac_gatekeeper_title">macOS Security Note (Gatekeeper):</div>
             <div data-i18n="mac_gatekeeper_desc">If macOS warns about an unverified developer, right-click Chalk.app &rarr; Open, or run <code>xattr -cr Chalk.app</code> in Terminal.</div>
           </div>
@@ -1123,7 +1120,7 @@
             <span class="text-[10px] font-mono border px-2 py-0.5 rounded" style="border-color: var(--chalk-border); color: var(--chalk-muted);" data-i18n="win_arch">64-Bit Installer (x64)</span>
           </div>
           <h3 class="text-2xl font-bold mb-2" style="color: var(--chalk-white);" data-i18n="win_title">Chalk for Windows</h3>
-          <p class="text-xs leading-relaxed mb-8" style="color: var(--chalk-slate);" data-i18n="win_desc">
+          <p class="text-xs leading-relaxed mb-8 min-h-[44px]" style="color: var(--chalk-slate);" data-i18n="win_desc">
             Fully integrated into the Windows system tray with native WASAPI audio loopback and secure Windows DPAPI credential vault.
           </p>
         </div>
@@ -1133,7 +1130,7 @@
             <span data-i18n="win_btn">Download for Windows (x64)</span>
           </a>
           <div class="text-[11px] font-mono text-center mt-3" style="color: var(--chalk-muted);" data-i18n="win_os_req">Windows 10 / 11 64-Bit</div>
-          <div class="mt-4 p-3 rounded-xl border text-[11px] leading-relaxed" style="background-color: var(--surface-terminal); border-color: var(--chalk-border); color: var(--chalk-slate);">
+          <div class="mt-4 p-3 rounded-xl border text-[11px] leading-relaxed min-h-[84px] flex flex-col justify-center" style="background-color: var(--surface-terminal); border-color: var(--chalk-border); color: var(--chalk-slate);">
             <div class="font-semibold mb-0.5" style="color: var(--chalk-white);" data-i18n="win_smartscreen_title">Windows Security Note (SmartScreen):</div>
             <div data-i18n="win_smartscreen_desc">If Windows SmartScreen displays a warning, click "More info" &rarr; "Run anyway".</div>
           </div>
@@ -1415,8 +1412,6 @@
     "guide_step3_title": "Paste into Chalk (Direct BYOK)",
     "guide_step3_desc": "Copy your key string (starting with AIzaSy...) and paste it into Chalk. You are ready to synthesize live notes!",
     "settings_footer_note": "Preferences saved locally on device",
-    "guide_step2_tag": "Instant • Free Forever",
-    "guide_step3_tag": "Encrypted in OS Vault",
     "guide_banner_title": "Ready to generate your free Gemini API key?",
     "guide_banner_subtitle": "Takes under 30 seconds. Zero cost, no credit card or billing details required.",
     "guide_action_btn": "Open Google AI Studio ↗",
@@ -1589,8 +1584,6 @@
     "guide_step3_title": "In Chalk einfügen (Direct BYOK)",
     "guide_step3_desc": "Kopiere deinen Schlüssel (beginnt mit AIzaSy...) und füge ihn in Chalk ein. Fertig für strukturierte Live-Notizen!",
     "settings_footer_note": "Einstellungen lokal auf dem Gerät gespeichert",
-    "guide_step2_tag": "Sofort bereit • Dauerhaft kostenlos",
-    "guide_step3_tag": "Im OS-Tresor verschlüsselt",
     "guide_banner_title": "Bereit für deinen kostenlosen Gemini API-Schlüssel?",
     "guide_banner_subtitle": "Dauert unter 30 Sekunden. 0€ Kosten, keine Kreditkarte oder Zahlungsdaten nötig.",
     "guide_action_btn": "Google AI Studio öffnen ↗",
@@ -1763,8 +1756,6 @@
     "guide_step3_title": "Coller dans Chalk (Direct BYOK)",
     "guide_step3_desc": "Copiez votre clé (commençant par AIzaSy...) et collez-la dans Chalk. Prêt pour générer des notes en direct !",
     "settings_footer_note": "Préférences enregistrées localement sur l'appareil",
-    "guide_step2_tag": "Instantané • Gratuit pour toujours",
-    "guide_step3_tag": "Chiffré dans le trousseau OS",
     "guide_banner_title": "Prêt à générer votre clé d'API Gemini gratuite ?",
     "guide_banner_subtitle": "Création en moins de 30 secondes. 0€, aucune carte bancaire requise.",
     "guide_action_btn": "Ouvrir Google AI Studio ↗",
@@ -1937,8 +1928,6 @@
     "guide_step3_title": "Pegar en Chalk (Direct BYOK)",
     "guide_step3_desc": "Copia tu clave (que empieza por AIzaSy...) y pégala en Chalk. ¡Listo para sintetizar notas en vivo!",
     "settings_footer_note": "Preferencias guardadas localmente en el dispositivo",
-    "guide_step2_tag": "Instantáneo • Gratis para siempre",
-    "guide_step3_tag": "Cifrado en la bóveda del SO",
     "guide_banner_title": "¿Listo para generar tu clave de API gratuita de Gemini?",
     "guide_banner_subtitle": "Tarda menos de 30 segundos. 0€, sin tarjeta de crédito ni facturación.",
     "guide_action_btn": "Abrir Google AI Studio ↗",
@@ -2111,8 +2100,6 @@
     "guide_step3_title": "粘贴至 Chalk (Direct BYOK)",
     "guide_step3_desc": "复制密钥字符串（以 AIzaSy... 开头）并粘贴到 Chalk 中。即可立即开始高精度笔记实时合成！",
     "settings_footer_note": "偏好设置已安全保存在本地设备",
-    "guide_step2_tag": "即时生成 • 永久免费",
-    "guide_step3_tag": "系统安全密钥库加密",
     "guide_banner_title": "准备好生成你的免费 Gemini API 密钥了吗？",
     "guide_banner_subtitle": "仅需不到 30 秒。完全免费，无需绑定信用卡或任何账单信息。",
     "guide_action_btn": "打开 Google AI Studio ↗",
@@ -3594,7 +3581,14 @@
           const target = document.querySelector(href);
           if (target) {
             e.preventDefault();
-            target.scrollIntoView({ behavior: 'smooth' });
+            const nav = document.querySelector('nav');
+            const navHeight = nav ? nav.offsetHeight : 67;
+            const scrollY = window.scrollY || window.pageYOffset || 0;
+            const targetTop = target.getBoundingClientRect().top + scrollY;
+            window.scrollTo({
+              top: Math.round(targetTop - navHeight),
+              behavior: 'smooth'
+            });
           }
         });
       });
