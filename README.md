@@ -7,7 +7,7 @@ Chalk runs quietly in the background on macOS and Windows. It captures dual-chan
 Built on a strict **Direct Bring-Your-Own-Key (BYOK) • Local-First** architecture. Raw audio, visual keyframes, and disk journals remain exclusively on your local workstation. Synthesis requests connect directly over TLS 1.3 to official AI endpoints (Google AI Studio, Anthropic, or OpenAI). Zero telemetry, zero tracking cookies, and zero intermediary proxy servers.
 
 - **Website:** [getchalk.github.io](https://getchalk.github.io)
-- **Downloads:** [macOS (Apple Silicon)](https://github.com/getchalk/getchalk.github.io/releases/latest/download/Chalk-macOS.zip) · [Windows (x64)](https://github.com/getchalk/getchalk.github.io/releases/latest/download/Chalk-Setup.exe)
+- **Downloads:** [macOS (Apple Silicon)](https://github.com/getchalk/chalk/releases/latest/download/Chalk-macOS.zip) · [Windows (x64)](https://github.com/getchalk/chalk/releases/latest/download/Chalk-Setup.exe)
 - **Source:** [github.com/getchalk/chalk](https://github.com/getchalk/chalk)
 
 ---
@@ -127,18 +127,18 @@ Hotkeys use native operating system APIs (Carbon `RegisterEventHotKey` on macOS 
 
 ### Pre-built Binaries
 
-Pre-built binaries are available on the [releases page](https://github.com/getchalk/getchalk.github.io/releases).
+Pre-built binaries are available on the [releases page](https://github.com/getchalk/chalk/releases).
 
 #### macOS (Apple Silicon M1/M2/M3/M4)
 ```bash
-curl -L -O https://github.com/getchalk/getchalk.github.io/releases/latest/download/Chalk-macOS.zip
+curl -L -O https://github.com/getchalk/chalk/releases/latest/download/Chalk-macOS.zip
 unzip Chalk-macOS.zip
 open Chalk.app
 ```
 
 #### Windows (x64)
 ```powershell
-curl -L -O https://github.com/getchalk/getchalk.github.io/releases/latest/download/Chalk-Setup.exe
+curl -L -O https://github.com/getchalk/chalk/releases/latest/download/Chalk-Setup.exe
 .\Chalk-Setup.exe
 ```
 

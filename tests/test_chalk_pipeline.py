@@ -312,8 +312,10 @@ class TestChalkNativeHotkeys(unittest.TestCase):
         mgr = NativeHotkeyManager()
         events = []
 
-        h_hud = mgr.register("Cmd+Shift+Space", lambda: events.append("hud"))
-        h_snip = mgr.register("Cmd+Shift+S", lambda: events.append("snip"))
+        hud_sc = "Cmd+Shift+Space" if sys.platform == "darwin" else "Ctrl+Shift+Space"
+        snip_sc = "Cmd+Shift+S" if sys.platform == "darwin" else "Ctrl+Shift+S"
+        h_hud = mgr.register(hud_sc, lambda: events.append("hud"))
+        h_snip = mgr.register(snip_sc, lambda: events.append("snip"))
         h_f9 = mgr.register("F9", lambda: events.append("f9"))
         h_f10 = mgr.register("F10", lambda: events.append("f10"))
 

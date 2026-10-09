@@ -242,6 +242,13 @@ class _MacCarbonHotkeyBackend:
 
         return hotkey_id
 
+    def trigger(self, shortcut_or_id) -> bool:
+        """Testing hook to programmatically trigger a registered callback."""
+        if isinstance(shortcut_or_id, int) and shortcut_or_id in self._callbacks:
+            self._callbacks[shortcut_or_id]()
+            return True
+        return False
+
     def _register_carbon_hotkey(self, hotkey_id: int, keycode: int, modifiers: int):
         target = self._carbon.GetEventDispatcherTarget()
         hk_id_struct = self.EventHotKeyID(self._signature, hotkey_id)
@@ -458,6 +465,14 @@ class _WindowsHotkeyBackend:
                 pass
         self._is_active = False
 
+    def trigger(self, shortcut_or_id) -> bool:
+        """Testing hook to programmatically trigger a registered callback."""
+        if isinstance(shortcut_or_id, int) and shortcut_or_id in self._hotkeys:
+            _, _, cb = self._hotkeys[shortcut_or_id]
+            cb()
+            return True
+        return False
+
 
 # ==============================================================================
 # Fallback Backend (Headless / Testing / Unsupported Environments)
@@ -554,5 +569,10 @@ class NativeHotkeyManager:
             return self._backend.trigger(shortcut_or_id)
         elif hasattr(self._backend, "_callbacks") and shortcut_or_id in self._backend._callbacks:
             self._backend._callbacks[shortcut_or_id]()
+            return True
+        elif hasattr(self._backend, "_hotkeys") and shortcut_or_id in self._backend._hotkeys:
+            val = self._backend._hotkeys[shortcut_or_id]
+            cb = val[2] if len(val) == 3 else val[1]
+            cb()
             return True
         return False

@@ -115,6 +115,7 @@ jobs:
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: ${{ github.ref_type == 'tag' && github.ref_name || 'v1.0.0' }}
           files: |
             release-assets/Chalk-macOS.zip
             release-assets/Chalk-Setup.exe
@@ -125,13 +126,13 @@ jobs:
           prerelease: false
           generate_release_notes: true
           body: |
-            ## Chalk — "Let them talk. Chalk does the work."
+            ## Chalk — Local-First Multimodal Lecture Companion with Live LaTeX Synthesis
 
-            Autonomous desktop lecture engine with True Zero-Knowledge BYOK architecture, dual-channel hardware diarization, Silero VAD, perceptual slide deduplication, and hybrid Gemini Flash/Pro synthesis.
+            Autonomous desktop companion engineered for university lectures, technical reviews, and executive sessions with Direct Bring-Your-Own-Key (BYOK) privacy, dual-channel hardware audio isolation, Silero VAD speech filtering, perceptual slide synchronization, and coupled dual-stage model synthesis.
 
             ### Downloads:
             - **macOS (Apple Silicon & Intel):** `Chalk-macOS.zip` (Contains standalone `Chalk.app` bundle)
-            - **Windows (x64):** `Chalk-Windows.exe` (Single-file standalone executable)
+            - **Windows (x64):** `Chalk-Setup.exe` / `Chalk-Windows.exe` (Standalone executable)
             - **Checksums:** `SHA256SUMS.txt`
 
-            All binaries operate 100% locally and connect directly to Google AI Studio via `from google import genai` with zero cloud telemetry.
+            All data remains strictly on your local workstation. Synthesis requests connect directly over TLS 1.3 to official AI endpoints (Google AI Studio, Anthropic, or OpenAI). Zero telemetry, zero cloud relays (§ 165 TKG / GDPR compliant).
