@@ -1,5 +1,5 @@
 """
-tests/test_forensic_fixes.py - Forensic Verification Suite for All Claude Review Findings.
+tests/test_forensic_fixes.py - Forensic Verification Suite for Core System Standards.
 Verifies:
 1. KaTeX whitelist expansion and preservation of mathematical operators without destructive \\text{...} rewriting.
 2. Anki TSV export conversion from $...$ and $$...$$ to \\(...\\) and \\[...\\].
@@ -40,7 +40,7 @@ class TestForensicFixes(unittest.TestCase):
         shutil.rmtree(self.temp_dir, ignore_errors=True)
 
     def test_katex_whitelist_and_no_destructive_sanitization(self):
-        """Verifies that all 14 standard commands from Claude review are preserved and not mangled."""
+        """Verifies that all 14 standard commands are preserved and not mangled."""
         test_commands = [
             r"\lVert x \rVert",
             r"\lvert y \rvert",

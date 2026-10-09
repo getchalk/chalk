@@ -58,6 +58,7 @@ jobs:
         run: |
           cd dist
           if [ -d "Chalk.app" ]; then
+            codesign --force --deep --sign - --entitlements ../assets/entitlements.plist Chalk.app || codesign --force --deep --sign - Chalk.app || true
             zip -r -y Chalk-macOS.zip Chalk.app
           else
             zip -y Chalk-macOS.zip Chalk

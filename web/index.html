@@ -1005,8 +1005,8 @@
   <!-- Try Chalk for Free Section -->
   <section id="try-free" class="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16 py-24 border-t z-10 relative" style="border-color: var(--chalk-border);">
     <div class="text-center max-w-2xl mx-auto mb-16">
-      <div class="text-xs font-mono uppercase tracking-widest mb-3" style="color: var(--chalk-muted);" data-i18n="free_api_tag">TRY FOR FREE (DIRECT BYOK)</div>
-      <h2 class="text-3xl sm:text-4xl font-bold tracking-tight" style="color: var(--chalk-white);" data-i18n="free_api_title">Try Chalk with a Free Google Gemini API Key (Direct BYOK)</h2>
+      <div class="text-xs font-mono uppercase tracking-widest mb-3" style="color: var(--chalk-muted);" data-i18n="free_api_tag">TRY FOR FREE</div>
+      <h2 class="text-3xl sm:text-4xl font-bold tracking-tight" style="color: var(--chalk-white);" data-i18n="free_api_title">Try Chalk with a Free Google Gemini API Key</h2>
       <p class="text-sm mt-3" style="color: var(--chalk-slate);" data-i18n="free_api_desc">Bring your own free key (Direct BYOK): Zero cost, no credit card, no subscription fees, no commitments. Connect directly from your workstation to Google AI Studio.</p>
     </div>
 
@@ -1087,6 +1087,10 @@
             <span data-i18n="mac_btn">Download for macOS (Apple Silicon)</span>
           </a>
           <div class="text-[11px] font-mono text-center mt-3" style="color: var(--chalk-muted);" data-i18n="mac_os_req">macOS 13+ (Ventura, Sonoma, Sequoia)</div>
+          <div class="mt-4 p-3 rounded-xl border text-[11px] leading-relaxed" style="background-color: var(--surface-terminal); border-color: var(--chalk-border); color: var(--chalk-slate);">
+            <div class="font-semibold mb-0.5" style="color: var(--chalk-white);" data-i18n="mac_gatekeeper_title">macOS Security Note (Gatekeeper):</div>
+            <div data-i18n="mac_gatekeeper_desc">If macOS warns about an unverified developer, right-click Chalk.app &rarr; Open, or run <code>xattr -cr Chalk.app</code> in Terminal.</div>
+          </div>
         </div>
       </div>
 
@@ -1123,13 +1127,13 @@
               <span class="text-[10px] font-mono tracking-wider uppercase px-2 py-0.5 rounded border flex-shrink-0 font-medium" style="background-color: var(--surface-elevated); border-color: var(--chalk-border); color: var(--chalk-white);">macOS</span>
               <span class="text-[11px] font-mono truncate" style="color: var(--chalk-muted);" data-i18n="cli_mac">macOS Terminal</span>
             </div>
-            <button onclick="copyCommand(this, 'curl -L -O https://github.com/getchalk/chalk/releases/latest/download/Chalk-macOS.zip')" class="flex-shrink-0 text-xs px-2.5 py-1 rounded border font-medium transition flex items-center gap-1.5 hover:opacity-90" style="background-color: var(--terminal-btn-bg); border-color: var(--terminal-btn-border); color: var(--terminal-btn-text);">
+            <button onclick="copyCommand(this, 'curl -L -O https://github.com/getchalk/chalk/releases/latest/download/Chalk-macOS.zip &amp;&amp; unzip -q Chalk-macOS.zip &amp;&amp; xattr -cr Chalk.app &amp;&amp; open Chalk.app')" class="flex-shrink-0 text-xs px-2.5 py-1 rounded border font-medium transition flex items-center gap-1.5 hover:opacity-90" style="background-color: var(--terminal-btn-bg); border-color: var(--terminal-btn-border); color: var(--terminal-btn-text);">
               <svg class="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/></svg>
               <span data-i18n="btn_copy">Copy</span>
             </button>
           </div>
           <div class="rounded-lg p-2.5 border overflow-x-auto min-w-0" style="background-color: var(--surface-terminal); border-color: var(--chalk-border);">
-            <code class="select-all whitespace-nowrap font-mono text-xs block" style="color: var(--terminal-text);"><span class="select-none opacity-40">$ </span>curl -L -O https://github.com/getchalk/chalk/releases/latest/download/Chalk-macOS.zip</code>
+            <code class="select-all whitespace-nowrap font-mono text-xs block" style="color: var(--terminal-text);"><span class="select-none opacity-40">$ </span>curl -L -O https://github.com/getchalk/chalk/releases/latest/download/Chalk-macOS.zip &amp;&amp; unzip -q Chalk-macOS.zip &amp;&amp; xattr -cr Chalk.app &amp;&amp; open Chalk.app</code>
           </div>
         </div>
 
@@ -1374,8 +1378,8 @@
     "privacy_card2_desc": "Synthesis requests travel without detours from your device directly to Google, Anthropic, or OpenAI.",
     "privacy_card3_title": "Zero Telemetry & Tracking",
     "privacy_card3_desc": "Zero telemetry, zero tracking cookies (§ 165 TKG), zero central relay servers.",
-    "free_api_tag": "TRY FOR FREE (DIRECT BYOK)",
-    "free_api_title": "Try Chalk with a Free Google Gemini API Key (Direct BYOK)",
+    "free_api_tag": "TRY FOR FREE",
+    "free_api_title": "Try Chalk with a Free Google Gemini API Key",
     "free_api_desc": "Bring your own free key (Direct BYOK): Zero cost, no credit card, no subscription fees, no commitments. Connect directly from your workstation to Google AI Studio.",
     "free_api_btn": "How to get your free key (3 steps) ▾",
     "free_api_btn_close": "Hide guide ▴",
@@ -1396,6 +1400,8 @@
     "mac_desc": "Standalone application requiring zero setup. Runs discreetly in the menu bar and toggles instantly with Alt+Space.",
     "mac_btn": "Download for macOS (Apple Silicon)",
     "mac_os_req": "macOS 13+ (Ventura, Sonoma, Sequoia)",
+    "mac_gatekeeper_title": "macOS Security Note (Gatekeeper):",
+    "mac_gatekeeper_desc": "If macOS warns about an unverified developer, right-click Chalk.app → Open, or run xattr -cr Chalk.app in Terminal.",
     "win_bundle": "WINDOWS SETUP",
     "win_arch": "64-Bit Installer (x64)",
     "win_title": "Chalk for Windows",
@@ -1540,8 +1546,8 @@
     "privacy_card2_desc": "Syntheseanfragen laufen direkt von Ihrem Gerät zu Google, Anthropic oder OpenAI ohne zwischengeschaltete Server.",
     "privacy_card3_title": "Keine Telemetrie & kein Tracking",
     "privacy_card3_desc": "Keine Telemetrie, keine Tracking-Cookies (§ 165 TKG), keine zentralen Relay-Server.",
-    "free_api_tag": "KOSTENLOS TESTEN (DIRECT BYOK)",
-    "free_api_title": "Chalk mit einem kostenlosen Google Gemini API-Schlüssel testen (Direct BYOK)",
+    "free_api_tag": "KOSTENLOS TESTEN",
+    "free_api_title": "Chalk mit einem kostenlosen Google Gemini API-Schlüssel testen",
     "free_api_desc": "Eigenen kostenlosen Schlüssel nutzen (Direct BYOK): 0€ Kosten, keine Kreditkarte, keine Abogebühren, keine Bindung. Direkt von deinem Rechner zu Google AI Studio.",
     "free_api_btn": "Kostenlosen Schlüssel anfordern (3 Schritte) ▾",
     "free_api_btn_close": "Leitfaden ausblenden ▴",
@@ -1562,6 +1568,8 @@
     "mac_desc": "Eigenständige App ohne Konfigurationsaufwand. Läuft leise in der Menüleiste und öffnet sich auf Knopfdruck mit Alt+Space.",
     "mac_btn": "Download für macOS (Apple Silicon)",
     "mac_os_req": "macOS 13+ (Ventura, Sonoma, Sequoia)",
+    "mac_gatekeeper_title": "macOS-Sicherheitshinweis (Gatekeeper):",
+    "mac_gatekeeper_desc": "Falls macOS vor einem unbestätigten Entwickler warnt: Rechtsklick auf Chalk.app → Öffnen wählen, oder im Terminal xattr -cr Chalk.app ausführen.",
     "win_bundle": "WINDOWS SETUP",
     "win_arch": "64-Bit Installer (x64)",
     "win_title": "Chalk für Windows",
@@ -1706,8 +1714,8 @@
     "privacy_card2_desc": "Les requêtes de synthèse transitent directement de votre appareil vers Google, Anthropic ou OpenAI sans serveur relais.",
     "privacy_card3_title": "Zéro télémétrie & zéro traceur",
     "privacy_card3_desc": "Zéro télémétrie, zéro cookie traceur (§ 165 TKG), aucun serveur relais central.",
-    "free_api_tag": "ESSAI GRATUIT (DIRECT BYOK)",
-    "free_api_title": "Essayez Chalk avec une clé d'API Google Gemini gratuite (Direct BYOK)",
+    "free_api_tag": "ESSAI GRATUIT",
+    "free_api_title": "Essayez Chalk avec une clé d'API Google Gemini gratuite",
     "free_api_desc": "Apportez votre propre clé gratuite (Direct BYOK) : 0€, sans carte bancaire, sans abonnement ni engagement. Directement de votre machine à Google AI Studio.",
     "free_api_btn": "Obtenir votre clé gratuite (3 étapes) ▾",
     "free_api_btn_close": "Masquer le guide ▴",
@@ -1728,6 +1736,8 @@
     "mac_desc": "Application indépendante sans configuration. S'exécute discrètement dans la barre des menus et s'ouvre avec Alt+Espace.",
     "mac_btn": "Télécharger pour macOS (Apple Silicon)",
     "mac_os_req": "macOS 13+ (Ventura, Sonoma, Sequoia)",
+    "mac_gatekeeper_title": "Note de sécurité macOS (Gatekeeper) :",
+    "mac_gatekeeper_desc": "Si macOS signale un développeur non vérifié, faites un clic droit sur Chalk.app → Ouvrir, ou lancez xattr -cr Chalk.app dans le Terminal.",
     "win_bundle": "INSTALLATION WINDOWS",
     "win_arch": "Programme d'installation 64 bits (x64)",
     "win_title": "Chalk pour Windows",
@@ -1872,8 +1882,8 @@
     "privacy_card2_desc": "Las solicitudes de síntesis viajan directamente desde tu dispositivo a Google, Anthropic u OpenAI sin servidores intermediarios.",
     "privacy_card3_title": "Cero telemetría y rastreo",
     "privacy_card3_desc": "Cero telemetría, cero cookies de seguimiento (§ 165 TKG), cero servidores de retransmisión.",
-    "free_api_tag": "PROBAR GRATIS (DIRECT BYOK)",
-    "free_api_title": "Prueba Chalk con una clave de API gratuita de Google Gemini (Direct BYOK)",
+    "free_api_tag": "PROBAR GRATIS",
+    "free_api_title": "Prueba Chalk con una clave de API gratuita de Google Gemini",
     "free_api_desc": "Trae tu propia clave gratuita (Direct BYOK): 0€, sin tarjeta de crédito, sin suscripciones ni compromisos. Directo de tu equipo a Google AI Studio.",
     "free_api_btn": "Cómo obtener tu clave gratuita (3 pasos) ▾",
     "free_api_btn_close": "Ocultar guía ▴",
@@ -1894,6 +1904,8 @@
     "mac_desc": "App independiente sin configuración. Funciona de forma discreta en la barra de menús y se abre con Alt+Espacio.",
     "mac_btn": "Descargar para macOS (Apple Silicon)",
     "mac_os_req": "macOS 13+ (Ventura, Sonoma, Sequoia)",
+    "mac_gatekeeper_title": "Nota de seguridad macOS (Gatekeeper):",
+    "mac_gatekeeper_desc": "Si macOS advierte sobre un desarrollador no verificado: clic derecho en Chalk.app → Abrir, o ejecuta xattr -cr Chalk.app en Terminal.",
     "win_bundle": "INSTALADOR WINDOWS",
     "win_arch": "Instalador de 64 bits (x64)",
     "win_title": "Chalk para Windows",
@@ -2038,8 +2050,8 @@
     "privacy_card2_desc": "AI 合成请求直接从您的本机发送至 Google、Anthropic 或 OpenAI，无需任何中继服务器。",
     "privacy_card3_title": "零遥测与零追踪",
     "privacy_card3_desc": "零遥测收集、零追踪 Cookie (§ 165 TKG)，无任何集中式中转服务器。",
-    "free_api_tag": "免费体验 (DIRECT BYOK)",
-    "free_api_title": "使用免费的 Google Gemini API 密钥即刻体验 Chalk (Direct BYOK)",
+    "free_api_tag": "免费体验",
+    "free_api_title": "使用免费的 Google Gemini API 密钥即刻体验 Chalk",
     "free_api_desc": "自带免费密钥 (Direct BYOK)：0 费用，无需信用卡，无任何订阅费用与承诺约束。从本机直连 Google AI Studio。",
     "free_api_btn": "如何获取免费密钥（只需3步）▾",
     "free_api_btn_close": "收起指南 ▴",
@@ -2060,6 +2072,8 @@
     "mac_desc": "原生独立应用，开箱即用。常驻菜单栏，随时随地按下 Alt+Space 即开即用。",
     "mac_btn": "下载 macOS 版 (Apple Silicon)",
     "mac_os_req": "macOS 13+ (Ventura, Sonoma, Sequoia)",
+    "mac_gatekeeper_title": "macOS 安全提示 (Gatekeeper)：",
+    "mac_gatekeeper_desc": "若系统提示未验证开发者：右键点击 Chalk.app 并选择“打开”，或在终端运行 xattr -cr Chalk.app 即可。",
     "win_bundle": "WINDOWS 安装程序",
     "win_arch": "64 位安装程序 (x64)",
     "win_title": "Chalk 适用于 Windows",

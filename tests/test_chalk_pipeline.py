@@ -1191,7 +1191,7 @@ $$x(t) = C e^{\\lambda t}$$
 
 
 class TestChalkHardeningAndForensics(unittest.TestCase):
-    """Targeted regression tests for Claude's forensic code review points."""
+    """Targeted regression tests for architecture and forensic pipeline verification."""
 
     def test_sixteen_mathematical_formulas_preserved(self):
         """Verify all 16 mathematical formulas pass KaTeX validation without corruption."""

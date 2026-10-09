@@ -139,12 +139,20 @@ Hotkeys use native operating system APIs (Carbon `RegisterEventHotKey` on macOS 
 
 Pre-built binaries are available on the [releases page](https://github.com/getchalk/chalk/releases).
 
-#### macOS (Apple Silicon M1/M2/M3/M4)
+#### macOS (Apple Silicon & Intel)
 ```bash
+# 1. Download and extract
 curl -L -O https://github.com/getchalk/chalk/releases/latest/download/Chalk-macOS.zip
-unzip Chalk-macOS.zip
+unzip -q Chalk-macOS.zip
+
+# 2. Clear Apple quarantine flag (bypasses Gatekeeper unverified developer prompt)
+xattr -cr Chalk.app
+
+# 3. Launch Chalk
 open Chalk.app
 ```
+
+> **macOS Gatekeeper:** Because Chalk is an open-source binary distributed outside the Mac App Store, macOS may display a security prompt (*"cannot be opened because Apple cannot check it for malicious software"*). Running `xattr -cr Chalk.app` in Terminal clears the quarantine attribute. Alternatively, right-click (or Control-click) `Chalk.app` in Finder, select **Open**, and confirm **Open**.
 
 #### Windows (x64)
 ```powershell

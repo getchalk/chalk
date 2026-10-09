@@ -2,7 +2,7 @@
 
 ---
 
-### ⏱️ Segment 1: [00:00] – [00:30]
+### [Segment 01]: [00:00] – [00:30]
 
 ## § 1. Capital Asset Pricing Model (CAPM) Derivation
 
@@ -25,10 +25,4 @@ Primary_Speaker: Instructor (Structured Lecture Cadence)
 -->
 
 ---
-
-
-
-> [!question] Socratic Active Recall
-> 1. Q1: Core derivation?
-> 2. Q2: Boundary condition?
 

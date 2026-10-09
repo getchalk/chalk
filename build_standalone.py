@@ -214,6 +214,20 @@ def build_binary():
     subprocess.check_call(cmd, cwd=PROJECT_ROOT)
 
     dist_dir = os.path.join(PROJECT_ROOT, "dist")
+    if sys.platform == "darwin":
+        app_path = os.path.join(dist_dir, "Chalk.app")
+        if os.path.exists(app_path):
+            print("Applying macOS ad-hoc code signature with entitlements...")
+            sign_cmd = ["codesign", "--force", "--deep", "--sign", "-"]
+            if os.path.exists(ENTITLEMENTS_PATH):
+                sign_cmd.extend(["--entitlements", ENTITLEMENTS_PATH])
+            sign_cmd.append(app_path)
+            try:
+                subprocess.run(sign_cmd, check=False)
+                print("Ad-hoc codesign applied successfully.")
+            except Exception as e:
+                print(f"Notice: ad-hoc codesign skipped: {e}")
+
     print(f"\n[OK] Standalone build complete. Binaries located in: {dist_dir}")
 
 
