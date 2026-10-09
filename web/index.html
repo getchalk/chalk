@@ -726,7 +726,7 @@
                   <div>
                     <label class="font-semibold text-[11px] block mb-1" style="color: var(--chalk-white);" data-i18n="preview_model_label">AI Synthesis Model:</label>
                     <select id="mockup-model-select" onchange="onModelChange()" class="w-full text-xs font-mono px-2.5 py-1.5 rounded-lg border focus:outline-none cursor-pointer" style="background-color: var(--surface-terminal); border-color: var(--chalk-border); color: var(--chalk-white);">
-                      <optgroup data-i18n="optgroup_free" label="Free Tier Setups">
+                      <optgroup data-i18n="optgroup_free" label="Gemini Free Tier (Direct BYOK)">
                         <option value="gemini-max" data-i18n="model_preset_gemini_max" selected>Gemini Maximum: Gemini 3.5 Flash (Operational) + Gemini 3.1 Pro (Synthesis)</option>
                         <option value="gemini-medium" data-i18n="model_preset_gemini_medium">Gemini Medium: Gemini 3.5 Flash-Lite (Operational) + Gemini 3.5 Flash (Synthesis)</option>
                         <option value="gemini-min" data-i18n="model_preset_gemini_min">Gemini Minimum: Gemini 3.1 Flash-Lite (Operational) + Gemini 3.5 Flash-Lite (Synthesis)</option>
@@ -1005,9 +1005,9 @@
   <!-- Try Chalk for Free Section -->
   <section id="try-free" class="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16 py-24 border-t z-10 relative" style="border-color: var(--chalk-border);">
     <div class="text-center max-w-2xl mx-auto mb-16">
-      <div class="text-xs font-mono uppercase tracking-widest mb-3" style="color: var(--chalk-muted);" data-i18n="free_api_tag">TRY FOR FREE</div>
-      <h2 class="text-3xl sm:text-4xl font-bold tracking-tight" style="color: var(--chalk-white);" data-i18n="free_api_title">Try Chalk with a Free Google Gemini API Key</h2>
-      <p class="text-sm mt-3" style="color: var(--chalk-slate);" data-i18n="free_api_desc">No credit card, no subscription fees, no commitments. Get started in minutes directly on your workstation.</p>
+      <div class="text-xs font-mono uppercase tracking-widest mb-3" style="color: var(--chalk-muted);" data-i18n="free_api_tag">TRY FOR FREE (DIRECT BYOK)</div>
+      <h2 class="text-3xl sm:text-4xl font-bold tracking-tight" style="color: var(--chalk-white);" data-i18n="free_api_title">Try Chalk with a Free Google Gemini API Key (Direct BYOK)</h2>
+      <p class="text-sm mt-3" style="color: var(--chalk-slate);" data-i18n="free_api_desc">Bring your own free key (Direct BYOK): Zero cost, no credit card, no subscription fees, no commitments. Connect directly from your workstation to Google AI Studio.</p>
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
@@ -1043,7 +1043,7 @@
           <div class="w-10 h-10 rounded-xl border flex items-center justify-center font-mono text-sm font-bold mb-5" style="background-color: var(--surface-elevated); border-color: var(--chalk-border); color: var(--chalk-white);">
             03
           </div>
-          <h3 class="text-lg font-semibold mb-2" style="color: var(--chalk-white);" data-i18n="guide_step3_title">Paste into Chalk</h3>
+          <h3 class="text-lg font-semibold mb-2" style="color: var(--chalk-white);" data-i18n="guide_step3_title">Paste into Chalk (Direct BYOK)</h3>
           <p class="text-sm leading-relaxed" style="color: var(--chalk-slate);" data-i18n="guide_step3_desc">
             Copy your key string (starting with AIzaSy...) and paste it into Chalk. You are ready to synthesize live notes!
           </p>
@@ -1062,7 +1062,7 @@
         </div>
         <div>
           <div class="flex items-center gap-2 flex-wrap mb-1">
-            <span class="font-semibold text-xs tracking-tight" style="color: var(--chalk-white);" data-i18n="guide_quota_title">Generous Free Quota Guarantee</span>
+            <span class="font-semibold text-xs tracking-tight" style="color: var(--chalk-white);" data-i18n="guide_quota_title">Generous Free Quota Guarantee (Gemini BYOK)</span>
             <span class="text-[10px] font-mono px-2 py-0.5 rounded border font-medium" style="background-color: var(--surface-terminal); border-color: var(--chalk-border); color: var(--chalk-white);">15 Req/Min</span>
             <span class="text-[10px] font-mono px-2 py-0.5 rounded border font-medium" style="background-color: var(--surface-terminal); border-color: var(--chalk-border); color: var(--chalk-white);">1.5M Tokens/Day</span>
             <span class="text-[10px] font-mono px-2 py-0.5 rounded border font-medium" style="background-color: var(--surface-terminal); border-color: var(--chalk-border); color: var(--chalk-white);">0€ Forever</span>
@@ -1337,7 +1337,7 @@
     "preview_key_test_btn": "Test Key",
     "preview_key_save_btn": "Save Key",
     "preview_model_label": "AI Synthesis Model:",
-    "optgroup_free": "Free Tier Setups",
+    "optgroup_free": "Gemini Free Tier (Direct BYOK)",
     "optgroup_premium": "Paid Models (Direct BYOK)",
     "model_preset_gemini_max": "Gemini Maximum: Gemini 3.5 Flash (Operational) + Gemini 3.1 Pro (Synthesis)",
     "model_preset_gemini_medium": "Gemini Medium: Gemini 3.5 Flash-Lite (Operational) + Gemini 3.5 Flash (Synthesis)",
@@ -1391,18 +1391,18 @@
     "privacy_card2_desc": "Synthesis requests travel without detours from your device directly to Google, Anthropic, or OpenAI.",
     "privacy_card3_title": "Zero Telemetry & Tracking",
     "privacy_card3_desc": "Zero telemetry, zero tracking cookies (§ 165 TKG), zero central relay servers.",
-    "free_api_tag": "TRY FOR FREE",
-    "free_api_title": "Try Chalk with a Free Google Gemini API Key",
-    "free_api_desc": "No credit card, no subscription fees, no commitments. Get started in minutes directly on your workstation.",
+    "free_api_tag": "TRY FOR FREE (DIRECT BYOK)",
+    "free_api_title": "Try Chalk with a Free Google Gemini API Key (Direct BYOK)",
+    "free_api_desc": "Bring your own free key (Direct BYOK): Zero cost, no credit card, no subscription fees, no commitments. Connect directly from your workstation to Google AI Studio.",
     "free_api_btn": "How to get your free key (3 steps) ▾",
     "free_api_btn_close": "Hide guide ▴",
     "guide_step1_title": "Visit Google AI Studio",
     "guide_step1_desc": "Open aistudio.google.com and sign in with any Google account. No credit card or billing details required.",
     "guide_step2_title": "Create your API Key",
     "guide_step2_desc": "Click 'Get API key' in the sidebar, then select 'Create API key in new project'. It is ready instantly.",
-    "guide_step3_title": "Paste into Chalk",
+    "guide_step3_title": "Paste into Chalk (Direct BYOK)",
     "guide_step3_desc": "Copy your key string (starting with AIzaSy...) and paste it into Chalk. You are ready to synthesize live notes!",
-    "guide_quota_title": "Generous Free Quota Guarantee",
+    "guide_quota_title": "Generous Free Quota Guarantee (Gemini BYOK)",
     "guide_note": "Free-tier limits are more than generous for continuous daily university lectures, meetings, and deep mathematical synthesis without unexpected costs.",
     "settings_footer_note": "Preferences saved locally on device",
     "guide_action_btn": "Open Google AI Studio ↗",
@@ -1505,7 +1505,7 @@
     "preview_key_test_btn": "Key testen",
     "preview_key_save_btn": "Key speichern",
     "preview_model_label": "KI-Synthese-Modell:",
-    "optgroup_free": "Kostenlose Setups",
+    "optgroup_free": "Gemini Free-Tier (Direct BYOK)",
     "optgroup_premium": "Kostenpflichtige Modelle (Direct BYOK)",
     "model_preset_gemini_max": "Gemini Maximum: Gemini 3.5 Flash (Operativ) + Gemini 3.1 Pro (Synthese)",
     "model_preset_gemini_medium": "Gemini Medium: Gemini 3.5 Flash-Lite (Operativ) + Gemini 3.5 Flash (Synthese)",
@@ -1559,18 +1559,18 @@
     "privacy_card2_desc": "Syntheseanfragen laufen direkt von Ihrem Gerät zu Google, Anthropic oder OpenAI ohne zwischengeschaltete Server.",
     "privacy_card3_title": "Keine Telemetrie & kein Tracking",
     "privacy_card3_desc": "Keine Telemetrie, keine Tracking-Cookies (§ 165 TKG), keine zentralen Relay-Server.",
-    "free_api_tag": "KOSTENLOS TESTEN",
-    "free_api_title": "Chalk mit einem kostenlosen Google Gemini API-Schlüssel testen",
-    "free_api_desc": "Keine Kreditkarte, keine Abogebühren, keine Bindung. Starte in wenigen Minuten direkt auf deinem Rechner.",
+    "free_api_tag": "KOSTENLOS TESTEN (DIRECT BYOK)",
+    "free_api_title": "Chalk mit einem kostenlosen Google Gemini API-Schlüssel testen (Direct BYOK)",
+    "free_api_desc": "Eigenen kostenlosen Schlüssel nutzen (Direct BYOK): 0€ Kosten, keine Kreditkarte, keine Abogebühren, keine Bindung. Direkt von deinem Rechner zu Google AI Studio.",
     "free_api_btn": "Kostenlosen Schlüssel anfordern (3 Schritte) ▾",
     "free_api_btn_close": "Leitfaden ausblenden ▴",
     "guide_step1_title": "Google AI Studio aufrufen",
     "guide_step1_desc": "Öffne aistudio.google.com und melde dich mit deinem Google-Konto an. Keine Kreditkarte oder Zahlungsdaten nötig.",
     "guide_step2_title": "API-Schlüssel erstellen",
     "guide_step2_desc": "Klicke links auf 'Get API key' und wähle 'Create API key in new project'. Der Schlüssel wird sofort erstellt.",
-    "guide_step3_title": "In Chalk einfügen",
+    "guide_step3_title": "In Chalk einfügen (Direct BYOK)",
     "guide_step3_desc": "Kopiere deinen Schlüssel (beginnt mit AIzaSy...) und füge ihn in Chalk ein. Fertig für strukturierte Live-Notizen!",
-    "guide_quota_title": "Großzügiges Kontingent garantiert",
+    "guide_quota_title": "Großzügiges Kontingent garantiert (Gemini BYOK)",
     "guide_note": "Das kostenlose Kontingent reicht mit 15 Anfragen/Min und 1,5 Mio. Tokens/Tag vollkommen für den täglichen Vorlesungs- und Meeting-Alltag ohne Zusatzkosten.",
     "settings_footer_note": "Einstellungen lokal auf dem Gerät gespeichert",
     "guide_action_btn": "Google AI Studio öffnen ↗",
@@ -1673,7 +1673,7 @@
     "preview_key_test_btn": "Tester la clé",
     "preview_key_save_btn": "Enregistrer la clé",
     "preview_model_label": "Modèle de synthèse IA :",
-    "optgroup_free": "Configurations Gratuites",
+    "optgroup_free": "Configurations Gemini Gratuites (Direct BYOK)",
     "optgroup_premium": "Modèles Payants (Direct BYOK)",
     "model_preset_gemini_max": "Gemini Maximum : Gemini 3.5 Flash (Opérationnel) + Gemini 3.1 Pro (Synthèse)",
     "model_preset_gemini_medium": "Gemini Medium : Gemini 3.5 Flash-Lite (Opérationnel) + Gemini 3.5 Flash (Synthèse)",
@@ -1727,18 +1727,18 @@
     "privacy_card2_desc": "Les requêtes de synthèse transitent directement de votre appareil vers Google, Anthropic ou OpenAI sans serveur relais.",
     "privacy_card3_title": "Zéro télémétrie & zéro traceur",
     "privacy_card3_desc": "Zéro télémétrie, zéro cookie traceur (§ 165 TKG), aucun serveur relais central.",
-    "free_api_tag": "ESSAI GRATUIT",
-    "free_api_title": "Essayez Chalk avec une clé d'API Google Gemini gratuite",
-    "free_api_desc": "Sans carte bancaire, sans abonnement ni engagement. Démarrez en quelques minutes directement sur votre machine.",
+    "free_api_tag": "ESSAI GRATUIT (DIRECT BYOK)",
+    "free_api_title": "Essayez Chalk avec une clé d'API Google Gemini gratuite (Direct BYOK)",
+    "free_api_desc": "Apportez votre propre clé gratuite (Direct BYOK) : 0€, sans carte bancaire, sans abonnement ni engagement. Directement de votre machine à Google AI Studio.",
     "free_api_btn": "Obtenir votre clé gratuite (3 étapes) ▾",
     "free_api_btn_close": "Masquer le guide ▴",
     "guide_step1_title": "Accéder à Google AI Studio",
     "guide_step1_desc": "Ouvrez aistudio.google.com et connectez-vous avec votre compte Google. Aucune carte bancaire requise.",
     "guide_step2_title": "Créer votre clé d'API",
     "guide_step2_desc": "Cliquez sur 'Get API key' dans la barre latérale, puis sur 'Create API key in new project'. C'est instantané.",
-    "guide_step3_title": "Coller dans Chalk",
+    "guide_step3_title": "Coller dans Chalk (Direct BYOK)",
     "guide_step3_desc": "Copiez votre clé (commençant par AIzaSy...) et collez-la dans Chalk. Prêt pour générer des notes en direct !",
-    "guide_quota_title": "Quota gratuit généreux garanti",
+    "guide_quota_title": "Quota gratuit généreux garanti (Gemini BYOK)",
     "guide_note": "Les limites de l'offre gratuite (15 requêtes/min, 1,5M jetons/jour) suffisent largement pour tous vos cours universitaires et réunions professionnelles sans frais imprévus.",
     "settings_footer_note": "Préférences enregistrées localement sur l'appareil",
     "guide_action_btn": "Ouvrir Google AI Studio ↗",
@@ -1841,7 +1841,7 @@
     "preview_key_test_btn": "Probar clave",
     "preview_key_save_btn": "Guardar clave",
     "preview_model_label": "Modelo de síntesis IA:",
-    "optgroup_free": "Configuraciones Gratuitas",
+    "optgroup_free": "Configuraciones Gratuitas Gemini (Direct BYOK)",
     "optgroup_premium": "Modelos de Pago (Direct BYOK)",
     "model_preset_gemini_max": "Gemini Máximo: Gemini 3.5 Flash (Operativo) + Gemini 3.1 Pro (Síntesis)",
     "model_preset_gemini_medium": "Gemini Medio: Gemini 3.5 Flash-Lite (Operativo) + Gemini 3.5 Flash (Síntesis)",
@@ -1895,18 +1895,18 @@
     "privacy_card2_desc": "Las solicitudes de síntesis viajan directamente desde tu dispositivo a Google, Anthropic u OpenAI sin servidores intermediarios.",
     "privacy_card3_title": "Cero telemetría y rastreo",
     "privacy_card3_desc": "Cero telemetría, cero cookies de seguimiento (§ 165 TKG), cero servidores de retransmisión.",
-    "free_api_tag": "PROBAR GRATIS",
-    "free_api_title": "Prueba Chalk con una clave de API gratuita de Google Gemini",
-    "free_api_desc": "Sin tarjeta de crédito, sin suscripciones ni compromisos. Empieza en minutos directamente en tu equipo.",
+    "free_api_tag": "PROBAR GRATIS (DIRECT BYOK)",
+    "free_api_title": "Prueba Chalk con una clave de API gratuita de Google Gemini (Direct BYOK)",
+    "free_api_desc": "Trae tu propia clave gratuita (Direct BYOK): 0€, sin tarjeta de crédito, sin suscripciones ni compromisos. Directo de tu equipo a Google AI Studio.",
     "free_api_btn": "Cómo obtener tu clave gratuita (3 pasos) ▾",
     "free_api_btn_close": "Ocultar guía ▴",
     "guide_step1_title": "Visitar Google AI Studio",
     "guide_step1_desc": "Abre aistudio.google.com e inicia sesión con cualquier cuenta de Google. No se requiere tarjeta de crédito.",
     "guide_step2_title": "Crear tu clave de API",
     "guide_step2_desc": "Haz clic en 'Get API key' en la barra lateral y selecciona 'Create API key in new project'. Se genera al instante.",
-    "guide_step3_title": "Pegar en Chalk",
+    "guide_step3_title": "Pegar en Chalk (Direct BYOK)",
     "guide_step3_desc": "Copia tu clave (que empieza por AIzaSy...) y pégala en Chalk. ¡Listo para sintetizar notas en vivo!",
-    "guide_quota_title": "Cuota gratuita generosa garantizada",
+    "guide_quota_title": "Cuota gratuita generosa garantizada (Gemini BYOK)",
     "guide_note": "Los límites del nivel gratuito (15 peticiones/min, 1,5M tokens/día) son más que generosos para clases universitarias y reuniones de trabajo diarias sin sorpresas.",
     "settings_footer_note": "Preferencias guardadas localmente en el dispositivo",
     "guide_action_btn": "Abrir Google AI Studio ↗",
@@ -2009,7 +2009,7 @@
     "preview_key_test_btn": "测试密钥",
     "preview_key_save_btn": "保存密钥",
     "preview_model_label": "AI 提炼模型：",
-    "optgroup_free": "免费基础配置",
+    "optgroup_free": "Gemini 免费版 (Direct BYOK)",
     "optgroup_premium": "付费商业模型 (Direct BYOK)",
     "model_preset_gemini_max": "Gemini 最高配：Gemini 3.5 Flash（实时分块）+ Gemini 3.1 Pro（终极综合）",
     "model_preset_gemini_medium": "Gemini 中配：Gemini 3.5 Flash-Lite（实时分块）+ Gemini 3.5 Flash（终极综合）",
@@ -2063,18 +2063,18 @@
     "privacy_card2_desc": "AI 合成请求直接从您的本机发送至 Google、Anthropic 或 OpenAI，无需任何中继服务器。",
     "privacy_card3_title": "零遥测与零追踪",
     "privacy_card3_desc": "零遥测收集、零追踪 Cookie (§ 165 TKG)，无任何集中式中转服务器。",
-    "free_api_tag": "免费试用",
-    "free_api_title": "使用免费的 Google Gemini API 密钥即刻体验 Chalk",
-    "free_api_desc": "无需信用卡，无任何订阅费用与承诺约束。数分钟内即可在你的本地工作站直接启用。",
+    "free_api_tag": "免费体验 (DIRECT BYOK)",
+    "free_api_title": "使用免费的 Google Gemini API 密钥即刻体验 Chalk (Direct BYOK)",
+    "free_api_desc": "自带免费密钥 (Direct BYOK)：0 费用，无需信用卡，无任何订阅费用与承诺约束。从本机直连 Google AI Studio。",
     "free_api_btn": "如何获取免费密钥（只需3步）▾",
     "free_api_btn_close": "收起指南 ▴",
     "guide_step1_title": "访问 Google AI Studio",
     "guide_step1_desc": "打开 aistudio.google.com 并使用任意 Google 账号登录。无需绑定信用卡或支付信息。",
     "guide_step2_title": "生成 API 密钥",
     "guide_step2_desc": "在左侧菜单点击“Get API key”，然后选择“Create API key in new project”。密钥将瞬间生成。",
-    "guide_step3_title": "粘贴至 Chalk",
+    "guide_step3_title": "粘贴至 Chalk (Direct BYOK)",
     "guide_step3_desc": "复制密钥字符串（以 AIzaSy... 开头）并粘贴到 Chalk 中。即可立即开始高精度笔记实时合成！",
-    "guide_quota_title": "充足的免费额度保障",
+    "guide_quota_title": "充足的免费额度保障 (Gemini BYOK)",
     "guide_note": "免费层配额（每分钟 15 次请求，每日 150 万 Token）完全满足全天高强度大学课程记录与数学推导，无需任何绑定费用。",
     "settings_footer_note": "偏好设置已安全保存在本地设备",
     "guide_action_btn": "打开 Google AI Studio ↗",

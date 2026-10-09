@@ -503,11 +503,11 @@ TRANSLATIONS: Dict[str, Dict[str, str]] = {
         "zh": "GPT-4o Mini（轻量快速）",
     },
     "optgroup_free": {
-        "en": "Free Tier Setups",
-        "de": "Kostenlose Setups",
-        "fr": "Configurations Gratuites",
-        "es": "Configuraciones Gratuitas",
-        "zh": "免费基础配置",
+        "en": "Gemini Free Tier (Direct BYOK)",
+        "de": "Gemini Free-Tier (Direct BYOK)",
+        "fr": "Configurations Gemini Gratuites (Direct BYOK)",
+        "es": "Configuraciones Gratuitas Gemini (Direct BYOK)",
+        "zh": "Gemini 免费版 (Direct BYOK)",
     },
     "optgroup_premium": {
         "en": "Paid Models (Direct BYOK)",

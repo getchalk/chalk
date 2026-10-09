@@ -160,7 +160,7 @@ def populate_preset_combobox(combo: QComboBox, active_lang: str):
     for pid, key, default_label, grp_key in COUPLED_PRESET_ITEMS:
         if grp_key != last_grp:
             last_grp = grp_key
-            grp_label = tr(grp_key, lang=active_lang) or ("Free Base Setups" if grp_key == "optgroup_free" else "Premium BYOK Setups")
+            grp_label = tr(grp_key, lang=active_lang) or ("Gemini Free Tier (Direct BYOK)" if grp_key == "optgroup_free" else "Paid Models (Direct BYOK)")
             combo.addItem(f"── {grp_label} ──", "")
             header_idx = combo.count() - 1
             model = combo.model()
