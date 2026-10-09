@@ -141,23 +141,53 @@ QFrame#guideCard {
 }
 """
 
-SUPPORTED_MODELS = [
-    ("gemini-2.5-flash", "model_gemini_25_flash", "Gemini 2.5 Flash (Recommended • Free Tier)"),
-    ("gemini-2.5-pro", "model_gemini_25_pro", "Gemini 2.5 Pro (Deep Math & Reasoning)"),
-    ("gemini-2.0-flash", "model_gemini_20_flash", "Gemini 2.0 Flash (Next-Gen Real-Time)"),
-    ("gemini-2.0-flash-lite", "model_gemini_20_flash_lite", "Gemini 2.0 Flash-Lite (High Speed & Low Latency)"),
-    ("gemini-1.5-pro", "model_gemini_15_pro", "Gemini 1.5 Pro (2M Long Context Archive)"),
-    ("claude-3-7-sonnet", "model_claude_37_sonnet", "Claude 3.7 Sonnet (Hybrid Reasoning)"),
-    ("claude-3-5-sonnet", "model_claude_35_sonnet", "Claude 3.5 Sonnet (Technical Analysis)"),
-    ("claude-3-5-haiku", "model_claude_35_haiku", "Claude 3.5 Haiku (Rapid Extraction)"),
-    ("gpt-4o", "model_gpt_4o", "GPT-4o (Omnimodal Processing)"),
-    ("gpt-4o-mini", "model_gpt_4o_mini", "GPT-4o Mini (Fast & Lightweight)"),
-    ("o3-mini", "model_o3_mini", "o3-mini (STEM & Formula Reasoning)"),
+COUPLED_PRESET_ITEMS = [
+    # (preset_id, i18n_key, default_label, optgroup_key)
+    ("gemini-max", "model_preset_gemini_max", "Gemini Maximum: Gemini 3.5 Flash (Operational) + Gemini 3.1 Pro (Synthesis)", "optgroup_free"),
+    ("gemini-medium", "model_preset_gemini_medium", "Gemini Medium: Gemini 3.5 Flash-Lite (Operational) + Gemini 3.5 Flash (Synthesis)", "optgroup_free"),
+    ("gemini-min", "model_preset_gemini_min", "Gemini Minimum: Gemini 3.1 Flash-Lite (Operational) + Gemini 3.5 Flash-Lite (Synthesis)", "optgroup_free"),
+    ("paid-gemini", "model_preset_paid_gemini", "Gemini 3.8 Flash (Operational & Synthesis)", "optgroup_premium"),
+    ("paid-claude", "model_preset_paid_claude", "Claude 5.5 Sonnet (Operational & Synthesis)", "optgroup_premium"),
+    ("paid-openai", "model_preset_paid_openai", "GPT-6.1 Sol (Operational & Synthesis)", "optgroup_premium"),
 ]
+SUPPORTED_MODELS = [(item[0], item[1], item[2]) for item in COUPLED_PRESET_ITEMS]
+
+
+def populate_preset_combobox(combo: QComboBox, active_lang: str):
+    """Populates a QComboBox with coupled dual-stage model presets organized by category."""
+    combo.clear()
+    last_grp = None
+    for pid, key, default_label, grp_key in COUPLED_PRESET_ITEMS:
+        if grp_key != last_grp:
+            last_grp = grp_key
+            grp_label = tr(grp_key, lang=active_lang) or ("Free Base Setups" if grp_key == "optgroup_free" else "Premium BYOK Setups")
+            combo.addItem(f"── {grp_label} ──", "")
+            header_idx = combo.count() - 1
+            model = combo.model()
+            if hasattr(model, "item"):
+                item = model.item(header_idx)
+                if item:
+                    item.setEnabled(False)
+        combo.addItem(tr(key, lang=active_lang) or default_label, pid)
+
+
+def select_preset_in_combobox(combo: QComboBox, target_id: Optional[str]):
+    """Selects the matching preset in combobox, gracefully resolving legacy model names."""
+    from src.engine.config import resolve_model_preset
+    preset = resolve_model_preset(target_id)
+    resolved_id = preset["id"]
+    for i in range(combo.count()):
+        if combo.itemData(i) == resolved_id:
+            combo.setCurrentIndex(i)
+            return
+    for i in range(combo.count()):
+        if combo.itemData(i):
+            combo.setCurrentIndex(i)
+            return
 
 
 class ValidationWorker(QThread):
-    finished = pyqtSignal(bool, str)
+    validation_finished = pyqtSignal(bool, str)
 
     def __init__(self, api_key: str, provider: str = "gemini"):
         super().__init__()
@@ -166,7 +196,7 @@ class ValidationWorker(QThread):
 
     def run(self):
         is_valid, msg = validate_api_key(self.api_key, provider=self.provider)
-        self.finished.emit(is_valid, msg)
+        self.validation_finished.emit(is_valid, msg)
 
 
 class SettingsDialog(QDialog):
@@ -221,8 +251,7 @@ class SettingsDialog(QDialog):
         model_box.addWidget(self.model_label)
 
         self.model_combo = QComboBox()
-        for model_id, key, default_label in SUPPORTED_MODELS:
-            self.model_combo.addItem(tr(key, lang=self._active_ui_lang) or default_label, model_id)
+        populate_preset_combobox(self.model_combo, self._active_ui_lang)
         self.model_combo.currentIndexChanged.connect(self._on_model_changed)
         model_box.addWidget(self.model_combo)
         layout.addLayout(model_box)
@@ -479,10 +508,9 @@ class SettingsDialog(QDialog):
         self.model_label.setText(tr("settings_model_label", lang=lang))
 
         # Model options
-        curr_model_idx = self.model_combo.currentIndex()
-        for i, (m_id, m_key, m_default) in enumerate(SUPPORTED_MODELS):
-            self.model_combo.setItemText(i, tr(m_key, lang=lang) or m_default)
-        self.model_combo.setCurrentIndex(curr_model_idx)
+        curr_preset_id = self.model_combo.currentData() or "gemini-max"
+        populate_preset_combobox(self.model_combo, lang)
+        select_preset_in_combobox(self.model_combo, curr_preset_id)
 
         self.info_text.setText(tr("settings_info_banner", lang=lang))
         self.link_btn.setText(tr("settings_link_aistudio", lang=lang))
@@ -523,16 +551,9 @@ class SettingsDialog(QDialog):
             self.retranslate_ui(new_lang)
 
     def _load_existing_settings(self):
-        # Load active model
+        # Load active model preset
         active_model = get_selected_model()
-        idx = self.model_combo.findData(active_model)
-        if idx < 0 and active_model:
-            alt = active_model.replace(".", "-") if "." in active_model else active_model.replace("-3-7-", "-3.7-")
-            idx = self.model_combo.findData(alt)
-        if idx >= 0:
-            self.model_combo.setCurrentIndex(idx)
-        else:
-            self.model_combo.setCurrentIndex(0)
+        select_preset_in_combobox(self.model_combo, active_model)
 
         # Load keys
         gemini_key = get_api_key("gemini")
@@ -585,6 +606,18 @@ class SettingsDialog(QDialog):
 
     def _on_model_changed(self):
         self.status_label.setText("")
+        preset_id = self.model_combo.currentData()
+        if not preset_id:
+            return
+        from src.engine.config import resolve_model_preset
+        preset = resolve_model_preset(preset_id)
+        provider = preset["required_provider"]
+        if provider == "anthropic" and hasattr(self, "anthropic_input"):
+            self.anthropic_input.setFocus()
+        elif provider == "openai" and hasattr(self, "openai_input"):
+            self.openai_input.setFocus()
+        elif hasattr(self, "gemini_input"):
+            self.gemini_input.setFocus()
 
     def _toggle_echo(self, line_edit: QLineEdit, button: QPushButton):
         if line_edit.echoMode() == QLineEdit.EchoMode.Password:
@@ -598,7 +631,7 @@ class SettingsDialog(QDialog):
         QDesktopServices.openUrl(QUrl("https://aistudio.google.com/app/apikey"))
 
     def _validate_and_save(self):
-        selected_model = self.model_combo.currentData()
+        selected_model = self.model_combo.currentData() or "gemini-max"
         gemini_key = self.gemini_input.text().strip()
         ant_key = self.anthropic_input.text().strip()
         oai_key = self.openai_input.text().strip()
@@ -617,26 +650,24 @@ class SettingsDialog(QDialog):
             self._active_ui_lang = selected_ui_lang
             self.language_changed.emit(selected_ui_lang)
 
-        # Save keys
-        if gemini_key:
-            set_api_key(gemini_key, "gemini")
-        if ant_key:
-            set_api_key(ant_key, "anthropic")
-        if oai_key:
-            set_api_key(oai_key, "openai")
+        # Store pending keys for atomic persistence after validation succeeds
+        self._pending_save_data = {
+            "selected_model": selected_model,
+            "gemini_key": gemini_key,
+            "ant_key": ant_key,
+            "oai_key": oai_key,
+        }
 
-        set_selected_model(selected_model)
-
-        # Determine which key to validate based on selected model
-        if "claude" in selected_model:
+        # Determine which key to validate based on selected coupled preset
+        from src.engine.config import resolve_model_preset
+        preset = resolve_model_preset(selected_model)
+        provider = preset["required_provider"]
+        if provider == "anthropic":
             target_key = ant_key
-            provider = "anthropic"
-        elif "gpt" in selected_model or "o3" in selected_model:
+        elif provider == "openai":
             target_key = oai_key
-            provider = "openai"
         else:
             target_key = gemini_key
-            provider = "gemini"
 
         if not target_key:
             self.status_label.setText(tr("settings_key_missing", lang=self._active_ui_lang, provider=provider.capitalize()))
@@ -649,7 +680,7 @@ class SettingsDialog(QDialog):
         self.status_label.setStyleSheet("color: #94A3B8; font-size: 11.5px;")
 
         self.worker = ValidationWorker(target_key, provider=provider)
-        self.worker.finished.connect(self._on_validation_result)
+        self.worker.validation_finished.connect(self._on_validation_result)
         self.worker.start()
 
     def _on_validation_result(self, is_valid: bool, message: str):
@@ -657,6 +688,18 @@ class SettingsDialog(QDialog):
         self.save_btn.setEnabled(True)
 
         if is_valid:
+            # Persist credentials to OS native vault ONLY upon successful validation
+            if hasattr(self, "_pending_save_data"):
+                data = self._pending_save_data
+                if data.get("gemini_key"):
+                    set_api_key(data["gemini_key"], "gemini")
+                if data.get("ant_key"):
+                    set_api_key(data["ant_key"], "anthropic")
+                if data.get("oai_key"):
+                    set_api_key(data["oai_key"], "openai")
+                if data.get("selected_model"):
+                    set_selected_model(data["selected_model"])
+
             self.status_label.setText("[OK] " + message)
             self.status_label.setStyleSheet("color: #FFFFFF; font-weight: 600; font-size: 11.5px;")
             self.accept()
@@ -671,9 +714,18 @@ class SettingsDialog(QDialog):
 
 def ensure_api_key_configured(parent=None) -> bool:
     """
-    Checks if an API key exists. If not, blocks execution and prompts the user
-    via SettingsDialog. Returns True if a valid key is present or set.
+    Checks if an API key exists for the active model provider. If not, blocks execution
+    and prompts the user via SettingsDialog. Returns True if a valid key is present or set.
     """
+    from src.engine.config import resolve_model_preset
+    selected_model = get_selected_model()
+    preset = resolve_model_preset(selected_model)
+    provider = preset["required_provider"]
+
+    if has_api_key(provider):
+        return True
+
+    # If active provider key missing but another valid key exists, permit startup
     if has_api_key("gemini") or has_api_key("anthropic") or has_api_key("openai"):
         return True
 

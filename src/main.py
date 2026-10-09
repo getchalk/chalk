@@ -1,7 +1,7 @@
 """
 src/main.py - Application Entry Point & Thread Lifecycle Coordinator.
 Wires together:
-- True Zero-Knowledge BYOK Key Manager & Settings Modal
+- Direct BYOK Key Manager & Settings Modal
 - Dual-Channel Hardware Diarization Audio Capture & Silero VAD
 - Event-Gated Screen Grabber & pHash Slide Deduplication
 - Adaptive Rate Controller Quota Manager & Elastic Chunker
@@ -15,6 +15,7 @@ import sys
 import os
 import json
 import time
+import html
 import subprocess
 import threading
 import logging
@@ -74,6 +75,12 @@ logging.basicConfig(
 )
 logger = logging.getLogger("chalk.main")
 
+# Global exception hook to prevent Qt slot exceptions from abruptly aborting the process (exit code 134)
+def _global_exception_hook(exctype, value, tb):
+    logger.critical("Unhandled top-level exception: %s", value, exc_info=(exctype, value, tb))
+
+sys.excepthook = _global_exception_hook
+
 
 def send_desktop_notification(title: str, message: str):
     """Dispatches a native OS desktop notification without external binaries."""
@@ -104,7 +111,7 @@ def send_desktop_notification(title: str, message: str):
 class ChunkSynthesisWorker(QThread):
     """Background worker for live Gemini Flash chunk synthesis."""
     success = pyqtSignal(str, object, str, str)  # markdown, chunk_state, start_time_str, end_time_str
-    failed = pyqtSignal(Exception, object, object, list)  # error, audio_data, keyframes, whiteboard_photos
+    failed = pyqtSignal(Exception, object, object, list, list, float)  # error, audio_data, keyframes, whiteboard_photos, segment_ids, prev_start_sec
 
     def __init__(
         self,
@@ -117,6 +124,8 @@ class ChunkSynthesisWorker(QThread):
         start_t: str,
         end_t: str,
         whiteboard_photos: Optional[List[Any]] = None,
+        segment_ids: Optional[List[str]] = None,
+        prev_start_sec: float = 0.0,
     ):
         super().__init__()
         self.pipeline = pipeline
@@ -128,6 +137,8 @@ class ChunkSynthesisWorker(QThread):
         self.start_t = start_t
         self.end_t = end_t
         self.whiteboard_photos = whiteboard_photos or []
+        self.segment_ids = segment_ids or []
+        self.prev_start_sec = prev_start_sec
 
     def run(self):
         try:
@@ -144,7 +155,7 @@ class ChunkSynthesisWorker(QThread):
             )
             self.success.emit(markdown, state, self.start_t, self.end_t)
         except Exception as e:
-            self.failed.emit(e, self.audio_data, self.keyframes, self.whiteboard_photos)
+            self.failed.emit(e, self.audio_data, self.keyframes, self.whiteboard_photos, self.segment_ids, self.prev_start_sec)
 
 
 class MasterSynthesisWorker(QThread):
@@ -176,6 +187,10 @@ class ChalkCoordinator(QObject):
     sig_snip_screen = pyqtSignal()
     sig_break_detected = pyqtSignal()
     sig_speech_resumed = pyqtSignal()
+    sig_open_settings = pyqtSignal()
+    sig_open_obsidian = pyqtSignal()
+    sig_open_default_editor = pyqtSignal()
+    sig_open_notes = pyqtSignal()
 
     def __init__(self, app: QApplication):
         super().__init__()
@@ -185,7 +200,7 @@ class ChalkCoordinator(QObject):
 
         # 1. Subsystems
         self.quota_manager = QuotaManager()
-        self.notes_manager = SessionNotesManager()
+        self.notes_manager = SessionNotesManager(auto_init=False)
         self.pipeline = GeminiLecturePipeline(quota_manager=self.quota_manager)
 
         # 2. Audio & VAD
@@ -229,24 +244,29 @@ class ChalkCoordinator(QObject):
         self.hud.request_force_flush.connect(self.force_chunk_flush)
         self.hud.request_master_synthesis.connect(self.finish_lecture_session)
 
+        # pystray callbacks on Windows/Linux run in background threads. Route via Qt signals for thread safety.
         self.tray = ChalkSystemTray(
             on_toggle_recording=lambda: self.sig_toggle_recording.emit(),
             on_force_flush=lambda: self.sig_force_flush.emit(),
             on_toggle_hud=lambda: self.sig_toggle_hud.emit(),
-            on_open_notes=self.open_notes_folder,
-            on_open_obsidian=self.hud._open_in_obsidian,
-            on_open_default_editor=self.hud._open_in_default_editor,
-            on_open_settings=self.open_settings_dialog,
+            on_open_notes=lambda: self.sig_open_notes.emit(),
+            on_open_obsidian=lambda: self.sig_open_obsidian.emit(),
+            on_open_default_editor=lambda: self.sig_open_default_editor.emit(),
+            on_open_settings=lambda: self.sig_open_settings.emit(),
             on_exit=self.exit_application,
         )
 
-        # Signal connections for thread-safe UI actions from global hotkeys
+        # Signal connections for thread-safe UI actions from global hotkeys & background tray threads
         self.sig_toggle_recording.connect(self.toggle_recording)
         self.sig_force_flush.connect(self.force_chunk_flush)
         self.sig_toggle_hud.connect(self.hud.toggle_visibility)
         self.sig_snip_screen.connect(self.hud.trigger_screen_snip)
         self.sig_break_detected.connect(self._handle_break_detected)
         self.sig_speech_resumed.connect(self._handle_speech_resumed)
+        self.sig_open_settings.connect(self.open_settings_dialog)
+        self.sig_open_obsidian.connect(self.hud._open_in_obsidian)
+        self.sig_open_default_editor.connect(self.hud._open_in_default_editor)
+        self.sig_open_notes.connect(self.open_notes_folder)
 
         # Active background workers & fault tolerance
         self._active_chunk_worker: Optional[ChunkSynthesisWorker] = None
@@ -285,9 +305,16 @@ class ChalkCoordinator(QObject):
         self.session_start_time = time.time()
         self.current_chunk_start_sec = 0.0
 
+        # If previous session completed notes, re-initialize fresh SessionNotesManager for new lecture
+        if getattr(self.notes_manager, "chunk_count", 0) > 0:
+            self.notes_manager = SessionNotesManager()
+            self.hud.notes_manager = self.notes_manager
+            register_tool_context(notes_manager=self.notes_manager)
+
         self.recorder.start()
         self.screen_grabber.start(session_start_time=self.session_start_time)
-        self.tray.start()
+        if not getattr(self.tray, "_is_running", False):
+            self.tray.start()
         self.tray.set_status("green")
         self.hud.set_daemon_status("recording")
 
@@ -362,9 +389,12 @@ class ChalkCoordinator(QObject):
 
         # If completely empty, skip
         if len(audio) == 0 and len(keyframes) == 0 and len(whiteboard_photos) == 0:
+            if getattr(self, "_pending_master_synthesis", False):
+                self._trigger_master_synthesis_flow()
             return
 
         now_sec = time.time() - self.session_start_time
+        prev_start_sec = self.current_chunk_start_sec
         start_m, start_s = int(self.current_chunk_start_sec // 60), int(self.current_chunk_start_sec % 60)
         end_m, end_s = int(now_sec // 60), int(now_sec % 60)
         start_str = f"[{start_m:02d}:{start_s:02d}]"
@@ -390,6 +420,7 @@ class ChalkCoordinator(QObject):
         else:
             doc_text = self.hud.attached_document_text
         prev_state = self.notes_manager.last_state
+        flushed_seg_ids = getattr(self.recorder, "last_flushed_segment_ids", [])
 
         self._active_chunk_worker = ChunkSynthesisWorker(
             pipeline=self.pipeline,
@@ -401,6 +432,8 @@ class ChalkCoordinator(QObject):
             start_t=start_str,
             end_t=end_str,
             whiteboard_photos=whiteboard_photos,
+            segment_ids=flushed_seg_ids,
+            prev_start_sec=prev_start_sec,
         )
         self._active_chunk_worker.success.connect(self._on_chunk_success)
         self._active_chunk_worker.failed.connect(self._on_chunk_failed)
@@ -437,18 +470,36 @@ class ChalkCoordinator(QObject):
         if getattr(self, "_pending_master_synthesis", False):
             self._trigger_master_synthesis_flow()
 
-    def _on_chunk_failed(self, error: Exception, audio_data, keyframes, whiteboard_photos=None):
+    def _on_chunk_failed(
+        self,
+        error: Exception,
+        audio_data,
+        keyframes,
+        whiteboard_photos=None,
+        segment_ids=None,
+        prev_start_sec: float = 0.0,
+    ):
         self._active_chunk_worker = None
         err_msg = str(error)
         logger.error("Chunk synthesis encountered error: %s", err_msg)
 
-        # 1. Authentication / Permission errors (401, 403, API_KEY_INVALID)
-        if any(term in err_msg for term in ("401", "403", "API_KEY_INVALID", "INVALID_ARGUMENT", "PERMISSION_DENIED")):
-            logger.critical("Authentication / API Key error: %s. Halting chunk retries.", err_msg)
-            self.recorder.pause()
+        # Reset chunk start time so subsequent chunk timestamps do not desync
+        self.current_chunk_start_sec = prev_start_sec
+
+        # 1. Strict Authentication / Permission errors (401, 403, API_KEY_INVALID, UNAUTHENTICATED, PERMISSION_DENIED)
+        # Avoid false trap on 400 Bad Request / INVALID_ARGUMENT (e.g. oversized or bad payloads)
+        is_auth_error = any(term in err_msg for term in ("401", "403", "API_KEY_INVALID", "UNAUTHENTICATED", "PERMISSION_DENIED")) and ("INVALID_ARGUMENT" not in err_msg)
+        if is_auth_error:
+            logger.critical("Authentication / API Key error: %s. Pausing synthesis retries.", err_msg)
+            # CRITICAL FIX: NEVER pause the audio recorder! Lecture capture must continue uninterrupted
             self.tray.set_status("yellow")
             self.hud.set_daemon_status("paused", "API Key Invalid")
             send_desktop_notification("Chalk: Authentication Error", "API key invalid or expired. Check Settings.")
+            # Safely re-queue segments for future processing once key is refreshed
+            if segment_ids and hasattr(self.recorder, "reinsert_segment_ids"):
+                self.recorder.reinsert_segment_ids(segment_ids)
+            elif audio_data is not None and len(audio_data) > 0:
+                self.recorder.reinsert_unprocessed_chunk(audio_data)
             return
 
         # 2. HTTP 429 Rate Limits
@@ -457,25 +508,32 @@ class ChalkCoordinator(QObject):
             self.chunker.handle_rate_limit_429(backoff_seconds=300)
             self.tray.set_status("yellow")
             self.hud.set_daemon_status("paused", "429 Rate Limit Backoff")
-            self.recorder.reinsert_unprocessed_chunk(audio_data)
+            if segment_ids and hasattr(self.recorder, "reinsert_segment_ids"):
+                self.recorder.reinsert_segment_ids(segment_ids)
+            elif audio_data is not None and len(audio_data) > 0:
+                self.recorder.reinsert_unprocessed_chunk(audio_data)
             self.screen_grabber.reinsert_unprocessed_keyframes(keyframes)
             send_desktop_notification(tr("notify_rate_limit_title"), tr("notify_rate_limit_body"))
             return
 
-        # 3. Consecutive failure tracking & quarantine
+        # 3. Consecutive failure tracking & quarantine (10 retries allows ~3-5 mins of Wi-Fi outage without data loss)
         self._chunk_fail_count = getattr(self, "_chunk_fail_count", 0) + 1
-        if self._chunk_fail_count > 5:
-            logger.warning("Chunk exceeded 5 retries. Quarantining audio & slides to prevent data loss.")
+        if self._chunk_fail_count > 10:
+            logger.warning("Chunk exceeded 10 retries. Quarantining audio & slides to prevent data loss.")
             self._quarantine_chunk(audio_data, keyframes, whiteboard_photos, err_msg)
             self._chunk_fail_count = 0
             if getattr(self, "_pending_master_synthesis", False):
                 self._trigger_master_synthesis_flow()
             return
 
-        # Exponential backoff retry staging
-        backoff_sec = min(30, 2 ** self._chunk_fail_count)
-        logger.info("Reinserting chunk for retry (%d/5) with %ds backoff.", self._chunk_fail_count, backoff_sec)
-        self.recorder.reinsert_unprocessed_chunk(audio_data)
+        # Exponential backoff retry staging with programmatic chunker enforcement
+        backoff_sec = min(60, 2 ** self._chunk_fail_count)
+        self.chunker.set_retry_backoff(backoff_sec)
+        logger.info("Reinserting chunk for retry (%d/10) with %ds enforced backoff.", self._chunk_fail_count, backoff_sec)
+        if segment_ids and hasattr(self.recorder, "reinsert_segment_ids"):
+            self.recorder.reinsert_segment_ids(segment_ids)
+        elif audio_data is not None and len(audio_data) > 0:
+            self.recorder.reinsert_unprocessed_chunk(audio_data)
         self.screen_grabber.reinsert_unprocessed_keyframes(keyframes)
         if whiteboard_photos and hasattr(self.hud, "whiteboard_photos"):
             self.hud.whiteboard_photos.extend(whiteboard_photos)
@@ -483,7 +541,7 @@ class ChalkCoordinator(QObject):
                 self.hud._update_attachment_banner()
 
         self.tray.set_status("yellow")
-        self.hud.set_daemon_status("paused", f"Retry {self._chunk_fail_count}/5 ({backoff_sec}s)")
+        self.hud.set_daemon_status("paused", f"Retry {self._chunk_fail_count}/10 ({backoff_sec}s)")
 
     def _quarantine_chunk(self, audio_data, keyframes, whiteboard_photos, error_reason: str):
         """Saves failing chunk to ~/.chalk/quarantine/ so no lecture data is ever lost."""
@@ -495,6 +553,7 @@ class ChalkCoordinator(QObject):
                 "error": error_reason,
                 "keyframes_count": len(keyframes) if keyframes else 0,
                 "audio_samples": len(audio_data) if audio_data is not None else 0,
+                "whiteboard_photos_count": len(whiteboard_photos) if whiteboard_photos else 0,
             }
             with open(os.path.join(quarantine_dir, "metadata.json"), "w", encoding="utf-8") as f:
                 json.dump(meta, f, indent=2)
@@ -504,6 +563,32 @@ class ChalkCoordinator(QObject):
                 wav_b = audio_to_wav_bytes(audio_data, sample_rate=16000)
                 with open(os.path.join(quarantine_dir, "audio.wav"), "wb") as f:
                     f.write(wav_b)
+
+            if keyframes:
+                for idx, kf in enumerate(keyframes):
+                    try:
+                        kf_bytes = kf.to_jpeg_bytes()
+                        with open(os.path.join(quarantine_dir, f"slide_{idx + 1:02d}.jpg"), "wb") as f:
+                            f.write(kf_bytes)
+                    except Exception as kfe:
+                        logger.debug("Quarantine keyframe write error: %s", kfe)
+
+            if whiteboard_photos:
+                for wb_idx, wb_item in enumerate(whiteboard_photos):
+                    try:
+                        wb_b = None
+                        if isinstance(wb_item, str) and os.path.exists(wb_item):
+                            with open(wb_item, "rb") as f:
+                                wb_b = f.read()
+                        elif hasattr(wb_item, "to_jpeg_bytes"):
+                            wb_b = wb_item.to_jpeg_bytes()
+                        elif isinstance(wb_item, bytes):
+                            wb_b = wb_item
+                        if wb_b:
+                            with open(os.path.join(quarantine_dir, f"whiteboard_{wb_idx + 1:02d}.jpg"), "wb") as f:
+                                f.write(wb_b)
+                    except Exception as wbe:
+                        logger.debug("Quarantine whiteboard write error: %s", wbe)
 
             send_desktop_notification(
                 "Chalk: Chunk Quarantined",
@@ -517,6 +602,7 @@ class ChalkCoordinator(QObject):
         logger.info("Autonomous Break Detected. Flushing active chunk and switching to Standby.")
         self._dispatch_chunk_flush(trigger_reason="Break Detected (>180s silence)")
         self.recorder.pause()
+        self.screen_grabber.pause()
         self.tray.set_status("yellow")
         self.hud.set_daemon_status("standby", "Lecture Break")
         send_desktop_notification(tr("notify_break_detected_title"), tr("notify_break_detected_body"))
@@ -525,6 +611,7 @@ class ChalkCoordinator(QObject):
         """Speech resumed after break."""
         logger.info("Speech resumed after break. Reactivating recording.")
         self.recorder.resume()
+        self.screen_grabber.resume()
         self.tray.set_status("green")
         self.hud.set_daemon_status("recording")
         send_desktop_notification(tr("notify_speech_resumed_title"), tr("notify_speech_resumed_body"))
@@ -538,11 +625,13 @@ class ChalkCoordinator(QObject):
         if self.recorder.is_recording:
             if self.recorder.is_paused:
                 self.recorder.resume()
+                self.screen_grabber.resume()
                 self.tray.set_status("green")
                 self.hud.set_daemon_status("recording")
                 send_desktop_notification(tr("notify_recording_resumed_title"), tr("notify_recording_resumed_body"))
             else:
                 self.recorder.pause()
+                self.screen_grabber.pause()
                 self.tray.set_status("yellow")
                 self.hud.set_daemon_status("paused")
                 send_desktop_notification(tr("notify_recording_paused_title"), tr("notify_recording_paused_body"))
@@ -563,22 +652,21 @@ class ChalkCoordinator(QObject):
         self.tray.set_status("blue")
         self.hud.set_daemon_status("processing", "Master Synthesis")
 
-        # Flush any remaining audio/slides first
-        rem_audio = self.recorder.get_and_flush_active_chunk(strip_silence=False)
-        rem_slides = self.screen_grabber.get_and_flush_keyframes()
-        whiteboard_photos = []
-        if hasattr(self.hud, "pop_unprocessed_whiteboard_photos"):
-            whiteboard_photos = self.hud.pop_unprocessed_whiteboard_photos()
-
         self._pending_master_synthesis = True
 
-        if len(rem_audio) > 0 or len(rem_slides) > 0 or len(whiteboard_photos) > 0:
+        if self._active_chunk_worker is not None:
+            logger.info("Awaiting active chunk worker completion before master synthesis...")
+            return
+
+        has_audio = self.recorder.get_active_buffer_duration_sec() > 0
+        has_slides = self.screen_grabber.has_pending_keyframes()
+        has_photos = bool(getattr(self.hud, "whiteboard_photos", None))
+
+        if has_audio or has_slides or has_photos:
             logger.info("Dispatching final residual chunk before master synthesis...")
             self._dispatch_chunk_flush(trigger_reason="Final Lecture Flush")
-        elif self._active_chunk_worker is None:
-            self._trigger_master_synthesis_flow()
         else:
-            logger.info("Awaiting active chunk worker completion before master synthesis...")
+            self._trigger_master_synthesis_flow()
 
     def _trigger_master_synthesis_flow(self):
         """Finalizes journal and triggers Master Synthesis Worker once all chunks are complete."""

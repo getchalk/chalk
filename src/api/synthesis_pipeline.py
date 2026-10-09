@@ -286,16 +286,26 @@ KATEX_ALLOWED_COMMANDS = {
     # Delimiters, Sizing & Brackets
     "left", "right", "bigl", "bigr", "Bigl", "Bigr", "biggl", "biggr", "Bigg", "middle",
     "big", "Big", "bigg", "langle", "rangle", "lfloor", "rfloor", "lceil", "rceil", "Vert", "vert",
+    "lVert", "rVert", "lvert", "rvert", "lbrace", "rbrace", "bra", "ket", "braket",
     # Environments, Multi-line structures, Modulo & Accents
     "begin", "end", "quad", "qquad", "phantom", "hphantom", "vphantom",
     "limits", "nolimits", "displaystyle", "textstyle", "scriptstyle", "scriptscriptstyle",
     "over", "atop", "choose", "aligned", "cases", "matrix", "pmatrix", "bmatrix",
     "Bmatrix", "vmatrix", "Vmatrix", "array", "gather", "gathered", "split",
-    "substack", "smallmatrix", "hline", "newline", "bmod", "pmod", "pod",
+    "substack", "smallmatrix", "hline", "newline", "bmod", "pmod", "pod", "mod",
     "therefore", "because", "intertext", "shortintertext",
-    # Advanced Math, Logic, Binomial & Annotations
+    # Advanced Math, Logic, Binomial, Operators & Annotations
     "binom", "wedge", "vee", "bigcup", "bigcap", "xrightarrow", "xleftarrow",
-    "overset", "underset", "boxed", "not"
+    "xleftrightarrow", "xLeftarrow", "xRightarrow", "xLeftrightarrow",
+    "overset", "underset", "boxed", "not", "coloneqq", "eqcolon",
+    "argmax", "argmin", "bigoplus", "bigotimes", "bigodot", "biguplus", "bigsqcup",
+    "varPhi", "varPsi", "varGamma", "varDelta", "varTheta", "varLambda", "varXi", "varPi",
+    "varSigma", "varUpsilon", "varOmega", "colon", "nmid", "subsetneq", "supsetneq",
+    "subsetneqq", "supsetneqq", "overrightarrow", "overleftarrow", "overleftrightarrow",
+    "underrightarrow", "underleftarrow", "mathop", "stackrel", "cancel", "bcancel", "xcancel",
+    "leqslant", "geqslant", "leqq", "geqq", "ll", "gg", "diag", "rank", "tr", "trace", "span", "supp",
+    "notag", "tag", "smash", "triangleq", "approxeq", "thicksim", "thickapprox",
+    "subseteqq", "supseteqq", "nsubseteq", "nsupseteq", "lneqq", "gneqq"
 }
 
 
@@ -335,7 +345,6 @@ def sanitize_latex(latex_str: str) -> str:
     2. Strips dangling trailing backslashes.
     3. Balances unmatched braces {}, brackets [], and parentheses ().
     4. Repairs dangling \\frac commands with [Lücke] placeholders.
-    5. Replaces unrecognized control sequences with \\text{...}.
     """
     s = fix_basic_escaping(latex_str)
 
@@ -385,15 +394,6 @@ def sanitize_latex(latex_str: str) -> str:
     s = re.sub(r"\\frac(?!\s*\{)", r"\\frac{[Lücke]}{[Lücke]}", s)
     # 2. \frac with single argument
     s = re.sub(r"(\\frac\s*\{[^{}]*\})(?!\s*\{)", r"\1{[Lücke]}", s)
-
-    # Replace unrecognized control sequences with \text{cmd}
-    def _replace_unknown(m):
-        cmd = m.group(1)
-        if cmd in KATEX_ALLOWED_COMMANDS:
-            return m.group(0)
-        return f"\\text{{{cmd}}}"
-
-    s = re.sub(r"\\([A-Za-z]+)", _replace_unknown, s)
 
     return s
 
@@ -825,12 +825,24 @@ def render_socratic_to_markdown(questions: List[str]) -> str:
     return "\n".join(lines)
 
 
+def _convert_math_to_anki(text: str) -> str:
+    """Converts standard LaTeX $$...$$ and $...$ delimiters to Anki MathJax \[...\] and \(...\)."""
+    if not text:
+        return text
+    # Display math: $$ ... $$ -> \[ ... \]
+    t = re.sub(r"\$\$(.+?)\$\$", r"\[\1\]", text, flags=re.DOTALL)
+    # Inline math: $ ... $ -> \( ... \) (ignoring already converted \[ or \( or escaped \$)
+    t = re.sub(r"(?<![\$\\])\$(?!\$)(.+?)(?<![\$\\])\$(?!\$)", r"\(\1\)", t)
+    return t
+
+
 def export_flashcards_to_tsv(
     flashcards: List[Union[Dict[str, Any], FlashcardItem]],
     output_path: str,
 ) -> str:
     """
     Exports flashcards to Anki-importable TSV format (Front \\t Back \\t Deck/Tags).
+    Automatically transforms LaTeX delimiters to Anki-native MathJax \(...\) and \[...\].
     """
     rows = []
     for item in flashcards:
@@ -847,11 +859,14 @@ def export_flashcards_to_tsv(
         if not q or not ans:
             continue
 
-        q_clean = q.replace("\t", " ")
+        q_anki = _convert_math_to_anki(q)
+        ans_anki = _convert_math_to_anki(ans)
+
+        q_clean = q_anki.replace("\t", " ")
         if ts and ts not in q_clean:
             q_clean = f"{q_clean} <small><i>{ts}</i></small>"
 
-        ans_clean = ans.replace("\t", " ").replace("\n", "<br>")
+        ans_clean = ans_anki.replace("\t", " ").replace("\n", "<br>")
         rows.append(f"{q_clean}\t{ans_clean}\tChalk::Exam")
 
     os.makedirs(os.path.dirname(os.path.abspath(output_path)), exist_ok=True)
@@ -951,7 +966,8 @@ class SynthesisPipeline:
     @staticmethod
     def parse_synthesis_json(raw_json_or_text: str) -> LectureSynthesisResponse:
         """
-        Parses raw model output into LectureSynthesisResponse with graceful fallbacks.
+        Parses raw model output into LectureSynthesisResponse with tolerant JSON repair
+        and graceful fallbacks that never dump raw JSON syntax into user notes.
         """
         text = raw_json_or_text.strip()
         # Strip potential markdown code block delimiters
@@ -969,6 +985,47 @@ class SynthesisPipeline:
                 return LectureSynthesisResponse.model_validate(data)
             except Exception:
                 pass
+
+        # Tolerant truncated JSON repair
+        if data is None and ("{" in text or "[" in text):
+            repaired_text = text.rstrip()
+            if repaired_text.endswith(","):
+                repaired_text = repaired_text[:-1].rstrip()
+            open_braces = repaired_text.count("{") - repaired_text.count("}")
+            open_brackets = repaired_text.count("[") - repaired_text.count("]")
+            if open_brackets > 0 or open_braces > 0:
+                repaired_attempt = repaired_text + ("]" * max(0, open_brackets)) + ("}" * max(0, open_braces))
+                try:
+                    data = json.loads(repaired_attempt)
+                except Exception:
+                    pass
+
+            # Extract individual completed blocks if overall container is still broken
+            if data is None:
+                # Find all standalone JSON objects that match a block structure
+                block_matches = re.findall(
+                    r'(\{\s*"type"\s*:\s*"[^"]+"\s*,\s*"title"\s*:\s*.*?\})',
+                    text,
+                    re.DOTALL
+                )
+                if not block_matches:
+                    block_matches = re.findall(r'(\{[^{}]*"type"[^{}]*"title"[^{}]*\})', text, re.DOTALL)
+
+                if block_matches:
+                    extracted_blocks = []
+                    for bm in block_matches:
+                        try:
+                            b_dict = json.loads(bm)
+                            extracted_blocks.append(LectureNoteBlock.model_validate(b_dict))
+                        except Exception:
+                            pass
+                    if extracted_blocks:
+                        logger.info("Recovered %d completed blocks from truncated model JSON.", len(extracted_blocks))
+                        return LectureSynthesisResponse(
+                            topic="Synthesized Notes",
+                            blocks=extracted_blocks,
+                            primary_speaker="Instructor",
+                        )
 
         if isinstance(data, dict):
             # Tolerant block-by-block parsing: recover every valid theorem/definition/proof
@@ -1016,14 +1073,30 @@ class SynthesisPipeline:
                     socratic_questions=list(data.get("socratic_questions", [])),
                 )
 
-        logger.warning("Could not parse strict JSON for synthesis. Using fallback object.")
+        logger.warning("Could not parse strict JSON for synthesis. Using clean prose fallback.")
+        # Prevent raw JSON syntax from leaking into user notes
+        is_raw_json = text.strip().startswith(("{", "[")) or '"blocks"' in text or '"type"' in text
+        if is_raw_json:
+            # Extract readable explanation or text values if possible
+            exp_matches = re.findall(r'"explanation"\s*:\s*"([^"]+)"', text)
+            if exp_matches:
+                clean_summary = "\n\n".join(exp_matches[:3])
+            else:
+                title_matches = re.findall(r'"title"\s*:\s*"([^"]+)"', text)
+                if title_matches:
+                    clean_summary = "Topics discussed: " + ", ".join(title_matches[:5])
+                else:
+                    clean_summary = "Synthesized lecture content processed (raw JSON structured output was incomplete)."
+        else:
+            clean_summary = text[:1000]
+
         return LectureSynthesisResponse(
             topic="Synthesized Notes",
             blocks=[
                 LectureNoteBlock(
                     type="remark",
                     title="Notes Summary",
-                    explanation=text[:1000],
+                    explanation=clean_summary,
                     source="inferred",
                 )
             ],
@@ -1035,16 +1108,27 @@ class SynthesisPipeline:
         timestamp_range: str = "[00:00 - 15:00]",
     ) -> Tuple[str, ChunkState, LectureSynthesisResponse]:
         """
-        Takes raw model response, validates KaTeX syntax across all blocks,
+        Takes raw model response, validates KaTeX syntax across all blocks and flashcards,
         and produces rendered markdown and ChunkState.
         """
         response_obj = self.parse_synthesis_json(raw_output)
 
-        # Validate and sanitize all blocks' LaTeX
+        # Validate and sanitize all blocks' LaTeX and embedded formulas
         for block in response_obj.blocks:
             if block.latex:
                 _, sanitized = validate_latex_syntax(block.latex)
                 block.latex = sanitized
+            if block.explanation and "$$" in block.explanation:
+                def _rep_disp(m):
+                    _, v = validate_latex_syntax(m.group(1))
+                    return f"$${v}$$"
+                block.explanation = re.sub(r"\$\$(.+?)\$\$", _rep_disp, block.explanation, flags=re.DOTALL)
+
+        # Validate and sanitize flashcard formulas
+        for fc in response_obj.flashcards:
+            if fc.answer_latex:
+                _, sanitized_fc = validate_latex_syntax(fc.answer_latex)
+                fc.answer_latex = sanitized_fc
 
         rendered_md = render_synthesis_to_markdown(response_obj, timestamp_range=timestamp_range)
         chunk_state = response_obj.to_chunk_state(timestamp_range=timestamp_range)

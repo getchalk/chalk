@@ -4,7 +4,7 @@
 
 Chalk is a silent, background cross-platform desktop daemon designed to capture 3.5-hour to 7-hour university lectures, synchronize spoken audio with slide transitions, and synthesize structured LaTeX Markdown notes in real time.
 
-Operating under a **True Zero-Knowledge Bring-Your-Own-Key (BYOK)** architecture, Chalk connects directly from the client to Google AI Studio via the official `google-genai` SDK (`from google import genai`). It uses zero intermediary proxy servers, performs no cloud telemetry, and stores credentials exclusively in the operating system's native encrypted vault (Windows Credential Locker via DPAPI or Apple Keychain Access on macOS).
+Operating under a **Direct Bring-Your-Own-Key (BYOK) • Local-First** architecture, Chalk connects directly from the client to Google AI Studio, Anthropic, or OpenAI via official SDKs. It uses zero intermediary proxy servers, performs no cloud telemetry, and stores credentials exclusively in the operating system's native encrypted vault (Windows Credential Locker via DPAPI or Apple Keychain Access on macOS).
 
 ---
 

@@ -125,3 +125,114 @@ def set_ui_language(language_code: Optional[str]) -> bool:
         cfg["ui_language"] = "en"
     return save_chalk_config(cfg)
 
+
+# ==============================================================================
+# Coupled Dual-Stage Model Selection Presets (Phase 28)
+# Separates Daily Live-Chunking (Flash) vs. High-Yield Master Synthesis (Pro)
+# ==============================================================================
+
+COUPLED_MODEL_PRESETS: Dict[str, Dict[str, Any]] = {
+    "gemini-max": {
+        "id": "gemini-max",
+        "i18n_key": "model_preset_gemini_max",
+        "display_name": "Gemini Maximum: Gemini 3.5 Flash (Operational) + Gemini 3.1 Pro (Synthesis)",
+        "short_name": "Gemini Maximum",
+        "category": "free",
+        "flash_model": "gemini-3.5-flash",
+        "pro_model": "gemini-3.1-pro",
+        "daily_rpd_limit": 50,
+        "required_provider": "gemini",
+        "description": "High Reasoning Tier • Gemini 3.5 Flash (Operational) + Gemini 3.1 Pro (Synthesis)",
+    },
+    "gemini-medium": {
+        "id": "gemini-medium",
+        "i18n_key": "model_preset_gemini_medium",
+        "display_name": "Gemini Medium: Gemini 3.5 Flash-Lite (Operational) + Gemini 3.5 Flash (Synthesis)",
+        "short_name": "Gemini Medium",
+        "category": "free",
+        "flash_model": "gemini-3.5-flash-lite",
+        "pro_model": "gemini-3.5-flash",
+        "daily_rpd_limit": 500,
+        "required_provider": "gemini",
+        "description": "Balanced Quota Tier • Gemini 3.5 Flash-Lite (Operational) + Gemini 3.5 Flash (Synthesis)",
+    },
+    "gemini-min": {
+        "id": "gemini-min",
+        "i18n_key": "model_preset_gemini_min",
+        "display_name": "Gemini Minimum: Gemini 3.1 Flash-Lite (Operational) + Gemini 3.5 Flash-Lite (Synthesis)",
+        "short_name": "Gemini Minimum",
+        "category": "free",
+        "flash_model": "gemini-3.1-flash-lite",
+        "pro_model": "gemini-3.5-flash-lite",
+        "daily_rpd_limit": 1500,
+        "required_provider": "gemini",
+        "description": "Max Quota Tier • Gemini 3.1 Flash-Lite (Operational) + Gemini 3.5 Flash-Lite (Synthesis)",
+    },
+    "paid-gemini": {
+        "id": "paid-gemini",
+        "i18n_key": "model_preset_paid_gemini",
+        "display_name": "Gemini 3.8 Flash (Operational & Synthesis)",
+        "short_name": "Gemini 3.8 Flash",
+        "category": "premium",
+        "flash_model": "gemini-3.8-flash",
+        "pro_model": "gemini-3.8-flash",
+        "daily_rpd_limit": 10000,
+        "required_provider": "gemini",
+        "description": "Direct BYOK • Gemini 3.8 Flash (Operational & Synthesis)",
+    },
+    "paid-claude": {
+        "id": "paid-claude",
+        "i18n_key": "model_preset_paid_claude",
+        "display_name": "Claude 5.5 Sonnet (Operational & Synthesis)",
+        "short_name": "Claude 5.5 Sonnet",
+        "category": "premium",
+        "flash_model": "claude-5-5-sonnet",
+        "pro_model": "claude-5-5-sonnet",
+        "daily_rpd_limit": 10000,
+        "required_provider": "anthropic",
+        "description": "Direct BYOK • Claude 5.5 Sonnet (Operational & Synthesis)",
+    },
+    "paid-openai": {
+        "id": "paid-openai",
+        "i18n_key": "model_preset_paid_openai",
+        "display_name": "GPT-6.1 Sol (Operational & Synthesis)",
+        "short_name": "GPT-6.1 Sol",
+        "category": "premium",
+        "flash_model": "gpt-6-1-sol",
+        "pro_model": "gpt-6-1-sol",
+        "daily_rpd_limit": 10000,
+        "required_provider": "openai",
+        "description": "Direct BYOK • GPT-6.1 Sol (Operational & Synthesis)",
+    },
+}
+
+DEFAULT_MODEL_PRESET = "gemini-max"
+
+
+def resolve_model_preset(preset_or_model_id: Optional[str]) -> Dict[str, Any]:
+    """
+    Resolves a preset ID or legacy model name into the coupled preset configuration.
+    """
+    if not preset_or_model_id:
+        return COUPLED_MODEL_PRESETS[DEFAULT_MODEL_PRESET]
+
+    key = str(preset_or_model_id).strip()
+    if key in COUPLED_MODEL_PRESETS:
+        return COUPLED_MODEL_PRESETS[key]
+
+    lower = key.lower()
+    if "paid-gemini" in lower or "3.8" in lower or ("paid" in lower and "gemini" in lower):
+        return COUPLED_MODEL_PRESETS["paid-gemini"]
+    elif "claude" in lower:
+        return COUPLED_MODEL_PRESETS["paid-claude"]
+    elif "gpt" in lower or "openai" in lower or "sol" in lower or "o3" in lower:
+        return COUPLED_MODEL_PRESETS["paid-openai"]
+    elif "min" in lower or "lite" in lower or "eco" in lower:
+        return COUPLED_MODEL_PRESETS["gemini-min"]
+    elif "medium" in lower or "mid" in lower or "2.0" in lower:
+        return COUPLED_MODEL_PRESETS["gemini-medium"]
+    elif "max" in lower or "pro" in lower:
+        return COUPLED_MODEL_PRESETS["gemini-max"]
+    else:
+        return COUPLED_MODEL_PRESETS[DEFAULT_MODEL_PRESET]
+

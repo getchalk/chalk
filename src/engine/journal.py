@@ -522,10 +522,15 @@ class SessionJournal:
             return cls(session_id=session_id_or_path, base_dir=base_dir, create_if_missing=False)
 
 
-def recover_unprocessed_sessions(base_dir: Optional[str] = None) -> List[Dict[str, Any]]:
+def recover_unprocessed_sessions(
+    base_dir: Optional[str] = None,
+    min_age_sec: float = 60.0,
+    strict: bool = False,
+) -> List[Dict[str, Any]]:
     """
     Scans ~/.chalk/sessions/ on boot for sessions with status 'recording'
     or pending segments after a crash or lid close.
+    Ignores brand-new sessions created within min_age_sec with 0 segments.
     Returns list of pending session metadata to resume the queue.
     """
     sessions_path = os.path.abspath(os.path.expanduser(base_dir or DEFAULT_SESSIONS_DIR))
@@ -540,6 +545,8 @@ def recover_unprocessed_sessions(base_dir: Optional[str] = None) -> List[Dict[st
     except OSError as e:
         logger.error("Could not list sessions directory %s: %s", sessions_path, e)
         return []
+
+    now = time.time()
 
     for entry in entries:
         sess_dir = os.path.join(sessions_path, entry)
@@ -559,10 +566,16 @@ def recover_unprocessed_sessions(base_dir: Optional[str] = None) -> List[Dict[st
 
         status = manifest_data.get("status", "")
         segments = manifest_data.get("segments", [])
+        created_at = float(manifest_data.get("created_at", 0.0))
         pending_segments = [s for s in segments if s.get("status") == "pending"]
 
+        # Ignore empty sessions created recently (< min_age_sec) or sessions with zero segments
+        if len(segments) == 0:
+            if (now - created_at) < min_age_sec or status == "recording":
+                continue
+
         # A session needs recovery if it was interrupted while recording or has pending segments
-        needs_recovery = (status in ("recording", "recovering")) or (len(pending_segments) > 0)
+        needs_recovery = (status in ("recording", "recovering") and len(segments) > 0) or (len(pending_segments) > 0)
 
         if needs_recovery:
             # Transition status from recording to recovering if crashed

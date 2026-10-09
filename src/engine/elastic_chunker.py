@@ -135,6 +135,14 @@ class ElasticChunker:
         if self.on_rate_limit_backoff:
             self.on_rate_limit_backoff(backoff_seconds)
 
+    def set_retry_backoff(self, backoff_seconds: int):
+        """
+        Enforces a retry backoff delay before allowing subsequent chunk boundaries to trigger.
+        """
+        self.in_backoff = True
+        self.backoff_until = time.time() + max(1.0, float(backoff_seconds))
+        logger.info("ElasticChunker entered retry backoff for %ds", backoff_seconds)
+
     def mark_chunk_flushed(self):
         """Called when a chunk has been successfully packaged and dispatched."""
         self.chunk_start_time = time.time()

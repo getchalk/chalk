@@ -44,8 +44,8 @@ logger = logging.getLogger("chalk.api.gemini")
 
 DEFAULT_FLASH_MODEL = "gemini-2.5-flash"
 DEFAULT_PRO_MODEL = "gemini-2.5-pro"
-FALLBACK_FLASH_MODEL = "gemini-1.5-flash"
-FALLBACK_PRO_MODEL = "gemini-1.5-pro"
+FALLBACK_FLASH_MODEL = "gemini-2.0-flash"
+FALLBACK_PRO_MODEL = "gemini-2.0-flash"
 
 
 def subsample_evenly(items: list, max_count: int) -> list:
@@ -70,15 +70,42 @@ class GeminiLecturePipeline:
         quota_manager: Optional[QuotaManager] = None,
     ):
         from src.security.key_manager import get_selected_model
+        from src.engine.config import resolve_model_preset
 
         self.api_key = api_key or get_api_key()
-        user_model = get_selected_model()
-        self.flash_model = flash_model or (user_model if user_model else DEFAULT_FLASH_MODEL)
-        self.pro_model = pro_model or DEFAULT_PRO_MODEL
         self.quota_manager = quota_manager or QuotaManager()
+
+        user_selection = get_selected_model()
+        preset = resolve_model_preset(flash_model or user_selection)
+
+        self.active_preset_id = preset["id"]
+        self.flash_model = flash_model or preset["flash_model"]
+        self.pro_model = pro_model or preset["pro_model"]
+        if hasattr(self.quota_manager, "set_daily_rpd_limit"):
+            self.quota_manager.set_daily_rpd_limit(preset.get("daily_rpd_limit", 500))
+
         self._client: Optional[genai.Client] = None
         self._tracked_files: List[Any] = []
         self._init_client()
+
+    def apply_preset(self, preset_or_model_id: str) -> Dict[str, Any]:
+        """
+        Couples daily live-chunking model with high-yield master synthesis model
+        and updates QuotaManager daily limits in lockstep.
+        """
+        from src.engine.config import resolve_model_preset
+        preset = resolve_model_preset(preset_or_model_id)
+        self.active_preset_id = preset["id"]
+        self.flash_model = preset["flash_model"]
+        self.pro_model = preset["pro_model"]
+        if hasattr(self.quota_manager, "set_daily_rpd_limit"):
+            self.quota_manager.set_daily_rpd_limit(preset.get("daily_rpd_limit", 500))
+
+        logger.info(
+            "Coupled dual-stage model preset applied: %s (Live Flash: %s, Master Pro: %s, Quota: %d RPD)",
+            preset["id"], self.flash_model, self.pro_model, preset.get("daily_rpd_limit", 500)
+        )
+        return preset
 
     def _init_client(self):
         key = self.api_key or get_api_key()
@@ -177,7 +204,10 @@ class GeminiLecturePipeline:
             )
             return md, state
 
-        client = self._get_active_client()
+        client = None
+        is_external_provider = "claude" in self.flash_model.lower() or "gpt" in self.flash_model.lower() or "sol" in self.flash_model.lower()
+        if not is_external_provider:
+            client = self._get_active_client()
         parts = []
 
         # 1. System Prompt & Instructions (Granola-Style Augmented Shorthand & Interactive Audio Scrub)
@@ -481,21 +511,18 @@ class GeminiLecturePipeline:
         parts.append(task_prompt)
 
         model_to_use = self.flash_model
-        try:
-            response = self._call_generate_content(
-                client=client,
-                model=model_to_use,
-                contents=parts,
-                system_instruction=system_instruction,
-                response_mime_type="application/json",
-                response_schema=LectureSynthesisResponse,
-                tracked_files=tracked_files,
-            )
-        except Exception as e:
-            err_str = str(e)
-            if "not found" in err_str.lower() or "deprecated" in err_str.lower() or "404" in err_str:
-                logger.warning("Model %s unavailable, falling back to %s", model_to_use, FALLBACK_FLASH_MODEL)
-                model_to_use = FALLBACK_FLASH_MODEL
+        if "claude" in model_to_use.lower():
+            from src.api.multi_provider import AnthropicClaudeAdapter
+            adapter = AnthropicClaudeAdapter(model=model_to_use)
+            text_prompt = "\n\n".join(str(p) for p in parts if isinstance(p, str))
+            output_text = adapter.synthesize(prompt=text_prompt, system_prompt=system_instruction)
+        elif "gpt" in model_to_use.lower() or "sol" in model_to_use.lower():
+            from src.api.multi_provider import OpenAIAdapter
+            adapter = OpenAIAdapter(model=model_to_use)
+            text_prompt = "\n\n".join(str(p) for p in parts if isinstance(p, str))
+            output_text = adapter.synthesize(prompt=text_prompt, system_prompt=system_instruction)
+        else:
+            try:
                 response = self._call_generate_content(
                     client=client,
                     model=model_to_use,
@@ -505,15 +532,29 @@ class GeminiLecturePipeline:
                     response_schema=LectureSynthesisResponse,
                     tracked_files=tracked_files,
                 )
-            else:
-                raise
+            except Exception as e:
+                err_str = str(e)
+                if "not found" in err_str.lower() or "deprecated" in err_str.lower() or "404" in err_str:
+                    logger.warning("Model %s unavailable, falling back to %s", model_to_use, FALLBACK_FLASH_MODEL)
+                    model_to_use = FALLBACK_FLASH_MODEL
+                    response = self._call_generate_content(
+                        client=client,
+                        model=model_to_use,
+                        contents=parts,
+                        system_instruction=system_instruction,
+                        response_mime_type="application/json",
+                        response_schema=LectureSynthesisResponse,
+                        tracked_files=tracked_files,
+                    )
+                else:
+                    raise
 
-        output_text = response.text or "{}"
+            output_text = response.text or "{}"
 
-        usage = getattr(response, "usage_metadata", None)
-        in_tokens = getattr(usage, "prompt_token_count", 0) if usage else 0
-        out_tokens = getattr(usage, "candidates_token_count", 0) if usage else 0
-        self.quota_manager.record_usage(input_tokens=in_tokens, output_tokens=out_tokens)
+            usage = getattr(response, "usage_metadata", None)
+            in_tokens = getattr(usage, "prompt_token_count", 0) if usage else 0
+            out_tokens = getattr(usage, "candidates_token_count", 0) if usage else 0
+            self.quota_manager.record_usage(input_tokens=in_tokens, output_tokens=out_tokens)
 
         pipeline = SynthesisPipeline()
         rendered_md, chunk_state, response_obj = pipeline.process_and_render_synthesis(
@@ -536,8 +577,6 @@ class GeminiLecturePipeline:
         c) Anki Study Deck formatted with Cloze deletion syntax ({{c1::answer}}).
         d) High-stakes exam warnings based on spoken instructor emphasis markers.
         """
-        client = self._get_active_client()
-
         system_instruction = (
             "You are Chalk Master Synthesizer, an elite academic exam preparation AI. "
             "You take raw chunked lecture notes and synthesize a comprehensive, rigorous final study document.\n\n"
@@ -560,6 +599,17 @@ class GeminiLecturePipeline:
             prompt += f"ADDITIONAL STUDENT INSTRUCTIONS: {user_instructions}\n\n"
         prompt += "Synthesize the master study guide now."
 
+        target_pro = self.pro_model
+        if "claude" in target_pro.lower():
+            from src.api.multi_provider import AnthropicClaudeAdapter
+            adapter = AnthropicClaudeAdapter(model=target_pro)
+            return adapter.synthesize(prompt=prompt, system_prompt=system_instruction)
+        elif "gpt" in target_pro.lower() or "o3" in target_pro.lower() or "sol" in target_pro.lower():
+            from src.api.multi_provider import OpenAIAdapter
+            adapter = OpenAIAdapter(model=target_pro)
+            return adapter.synthesize(prompt=prompt, system_prompt=system_instruction)
+
+        client = self._get_active_client()
         model_to_use = self.pro_model
         try:
             response = self._call_generate_content(
@@ -700,8 +750,6 @@ class GeminiLecturePipeline:
 
         return response.text or "Interactive tool cycle completed."
 
-        return response.text or "Ready."
-
     def synthesize_master_lecture_structured(
         self,
         full_notes_markdown: str,
@@ -829,6 +877,7 @@ class GeminiLecturePipeline:
         config_kwargs: Dict[str, Any] = {
             "system_instruction": system_instruction,
             "temperature": 0.2,
+            "max_output_tokens": 8192,
         }
         if response_mime_type:
             config_kwargs["response_mime_type"] = response_mime_type
@@ -859,7 +908,8 @@ class GeminiLecturePipeline:
                         raise RuntimeError(f"Gemini API returned zero candidates on model {model}.")
                     cand = resp.candidates[0]
                     finish_reason = getattr(cand, "finish_reason", None)
-                    if finish_reason and str(finish_reason).upper() in ("SAFETY", "RECITATION", "BLOCKLIST", "PROHIBITED_CONTENT"):
+                    finish_name = getattr(finish_reason, "name", str(finish_reason)).upper()
+                    if finish_reason and any(sf in finish_name for sf in ("SAFETY", "RECITATION", "BLOCKLIST", "PROHIBITED")):
                         raise RuntimeError(f"Gemini API generation blocked by safety filters (finish_reason: {finish_reason}).")
                     text = resp.text
                     if not text or not text.strip() or text.strip() in ("{}", "[]"):

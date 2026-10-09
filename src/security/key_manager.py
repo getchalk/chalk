@@ -22,7 +22,7 @@ PROVIDER_ACCOUNTS: Dict[str, str] = {
     "openai": "openai_api_key",
 }
 SELECTED_MODEL_ACCOUNT = "selected_model"
-DEFAULT_MODEL = "gemini-2.5-flash"
+DEFAULT_MODEL = "gemini-max"
 
 # In-memory session cache to avoid redundant keychain prompts during a single run
 _SESSION_KEY_CACHE: Dict[str, str] = {}

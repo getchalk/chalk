@@ -492,11 +492,13 @@ class DualChannelAudioRecorder:
             if self.journal:
                 seg_ids = list(self._pending_chunk_segment_ids)
                 self._pending_chunk_segment_ids.clear()
+                self.last_flushed_segment_ids = list(seg_ids)
                 if seg_ids:
                     concatenated, _ = self.journal.read_segments_audio(seg_ids)
                 else:
                     concatenated = np.zeros((0, 2), dtype=np.float32)
             else:
+                self.last_flushed_segment_ids = []
                 if self._fallback_active_chunk_samples:
                     concatenated = np.concatenate(self._fallback_active_chunk_samples, axis=0)
                     self._fallback_active_chunk_samples.clear()

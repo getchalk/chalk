@@ -182,6 +182,16 @@ class EventGatedScreenGrabber:
             self._active_chunk_keyframes.clear()
             return keyframes
 
+    def has_pending_keyframes(self) -> bool:
+        """Inspects whether pending keyframes exist without draining them."""
+        with self._lock:
+            return len(self._active_chunk_keyframes) > 0
+
+    def get_pending_keyframes_count(self) -> int:
+        """Returns the count of pending keyframes in the active chunk."""
+        with self._lock:
+            return len(self._active_chunk_keyframes)
+
     def reinsert_unprocessed_keyframes(self, keyframes: List[SlideKeyframe]):
         """Reinserts keyframes back into the active queue upon API retry."""
         if not keyframes:
@@ -194,6 +204,7 @@ class EventGatedScreenGrabber:
         """
         Instant screen capture helper for Snip Tool or active screen queries.
         bbox format: (left, top, right, bottom)
+        Uses monitor 0 (virtual desktop spanning all monitors) to properly align coordinates.
         """
         with mss.mss() as sct:
             if bbox:
@@ -205,7 +216,8 @@ class EventGatedScreenGrabber:
                     "height": int(bottom - top),
                 }
             else:
-                monitor = sct.monitors[1] if len(sct.monitors) > 1 else sct.monitors[0]
+                # monitor 0 covers all monitors combined in mss
+                monitor = sct.monitors[0]
 
             sct_img = sct.grab(monitor)
             return Image.frombytes("RGB", sct_img.size, sct_img.bgra, "raw", "BGRX")

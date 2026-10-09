@@ -502,12 +502,96 @@ TRANSLATIONS: Dict[str, Dict[str, str]] = {
         "es": "GPT-4o Mini (Rápido y ligero)",
         "zh": "GPT-4o Mini（轻量快速）",
     },
-    "model_o3_mini": {
-        "en": "o3-mini (STEM & Formula Reasoning)",
-        "de": "o3-mini (MINT & Formel-Reasoning)",
-        "fr": "o3-mini (STEM & Raisonnement mathématique)",
-        "es": "o3-mini (STEM y Razonamiento de fórmulas)",
-        "zh": "o3-mini（理工科与公式推理）",
+    "optgroup_free": {
+        "en": "Free Tier Setups",
+        "de": "Kostenlose Setups",
+        "fr": "Configurations Gratuites",
+        "es": "Configuraciones Gratuitas",
+        "zh": "免费基础配置",
+    },
+    "optgroup_premium": {
+        "en": "Paid Models (Direct BYOK)",
+        "de": "Kostenpflichtige Modelle (Direct BYOK)",
+        "fr": "Modèles Payants (Direct BYOK)",
+        "es": "Modelos de Pago (Direct BYOK)",
+        "zh": "付费商业模型 (Direct BYOK)",
+    },
+    "model_preset_gemini_max": {
+        "en": "Gemini Maximum: Gemini 3.5 Flash (Operational) + Gemini 3.1 Pro (Synthesis)",
+        "de": "Gemini Maximum: Gemini 3.5 Flash (Operativ) + Gemini 3.1 Pro (Synthese)",
+        "fr": "Gemini Maximum : Gemini 3.5 Flash (Opérationnel) + Gemini 3.1 Pro (Synthèse)",
+        "es": "Gemini Máximo: Gemini 3.5 Flash (Operativo) + Gemini 3.1 Pro (Síntesis)",
+        "zh": "Gemini 最高配：Gemini 3.5 Flash（实时分块）+ Gemini 3.1 Pro（终极综合）",
+    },
+    "model_preset_gemini_medium": {
+        "en": "Gemini Medium: Gemini 3.5 Flash-Lite (Operational) + Gemini 3.5 Flash (Synthesis)",
+        "de": "Gemini Medium: Gemini 3.5 Flash-Lite (Operativ) + Gemini 3.5 Flash (Synthese)",
+        "fr": "Gemini Moyen : Gemini 3.5 Flash-Lite (Opérationnel) + Gemini 3.5 Flash (Synthèse)",
+        "es": "Gemini Medio: Gemini 3.5 Flash-Lite (Operativo) + Gemini 3.5 Flash (Síntesis)",
+        "zh": "Gemini 中配：Gemini 3.5 Flash-Lite（实时分块）+ Gemini 3.5 Flash（终极综合）",
+    },
+    "model_preset_gemini_min": {
+        "en": "Gemini Minimum: Gemini 3.1 Flash-Lite (Operational) + Gemini 3.5 Flash-Lite (Synthesis)",
+        "de": "Gemini Minimum: Gemini 3.1 Flash-Lite (Operativ) + Gemini 3.5 Flash-Lite (Synthese)",
+        "fr": "Gemini Minimum : Gemini 3.1 Flash-Lite (Opérationnel) + Gemini 3.5 Flash-Lite (Synthèse)",
+        "es": "Gemini Mínimo: Gemini 3.1 Flash-Lite (Operativo) + Gemini 3.5 Flash-Lite (Síntesis)",
+        "zh": "Gemini 低配：Gemini 3.1 Flash-Lite（实时分块）+ Gemini 3.5 Flash-Lite（终极综合）",
+    },
+    "model_preset_paid_gemini": {
+        "en": "Gemini 3.8 Flash (Operational & Synthesis)",
+        "de": "Gemini 3.8 Flash (Operativ & Synthese)",
+        "fr": "Gemini 3.8 Flash (Opérationnel & Synthèse)",
+        "es": "Gemini 3.8 Flash (Operativo y Síntesis)",
+        "zh": "Gemini 3.8 Flash（实时分块与综合）",
+    },
+    "model_preset_paid_claude": {
+        "en": "Claude 5.5 Sonnet (Operational & Synthesis)",
+        "de": "Claude 5.5 Sonnet (Operativ & Synthese)",
+        "fr": "Claude 5.5 Sonnet (Opérationnel & Synthèse)",
+        "es": "Claude 5.5 Sonnet (Operativo y Síntesis)",
+        "zh": "Claude 5.5 Sonnet (实时分块与综合)",
+    },
+    "model_preset_paid_openai": {
+        "en": "GPT-6.1 Sol (Operational & Synthesis)",
+        "de": "GPT-6.1 Sol (Operativ & Synthese)",
+        "fr": "GPT-6.1 Sol (Opérationnel & Synthèse)",
+        "es": "GPT-6.1 Sol (Operativo y Síntesis)",
+        "zh": "GPT-6.1 Sol (实时分块与综合)",
+    },
+    "model_preset_gemini_default": {
+        "en": "Gemini Maximum: Gemini 3.5 Flash (Operational) + Gemini 3.1 Pro (Synthesis)",
+        "de": "Gemini Maximum: Gemini 3.5 Flash (Operativ) + Gemini 3.1 Pro (Synthese)",
+        "fr": "Gemini Maximum : Gemini 3.5 Flash (Opérationnel) + Gemini 3.1 Pro (Synthèse)",
+        "es": "Gemini Máximo: Gemini 3.5 Flash (Operativo) + Gemini 3.1 Pro (Síntesis)",
+        "zh": "Gemini 最高配：Gemini 3.5 Flash（实时分块）+ Gemini 3.1 Pro（终极综合）",
+    },
+    "model_preset_gemini_eco": {
+        "en": "Gemini Medium: Gemini 3.5 Flash-Lite (Operational) + Gemini 3.5 Flash (Synthesis)",
+        "de": "Gemini Medium: Gemini 3.5 Flash-Lite (Operativ) + Gemini 3.5 Flash (Synthese)",
+        "fr": "Gemini Moyen : Gemini 3.5 Flash-Lite (Opérationnel) + Gemini 3.5 Flash (Synthèse)",
+        "es": "Gemini Medio: Gemini 3.5 Flash-Lite (Operativo) + Gemini 3.5 Flash (Síntesis)",
+        "zh": "Gemini 中配：Gemini 3.5 Flash-Lite（实时分块）+ Gemini 3.5 Flash（终极综合）",
+    },
+    "model_preset_premium_claude": {
+        "en": "Claude 5.5 Sonnet (Operational & Synthesis)",
+        "de": "Claude 5.5 Sonnet (Operativ & Synthese)",
+        "fr": "Claude 5.5 Sonnet (Opérationnel & Synthèse)",
+        "es": "Claude 5.5 Sonnet (Operativo y Síntesis)",
+        "zh": "Claude 5.5 Sonnet (实时分块与综合)",
+    },
+    "model_preset_premium_openai": {
+        "en": "GPT-6.1 Sol (Operational & Synthesis)",
+        "de": "GPT-6.1 Sol (Operativ & Synthese)",
+        "fr": "GPT-6.1 Sol (Opérationnel & Synthèse)",
+        "es": "GPT-6.1 Sol (Operativo y Síntesis)",
+        "zh": "GPT-6.1 Sol (实时分块与综合)",
+    },
+    "model_preset_premium_o3mini": {
+        "en": "GPT-6.1 Sol (Operational & Synthesis)",
+        "de": "GPT-6.1 Sol (Operativ & Synthese)",
+        "fr": "GPT-6.1 Sol (Opérationnel & Synthèse)",
+        "es": "GPT-6.1 Sol (Operativo y Síntesis)",
+        "zh": "GPT-6.1 Sol (实时分块与综合)",
     },
     "guide_toggle_btn": {
         "en": "How to get your free key (3 steps) ▾",
@@ -962,6 +1046,76 @@ TRANSLATIONS: Dict[str, Dict[str, str]] = {
         "fr": "Quelle erreur classique de modélisation ou d'examen a été particulièrement soulignée ?",
         "es": "¿Qué error típico de modelado o de examen se destacó especialmente?",
         "zh": "特别强调了哪种典型的建模或考试易错点？"
+    },
+    "preview_chat_grounded": {
+        "en": "AI grounded in live audio, slides & photos",
+        "de": "KI geerdet in Live-Audio, Folien & Tafelbildern",
+        "fr": "IA ancrée dans l'audio, diapositives et photos",
+        "es": "IA fundamentada en audio en vivo, diapositivas y fotos",
+        "zh": "基于实时音频、幻灯片与白板照片的AI"
+    },
+    "recording_status": {
+        "en": "Recording active",
+        "de": "Aufnahme aktiv",
+        "fr": "Enregistrement actif",
+        "es": "Grabación activa",
+        "zh": "录音进行中"
+    },
+    "tray_hide_hud": {
+        "en": "Hide HUD",
+        "de": "HUD ausblenden",
+        "fr": "Masquer le HUD",
+        "es": "Ocultar HUD",
+        "zh": "隐藏HUD"
+    },
+    "audio_slice_playing": {
+        "en": "Playing {sec}s audio slice...",
+        "de": "Spielt {sec}s Audio-Ausschnitt...",
+        "fr": "Lecture de l'extrait audio ({sec}s)...",
+        "es": "Reproduciendo fragmento de audio ({sec}s)...",
+        "zh": "播放 {sec} 秒音频片段..."
+    },
+    "session_recovery_title": {
+        "en": "Session Recovery",
+        "de": "Sitzungswiederherstellung",
+        "fr": "Récupération de session",
+        "es": "Recuperación de sesión",
+        "zh": "会话恢复"
+    },
+    "session_recovery_detected": {
+        "en": "Detected {count} interrupted session(s) with {segments} pending audio segment(s). Preserved in journal.",
+        "de": "{count} unterbrochene Sitzung(en) mit {segments} ausstehenden Audio-Segmenten erkannt. Im Journal gesichert.",
+        "fr": "{count} session(s) interrompue(s) détectée(s) avec {segments} segment(s) audio en attente. Préservé dans le journal.",
+        "es": "Se detectaron {count} sesión(es) interrumpida(s) con {segments} segmento(s) de audio pendientes. Conservado en el diario.",
+        "zh": "检测到 {count} 个中断的会话，包含 {segments} 个待处理的音频片段。已保存在日志中。"
+    },
+    "export_success": {
+        "en": "Exported [OK]",
+        "de": "Exportiert [OK]",
+        "fr": "Exporté [OK]",
+        "es": "Exportado [OK]",
+        "zh": "导出成功 [OK]"
+    },
+    "no_flashcards": {
+        "en": "No flashcards generated yet",
+        "de": "Noch keine Karteikarten generiert",
+        "fr": "Aucune carte mémoire générée pour l'instant",
+        "es": "Aún no se han generado tarjetas de memoria",
+        "zh": "尚未生成抽认卡"
+    },
+    "notify_auth_error_title": {
+        "en": "Chalk: Authentication Error",
+        "de": "Chalk: Authentifizierungsfehler",
+        "fr": "Chalk : Erreur d'authentification",
+        "es": "Chalk: Error de autenticación",
+        "zh": "Chalk: 认证错误"
+    },
+    "notify_auth_error_body": {
+        "en": "API key invalid or expired. Check Settings.",
+        "de": "API-Schlüssel ungültig oder abgelaufen. Einstellungen prüfen.",
+        "fr": "Clé API invalide ou expirée. Vérifiez les Paramètres.",
+        "es": "Clave de API no válida o caducada. Compruebe la Configuración.",
+        "zh": "API密钥无效或已过期。请检查设置。"
     },
 }
 

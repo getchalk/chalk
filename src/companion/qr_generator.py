@@ -173,7 +173,20 @@ class QRCode:
         if self.ec_level not in ("L", "M"):
             self.ec_level = "M"
 
-        # Determine minimum version required
+        # Use segno if available for 100% ISO/IEC compliance across all versions/capacities
+        try:
+            import segno
+            seg_ec = "l" if self.ec_level == "L" else "m"
+            sqr = segno.make(data, error=seg_ec, micro=False)
+            self.version = int(sqr.version)
+            self.size = len(sqr.matrix)
+            self.modules = [[bool(val) for val in row] for row in sqr.matrix]
+            self.is_function = [[False] * self.size for _ in range(self.size)]
+            return
+        except Exception:
+            pass
+
+        # Determine minimum version required for native generator
         self.version = self._find_min_version(len(self.data_bytes), self.ec_level)
         self.size = 21 + (self.version - 1) * 4
 
@@ -266,27 +279,26 @@ class QRCode:
 
     def _apply_format_information(self, mask: int):
         format_val = _get_format_bits(EC_LEVEL_BITS[self.ec_level], mask)
+        b = lambda i: bool((format_val >> i) & 1)
+        n = self.size
 
-        # Format bits placement (15 bits, bit 0 to bit 14)
-        # Around top-left:
-        # (8,0)=b0, (8,1)=b1, (8,2)=b2, (8,3)=b3, (8,4)=b4, (8,5)=b5, (8,7)=b6, (8,8)=b7
-        # (7,8)=b8, (5,8)=b9, (4,8)=b10, (3,8)=b11, (2,8)=b12, (1,8)=b13, (0,8)=b14
-        tl_coords = [
-            (8, 0), (8, 1), (8, 2), (8, 3), (8, 4), (8, 5), (8, 7), (8, 8),
-            (7, 8), (5, 8), (4, 8), (3, 8), (2, 8), (1, 8), (0, 8)
-        ]
-        for idx, (r, c) in enumerate(tl_coords):
-            self.modules[r][c] = bool((format_val >> idx) & 1)
+        # Top-left and Timing patterns:
+        for i in range(0, 6):
+            self.modules[i][8] = b(i)
+        self.modules[7][8] = b(6)
+        self.modules[8][8] = b(7)
+        self.modules[8][7] = b(8)
+        for i in range(9, 15):
+            self.modules[8][14 - i] = b(i)
 
         # Bottom-left and Top-right:
-        # Bottom-left: (size-1, 8)=b0 ... (size-7, 8)=b6
-        # Top-right: (8, size-8)=b7 ... (8, size-1)=b14
-        for idx in range(7):
-            r = self.size - 1 - idx
-            self.modules[r][8] = bool((format_val >> idx) & 1)
-        for idx in range(8):
-            c = self.size - 8 + idx
-            self.modules[8][c] = bool((format_val >> (idx + 7)) & 1)
+        for i in range(0, 8):
+            self.modules[8][n - 1 - i] = b(i)
+        for i in range(8, 15):
+            self.modules[n - 15 + i][8] = b(i)
+
+        # Fixed dark module
+        self.modules[n - 8][8] = True
 
     def _prepare_interleaved_data(self) -> List[int]:
         spec = VERSION_SPECS[self.version]

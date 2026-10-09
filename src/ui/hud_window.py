@@ -50,7 +50,7 @@ from src.companion.qr_generator import QRCode
 from src.export.pdf_exporter import export_notes_to_pdf
 from src.api.synthesis_pipeline import export_flashcards_to_tsv, extract_flashcards_from_markdown
 from src.ui.search_dialog import SessionArchiveSearchDialog
-from src.ui.i18n import tr, get_ui_language
+from src.ui.i18n import tr, get_ui_language, set_ui_language
 from src.security.key_manager import (
     get_api_key,
     set_api_key,
@@ -61,6 +61,11 @@ from src.security.key_manager import (
 from src.engine.config import (
     get_obsidian_vault_path,
     set_obsidian_vault_path,
+    resolve_model_preset,
+)
+from src.ui.settings_dialog import (
+    populate_preset_combobox,
+    select_preset_in_combobox,
 )
 
 logger = logging.getLogger("chalk.ui.hud")
@@ -1309,35 +1314,14 @@ class FloatingHUDWindow(QWidget):
         self.settings_model_label = QLabel("AI Synthesis Model:")
         s_tab_layout.addWidget(self.settings_model_label)
         self.settings_model_combo = QComboBox()
-        for model_id, key, default_label in [
-            ("gemini-2.5-flash", "model_gemini_25_flash", "Gemini 2.5 Flash (Recommended • Free Tier)"),
-            ("gemini-2.5-pro", "model_gemini_25_pro", "Gemini 2.5 Pro (Deep Math & Reasoning)"),
-            ("gemini-2.0-flash", "model_gemini_20_flash", "Gemini 2.0 Flash (Next-Gen Real-Time)"),
-            ("gemini-2.0-flash-lite", "model_gemini_20_flash_lite", "Gemini 2.0 Flash-Lite (High Speed & Low Latency)"),
-            ("gemini-1.5-pro", "model_gemini_15_pro", "Gemini 1.5 Pro (2M Long Context Archive)"),
-            ("claude-3-7-sonnet", "model_claude_37_sonnet", "Claude 3.7 Sonnet (Hybrid Reasoning)"),
-            ("claude-3-5-sonnet", "model_claude_35_sonnet", "Claude 3.5 Sonnet (Technical Analysis)"),
-            ("claude-3-5-haiku", "model_claude_35_haiku", "Claude 3.5 Haiku (Rapid Extraction)"),
-            ("gpt-4o", "model_gpt_4o", "GPT-4o (Omnimodal Processing)"),
-            ("gpt-4o-mini", "model_gpt_4o_mini", "GPT-4o Mini (Fast & Lightweight)"),
-            ("o3-mini", "model_o3_mini", "o3-mini (STEM & Formula Reasoning)"),
-        ]:
-            self.settings_model_combo.addItem(tr(key) or default_label, model_id)
-
+        populate_preset_combobox(self.settings_model_combo, get_ui_language())
         cur_model = get_selected_model()
-        idx = self.settings_model_combo.findData(cur_model)
-        if idx < 0 and cur_model:
-            alt = cur_model.replace(".", "-") if "." in cur_model else cur_model.replace("-3-7-", "-3.7-")
-            idx = self.settings_model_combo.findData(alt)
-        if idx >= 0:
-            self.settings_model_combo.setCurrentIndex(idx)
-        else:
-            self.settings_model_combo.setCurrentIndex(0)
-
+        select_preset_in_combobox(self.settings_model_combo, cur_model)
         self.settings_model_combo.currentIndexChanged.connect(self._on_settings_model_changed)
         s_tab_layout.addWidget(self.settings_model_combo)
         if hasattr(self, "chat_model_badge"):
-            self.chat_model_badge.setText(self.settings_model_combo.currentText().split("(")[0].strip())
+            active_p = resolve_model_preset(self.settings_model_combo.currentData() or cur_model)
+            self.chat_model_badge.setText(active_p.get("short_name", "Gemini Maximum"))
 
         # 3. Notes Vault Directory
         s_tab_layout.addWidget(QLabel("Notes Vault Directory:"))
@@ -1711,18 +1695,34 @@ class FloatingHUDWindow(QWidget):
         self.settings_key_feedback.setStyleSheet("color: #F8FAFC; font-weight: 600;")
 
     def _on_settings_model_changed(self, idx: int):
-        model_id = self.settings_model_combo.currentData()
-        if model_id:
-            set_selected_model(model_id)
-            model_text = self.settings_model_combo.currentText().split("(")[0].strip()
-            if hasattr(self, "chat_model_badge"):
-                self.chat_model_badge.setText(model_text)
-            if hasattr(self, "chat_history"):
-                self.chat_history.append(
-                    f"<div style='font-size:10px; font-family:monospace; color:#94A3B8; "
-                    f"background:#15161B; border:1px solid rgba(255,255,255,0.1); border-radius:4px; padding:4px 8px; margin:4px 0;'>"
-                    f"<b style='color:#F8FAFC;'>[Model Updated]:</b> Active AI synthesis model switched to <b>{model_text}</b>.</div>"
-                )
+        preset_id = self.settings_model_combo.currentData()
+        if not preset_id:
+            return
+        set_selected_model(preset_id)
+        preset = resolve_model_preset(preset_id)
+        if self.pipeline and hasattr(self.pipeline, "apply_preset"):
+            try:
+                preset = self.pipeline.apply_preset(preset_id)
+            except Exception as e:
+                logger.warning("Pipeline apply_preset failed: %s", e)
+
+        short_name = preset.get("short_name", preset_id)
+        flash_m = preset.get("flash_model", "gemini-2.5-flash")
+        pro_m = preset.get("pro_model", "gemini-2.5-pro")
+
+        if hasattr(self, "chat_model_badge"):
+            self.chat_model_badge.setText(short_name)
+        if hasattr(self, "chat_history"):
+            if preset.get("category") == "premium" or flash_m == pro_m:
+                arch_desc = f"• Model: <span style='color:#F8FAFC;'>{flash_m}</span> (Operational & Synthesis)"
+            else:
+                arch_desc = f"• Operational: <span style='color:#F8FAFC;'>{flash_m}</span><br>• Synthesis: <span style='color:#F8FAFC;'>{pro_m}</span>"
+            self.chat_history.append(
+                f"<div style='font-size:10px; font-family:monospace; color:#94A3B8; "
+                f"background:#15161B; border:1px solid rgba(255,255,255,0.1); border-radius:4px; padding:6px 10px; margin:4px 0;'>"
+                f"<b style='color:#F8FAFC;'>[Model Setup Active]:</b><br>"
+                f"{arch_desc}</div>"
+            )
 
     def _browse_vault_path(self):
         d = QFileDialog.getExistingDirectory(self, "Select Obsidian Vault Directory", self.settings_vault_input.text())
@@ -1859,24 +1859,11 @@ class FloatingHUDWindow(QWidget):
         if hasattr(self, "settings_step3_lbl"):
             self.settings_step3_lbl.setText(f"<b>{tr('guide_step3_title')}</b><br>{tr('guide_step3_desc')}")
         if hasattr(self, "settings_model_combo"):
-            curr_idx = self.settings_model_combo.currentIndex()
-            model_keys = [
-                ("gemini-2.5-flash", "model_gemini_25_flash"),
-                ("gemini-2.5-pro", "model_gemini_25_pro"),
-                ("gemini-2.0-flash", "model_gemini_20_flash"),
-                ("gemini-2.0-flash-lite", "model_gemini_20_flash_lite"),
-                ("gemini-1.5-pro", "model_gemini_15_pro"),
-                ("claude-3-7-sonnet", "model_claude_37_sonnet"),
-                ("claude-3-5-sonnet", "model_claude_35_sonnet"),
-                ("claude-3-5-haiku", "model_claude_35_haiku"),
-                ("gpt-4o", "model_gpt_4o"),
-                ("gpt-4o-mini", "model_gpt_4o_mini"),
-                ("o3-mini", "model_o3_mini"),
-            ]
-            for i, (m_id, m_key) in enumerate(model_keys):
-                if i < self.settings_model_combo.count():
-                    self.settings_model_combo.setItemText(i, tr(m_key))
-            self.settings_model_combo.setCurrentIndex(curr_idx)
+            curr_data = self.settings_model_combo.currentData()
+            self.settings_model_combo.blockSignals(True)
+            populate_preset_combobox(self.settings_model_combo, cur_lang)
+            select_preset_in_combobox(self.settings_model_combo, curr_data)
+            self.settings_model_combo.blockSignals(False)
 
         # Secondary actions
         if hasattr(self, "pdf_export_btn"):
@@ -2236,7 +2223,12 @@ class FloatingHUDWindow(QWidget):
                     sr = seg_sr
 
             if (audio is None or len(audio) == 0) and self.recorder:
-                audio = self.recorder.get_rewind_audio(seconds=int(duration + 10))
+                # Only fall back to rewind buffer if offset is within the rolling rewind window
+                current_elapsed = getattr(self.recorder, "total_frames_recorded", 0) / max(1, sr)
+                if abs(current_elapsed - offset_seconds) <= getattr(self.recorder, "rewind_buffer_seconds", 90):
+                    audio = self.recorder.get_rewind_audio(seconds=int(duration + 10))
+                else:
+                    audio = None
 
             if audio is not None and len(audio) > 0:
                 speed = getattr(self, "player_speed", 1.0)
@@ -2244,7 +2236,8 @@ class FloatingHUDWindow(QWidget):
                 sd.play(audio, playback_sr)
                 self.is_playing_audio = True
                 self.player_play_btn.setText("Pause")
-                self.player_status_lbl.setText(f"Spielt 20s Ausschnitt ({speed}x)")
+                status_txt = tr("audio_slice_playing", sec=int(duration))
+                self.player_status_lbl.setText(f"{status_txt} ({speed}x)")
                 self.player_status_lbl.setStyleSheet("color: #38BDF8; font-size: 11px;")
 
                 if hasattr(self, "_play_timer") and self._play_timer:
@@ -2255,7 +2248,7 @@ class FloatingHUDWindow(QWidget):
                 duration_ms = int(((len(audio) / sr) / speed) * 1000) + 200
                 self._play_timer.start(duration_ms)
             else:
-                self.player_status_lbl.setText("Kein Audio-Puffer verfügbar")
+                self.player_status_lbl.setText(tr("no_audio_slice", default="Kein Audio-Ausschnitt verfügbar"))
                 self.player_status_lbl.setStyleSheet("color: #F87171; font-size: 11px;")
                 self.player_play_btn.setText("Play")
                 self.is_playing_audio = False
@@ -2339,7 +2332,7 @@ class FloatingHUDWindow(QWidget):
 
         cards = extract_flashcards_from_markdown(content)
         if not cards:
-            self.chat_history.append("<i>[Keine Karteikarten im aktuellen Notizabschnitt gefunden. Generiere Karteikarten bei nächster Synthese.]</i>")
+            self.chat_history.append(f"<i>[{tr('no_flashcards')}]</i>")
             return
 
         export_dir = os.path.expanduser("~/Documents")
@@ -2350,11 +2343,11 @@ class FloatingHUDWindow(QWidget):
         success = export_flashcards_to_tsv(cards, tsv_path)
         if success:
             orig_text = self.anki_export_btn.text()
-            self.anki_export_btn.setText("Exportiert [OK]")
+            self.anki_export_btn.setText(tr("export_success"))
             QTimer.singleShot(2500, lambda: self.anki_export_btn.setText(orig_text))
-            self.chat_history.append(f"<b>[Anki TSV Export]</b> {len(cards)} Karteikarten exportiert nach: <code>{tsv_path}</code>")
+            self.chat_history.append(f"<b>[Anki TSV Export]</b> {len(cards)} Flashcards -> <code>{tsv_path}</code>")
         else:
-            self.chat_history.append("<span style='color: #F87171;'>Fehler beim Exportieren der Anki-Karteikarten.</span>")
+            self.chat_history.append("<span style='color: #F87171;'>Export error.</span>")
 
     def _export_notes_pdf(self):
         notes_path = self._get_active_notes_path()
@@ -2413,11 +2406,12 @@ class FloatingHUDWindow(QWidget):
             if os.path.exists(self.notes_manager.session_file):
                 return self.notes_manager.session_file
 
-        notes_dir = os.path.abspath("Notes")
-        if os.path.exists(notes_dir):
+        # Fallback to configured Chalk notes directory (~/Documents/Chalk)
+        docs_dir = getattr(self.notes_manager, "notes_dir", None) or os.path.join(os.path.expanduser("~"), "Documents", "Chalk")
+        if os.path.exists(docs_dir):
             md_files = [
-                os.path.join(notes_dir, f)
-                for f in os.listdir(notes_dir)
+                os.path.join(docs_dir, f)
+                for f in os.listdir(docs_dir)
                 if f.endswith(".md")
             ]
             if md_files:

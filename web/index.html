@@ -303,9 +303,40 @@
       border-color: #1AAB29 !important;
     }
 
-    /* Precision Scroll Anchor Alignment for Sticky Navigation */
-    section[id] {
-      scroll-margin-top: calc(var(--nav-height, 67px) - 1px);
+    /* Clean Compact Mode for Mockup Screen Capture when QR Pairing is Active */
+    #mockup-screen-card {
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    #mockup-screen-card.is-compact {
+      flex: 0 0 auto !important;
+      padding-top: 0.75rem !important;
+      padding-bottom: 0.75rem !important;
+    }
+    #mockup-screen-card.is-compact #mockup-screen-container {
+      aspect-ratio: auto !important;
+      padding: 0.625rem 0.875rem !important;
+      min-height: 0 !important;
+    }
+    #mockup-screen-card.is-compact #mockup-slide-header {
+      border-bottom: none !important;
+      padding-bottom: 0 !important;
+      opacity: 0.95 !important;
+    }
+    #mockup-screen-card.is-compact #mockup-screen-content-area {
+      display: none !important;
+    }
+    #mockup-qr-popover:not(.hidden) {
+      animation: qrFadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    @keyframes qrFadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(6px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
   </style>
 </head>
@@ -447,21 +478,24 @@
         <div id="mockup-window-body" class="p-6 grid grid-cols-1 md:grid-cols-12 gap-6 transition-all duration-200" style="background-color: var(--hud-body-bg);">
 
           <!-- Left Column: Presentation & Multimodal Capture Studio -->
-          <div class="md:col-span-5 flex flex-col justify-between space-y-4 md:h-[520px]">
+          <div id="mockup-left-col" class="md:col-span-5 flex flex-col justify-between space-y-4 md:h-[520px]">
             <!-- Active Screen Capture Card -->
-            <div class="rounded-xl border p-4 relative overflow-hidden shadow-sm flex flex-col justify-between flex-1" style="background-color: var(--hud-card-bg); border-color: var(--chalk-border);">
-              <div class="flex items-center gap-1.5 text-xs font-medium mb-2.5" style="color: var(--chalk-slate);">
+            <div id="mockup-screen-card" class="rounded-xl border p-4 relative overflow-hidden shadow-sm flex flex-col justify-between flex-1" style="background-color: var(--hud-card-bg); border-color: var(--chalk-border);">
+              <div class="flex items-center gap-1.5 text-xs font-medium mb-2.5 flex-shrink-0" style="color: var(--chalk-slate);">
                 <span class="w-1.5 h-1.5 rounded-full" style="background-color: var(--chalk-white);"></span>
                 <span class="text-[11px] font-medium uppercase tracking-wide" data-i18n="preview_screen_label">SCREEN CAPTURE</span>
               </div>
               <div id="mockup-screen-container" onclick="manualTransitionMockupSlide(event)" title="Presentation slide preview (click to cycle)" class="aspect-video rounded-lg border flex flex-col justify-between p-3.5 text-center relative overflow-hidden cursor-pointer hover:border-white/30" style="background-color: var(--surface-elevated); border-color: var(--chalk-border); transition: opacity 0.4s ease-in-out;">
                 <!-- Slide Header -->
-                <div class="flex items-center justify-between pb-1.5 border-b border-white/5 text-[10px] text-left opacity-70">
-                  <span id="mockup-slide-file" class="font-mono text-[9px] truncate" style="color: var(--chalk-muted);">Asset_Pricing_Lecture_04.pdf</span>
+                <div id="mockup-slide-header" class="flex items-center justify-between pb-1.5 border-b border-white/5 text-[10px] text-left opacity-70">
+                  <span class="flex items-center gap-1.5 min-w-0">
+                    <svg class="w-3 h-3 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: var(--chalk-muted);"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+                    <span id="mockup-slide-file" class="font-mono text-[9px] truncate" style="color: var(--chalk-muted);">Asset_Pricing_Lecture_04.pdf (p. 12/42)</span>
+                  </span>
                 </div>
 
                 <!-- Window Content Area -->
-                <div class="my-auto py-2">
+                <div id="mockup-screen-content-area" class="my-auto py-2">
                   <div id="mockup-screen-topic" class="text-[11px] font-medium mb-1" style="color: var(--chalk-muted);" data-i18n="preview_screen_topic">Portfolio Theory & Risk Modeling</div>
                   <div id="mockup-screen-heading" class="text-xs sm:text-sm font-semibold mb-1.5" style="color: var(--chalk-white);" data-i18n="preview_screen_heading">Capital Asset Pricing Model (CAPM)</div>
                   <div id="mockup-screen-math" class="render-math text-xs sm:text-sm text-center font-serif" style="color: var(--chalk-white);">$$E(R_i) = R_f + \beta_i [E(R_m) - R_f]$$</div>
@@ -518,11 +552,11 @@
                       <span>Local Smartphone Camera Pairing</span>
                       <button onclick="toggleMockupQrPopover(event)" class="text-slate-400 hover:text-white cursor-pointer px-1">&times;</button>
                     </div>
-                    <div class="inline-block p-2 rounded-lg bg-white shadow-inner my-1">
-                      <svg class="w-20 h-20 text-black" viewBox="0 0 27 27" fill="currentColor" shape-rendering="crispEdges" role="img" aria-label="Phone Link QR Code">
-                        <path d="M1 1h7v1h-7zM9 1h1v1h-1zM11 1h4v1h-4zM17 1h1v1h-1zM19 1h7v1h-7zM1 2h1v1h-1zM7 2h1v1h-1zM15 2h3v1h-3zM19 2h1v1h-1zM25 2h1v1h-1zM1 3h1v1h-1zM3 3h3v1h-3zM7 3h1v1h-1zM9 3h1v1h-1zM11 3h3v1h-3zM16 3h1v1h-1zM19 3h1v1h-1zM21 3h3v1h-3zM25 3h1v1h-1zM1 4h1v1h-1zM3 4h3v1h-3zM7 4h1v1h-1zM9 4h2v1h-2zM12 4h1v1h-1zM14 4h1v1h-1zM16 4h1v1h-1zM19 4h1v1h-1zM21 4h3v1h-3zM25 4h1v1h-1zM1 5h1v1h-1zM3 5h3v1h-3zM7 5h1v1h-1zM9 5h1v1h-1zM11 5h1v1h-1zM13 5h3v1h-3zM17 5h1v1h-1zM19 5h1v1h-1zM21 5h3v1h-3zM25 5h1v1h-1zM1 6h1v1h-1zM7 6h1v1h-1zM9 6h1v1h-1zM13 6h2v1h-2zM16 6h2v1h-2zM19 6h1v1h-1zM25 6h1v1h-1zM1 7h7v1h-7zM9 7h1v1h-1zM11 7h1v1h-1zM13 7h1v1h-1zM15 7h1v1h-1zM17 7h1v1h-1zM19 7h7v1h-7zM11 8h1v1h-1zM3 9h6v1h-6zM10 9h3v1h-3zM14 9h1v1h-1zM16 9h1v1h-1zM20 9h4v1h-4zM25 9h1v1h-1zM4 10h1v1h-1zM10 10h2v1h-2zM13 10h3v1h-3zM17 10h1v1h-1zM20 10h1v1h-1zM24 10h1v1h-1zM2 11h2v1h-2zM5 11h3v1h-3zM9 11h1v1h-1zM11 11h2v1h-2zM16 11h2v1h-2zM19 11h1v1h-1zM22 11h1v1h-1zM24 11h2v1h-2zM1 12h1v1h-1zM3 12h2v1h-2zM9 12h1v1h-1zM11 12h1v1h-1zM13 12h1v1h-1zM17 12h3v1h-3zM21 12h1v1h-1zM25 12h1v1h-1zM1 13h1v1h-1zM3 13h1v1h-1zM5 13h1v1h-1zM7 13h8v1h-8zM18 13h2v1h-2zM21 13h1v1h-1zM23 13h3v1h-3zM1 14h1v1h-1zM4 14h3v1h-3zM9 14h1v1h-1zM11 14h1v1h-1zM15 14h1v1h-1zM17 14h1v1h-1zM20 14h1v1h-1zM22 14h1v1h-1zM24 14h1v1h-1zM1 15h1v1h-1zM4 15h4v1h-4zM10 15h1v1h-1zM12 15h5v1h-5zM18 15h1v1h-1zM20 15h3v1h-3zM24 15h2v1h-2zM1 16h1v1h-1zM3 16h4v1h-4zM8 16h1v1h-1zM11 16h2v1h-2zM15 16h3v1h-3zM19 16h1v1h-1zM22 16h1v1h-1zM25 16h1v1h-1zM1 17h1v1h-1zM3 17h2v1h-2zM6 17h2v1h-2zM10 17h1v1h-1zM12 17h1v1h-1zM14 17h1v1h-1zM17 17h5v1h-5zM23 17h1v1h-1zM9 18h3v1h-3zM13 18h1v1h-1zM15 18h3v1h-3zM21 18h3v1h-3zM1 19h7v1h-7zM9 19h1v1h-1zM14 19h2v1h-2zM17 19h1v1h-1zM19 19h1v1h-1zM21 19h5v1h-5zM1 20h1v1h-1zM7 20h1v1h-1zM9 20h3v1h-3zM13 20h1v1h-1zM17 20h1v1h-1zM21 20h2v1h-2zM24 20h1v1h-1zM1 21h1v1h-1zM3 21h3v1h-3zM7 21h1v1h-1zM9 21h1v1h-1zM13 21h2v1h-2zM16 21h10v1h-10zM1 22h1v1h-1zM3 22h3v1h-3zM7 22h1v1h-1zM9 22h3v1h-3zM15 22h5v1h-5zM21 22h1v1h-1zM23 22h3v1h-3zM1 23h1v1h-1zM3 23h3v1h-3zM7 23h1v1h-1zM9 23h1v1h-1zM12 23h2v1h-2zM15 23h1v1h-1zM17 23h1v1h-1zM20 23h1v1h-1zM23 23h1v1h-1zM25 23h1v1h-1zM1 24h1v1h-1zM7 24h1v1h-1zM12 24h1v1h-1zM15 24h3v1h-3zM20 24h3v1h-3zM25 24h1v1h-1zM1 25h7v1h-7zM10 25h1v1h-1zM12 25h2v1h-2zM16 25h1v1h-1zM18 25h1v1h-1zM20 25h6v1h-6z"/>
+                    <a href="https://www.youtube.com/watch?v=xvFZjo5PgG0" target="_blank" rel="noopener noreferrer" class="inline-block p-2 rounded-lg bg-white shadow-inner my-1 hover:opacity-90 transition cursor-pointer" title="Scan or click to open">
+                      <svg class="w-20 h-20 text-black" viewBox="0 0 35 35" fill="currentColor" shape-rendering="crispEdges" role="img" aria-label="Phone Link QR Code">
+                        <path d="M1 1h1v1h-1zM2 1h1v1h-1zM3 1h1v1h-1zM4 1h1v1h-1zM5 1h1v1h-1zM6 1h1v1h-1zM7 1h1v1h-1zM10 1h1v1h-1zM11 1h1v1h-1zM15 1h1v1h-1zM17 1h1v1h-1zM19 1h1v1h-1zM23 1h1v1h-1zM27 1h1v1h-1zM28 1h1v1h-1zM29 1h1v1h-1zM30 1h1v1h-1zM31 1h1v1h-1zM32 1h1v1h-1zM33 1h1v1h-1zM1 2h1v1h-1zM7 2h1v1h-1zM9 2h1v1h-1zM10 2h1v1h-1zM13 2h1v1h-1zM14 2h1v1h-1zM17 2h1v1h-1zM18 2h1v1h-1zM20 2h1v1h-1zM22 2h1v1h-1zM27 2h1v1h-1zM33 2h1v1h-1zM1 3h1v1h-1zM3 3h1v1h-1zM4 3h1v1h-1zM5 3h1v1h-1zM7 3h1v1h-1zM10 3h1v1h-1zM11 3h1v1h-1zM13 3h1v1h-1zM14 3h1v1h-1zM16 3h1v1h-1zM18 3h1v1h-1zM19 3h1v1h-1zM22 3h1v1h-1zM23 3h1v1h-1zM25 3h1v1h-1zM27 3h1v1h-1zM29 3h1v1h-1zM30 3h1v1h-1zM31 3h1v1h-1zM33 3h1v1h-1zM1 4h1v1h-1zM3 4h1v1h-1zM4 4h1v1h-1zM5 4h1v1h-1zM7 4h1v1h-1zM9 4h1v1h-1zM10 4h1v1h-1zM14 4h1v1h-1zM15 4h1v1h-1zM17 4h1v1h-1zM21 4h1v1h-1zM22 4h1v1h-1zM24 4h1v1h-1zM25 4h1v1h-1zM27 4h1v1h-1zM29 4h1v1h-1zM30 4h1v1h-1zM31 4h1v1h-1zM33 4h1v1h-1zM1 5h1v1h-1zM3 5h1v1h-1zM4 5h1v1h-1zM5 5h1v1h-1zM7 5h1v1h-1zM9 5h1v1h-1zM11 5h1v1h-1zM13 5h1v1h-1zM14 5h1v1h-1zM17 5h1v1h-1zM19 5h1v1h-1zM21 5h1v1h-1zM27 5h1v1h-1zM29 5h1v1h-1zM30 5h1v1h-1zM31 5h1v1h-1zM33 5h1v1h-1zM1 6h1v1h-1zM7 6h1v1h-1zM10 6h1v1h-1zM11 6h1v1h-1zM12 6h1v1h-1zM22 6h1v1h-1zM24 6h1v1h-1zM25 6h1v1h-1zM27 6h1v1h-1zM33 6h1v1h-1zM1 7h1v1h-1zM2 7h1v1h-1zM3 7h1v1h-1zM4 7h1v1h-1zM5 7h1v1h-1zM6 7h1v1h-1zM7 7h1v1h-1zM9 7h1v1h-1zM11 7h1v1h-1zM13 7h1v1h-1zM15 7h1v1h-1zM17 7h1v1h-1zM19 7h1v1h-1zM21 7h1v1h-1zM23 7h1v1h-1zM25 7h1v1h-1zM27 7h1v1h-1zM28 7h1v1h-1zM29 7h1v1h-1zM30 7h1v1h-1zM31 7h1v1h-1zM32 7h1v1h-1zM33 7h1v1h-1zM9 8h1v1h-1zM10 8h1v1h-1zM11 8h1v1h-1zM12 8h1v1h-1zM13 8h1v1h-1zM15 8h1v1h-1zM17 8h1v1h-1zM20 8h1v1h-1zM21 8h1v1h-1zM23 8h1v1h-1zM24 8h1v1h-1zM25 8h1v1h-1zM2 9h1v1h-1zM4 9h1v1h-1zM5 9h1v1h-1zM6 9h1v1h-1zM7 9h1v1h-1zM9 9h1v1h-1zM10 9h1v1h-1zM15 9h1v1h-1zM17 9h1v1h-1zM18 9h1v1h-1zM20 9h1v1h-1zM24 9h1v1h-1zM26 9h1v1h-1zM27 9h1v1h-1zM29 9h1v1h-1zM30 9h1v1h-1zM32 9h1v1h-1zM1 10h1v1h-1zM2 10h1v1h-1zM3 10h1v1h-1zM4 10h1v1h-1zM5 10h1v1h-1zM11 10h1v1h-1zM16 10h1v1h-1zM17 10h1v1h-1zM19 10h1v1h-1zM20 10h1v1h-1zM22 10h1v1h-1zM24 10h1v1h-1zM29 10h1v1h-1zM30 10h1v1h-1zM31 10h1v1h-1zM4 11h1v1h-1zM5 11h1v1h-1zM7 11h1v1h-1zM8 11h1v1h-1zM9 11h1v1h-1zM11 11h1v1h-1zM12 11h1v1h-1zM13 11h1v1h-1zM14 11h1v1h-1zM18 11h1v1h-1zM19 11h1v1h-1zM21 11h1v1h-1zM23 11h1v1h-1zM24 11h1v1h-1zM25 11h1v1h-1zM26 11h1v1h-1zM27 11h1v1h-1zM29 11h1v1h-1zM30 11h1v1h-1zM31 11h1v1h-1zM32 11h1v1h-1zM33 11h1v1h-1zM2 12h1v1h-1zM4 12h1v1h-1zM6 12h1v1h-1zM8 12h1v1h-1zM9 12h1v1h-1zM11 12h1v1h-1zM13 12h1v1h-1zM16 12h1v1h-1zM17 12h1v1h-1zM18 12h1v1h-1zM20 12h1v1h-1zM21 12h1v1h-1zM27 12h1v1h-1zM28 12h1v1h-1zM31 12h1v1h-1zM32 12h1v1h-1zM33 12h1v1h-1zM5 13h1v1h-1zM6 13h1v1h-1zM7 13h1v1h-1zM8 13h1v1h-1zM9 13h1v1h-1zM10 13h1v1h-1zM14 13h1v1h-1zM15 13h1v1h-1zM17 13h1v1h-1zM18 13h1v1h-1zM19 13h1v1h-1zM21 13h1v1h-1zM23 13h1v1h-1zM26 13h1v1h-1zM27 13h1v1h-1zM33 13h1v1h-1zM1 14h1v1h-1zM2 14h1v1h-1zM3 14h1v1h-1zM4 14h1v1h-1zM5 14h1v1h-1zM8 14h1v1h-1zM9 14h1v1h-1zM13 14h1v1h-1zM14 14h1v1h-1zM20 14h1v1h-1zM21 14h1v1h-1zM23 14h1v1h-1zM28 14h1v1h-1zM31 14h1v1h-1zM1 15h1v1h-1zM2 15h1v1h-1zM4 15h1v1h-1zM6 15h1v1h-1zM7 15h1v1h-1zM9 15h1v1h-1zM10 15h1v1h-1zM20 15h1v1h-1zM22 15h1v1h-1zM25 15h1v1h-1zM27 15h1v1h-1zM30 15h1v1h-1zM31 15h1v1h-1zM10 16h1v1h-1zM11 16h1v1h-1zM13 16h1v1h-1zM15 16h1v1h-1zM17 16h1v1h-1zM19 16h1v1h-1zM21 16h1v1h-1zM24 16h1v1h-1zM26 16h1v1h-1zM28 16h1v1h-1zM30 16h1v1h-1zM31 16h1v1h-1zM33 16h1v1h-1zM1 17h1v1h-1zM2 17h1v1h-1zM3 17h1v1h-1zM4 17h1v1h-1zM7 17h1v1h-1zM8 17h1v1h-1zM12 17h1v1h-1zM13 17h1v1h-1zM14 17h1v1h-1zM15 17h1v1h-1zM21 17h1v1h-1zM23 17h1v1h-1zM24 17h1v1h-1zM25 17h1v1h-1zM26 17h1v1h-1zM27 17h1v1h-1zM28 17h1v1h-1zM29 17h1v1h-1zM2 18h1v1h-1zM5 18h1v1h-1zM8 18h1v1h-1zM10 18h1v1h-1zM11 18h1v1h-1zM12 18h1v1h-1zM13 18h1v1h-1zM16 18h1v1h-1zM18 18h1v1h-1zM19 18h1v1h-1zM20 18h1v1h-1zM25 18h1v1h-1zM26 18h1v1h-1zM27 18h1v1h-1zM29 18h1v1h-1zM31 18h1v1h-1zM32 18h1v1h-1zM33 18h1v1h-1zM4 19h1v1h-1zM5 19h1v1h-1zM7 19h1v1h-1zM9 19h1v1h-1zM10 19h1v1h-1zM11 19h1v1h-1zM12 19h1v1h-1zM13 19h1v1h-1zM15 19h1v1h-1zM16 19h1v1h-1zM19 19h1v1h-1zM20 19h1v1h-1zM22 19h1v1h-1zM24 19h1v1h-1zM28 19h1v1h-1zM30 19h1v1h-1zM31 19h1v1h-1zM33 19h1v1h-1zM4 20h1v1h-1zM6 20h1v1h-1zM8 20h1v1h-1zM14 20h1v1h-1zM15 20h1v1h-1zM16 20h1v1h-1zM19 20h1v1h-1zM20 20h1v1h-1zM23 20h1v1h-1zM24 20h1v1h-1zM27 20h1v1h-1zM29 20h1v1h-1zM30 20h1v1h-1zM31 20h1v1h-1zM1 21h1v1h-1zM2 21h1v1h-1zM3 21h1v1h-1zM6 21h1v1h-1zM7 21h1v1h-1zM8 21h1v1h-1zM9 21h1v1h-1zM10 21h1v1h-1zM11 21h1v1h-1zM12 21h1v1h-1zM14 21h1v1h-1zM18 21h1v1h-1zM20 21h1v1h-1zM21 21h1v1h-1zM22 21h1v1h-1zM25 21h1v1h-1zM30 21h1v1h-1zM33 21h1v1h-1zM1 22h1v1h-1zM5 22h1v1h-1zM6 22h1v1h-1zM8 22h1v1h-1zM9 22h1v1h-1zM10 22h1v1h-1zM13 22h1v1h-1zM14 22h1v1h-1zM15 22h1v1h-1zM16 22h1v1h-1zM19 22h1v1h-1zM20 22h1v1h-1zM21 22h1v1h-1zM26 22h1v1h-1zM29 22h1v1h-1zM30 22h1v1h-1zM31 22h1v1h-1zM1 23h1v1h-1zM3 23h1v1h-1zM4 23h1v1h-1zM7 23h1v1h-1zM8 23h1v1h-1zM11 23h1v1h-1zM14 23h1v1h-1zM15 23h1v1h-1zM16 23h1v1h-1zM19 23h1v1h-1zM22 23h1v1h-1zM23 23h1v1h-1zM24 23h1v1h-1zM25 23h1v1h-1zM26 23h1v1h-1zM27 23h1v1h-1zM28 23h1v1h-1zM30 23h1v1h-1zM31 23h1v1h-1zM32 23h1v1h-1zM33 23h1v1h-1zM1 24h1v1h-1zM3 24h1v1h-1zM5 24h1v1h-1zM6 24h1v1h-1zM10 24h1v1h-1zM11 24h1v1h-1zM20 24h1v1h-1zM21 24h1v1h-1zM23 24h1v1h-1zM26 24h1v1h-1zM27 24h1v1h-1zM31 24h1v1h-1zM32 24h1v1h-1zM33 24h1v1h-1zM1 25h1v1h-1zM2 25h1v1h-1zM3 25h1v1h-1zM4 25h1v1h-1zM5 25h1v1h-1zM7 25h1v1h-1zM9 25h1v1h-1zM11 25h1v1h-1zM12 25h1v1h-1zM13 25h1v1h-1zM14 25h1v1h-1zM15 25h1v1h-1zM18 25h1v1h-1zM19 25h1v1h-1zM20 25h1v1h-1zM21 25h1v1h-1zM24 25h1v1h-1zM25 25h1v1h-1zM26 25h1v1h-1zM27 25h1v1h-1zM28 25h1v1h-1zM29 25h1v1h-1zM30 25h1v1h-1zM32 25h1v1h-1zM9 26h1v1h-1zM13 26h1v1h-1zM14 26h1v1h-1zM16 26h1v1h-1zM18 26h1v1h-1zM23 26h1v1h-1zM24 26h1v1h-1zM25 26h1v1h-1zM29 26h1v1h-1zM31 26h1v1h-1zM32 26h1v1h-1zM1 27h1v1h-1zM2 27h1v1h-1zM3 27h1v1h-1zM4 27h1v1h-1zM5 27h1v1h-1zM6 27h1v1h-1zM7 27h1v1h-1zM10 27h1v1h-1zM11 27h1v1h-1zM15 27h1v1h-1zM16 27h1v1h-1zM18 27h1v1h-1zM19 27h1v1h-1zM20 27h1v1h-1zM22 27h1v1h-1zM23 27h1v1h-1zM24 27h1v1h-1zM25 27h1v1h-1zM27 27h1v1h-1zM29 27h1v1h-1zM31 27h1v1h-1zM32 27h1v1h-1zM1 28h1v1h-1zM7 28h1v1h-1zM9 28h1v1h-1zM11 28h1v1h-1zM13 28h1v1h-1zM15 28h1v1h-1zM19 28h1v1h-1zM20 28h1v1h-1zM21 28h1v1h-1zM23 28h1v1h-1zM24 28h1v1h-1zM25 28h1v1h-1zM29 28h1v1h-1zM30 28h1v1h-1zM31 28h1v1h-1zM32 28h1v1h-1zM33 28h1v1h-1zM1 29h1v1h-1zM3 29h1v1h-1zM4 29h1v1h-1zM5 29h1v1h-1zM7 29h1v1h-1zM9 29h1v1h-1zM12 29h1v1h-1zM13 29h1v1h-1zM14 29h1v1h-1zM15 29h1v1h-1zM16 29h1v1h-1zM21 29h1v1h-1zM23 29h1v1h-1zM24 29h1v1h-1zM25 29h1v1h-1zM26 29h1v1h-1zM27 29h1v1h-1zM28 29h1v1h-1zM29 29h1v1h-1zM32 29h1v1h-1zM1 30h1v1h-1zM3 30h1v1h-1zM4 30h1v1h-1zM5 30h1v1h-1zM7 30h1v1h-1zM9 30h1v1h-1zM10 30h1v1h-1zM11 30h1v1h-1zM17 30h1v1h-1zM18 30h1v1h-1zM19 30h1v1h-1zM21 30h1v1h-1zM23 30h1v1h-1zM26 30h1v1h-1zM28 30h1v1h-1zM30 30h1v1h-1zM31 30h1v1h-1zM33 30h1v1h-1zM1 31h1v1h-1zM3 31h1v1h-1zM4 31h1v1h-1zM5 31h1v1h-1zM7 31h1v1h-1zM10 31h1v1h-1zM11 31h1v1h-1zM12 31h1v1h-1zM16 31h1v1h-1zM18 31h1v1h-1zM20 31h1v1h-1zM22 31h1v1h-1zM25 31h1v1h-1zM28 31h1v1h-1zM29 31h1v1h-1zM32 31h1v1h-1zM33 31h1v1h-1zM1 32h1v1h-1zM7 32h1v1h-1zM9 32h1v1h-1zM10 32h1v1h-1zM11 32h1v1h-1zM12 32h1v1h-1zM19 32h1v1h-1zM23 32h1v1h-1zM24 32h1v1h-1zM26 32h1v1h-1zM28 32h1v1h-1zM29 32h1v1h-1zM30 32h1v1h-1zM31 32h1v1h-1zM32 32h1v1h-1zM33 32h1v1h-1zM1 33h1v1h-1zM2 33h1v1h-1zM3 33h1v1h-1zM4 33h1v1h-1zM5 33h1v1h-1zM6 33h1v1h-1zM7 33h1v1h-1zM10 33h1v1h-1zM11 33h1v1h-1zM12 33h1v1h-1zM15 33h1v1h-1zM16 33h1v1h-1zM17 33h1v1h-1zM19 33h1v1h-1zM20 33h1v1h-1zM24 33h1v1h-1zM25 33h1v1h-1zM26 33h1v1h-1zM28 33h1v1h-1zM29 33h1v1h-1z"/>
                       </svg>
-                    </div>
+                    </a>
                     <div class="text-[10px]" style="color: var(--chalk-muted);">
                       Scan with camera to snap pictures and slides via local Wi-Fi / hotspot
                     </div>
@@ -611,7 +645,7 @@
                 <!-- Chat Context Sub-Bar -->
                 <div class="flex items-center justify-between pb-1.5 mb-1 border-b flex-shrink-0" style="border-color: var(--chalk-border);">
                   <span class="text-[11px] font-medium" style="color: var(--chalk-muted);" data-i18n="preview_chat_grounded">AI grounded in live audio, slides & photos</span>
-                  <span id="mockup-chat-model-badge" class="text-[10px] font-mono px-1.5 py-0.5 rounded border" style="background-color: var(--surface-terminal); border-color: var(--chalk-border); color: var(--chalk-muted);">Gemini 2.5 Flash</span>
+                  <span id="mockup-chat-model-badge" class="text-[10px] font-mono px-1.5 py-0.5 rounded border" style="background-color: var(--surface-terminal); border-color: var(--chalk-border); color: var(--chalk-muted);">Gemini Maximum</span>
                 </div>
 
                 <!-- Scrollable Messages Area -->
@@ -692,22 +726,15 @@
                   <div>
                     <label class="font-semibold text-[11px] block mb-1" style="color: var(--chalk-white);" data-i18n="preview_model_label">AI Synthesis Model:</label>
                     <select id="mockup-model-select" onchange="onModelChange()" class="w-full text-xs font-mono px-2.5 py-1.5 rounded-lg border focus:outline-none cursor-pointer" style="background-color: var(--surface-terminal); border-color: var(--chalk-border); color: var(--chalk-white);">
-                      <optgroup label="Google Gemini (Free Tier & Direct BYOK)">
-                        <option value="gemini-2.5-flash" selected>Gemini 2.5 Flash (Recommended • Free Tier)</option>
-                        <option value="gemini-2.5-pro">Gemini 2.5 Pro (Deep Math & Reasoning)</option>
-                        <option value="gemini-2.0-flash">Gemini 2.0 Flash (Next-Gen Real-Time)</option>
-                        <option value="gemini-2.0-flash-lite">Gemini 2.0 Flash-Lite (High Speed & Low Latency)</option>
-                        <option value="gemini-1.5-pro">Gemini 1.5 Pro (2M Long Context Archive)</option>
+                      <optgroup data-i18n="optgroup_free" label="Free Tier Setups">
+                        <option value="gemini-max" data-i18n="model_preset_gemini_max" selected>Gemini Maximum: Gemini 3.5 Flash (Operational) + Gemini 3.1 Pro (Synthesis)</option>
+                        <option value="gemini-medium" data-i18n="model_preset_gemini_medium">Gemini Medium: Gemini 3.5 Flash-Lite (Operational) + Gemini 3.5 Flash (Synthesis)</option>
+                        <option value="gemini-min" data-i18n="model_preset_gemini_min">Gemini Minimum: Gemini 3.1 Flash-Lite (Operational) + Gemini 3.5 Flash-Lite (Synthesis)</option>
                       </optgroup>
-                      <optgroup label="Anthropic Claude (Direct BYOK)">
-                        <option value="claude-3-7-sonnet">Claude 3.7 Sonnet (Hybrid Reasoning)</option>
-                        <option value="claude-3-5-sonnet">Claude 3.5 Sonnet (Technical Analysis)</option>
-                        <option value="claude-3-5-haiku">Claude 3.5 Haiku (Rapid Extraction)</option>
-                      </optgroup>
-                      <optgroup label="OpenAI (Direct BYOK)">
-                        <option value="gpt-4o">GPT-4o (Omnimodal Processing)</option>
-                        <option value="gpt-4o-mini">GPT-4o Mini (Fast & Lightweight)</option>
-                        <option value="o3-mini">o3-mini (STEM & Formula Reasoning)</option>
+                      <optgroup data-i18n="optgroup_premium" label="Paid Models (Direct BYOK)">
+                        <option value="paid-gemini" data-i18n="model_preset_paid_gemini">Gemini 3.8 Flash (Operational &amp; Synthesis)</option>
+                        <option value="paid-claude" data-i18n="model_preset_paid_claude">Claude 5.5 Sonnet (Operational &amp; Synthesis)</option>
+                        <option value="paid-openai" data-i18n="model_preset_paid_openai">GPT-6.1 Sol (Operational &amp; Synthesis)</option>
                       </optgroup>
                     </select>
                   </div>
@@ -943,8 +970,8 @@
           </p>
           <div class="grid grid-cols-3 gap-3 pt-5 border-t" style="border-color: var(--chalk-border);">
             <div>
-              <div class="text-[10px] font-mono uppercase tracking-wider mb-1" style="color: var(--chalk-muted);" data-i18n="privacy_stat1_label">Audio & Screen</div>
-              <div class="text-xs sm:text-sm font-bold" style="color: var(--chalk-white);" data-i18n="privacy_stat1_val">100% On-Device</div>
+              <div class="text-[10px] font-mono uppercase tracking-wider mb-1" style="color: var(--chalk-muted);" data-i18n="privacy_stat1_label">Storage & Notes</div>
+              <div class="text-xs sm:text-sm font-bold" style="color: var(--chalk-white);" data-i18n="privacy_stat1_val">100% Local-First</div>
             </div>
             <div>
               <div class="text-[10px] font-mono uppercase tracking-wider mb-1" style="color: var(--chalk-muted);" data-i18n="privacy_stat2_label">Cloud Relays</div>
@@ -1072,7 +1099,7 @@
           </p>
         </div>
         <div>
-          <a href="https://github.com/volodyagladkyy/Chalk/releases/latest/download/Chalk-macOS.zip" class="w-full py-4 px-5 rounded-xl font-semibold text-center transition flex items-center justify-center gap-2 text-sm shadow-md" style="background-color: var(--chalk-white); color: var(--bg-obsidian);">
+          <a href="https://github.com/getchalk/getchalk.github.io/releases/latest/download/Chalk-macOS.zip" class="w-full py-4 px-5 rounded-xl font-semibold text-center transition flex items-center justify-center gap-2 text-sm shadow-md" style="background-color: var(--chalk-white); color: var(--bg-obsidian);">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
             <span data-i18n="mac_btn">Download for macOS (Apple Silicon)</span>
           </a>
@@ -1093,7 +1120,7 @@
           </p>
         </div>
         <div>
-          <a href="https://github.com/volodyagladkyy/Chalk/releases/latest/download/Chalk-Setup.exe" class="w-full py-4 px-5 rounded-xl font-semibold text-center transition flex items-center justify-center gap-2 text-sm shadow-md" style="background-color: var(--chalk-white); color: var(--bg-obsidian);">
+          <a href="https://github.com/getchalk/getchalk.github.io/releases/latest/download/Chalk-Setup.exe" class="w-full py-4 px-5 rounded-xl font-semibold text-center transition flex items-center justify-center gap-2 text-sm shadow-md" style="background-color: var(--chalk-white); color: var(--bg-obsidian);">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
             <span data-i18n="win_btn">Download for Windows (x64)</span>
           </a>
@@ -1113,13 +1140,13 @@
               <span class="text-[10px] font-mono tracking-wider uppercase px-2 py-0.5 rounded border flex-shrink-0 font-medium" style="background-color: var(--surface-elevated); border-color: var(--chalk-border); color: var(--chalk-white);">macOS</span>
               <span class="text-[11px] font-mono truncate" style="color: var(--chalk-muted);" data-i18n="cli_mac">macOS Terminal</span>
             </div>
-            <button onclick="copyCommand(this, 'curl -L -O https://github.com/volodyagladkyy/Chalk/releases/latest/download/Chalk-macOS.zip')" class="flex-shrink-0 text-xs px-2.5 py-1 rounded border font-medium transition flex items-center gap-1.5 hover:opacity-90" style="background-color: var(--terminal-btn-bg); border-color: var(--terminal-btn-border); color: var(--terminal-btn-text);">
+            <button onclick="copyCommand(this, 'curl -L -O https://github.com/getchalk/getchalk.github.io/releases/latest/download/Chalk-macOS.zip')" class="flex-shrink-0 text-xs px-2.5 py-1 rounded border font-medium transition flex items-center gap-1.5 hover:opacity-90" style="background-color: var(--terminal-btn-bg); border-color: var(--terminal-btn-border); color: var(--terminal-btn-text);">
               <svg class="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/></svg>
               <span data-i18n="btn_copy">Copy</span>
             </button>
           </div>
           <div class="rounded-lg p-2.5 border overflow-x-auto min-w-0" style="background-color: var(--surface-terminal); border-color: var(--chalk-border);">
-            <code class="select-all whitespace-nowrap font-mono text-xs block" style="color: var(--terminal-text);"><span class="select-none opacity-40">$ </span>curl -L -O https://github.com/volodyagladkyy/Chalk/releases/latest/download/Chalk-macOS.zip</code>
+            <code class="select-all whitespace-nowrap font-mono text-xs block" style="color: var(--terminal-text);"><span class="select-none opacity-40">$ </span>curl -L -O https://github.com/getchalk/getchalk.github.io/releases/latest/download/Chalk-macOS.zip</code>
           </div>
         </div>
 
@@ -1130,13 +1157,13 @@
               <span class="text-[10px] font-mono tracking-wider uppercase px-2 py-0.5 rounded border flex-shrink-0 font-medium" style="background-color: var(--surface-elevated); border-color: var(--chalk-border); color: var(--chalk-white);">Windows</span>
               <span class="text-[11px] font-mono truncate" style="color: var(--chalk-muted);" data-i18n="cli_win">Windows PowerShell / CMD</span>
             </div>
-            <button onclick="copyCommand(this, 'curl -L -O https://github.com/volodyagladkyy/Chalk/releases/latest/download/Chalk-Setup.exe')" class="flex-shrink-0 text-xs px-2.5 py-1 rounded border font-medium transition flex items-center gap-1.5 hover:opacity-90" style="background-color: var(--terminal-btn-bg); border-color: var(--terminal-btn-border); color: var(--terminal-btn-text);">
+            <button onclick="copyCommand(this, 'curl -L -O https://github.com/getchalk/getchalk.github.io/releases/latest/download/Chalk-Setup.exe')" class="flex-shrink-0 text-xs px-2.5 py-1 rounded border font-medium transition flex items-center gap-1.5 hover:opacity-90" style="background-color: var(--terminal-btn-bg); border-color: var(--terminal-btn-border); color: var(--terminal-btn-text);">
               <svg class="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/></svg>
               <span data-i18n="btn_copy">Copy</span>
             </button>
           </div>
           <div class="rounded-lg p-2.5 border overflow-x-auto min-w-0" style="background-color: var(--surface-terminal); border-color: var(--chalk-border);">
-            <code class="select-all whitespace-nowrap font-mono text-xs block" style="color: var(--terminal-text);"><span class="select-none opacity-40">> </span>curl -L -O https://github.com/volodyagladkyy/Chalk/releases/latest/download/Chalk-Setup.exe</code>
+            <code class="select-all whitespace-nowrap font-mono text-xs block" style="color: var(--terminal-text);"><span class="select-none opacity-40">> </span>curl -L -O https://github.com/getchalk/getchalk.github.io/releases/latest/download/Chalk-Setup.exe</code>
           </div>
         </div>
       </div>
@@ -1310,6 +1337,14 @@
     "preview_key_test_btn": "Test Key",
     "preview_key_save_btn": "Save Key",
     "preview_model_label": "AI Synthesis Model:",
+    "optgroup_free": "Free Tier Setups",
+    "optgroup_premium": "Paid Models (Direct BYOK)",
+    "model_preset_gemini_max": "Gemini Maximum: Gemini 3.5 Flash (Operational) + Gemini 3.1 Pro (Synthesis)",
+    "model_preset_gemini_medium": "Gemini Medium: Gemini 3.5 Flash-Lite (Operational) + Gemini 3.5 Flash (Synthesis)",
+    "model_preset_gemini_min": "Gemini Minimum: Gemini 3.1 Flash-Lite (Operational) + Gemini 3.5 Flash-Lite (Synthesis)",
+    "model_preset_paid_gemini": "Gemini 3.8 Flash (Operational & Synthesis)",
+    "model_preset_paid_claude": "Claude 5.5 Sonnet (Operational & Synthesis)",
+    "model_preset_paid_openai": "GPT-6.1 Sol (Operational & Synthesis)",
     "preview_obsidian_label": "Notes Vault Directory:",
     "settings_theme_label": "Appearance Mode:",
     "settings_theme_desc": "Toggle Dark and Light theme for this window",
@@ -1344,8 +1379,8 @@
     "privacy_subtitle": "Unlike cloud meeting bots, Chalk processes audio and screen captures exclusively locally on your hardware.",
     "privacy_box_title": "Zero cloud relays. Absolute data sovereignty.",
     "privacy_p1": "Unlike cloud meeting bots that route your private conversations and confidential presentations through third-party servers, Chalk operates on a strict Local-First and Direct BYOK (Bring Your Own Key) architecture. Audio recordings and screen captures never leave your laptop unencrypted, communicating solely and directly between your workstation and your personal AI accounts with zero intermediary relays.",
-    "privacy_stat1_label": "Audio & Screen",
-    "privacy_stat1_val": "100% On-Device",
+    "privacy_stat1_label": "Storage & Notes",
+    "privacy_stat1_val": "100% Local-First",
     "privacy_stat2_label": "Cloud Relays",
     "privacy_stat2_val": "Zero Servers",
     "privacy_stat3_label": "Telemetry",
@@ -1399,7 +1434,7 @@
     "legal_sec1_title": "Legal Disclosure (§ 25 MedienG, § 5 ECG)",
     "legal_sec1_body": "<p><strong>Media Owner & Operator:</strong> Volodymyr Gladkyy</p><p><strong>Location / Seat:</strong> Vienna, Austria</p><p><strong>Contact E-Mail:</strong> <a href=\"mailto:volodyagladkyy@gmail.com\" class=\"underline hover:text-white transition\" style=\"color: var(--chalk-white);\">volodyagladkyy@gmail.com</a></p><p><strong>Purpose:</strong> Provision and documentation of the open-source desktop software Chalk for personal and academic study purposes.</p><p><strong>Applicable Legislation:</strong> Media Act (MedienG), E-Commerce Act (ECG), Telecommunications Act (TKG 2021).</p>",
     "legal_sec2_title": "Privacy Policy (GDPR / § 165 TKG 2021)",
-    "legal_sec2_body": "<p><strong>1. Zero Cookies & Telemetry:</strong> This website stores zero cookies and uses zero tracking or analytics scripts (§ 165 Abs. 3 TKG 2021).</p><p><strong>2. Local-First Architecture:</strong> Audio recordings, VAD buffers, and screen captures are stored strictly on your local disk in <code>~/.chalk/sessions/</code>. No third-party or project servers receive your data.</p><p><strong>3. Direct BYOK Connection:</strong> AI synthesis requests travel directly over TLS 1.3 from localhost to your configured AI provider (Google Gemini, Anthropic Claude, OpenAI). API keys remain securely encrypted in macOS Keychain or Windows DPAPI.</p>",
+    "legal_sec2_body": "<p><strong>1. Zero Cookies & Telemetry:</strong> This website stores zero cookies and uses zero tracking or analytics scripts (§ 165 Abs. 3 TKG 2021).</p><p><strong>2. Local-First Architecture:</strong> Audio recordings, VAD buffers, and screen captures are stored strictly on your local disk in <code>~/.chalk/sessions/</code>. No intermediary or project servers receive your data.</p><p><strong>3. Direct BYOK Connection:</strong> AI synthesis requests travel directly over TLS 1.3 from localhost to your configured AI provider (Google Gemini, Anthropic Claude, OpenAI). API keys remain securely encrypted in macOS Keychain or Windows DPAPI.</p>",
     "legal_sec3_title": "Recording Compliance (§ 120 StGB Austria / European Law)",
     "legal_sec3_body": "Pursuant to § 120 Para. 1 of the Austrian Criminal Code (StGB) and comparable European legislation (§ 201 StGB Germany, wiretap consent statutes), recording non-public spoken words without prior authorization is unlawful. Always ensure all lecturers, presenters, and meeting participants have consented prior to activating recording.",
     "modal_recording_box_label": "Recommended notice for meeting chats / invites:",
@@ -1470,6 +1505,14 @@
     "preview_key_test_btn": "Key testen",
     "preview_key_save_btn": "Key speichern",
     "preview_model_label": "KI-Synthese-Modell:",
+    "optgroup_free": "Kostenlose Setups",
+    "optgroup_premium": "Kostenpflichtige Modelle (Direct BYOK)",
+    "model_preset_gemini_max": "Gemini Maximum: Gemini 3.5 Flash (Operativ) + Gemini 3.1 Pro (Synthese)",
+    "model_preset_gemini_medium": "Gemini Medium: Gemini 3.5 Flash-Lite (Operativ) + Gemini 3.5 Flash (Synthese)",
+    "model_preset_gemini_min": "Gemini Minimum: Gemini 3.1 Flash-Lite (Operativ) + Gemini 3.5 Flash-Lite (Synthese)",
+    "model_preset_paid_gemini": "Gemini 3.8 Flash (Operativ & Synthese)",
+    "model_preset_paid_claude": "Claude 5.5 Sonnet (Operativ & Synthese)",
+    "model_preset_paid_openai": "GPT-6.1 Sol (Operativ & Synthese)",
     "preview_obsidian_label": "Notizen Vault-Verzeichnis:",
     "settings_theme_label": "Design-Modus:",
     "settings_theme_desc": "Dunkles und helles Farbschema für dieses Fenster",
@@ -1504,8 +1547,8 @@
     "privacy_subtitle": "Im Gegensatz zu Cloud-Meeting-Bots verarbeitet Chalk Ton und Bildschirmaufnahmen ausschließlich lokal auf deiner Hardware.",
     "privacy_box_title": "Keine Cloud-Relays. Absolute Datenhoheit.",
     "privacy_p1": "Im Gegensatz zu Cloud-Meeting-Bots, die private Gespräche und vertrauliche Präsentationen über fremde Server leiten, setzt Chalk auf eine kompromisslose Local-First- und Direct-BYOK-Architektur (Bring Your Own Key). Tonaufnahmen und Bildschirmerfassungen verlassen deinen Laptop niemals unverschlüsselt, sondern kommunizieren ausschließlich und direkt zwischen deinem Rechner und deinen persönlichen KI-Konten – ohne zwischengeschaltete Relay-Server.",
-    "privacy_stat1_label": "Audio & Bildschirm",
-    "privacy_stat1_val": "100% Auf dem Rechner",
+    "privacy_stat1_label": "Speicher & Notizen",
+    "privacy_stat1_val": "100% Lokal-First",
     "privacy_stat2_label": "Cloud-Relays",
     "privacy_stat2_val": "0 Zwischenstationen",
     "privacy_stat3_label": "Telemetrie",
@@ -1630,6 +1673,14 @@
     "preview_key_test_btn": "Tester la clé",
     "preview_key_save_btn": "Enregistrer la clé",
     "preview_model_label": "Modèle de synthèse IA :",
+    "optgroup_free": "Configurations Gratuites",
+    "optgroup_premium": "Modèles Payants (Direct BYOK)",
+    "model_preset_gemini_max": "Gemini Maximum : Gemini 3.5 Flash (Opérationnel) + Gemini 3.1 Pro (Synthèse)",
+    "model_preset_gemini_medium": "Gemini Medium : Gemini 3.5 Flash-Lite (Opérationnel) + Gemini 3.5 Flash (Synthèse)",
+    "model_preset_gemini_min": "Gemini Minimum : Gemini 3.1 Flash-Lite (Opérationnel) + Gemini 3.5 Flash-Lite (Synthèse)",
+    "model_preset_paid_gemini": "Gemini 3.8 Flash (Opérationnel & Synthèse)",
+    "model_preset_paid_claude": "Claude 5.5 Sonnet (Opérationnel & Synthèse)",
+    "model_preset_paid_openai": "GPT-6.1 Sol (Opérationnel & Synthèse)",
     "preview_obsidian_label": "Répertoire du coffre de notes :",
     "settings_theme_label": "Mode d'affichage :",
     "settings_theme_desc": "Basculer le thème sombre et clair pour cette fenêtre",
@@ -1664,8 +1715,8 @@
     "privacy_subtitle": "Contrairement aux assistants cloud, Chalk traite le son et les captures d'écran exclusivement en local sur votre matériel.",
     "privacy_box_title": "Zéro relais cloud. Souveraineté totale des données.",
     "privacy_p1": "Contrairement aux assistants cloud qui font transiter vos conversations privées et présentations confidentielles par des serveurs tiers, Chalk repose sur une architecture stricte Local-First et BYOK (Bring Your Own Key) directe. Les enregistrements audio et captures d'écran ne quittent jamais votre ordinateur en clair, communiquant uniquement et directement entre votre poste de travail et vos comptes IA personnels, sans aucun relais intermédiaire.",
-    "privacy_stat1_label": "Audio & Écran",
-    "privacy_stat1_val": "100 % Sur l'appareil",
+    "privacy_stat1_label": "Stockage & Notes",
+    "privacy_stat1_val": "100 % Local-First",
     "privacy_stat2_label": "Relais Cloud",
     "privacy_stat2_val": "Zéro Serveur",
     "privacy_stat3_label": "Télémétrie",
@@ -1790,6 +1841,14 @@
     "preview_key_test_btn": "Probar clave",
     "preview_key_save_btn": "Guardar clave",
     "preview_model_label": "Modelo de síntesis IA:",
+    "optgroup_free": "Configuraciones Gratuitas",
+    "optgroup_premium": "Modelos de Pago (Direct BYOK)",
+    "model_preset_gemini_max": "Gemini Máximo: Gemini 3.5 Flash (Operativo) + Gemini 3.1 Pro (Síntesis)",
+    "model_preset_gemini_medium": "Gemini Medio: Gemini 3.5 Flash-Lite (Operativo) + Gemini 3.5 Flash (Síntesis)",
+    "model_preset_gemini_min": "Gemini Mínimo: Gemini 3.1 Flash-Lite (Operativo) + Gemini 3.5 Flash-Lite (Síntesis)",
+    "model_preset_paid_gemini": "Gemini 3.8 Flash (Operativo y Síntesis)",
+    "model_preset_paid_claude": "Claude 5.5 Sonnet (Operativo y Síntesis)",
+    "model_preset_paid_openai": "GPT-6.1 Sol (Operativo y Síntesis)",
     "preview_obsidian_label": "Directorio del baúl de notas:",
     "settings_theme_label": "Modo de apariencia:",
     "settings_theme_desc": "Cambiar tema oscuro y claro para esta ventana",
@@ -1824,8 +1883,8 @@
     "privacy_subtitle": "A diferencia de los bots en la nube, Chalk procesa el audio y las capturas de pantalla exclusivamente en local en tu hardware.",
     "privacy_box_title": "Cero repetidores en la nube. Soberanía total.",
     "privacy_p1": "A diferencia de los bots en la nube que enrutan tus conversaciones privadas y presentaciones confidenciales a través de servidores de terceros, Chalk opera con una estricta arquitectura Local-First y BYOK (Bring Your Own Key) directo. Las grabaciones de audio y capturas de pantalla nunca salen de tu portátil sin cifrar, comunicándose única y directamente entre tu estación de trabajo y tus cuentas personales de IA, sin repetidores intermediarios.",
-    "privacy_stat1_label": "Audio y Pantalla",
-    "privacy_stat1_val": "100% En el dispositivo",
+    "privacy_stat1_label": "Almacenamiento y Notas",
+    "privacy_stat1_val": "100% Local-First",
     "privacy_stat2_label": "Repetidores Cloud",
     "privacy_stat2_val": "Cero Servidores",
     "privacy_stat3_label": "Telemetría",
@@ -1950,6 +2009,14 @@
     "preview_key_test_btn": "测试密钥",
     "preview_key_save_btn": "保存密钥",
     "preview_model_label": "AI 提炼模型：",
+    "optgroup_free": "免费基础配置",
+    "optgroup_premium": "付费商业模型 (Direct BYOK)",
+    "model_preset_gemini_max": "Gemini 最高配：Gemini 3.5 Flash（实时分块）+ Gemini 3.1 Pro（终极综合）",
+    "model_preset_gemini_medium": "Gemini 中配：Gemini 3.5 Flash-Lite（实时分块）+ Gemini 3.5 Flash（终极综合）",
+    "model_preset_gemini_min": "Gemini 低配：Gemini 3.1 Flash-Lite（实时分块）+ Gemini 3.5 Flash-Lite（终极综合）",
+    "model_preset_paid_gemini": "Gemini 3.8 Flash（实时分块与综合）",
+    "model_preset_paid_claude": "Claude 5.5 Sonnet（实时分块与综合）",
+    "model_preset_paid_openai": "GPT-6.1 Sol（实时分块与综合）",
     "preview_obsidian_label": "笔记仓库目录：",
     "settings_theme_label": "外观模式：",
     "settings_theme_desc": "为此窗口切换深色或浅色外观",
@@ -1984,8 +2051,8 @@
     "privacy_subtitle": "与云端会议机器人不同，Chalk 仅在你的本地硬件上离线处理音频与屏幕画面。",
     "privacy_box_title": "零云端中继。绝对数据主权。",
     "privacy_p1": "与将私人对话和保密幻灯片上传至第三方服务器的云端会议机器人截然不同，Chalk 遵循严格的本地优先 (Local-First) 与密钥直连 (Direct BYOK) 架构。录音文件与屏幕截图绝不以明文形式离开笔记本电脑，仅在你本机的终端设备与专属个人 AI 账户之间建立安全直连，无任何中转服务器旁路中继。",
-    "privacy_stat1_label": "音画数据处理",
-    "privacy_stat1_val": "100% 本地端侧",
+    "privacy_stat1_label": "存储与笔记",
+    "privacy_stat1_val": "100% 本地优先",
     "privacy_stat2_label": "云端中继节点",
     "privacy_stat2_val": "零中转服务器",
     "privacy_stat3_label": "后台遥测指标",
@@ -2364,8 +2431,17 @@
     function toggleMockupQrPopover(e) {
       if (e) e.stopPropagation();
       const popover = document.getElementById('mockup-qr-popover');
+      const screenCard = document.getElementById('mockup-screen-card');
       if (popover) {
+        const isOpening = popover.classList.contains('hidden');
         popover.classList.toggle('hidden');
+        if (screenCard) {
+          if (isOpening) {
+            screenCard.classList.add('is-compact');
+          } else {
+            screenCard.classList.remove('is-compact');
+          }
+        }
       }
     }
 
@@ -2628,7 +2704,7 @@
       messagesContainer.scrollTop = messagesContainer.scrollHeight;
 
       // Append thinking indicator
-      const curModel = mockupState.selectedModelName || 'Gemini 2.5 Flash';
+      const curModel = mockupState.selectedModelName || 'Gemini Maximum';
       const typingIndicator = document.createElement('div');
       typingIndicator.id = 'mockup-chat-typing';
       typingIndicator.className = 'flex gap-2 items-start text-xs';
@@ -2689,7 +2765,7 @@
           `;
         }
 
-        const activeModelName = mockupState.selectedModelName || 'Gemini 2.5 Flash';
+        const activeModelName = mockupState.selectedModelName || 'Gemini Maximum';
         const aiBubble = document.createElement('div');
         aiBubble.className = 'flex gap-2 items-start text-xs';
         aiBubble.innerHTML = `
@@ -2698,7 +2774,7 @@
             ${aiContent}
             <div class="mt-2 pt-1 border-t text-[10px] font-mono flex items-center justify-between opacity-60" style="border-color: var(--chalk-border);">
               <span>Model: ${activeModelName}</span>
-              <span>Grounding: 100% On-Device</span>
+              <span>Grounding: Local Notes • Direct BYOK</span>
             </div>
           </div>
         `;
@@ -2751,7 +2827,7 @@
       if (completeText) completeText.textContent = (translations[currentLang] && translations[currentLang].btn_finish) || 'Finish [F9]';
       if (chatInput) chatInput.value = '';
       const modelBadge = document.getElementById('mockup-chat-model-badge');
-      if (modelBadge) modelBadge.textContent = mockupState.selectedModelName || 'Gemini 2.5 Flash';
+      if (modelBadge) modelBadge.textContent = mockupState.selectedModelName || 'Gemini Maximum';
       if (chatMessages) {
         chatMessages.innerHTML = getMockupChatMessagesHtml(mockupState.lang || currentLang);
       }
@@ -2760,6 +2836,10 @@
       if (dirInput) dirInput.value = '';
       if (updateBullet) updateBullet.remove();
       if (durEl) durEl.textContent = formatFooterDuration(mockupState.baseDurationSeconds);
+      const qrPopover = document.getElementById('mockup-qr-popover');
+      if (qrPopover) qrPopover.classList.add('hidden');
+      const screenCard = document.getElementById('mockup-screen-card');
+      if (screenCard) screenCard.classList.remove('is-compact');
       renderHeroMath();
     }
 
@@ -2883,26 +2963,75 @@
 
       if (!sel) return;
       const selectedOption = sel.options[sel.selectedIndex];
-      const modelName = selectedOption ? selectedOption.text.split('(')[0].trim() : 'Gemini 2.5 Flash';
-      const fullLabel = selectedOption ? selectedOption.text : 'Gemini 2.5 Flash';
+      const val = sel.value;
 
-      mockupState.selectedModelName = modelName;
+      const presetConfigs = {
+        'gemini-max': {
+          badge: 'Gemini Maximum',
+          flash: 'Gemini 3.5 Flash',
+          pro: 'Gemini 3.1 Pro',
+          single: false
+        },
+        'gemini-medium': {
+          badge: 'Gemini Medium',
+          flash: 'Gemini 3.5 Flash-Lite',
+          pro: 'Gemini 3.5 Flash',
+          single: false
+        },
+        'gemini-min': {
+          badge: 'Gemini Minimum',
+          flash: 'Gemini 3.1 Flash-Lite',
+          pro: 'Gemini 3.5 Flash-Lite',
+          single: false
+        },
+        'paid-gemini': {
+          badge: 'Gemini 3.8 Flash',
+          flash: 'Gemini 3.8 Flash',
+          pro: 'Gemini 3.8 Flash',
+          single: true
+        },
+        'paid-claude': {
+          badge: 'Claude 5.5 Sonnet',
+          flash: 'Claude 5.5 Sonnet',
+          pro: 'Claude 5.5 Sonnet',
+          single: true
+        },
+        'paid-openai': {
+          badge: 'GPT-6.1 Sol',
+          flash: 'GPT-6.1 Sol',
+          pro: 'GPT-6.1 Sol',
+          single: true
+        }
+      };
+
+      const cfg = presetConfigs[val] || {
+        badge: selectedOption ? selectedOption.text.split(':')[0].trim() : 'Gemini Maximum',
+        flash: selectedOption ? selectedOption.text : 'Gemini Maximum',
+        pro: selectedOption ? selectedOption.text : 'Gemini Maximum',
+        single: false
+      };
+
+      mockupState.selectedModelName = cfg.badge;
 
       if (feedback) {
-        feedback.textContent = `Model switched to: ${fullLabel}`;
+        feedback.textContent = `Model setup: ${selectedOption ? selectedOption.text : val}`;
       }
 
       if (modelBadge) {
-        modelBadge.textContent = modelName;
+        modelBadge.textContent = cfg.badge;
       }
 
       if (messagesContainer) {
         const bubble = document.createElement('div');
         bubble.className = 'flex gap-2 items-start text-xs';
+        const configDetails = cfg.single
+          ? `• Model: <span style="color: var(--chalk-white); font-weight: 600;">${cfg.flash}</span> (Operational & Synthesis)`
+          : `• Operational: <span style="color: var(--chalk-white); font-weight: 600;">${cfg.flash}</span><br>• Synthesis: <span style="color: var(--chalk-white); font-weight: 600;">${cfg.pro}</span>`;
         bubble.innerHTML = `
           <div class="w-5 h-5 rounded flex items-center justify-center font-mono font-bold text-[9px] flex-shrink-0" style="background-color: var(--surface-elevated); border: 1px solid var(--chalk-border); color: var(--chalk-white);">AI</div>
-          <div class="p-2.5 rounded-lg border flex-1 leading-relaxed" style="background-color: var(--surface-terminal); border-color: var(--chalk-border); color: var(--chalk-white);">
-            <strong style="color: var(--chalk-white);">[Model Updated]:</strong> Active AI synthesis model switched to <strong>${modelName}</strong>. All subsequent questions and mathematical derivations will be synthesized using this model.
+          <div class="p-2.5 rounded-lg border flex-1 leading-relaxed text-[11px] font-mono" style="background-color: var(--surface-terminal); border-color: var(--chalk-border); color: var(--chalk-white);">
+            <strong style="color: var(--chalk-white);">${cfg.badge}</strong><br>
+            ${configDetails}
           </div>
         `;
         messagesContainer.appendChild(bubble);
@@ -2959,7 +3088,9 @@
         const key = el.getAttribute('data-i18n');
         const text = translations[lang][key];
         if (text !== undefined) {
-          if (text.includes('<') && text.includes('>')) {
+          if (el.tagName === 'OPTGROUP') {
+            el.label = text;
+          } else if (text.includes('<') && text.includes('>')) {
             el.innerHTML = text;
           } else {
             el.textContent = text;
@@ -3195,7 +3326,9 @@
           const key = el.getAttribute('data-i18n');
           const text = translations[lang][key];
           if (text !== undefined) {
-            if (text.includes('<') && text.includes('>')) {
+            if (el.tagName === 'OPTGROUP') {
+              el.label = text;
+            } else if (text.includes('<') && text.includes('>')) {
               el.innerHTML = text;
             } else {
               el.textContent = text;

@@ -26,3 +26,9 @@ Primary_Speaker: Instructor (Structured Lecture Cadence)
 
 ---
 
+
+
+> [!question] Socratic Active Recall
+> 1. Q1: Core derivation?
+> 2. Q2: Boundary condition?
+

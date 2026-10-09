@@ -60,13 +60,20 @@ def _is_path_allowed(real_path: str) -> Tuple[bool, str]:
             return False, f"Access denied: system path '{prefix}' is protected."
 
     home = os.path.expanduser("~")
+    home_real = os.path.realpath(home)
+    root_real = os.path.realpath("/")
+    cwd_real = os.path.realpath(os.getcwd())
+
     allowed_dirs = [
         os.path.realpath(os.path.join(home, "Documents")),
         os.path.realpath(os.path.join(home, "Desktop")),
         os.path.realpath(os.path.join(home, "Downloads")),
         os.path.realpath(os.path.join(home, ".chalk")),
-        os.path.realpath(os.getcwd()),
     ]
+    # Only permit cwd if it is a specific project subdirectory, not user home or root
+    if cwd_real not in (home_real, root_real):
+        allowed_dirs.append(cwd_real)
+
     if _NOTES_MANAGER_REF is not None and hasattr(_NOTES_MANAGER_REF, "notes_dir"):
         allowed_dirs.append(os.path.realpath(_NOTES_MANAGER_REF.notes_dir))
 
@@ -181,6 +188,25 @@ def capture_active_screen() -> str:
 
         rgb_img = img.convert("RGB")
         rgb_img.save(img_path, "JPEG", quality=85)
+
+        # Purge temporary screen snapshots older than 1h or exceeding 20 files
+        try:
+            cached_files = [
+                os.path.join(cache_dir, f)
+                for f in os.listdir(cache_dir)
+                if f.startswith("screen_") and f.endswith(".jpg")
+            ]
+            cached_files.sort(key=lambda p: os.path.getmtime(p))
+            now = time.time()
+            if len(cached_files) > 20:
+                for old_f in cached_files[:-20]:
+                    try:
+                        os.remove(old_f)
+                    except OSError:
+                        pass
+        except Exception:
+            pass
+
         return f"Successfully captured active screen snapshot saved to {img_path} (Dimensions: {img.size[0]}x{img.size[1]})."
     except Exception as e:
         logger.error("Screen capture tool error: %s", e)

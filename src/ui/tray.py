@@ -104,6 +104,9 @@ class ChalkSystemTray:
 
     def start(self):
         """Builds and launches the system tray icon detached."""
+        if getattr(self, "_is_running", False):
+            return
+        self._is_running = True
         menu = self._build_menu()
         initial_img = create_tray_status_icon(self.current_state)
         self._icon = pystray.Icon(
@@ -148,6 +151,7 @@ class ChalkSystemTray:
 
     def stop(self):
         """Stops the tray icon."""
+        self._is_running = False
         if self._icon:
             self._icon.stop()
             self._icon = None

@@ -21,8 +21,8 @@ logger = logging.getLogger("chalk.engine.quota")
 LEDGER_DIR = os.path.expanduser("~/.chalk")
 LEDGER_PATH = os.path.join(LEDGER_DIR, "quota_state.json")
 
-# Default daily limits for Google AI Studio tier
-DEFAULT_DAILY_RPD_LIMIT = 50
+# Default daily limits for Google AI Studio tier (Gemini 3.5 / 3.1 Flash-Lite has 500 RPD)
+DEFAULT_DAILY_RPD_LIMIT = 500
 
 
 class QuotaManager:
@@ -35,6 +35,10 @@ class QuotaManager:
         self.daily_rpd_limit = daily_rpd_limit
         self._ensure_ledger_dir()
         self.state = self._load_or_reset_ledger()
+
+    def set_daily_rpd_limit(self, limit: int):
+        """Dynamically updates the daily RPD limit based on the active model preset."""
+        self.daily_rpd_limit = max(1, limit)
 
     def _ensure_ledger_dir(self):
         os.makedirs(LEDGER_DIR, exist_ok=True)

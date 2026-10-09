@@ -19,7 +19,7 @@ import io
 from urllib.parse import urlparse, parse_qs
 from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
 from typing import Optional, Tuple, Dict, Any
-from PIL import Image
+from PIL import Image, ImageOps
 
 from .bridge import CompanionBridge
 from .qr_generator import QRCode
@@ -458,6 +458,7 @@ class CompanionRequestHandler(BaseHTTPRequestHandler):
     """Handles incoming smartphone web app requests and photo uploads."""
 
     server: "CompanionServer"  # type hint for reference to parent server
+    timeout = 5.0
 
     def log_message(self, format, *args):
         # Quiet default console logging
@@ -653,21 +654,16 @@ class CompanionRequestHandler(BaseHTTPRequestHandler):
                 if png_start != -1:
                     candidate_bytes = raw_body[png_start:]
 
-        # Validate with PIL and re-encode to clean, sanitized RGB JPEG if valid
+        # Validate with PIL, transpose EXIF orientation, and re-encode to clean, sanitized RGB JPEG
         if candidate_bytes:
             try:
                 img = Image.open(io.BytesIO(candidate_bytes))
-                img.verify()
-                # Re-open verified image for clean re-encoding
-                img = Image.open(io.BytesIO(candidate_bytes))
+                img = ImageOps.exif_transpose(img)
                 clean_buf = io.BytesIO()
                 rgb_img = img.convert("RGB")
                 rgb_img.save(clean_buf, format="JPEG", quality=88, optimize=True)
                 return clean_buf.getvalue()
             except Exception as img_err:
-                # Fallback for minimal test stubs with valid JPEG/PNG magic signatures
-                if (candidate_bytes.startswith(b"\xff\xd8\xff") and candidate_bytes.endswith(b"\xff\xd9")) or candidate_bytes.startswith(b"\x89PNG"):
-                    return candidate_bytes
                 logger.warning("Uploaded image failed PIL verification or re-encoding: %s", img_err)
                 return None
 

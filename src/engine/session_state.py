@@ -8,6 +8,7 @@ import os
 import re
 import time
 import logging
+import threading
 from dataclasses import dataclass, field
 from datetime import datetime
 from typing import List, Optional, Dict, Any
@@ -99,6 +100,7 @@ class SessionNotesManager:
         session_id: Optional[str] = None,
         topic: Optional[str] = None,
         is_obsidian: Optional[bool] = None,
+        auto_init: bool = True,
     ):
         from src.engine.config import get_obsidian_vault_path
 
@@ -151,10 +153,12 @@ class SessionNotesManager:
 
         self.last_state = ChunkState()
         self.chunk_count = 0
-        self._init_session_file()
+        self._lock = threading.Lock()
+        if auto_init:
+            self._ensure_session_file_initialized()
 
-    def _init_session_file(self):
-        """Initializes the markdown notes file with header if new."""
+    def _ensure_session_file_initialized(self):
+        """Initializes the markdown notes file with header on first write."""
         if not os.path.exists(self.session_file):
             now_iso = datetime.now().astimezone().isoformat()
             safe_topic = self.topic.replace('\\', '\\\\').replace('"', '\\"')
@@ -183,76 +187,85 @@ class SessionNotesManager:
             except Exception as e:
                 logger.error("Failed to initialize session notes: %s", e)
 
-
     def append_chunk_notes(self, markdown_text: str, start_time_str: str, end_time_str: str) -> ChunkState:
         """
         Appends a newly synthesized chunk to the session markdown notes file
-        and updates context chain state.
+        and updates context chain state in a thread-safe manner.
         """
-        self.chunk_count += 1
-        time_tag = f"### [Segment {self.chunk_count:02d}]: {start_time_str} – {end_time_str}\n\n"
+        with self._lock:
+            self._ensure_session_file_initialized()
+            self.chunk_count += 1
+            time_tag = f"### [Segment {self.chunk_count:02d}]: {start_time_str} – {end_time_str}\n\n"
 
-        # Parse model's emitted chunk state
-        new_state = ChunkState.from_model_output(markdown_text, chunk_index=self.chunk_count)
-        new_state.timestamp_range = f"[{start_time_str} - {end_time_str}]"
-        self.last_state = new_state
+            # Parse model's emitted chunk state
+            new_state = ChunkState.from_model_output(markdown_text, chunk_index=self.chunk_count)
+            new_state.timestamp_range = f"[{start_time_str} - {end_time_str}]"
+            self.last_state = new_state
 
-        full_entry = f"{time_tag}{markdown_text}\n\n---\n\n"
+            full_entry = f"{time_tag}{markdown_text}\n\n---\n\n"
 
-        try:
-            with open(self.session_file, "a", encoding="utf-8") as f:
-                f.write(full_entry)
-            logger.info("Appended chunk %d to %s", self.chunk_count, self.session_file)
-        except Exception as e:
-            logger.error("Failed to append chunk to notes file: %s", e)
+            try:
+                with open(self.session_file, "a", encoding="utf-8") as f:
+                    f.write(full_entry)
+                logger.info("Appended chunk %d to %s", self.chunk_count, self.session_file)
+            except Exception as e:
+                logger.error("Failed to append chunk to notes file: %s", e)
 
-        return new_state
+            return new_state
 
     def append_master_synthesis(self, master_markdown: str):
-        """Appends the final Gemini Pro master synthesis to the session file."""
-        heading = (
-            "\n\n# Master Synthesis & Exam Preparation\n\n"
-            "*Synthesized across all lecture segments via Gemini Pro*\n\n"
-            "---\n\n"
-        )
-        try:
-            with open(self.session_file, "a", encoding="utf-8") as f:
-                f.write(heading + master_markdown + "\n")
-            logger.info("Appended master synthesis to %s", self.session_file)
-        except Exception as e:
-            logger.error("Failed to append master synthesis: %s", e)
+        """Appends the final master synthesis to the session file thread-safely."""
+        with self._lock:
+            self._ensure_session_file_initialized()
+            heading = (
+                "\n\n# Master Synthesis & Exam Preparation\n\n"
+                "*Synthesized across all lecture segments via Gemini Pro*\n\n"
+                "---\n\n"
+            )
+            try:
+                with open(self.session_file, "a", encoding="utf-8") as f:
+                    f.write(heading + master_markdown + "\n")
+                logger.info("Appended master synthesis to %s", self.session_file)
+            except Exception as e:
+                logger.error("Failed to append master synthesis: %s", e)
 
     def read_full_notes(self) -> str:
         """Reads the full session notes markdown for master synthesis ingestion."""
-        if not os.path.exists(self.session_file):
-            return ""
-        try:
-            with open(self.session_file, "r", encoding="utf-8") as f:
-                return f.read()
-        except Exception as e:
-            logger.error("Failed to read session notes: %s", e)
-            return ""
+        with self._lock:
+            if not os.path.exists(self.session_file):
+                return ""
+            try:
+                with open(self.session_file, "r", encoding="utf-8") as f:
+                    return f.read()
+            except Exception as e:
+                logger.error("Failed to read session notes: %s", e)
+                return ""
 
     def append_user_directive(self, note_text: str, timestamp_str: str = "") -> str:
         """
         Appends an explicit user note or AI directive to the session markdown file.
         This note is linked with the audio timeline and ingested by master synthesis.
+        Formats all lines with '> ' to preserve Obsidian callout structure.
         """
         if not note_text.strip():
             return ""
         if not timestamp_str:
             timestamp_str = datetime.now().strftime("%H:%M:%S")
 
+        lines = [f"> {line}" for line in note_text.strip().splitlines()]
+        callout_body = "\n".join(lines)
         callout = (
             f"\n> [!note] User Note & AI Directive (@ {timestamp_str})\n"
-            f"> {note_text.strip()}\n\n"
+            f"{callout_body}\n\n"
         )
-        try:
-            with open(self.session_file, "a", encoding="utf-8") as f:
-                f.write(callout)
-            logger.info("Appended user directive to %s", self.session_file)
-        except Exception as e:
-            logger.error("Failed to append user directive: %s", e)
+        with self._lock:
+            self._ensure_session_file_initialized()
+            try:
+                with open(self.session_file, "a", encoding="utf-8") as f:
+                    f.write(callout)
+                logger.info("Appended user directive to %s", self.session_file)
+            except Exception as e:
+                logger.error("Failed to append user directive: %s", e)
         return callout
 
 

@@ -75,10 +75,11 @@ class AccessibilityTextExtractor:
         return None
 
     def _extract_macos_ax_text(self, max_depth: int = 5) -> Optional[str]:
-        """macOS AXUIElement tree traversal."""
+        """macOS AXUIElement tree traversal with strict privacy guards and execution budget."""
         try:
             from AppKit import NSWorkspace
             from ApplicationServices import (
+                AXIsProcessTrusted,
                 AXUIElementCreateApplication,
                 AXUIElementCopyAttributeValue,
                 kAXFocusedWindowAttribute,
@@ -90,8 +91,25 @@ class AccessibilityTextExtractor:
                 kAXDescriptionAttribute,
             )
 
+            # 1. Permission check
+            if not AXIsProcessTrusted():
+                logger.debug("macOS Accessibility not trusted. Skipping AX tree query.")
+                return None
+
             active_app = NSWorkspace.sharedWorkspace().frontmostApplication()
             if not active_app:
+                return None
+
+            # 2. Privacy check: Never scrape notes, passwords, chats, or terminal windows
+            bundle_id = active_app.bundleIdentifier() or ""
+            excluded_bundles = (
+                "md.obsidian", "com.apple.Notes", "com.tinyspeck.slackmacgap",
+                "com.apple.Terminal", "com.googlecode.iterm2", "com.apple.keychainaccess",
+                "com.1password.1password", "com.bitwarden.desktop", "com.hnc.Discord",
+                "com.apple.mail", "com.apple.MobileSMS", "com.chalk.lectureengine"
+            )
+            if any(eb.lower() in bundle_id.lower() for eb in excluded_bundles):
+                logger.debug("Active window belongs to excluded/private app '%s'. Skipping.", bundle_id)
                 return None
 
             pid = active_app.processIdentifier()
@@ -107,10 +125,16 @@ class AccessibilityTextExtractor:
                     return None
 
             collected_texts: List[str] = []
+            node_count = 0
+            t0 = time.perf_counter()
 
             def _traverse(element, current_depth):
-                if current_depth > max_depth or len(collected_texts) > 80:
+                nonlocal node_count
+                if current_depth > max_depth or len(collected_texts) >= 50 or node_count >= 50:
                     return
+                if (time.perf_counter() - t0) > 0.050:  # 50ms time budget cap
+                    return
+                node_count += 1
 
                 # Read value
                 err_val, val = AXUIElementCopyAttributeValue(element, kAXValueAttribute, None)

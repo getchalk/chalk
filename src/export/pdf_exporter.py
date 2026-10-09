@@ -25,8 +25,13 @@ def markdown_to_academic_html(markdown_text: str, title: Optional[str] = None) -
     lines = markdown_text.splitlines()
 
     html_lines = []
+    has_h1 = any(line.strip().startswith("# ") for line in lines)
+    if not has_h1 and effective_title:
+        html_lines.append(f"<h1>{html.escape(effective_title)}</h1>")
+
     in_code_block = False
-    in_list = False
+    in_ul = False
+    in_ol = False
     in_blockquote = False
 
     for line in lines:
@@ -47,10 +52,16 @@ def markdown_to_academic_html(markdown_text: str, title: Optional[str] = None) -
             html_lines.append(html.escape(line))
             continue
 
-        # Close list if not a list item
-        if in_list and not (stripped.startswith("- ") or stripped.startswith("* ") or re.match(r"^\d+\.\s", stripped)):
+        # Close lists if line is not an item
+        is_bullet = stripped.startswith("- ") or stripped.startswith("* ")
+        m_num = re.match(r"^\d+\.\s+(.*)", stripped)
+
+        if not is_bullet and in_ul:
             html_lines.append("</ul>")
-            in_list = False
+            in_ul = False
+        if not m_num and in_ol:
+            html_lines.append("</ol>")
+            in_ol = False
 
         # Close blockquote if empty line or non-quote
         if in_blockquote and not stripped.startswith(">"):
@@ -101,12 +112,21 @@ def markdown_to_academic_html(markdown_text: str, title: Optional[str] = None) -
             html_lines.append(f"<div>{text_escaped}</div>")
             continue
 
-        # List items
-        if stripped.startswith("- ") or stripped.startswith("* "):
-            if not in_list:
+        # Bullet list items
+        if is_bullet:
+            if not in_ul:
                 html_lines.append("<ul>")
-                in_list = True
+                in_ul = True
             item_text = _format_inline_markdown(stripped[2:])
+            html_lines.append(f"<li>{item_text}</li>")
+            continue
+
+        # Numbered list items
+        if m_num:
+            if not in_ol:
+                html_lines.append("<ol>")
+                in_ol = True
+            item_text = _format_inline_markdown(m_num.group(1))
             html_lines.append(f"<li>{item_text}</li>")
             continue
 
@@ -114,8 +134,10 @@ def markdown_to_academic_html(markdown_text: str, title: Optional[str] = None) -
         para_text = _format_inline_markdown(stripped)
         html_lines.append(f"<p>{para_text}</p>")
 
-    if in_list:
+    if in_ul:
         html_lines.append("</ul>")
+    if in_ol:
+        html_lines.append("</ol>")
     if in_blockquote:
         html_lines.append("</blockquote>")
     if in_code_block:

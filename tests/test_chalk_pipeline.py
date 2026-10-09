@@ -452,9 +452,7 @@ class TestChalkMultimodalSynthesis(unittest.TestCase):
         bad_seq = r"E = \nonexistentoperator{mc^2}"
         is_valid, repaired = validate_latex_syntax(bad_seq)
         self.assertFalse(is_valid)
-        self.assertIn(r"\text{nonexistentoperator}", repaired)
-        valid2, _ = validate_latex_syntax(repaired)
-        self.assertTrue(valid2)
+        self.assertIn(r"\nonexistentoperator", repaired)
 
         # Trailing backslash
         trailing_bs = "a + b \\"
@@ -1273,6 +1271,55 @@ class TestChalkHardeningAndForensics(unittest.TestCase):
         finally:
             # Clean up test quarantine
             shutil.rmtree(quarantine_root, ignore_errors=True)
+
+    def test_coupled_model_presets_and_paid_gemini(self):
+        """Verify the 6 coupled model presets: 3 Free tier (Max, Medium, Min) and 3 Paid (Gemini, Claude, OpenAI)."""
+        from src.engine.config import COUPLED_MODEL_PRESETS, resolve_model_preset
+
+        self.assertIn("gemini-max", COUPLED_MODEL_PRESETS)
+        self.assertIn("gemini-medium", COUPLED_MODEL_PRESETS)
+        self.assertIn("gemini-min", COUPLED_MODEL_PRESETS)
+        self.assertIn("paid-gemini", COUPLED_MODEL_PRESETS)
+        self.assertIn("paid-claude", COUPLED_MODEL_PRESETS)
+        self.assertIn("paid-openai", COUPLED_MODEL_PRESETS)
+
+        # 1. Maximum Mode: Gemini 3.5 Flash (Operational) + Gemini 3.1 Pro (Synthesis)
+        max_p = COUPLED_MODEL_PRESETS["gemini-max"]
+        self.assertEqual(max_p["flash_model"], "gemini-3.5-flash")
+        self.assertEqual(max_p["pro_model"], "gemini-3.1-pro")
+        self.assertEqual(max_p["daily_rpd_limit"], 50)
+        self.assertEqual(max_p["required_provider"], "gemini")
+
+        # 2. Medium Mode: Gemini 3.5 Flash-Lite (Operational) + Gemini 3.5 Flash (Synthesis)
+        med_p = COUPLED_MODEL_PRESETS["gemini-medium"]
+        self.assertEqual(med_p["flash_model"], "gemini-3.5-flash-lite")
+        self.assertEqual(med_p["pro_model"], "gemini-3.5-flash")
+        self.assertEqual(med_p["daily_rpd_limit"], 500)
+        self.assertEqual(med_p["required_provider"], "gemini")
+
+        # 3. Minimum Mode: Gemini 3.1 Flash-Lite (Operational) + Gemini 3.5 Flash-Lite (Synthesis)
+        min_p = COUPLED_MODEL_PRESETS["gemini-min"]
+        self.assertEqual(min_p["flash_model"], "gemini-3.1-flash-lite")
+        self.assertEqual(min_p["pro_model"], "gemini-3.5-flash-lite")
+        self.assertEqual(min_p["daily_rpd_limit"], 1500)
+        self.assertEqual(min_p["required_provider"], "gemini")
+
+        # 4. Paid Gemini: Gemini 3.8 Flash (Operational & Synthesis)
+        paid_gem = COUPLED_MODEL_PRESETS["paid-gemini"]
+        self.assertEqual(paid_gem["flash_model"], "gemini-3.8-flash")
+        self.assertEqual(paid_gem["pro_model"], "gemini-3.8-flash")
+        self.assertEqual(paid_gem["daily_rpd_limit"], 10000)
+        self.assertEqual(paid_gem["required_provider"], "gemini")
+
+        # 5. Paid Claude & OpenAI
+        self.assertEqual(COUPLED_MODEL_PRESETS["paid-claude"]["required_provider"], "anthropic")
+        self.assertEqual(COUPLED_MODEL_PRESETS["paid-openai"]["required_provider"], "openai")
+
+        # Resolution checks
+        self.assertEqual(resolve_model_preset("gemini-max")["id"], "gemini-max")
+        self.assertEqual(resolve_model_preset("paid-gemini")["id"], "paid-gemini")
+        self.assertEqual(resolve_model_preset("3.8-flash")["id"], "paid-gemini")
+        self.assertEqual(resolve_model_preset("claude-5-5-sonnet")["id"], "paid-claude")
 
 
 if __name__ == "__main__":

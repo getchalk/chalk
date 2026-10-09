@@ -208,7 +208,11 @@ class TestCompanionDaemonAndServer(unittest.TestCase):
         self.assertEqual(ctx.exception.code, 403)
 
         # 6. POST /upload-photo with valid token and synthetic JPEG body -> 200 OK
-        synthetic_jpeg = b"\xff\xd8\xff\xe0\x00\x10JFIF\x00\x01\x01\x00\x00\x01\x00\x01\x00\x00\xff\xdb\x00\x43\x00\xff\xd9"
+        import io
+        from PIL import Image
+        img_buf = io.BytesIO()
+        Image.new("RGB", (2, 2), "white").save(img_buf, format="JPEG")
+        synthetic_jpeg = img_buf.getvalue()
         req_post_ok = urllib.request.Request(
             f"{base_url}/upload-photo?token={token}",
             data=synthetic_jpeg,

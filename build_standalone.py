@@ -150,6 +150,7 @@ if sys.platform == 'darwin':
             'NSHighResolutionCapable': True,
             'NSScreenCaptureUsageDescription': 'Chalk requires screen recording permission to synchronize slide transitions and support the screen snip tool during lectures.',
             'NSMicrophoneUsageDescription': 'Chalk requires microphone access to record professor lectures, in-room discussions, and student questions.',
+            'NSAudioCaptureUsageDescription': 'Chalk requires system audio recording permission to capture remote lecturer or digital media audio during sessions.',
             'NSAppleEventsUsageDescription': 'Chalk requires accessibility permissions for zero-token presentation text extraction from slide decks.',
             'CFBundleURLTypes': [
                 {{

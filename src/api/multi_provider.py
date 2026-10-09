@@ -64,12 +64,16 @@ class ResilientLLMAdapter:
         return GeminiLecturePipeline.emergency_dump_session(session_id, payload, error_msg)
 
 
+FALLBACK_CLAUDE_MODEL = "claude-3-7-sonnet-20250219"
+FALLBACK_OPENAI_MODEL = "gpt-4o"
+
+
 class AnthropicClaudeAdapter(ResilientLLMAdapter):
     """
-    Adapter for Anthropic Claude 3.7 / 3.5 Sonnet BYOK execution.
+    Adapter for Anthropic Claude Frontier BYOK execution.
     """
 
-    def __init__(self, api_key: Optional[str] = None, model: str = "claude-3-7-sonnet-20250219"):
+    def __init__(self, api_key: Optional[str] = None, model: str = "claude-5-5-sonnet"):
         super().__init__("anthropic", api_key)
         self.model = model
 
@@ -77,7 +81,7 @@ class AnthropicClaudeAdapter(ResilientLLMAdapter):
         if not self.api_key:
             raise ValueError("No Anthropic API key found in OS credential vault.")
 
-        def _call():
+        def _call_model(target_model: str):
             import urllib.request
             url = "https://api.anthropic.com/v1/messages"
             headers = {
@@ -86,7 +90,7 @@ class AnthropicClaudeAdapter(ResilientLLMAdapter):
                 "content-type": "application/json",
             }
             body = {
-                "model": self.model,
+                "model": target_model,
                 "max_tokens": 4096,
                 "system": system_prompt,
                 "messages": [{"role": "user", "content": prompt}],
@@ -98,6 +102,16 @@ class AnthropicClaudeAdapter(ResilientLLMAdapter):
                 text_parts = [c.get("text", "") for c in contents if c.get("type") == "text"]
                 return "".join(text_parts)
 
+        def _call():
+            try:
+                return _call_model(self.model)
+            except Exception as e:
+                err_str = str(e).lower()
+                if ("404" in err_str or "not_found" in err_str or "model" in err_str) and self.model != FALLBACK_CLAUDE_MODEL:
+                    logger.warning("Anthropic model '%s' unavailable, falling back to %s", self.model, FALLBACK_CLAUDE_MODEL)
+                    return _call_model(FALLBACK_CLAUDE_MODEL)
+                raise
+
         try:
             return self._execute_with_backoff(_call)
         except Exception as e:
@@ -107,10 +121,10 @@ class AnthropicClaudeAdapter(ResilientLLMAdapter):
 
 class OpenAIAdapter(ResilientLLMAdapter):
     """
-    Adapter for OpenAI GPT-4o BYOK execution.
+    Adapter for OpenAI GPT-4o / Sol / o3 BYOK execution.
     """
 
-    def __init__(self, api_key: Optional[str] = None, model: str = "gpt-4o"):
+    def __init__(self, api_key: Optional[str] = None, model: str = "gpt-6-1-sol"):
         super().__init__("openai", api_key)
         self.model = model
 
@@ -118,7 +132,7 @@ class OpenAIAdapter(ResilientLLMAdapter):
         if not self.api_key:
             raise ValueError("No OpenAI API key found in OS credential vault.")
 
-        def _call():
+        def _call_model(target_model: str):
             import urllib.request
             url = "https://api.openai.com/v1/chat/completions"
             headers = {
@@ -126,7 +140,7 @@ class OpenAIAdapter(ResilientLLMAdapter):
                 "Content-Type": "application/json",
             }
             body = {
-                "model": self.model,
+                "model": target_model,
                 "messages": [
                     {"role": "system", "content": system_prompt},
                     {"role": "user", "content": prompt},
@@ -140,6 +154,16 @@ class OpenAIAdapter(ResilientLLMAdapter):
                 if choices:
                     return choices[0].get("message", {}).get("content", "")
                 return ""
+
+        def _call():
+            try:
+                return _call_model(self.model)
+            except Exception as e:
+                err_str = str(e).lower()
+                if ("404" in err_str or "model_not_found" in err_str or "does not exist" in err_str) and self.model != FALLBACK_OPENAI_MODEL:
+                    logger.warning("OpenAI model '%s' unavailable, falling back to %s", self.model, FALLBACK_OPENAI_MODEL)
+                    return _call_model(FALLBACK_OPENAI_MODEL)
+                raise
 
         try:
             return self._execute_with_backoff(_call)
