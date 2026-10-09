@@ -1,5 +1,15 @@
 # Chalk
 
+<p align="left">
+  <a href="https://github.com/getchalk/chalk/releases"><img src="https://img.shields.io/github/v/release/getchalk/chalk?style=flat-square&color=24292e&label=release" alt="Release"></a>
+  <a href="https://github.com/getchalk/chalk/actions"><img src="https://img.shields.io/github/actions/workflow/status/getchalk/chalk/release.yml?style=flat-square&color=24292e&label=build" alt="Build Status"></a>
+  <a href="https://getchalk.github.io"><img src="https://img.shields.io/badge/website-getchalk.github.io-24292e?style=flat-square" alt="Website"></a>
+  <img src="https://img.shields.io/badge/platform-macOS%20%7C%20Windows-24292e?style=flat-square" alt="Platforms">
+  <img src="https://img.shields.io/badge/python-3.10%20%7C%203.11-24292e?style=flat-square" alt="Python Version">
+  <img src="https://img.shields.io/badge/privacy-100%25%20local--first%20%E2%80%A2%20direct%20BYOK-24292e?style=flat-square" alt="Privacy">
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-24292e?style=flat-square" alt="License"></a>
+</p>
+
 **Local-first multimodal lecture and meeting companion with live LaTeX synthesis.**
 
 Chalk runs quietly in the background on macOS and Windows. It captures dual-channel audio and slide transitions, accepts whiteboard photos via a zero-install local QR link, and synthesizes structured Markdown notes with mathematically verified LaTeX in real time.
