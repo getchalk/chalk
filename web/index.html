@@ -1010,7 +1010,7 @@
       <p class="text-sm mt-3" style="color: var(--chalk-slate);" data-i18n="free_api_desc">Bring your own free key (Direct BYOK): Zero cost, no credit card, no subscription fees, no commitments. Connect directly from your workstation to Google AI Studio.</p>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
       <!-- Step 01 -->
       <div class="rounded-2xl border p-7 transition flex flex-col justify-between shadow-sm" style="background-color: var(--surface-graphite); border-color: var(--chalk-border);">
         <div>
@@ -1021,6 +1021,12 @@
           <p class="text-sm leading-relaxed" style="color: var(--chalk-slate);" data-i18n="guide_step1_desc">
             Open aistudio.google.com and sign in with any Google account. No credit card or billing details required.
           </p>
+        </div>
+        <div class="mt-6 pt-4 border-t flex items-center" style="border-color: var(--chalk-border);">
+          <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer" class="text-xs font-medium inline-flex items-center gap-1.5 transition hover:opacity-80" style="color: var(--chalk-white);">
+            <span>aistudio.google.com</span>
+            <svg class="w-3.5 h-3.5 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+          </a>
         </div>
       </div>
 
@@ -1035,6 +1041,9 @@
             Click 'Get API key' in the sidebar, then select 'Create API key in new project'. It is ready instantly.
           </p>
         </div>
+        <div class="mt-6 pt-4 border-t flex items-center" style="border-color: var(--chalk-border);">
+          <span class="text-xs font-mono" style="color: var(--chalk-muted);" data-i18n="guide_step2_tag">Instant • Free Forever</span>
+        </div>
       </div>
 
       <!-- Step 03 -->
@@ -1048,12 +1057,24 @@
             Copy your key string (starting with AIzaSy...) and paste it into Chalk. You are ready to synthesize live notes!
           </p>
         </div>
+        <div class="mt-6 pt-4 border-t flex items-center" style="border-color: var(--chalk-border);">
+          <span class="text-xs font-mono" style="color: var(--chalk-muted);" data-i18n="guide_step3_tag">Encrypted in OS Vault</span>
+        </div>
       </div>
     </div>
 
-    <!-- Direct Action Button -->
-    <div class="text-center mt-10">
-      <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center gap-2 py-3 px-6 rounded-xl font-semibold text-xs transition hover:opacity-90 shadow-sm cursor-pointer" style="background-color: var(--chalk-white); color: var(--bg-obsidian);">
+    <!-- Integrated Action Banner -->
+    <div class="rounded-2xl border p-6 flex flex-col sm:flex-row items-center justify-between gap-5 shadow-sm" style="background-color: var(--surface-graphite); border-color: var(--chalk-border);">
+      <div class="flex items-center gap-4 text-left w-full sm:w-auto">
+        <div class="w-11 h-11 rounded-xl border flex items-center justify-center flex-shrink-0" style="background-color: var(--surface-elevated); border-color: var(--chalk-border); color: var(--chalk-white);">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/></svg>
+        </div>
+        <div>
+          <div class="font-semibold text-sm sm:text-base" style="color: var(--chalk-white);" data-i18n="guide_banner_title">Ready to generate your free Gemini API key?</div>
+          <div class="text-xs sm:text-sm mt-0.5" style="color: var(--chalk-slate);" data-i18n="guide_banner_subtitle">Takes under 30 seconds. Zero cost, no credit card or billing details required.</div>
+        </div>
+      </div>
+      <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 py-3 px-6 rounded-xl font-semibold text-xs sm:text-sm transition hover:opacity-90 shadow-sm flex-shrink-0 cursor-pointer" style="background-color: var(--chalk-white); color: var(--bg-obsidian);">
         <span data-i18n="guide_action_btn">Open Google AI Studio ↗</span>
       </a>
     </div>
@@ -1394,6 +1415,10 @@
     "guide_step3_title": "Paste into Chalk (Direct BYOK)",
     "guide_step3_desc": "Copy your key string (starting with AIzaSy...) and paste it into Chalk. You are ready to synthesize live notes!",
     "settings_footer_note": "Preferences saved locally on device",
+    "guide_step2_tag": "Instant • Free Forever",
+    "guide_step3_tag": "Encrypted in OS Vault",
+    "guide_banner_title": "Ready to generate your free Gemini API key?",
+    "guide_banner_subtitle": "Takes under 30 seconds. Zero cost, no credit card or billing details required.",
     "guide_action_btn": "Open Google AI Studio ↗",
     "download_tag": "DOWNLOAD",
     "download_title": "Chalk for your Desktop",
@@ -1564,6 +1589,10 @@
     "guide_step3_title": "In Chalk einfügen (Direct BYOK)",
     "guide_step3_desc": "Kopiere deinen Schlüssel (beginnt mit AIzaSy...) und füge ihn in Chalk ein. Fertig für strukturierte Live-Notizen!",
     "settings_footer_note": "Einstellungen lokal auf dem Gerät gespeichert",
+    "guide_step2_tag": "Sofort bereit • Dauerhaft kostenlos",
+    "guide_step3_tag": "Im OS-Tresor verschlüsselt",
+    "guide_banner_title": "Bereit für deinen kostenlosen Gemini API-Schlüssel?",
+    "guide_banner_subtitle": "Dauert unter 30 Sekunden. 0€ Kosten, keine Kreditkarte oder Zahlungsdaten nötig.",
     "guide_action_btn": "Google AI Studio öffnen ↗",
     "download_tag": "DOWNLOAD",
     "download_title": "Chalk für deinen Desktop",
@@ -1734,6 +1763,10 @@
     "guide_step3_title": "Coller dans Chalk (Direct BYOK)",
     "guide_step3_desc": "Copiez votre clé (commençant par AIzaSy...) et collez-la dans Chalk. Prêt pour générer des notes en direct !",
     "settings_footer_note": "Préférences enregistrées localement sur l'appareil",
+    "guide_step2_tag": "Instantané • Gratuit pour toujours",
+    "guide_step3_tag": "Chiffré dans le trousseau OS",
+    "guide_banner_title": "Prêt à générer votre clé d'API Gemini gratuite ?",
+    "guide_banner_subtitle": "Création en moins de 30 secondes. 0€, aucune carte bancaire requise.",
     "guide_action_btn": "Ouvrir Google AI Studio ↗",
     "download_tag": "TÉLÉCHARGEMENT",
     "download_title": "Chalk pour votre bureau",
@@ -1904,6 +1937,10 @@
     "guide_step3_title": "Pegar en Chalk (Direct BYOK)",
     "guide_step3_desc": "Copia tu clave (que empieza por AIzaSy...) y pégala en Chalk. ¡Listo para sintetizar notas en vivo!",
     "settings_footer_note": "Preferencias guardadas localmente en el dispositivo",
+    "guide_step2_tag": "Instantáneo • Gratis para siempre",
+    "guide_step3_tag": "Cifrado en la bóveda del SO",
+    "guide_banner_title": "¿Listo para generar tu clave de API gratuita de Gemini?",
+    "guide_banner_subtitle": "Tarda menos de 30 segundos. 0€, sin tarjeta de crédito ni facturación.",
     "guide_action_btn": "Abrir Google AI Studio ↗",
     "download_tag": "DESCARGA",
     "download_title": "Chalk para tu escritorio",
@@ -2074,6 +2111,10 @@
     "guide_step3_title": "粘贴至 Chalk (Direct BYOK)",
     "guide_step3_desc": "复制密钥字符串（以 AIzaSy... 开头）并粘贴到 Chalk 中。即可立即开始高精度笔记实时合成！",
     "settings_footer_note": "偏好设置已安全保存在本地设备",
+    "guide_step2_tag": "即时生成 • 永久免费",
+    "guide_step3_tag": "系统安全密钥库加密",
+    "guide_banner_title": "准备好生成你的免费 Gemini API 密钥了吗？",
+    "guide_banner_subtitle": "仅需不到 30 秒。完全免费，无需绑定信用卡或任何账单信息。",
     "guide_action_btn": "打开 Google AI Studio ↗",
     "download_tag": "立即下载",
     "download_title": "获取 Chalk 桌面客户端",

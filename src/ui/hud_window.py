@@ -647,7 +647,7 @@ class WhiteboardCamDialog(QDialog):
         super().__init__(parent)
         self.daemon = daemon
         self.setWindowTitle("Chalk — Tafel-Kamera via QR-Code")
-        self.setFixedSize(420, 540)
+        self.setFixedSize(430, 560)
         self.setStyleSheet("""
             QDialog {
                 background-color: #121317;
@@ -682,8 +682,8 @@ class WhiteboardCamDialog(QDialog):
         """)
 
         layout = QVBoxLayout(self)
-        layout.setContentsMargins(24, 20, 24, 20)
-        layout.setSpacing(12)
+        layout.setContentsMargins(24, 18, 24, 18)
+        layout.setSpacing(10)
 
         # Header Title
         self.title_lbl = QLabel()
@@ -699,9 +699,9 @@ class WhiteboardCamDialog(QDialog):
 
         # QR Code Display
         qr_frame = QFrame()
-        qr_frame.setStyleSheet("background-color: #FFFFFF; border-radius: 14px; padding: 12px;")
+        qr_frame.setStyleSheet("background-color: #FFFFFF; border-radius: 12px; padding: 8px;")
         qr_inner_layout = QVBoxLayout(qr_frame)
-        qr_inner_layout.setContentsMargins(8, 8, 8, 8)
+        qr_inner_layout.setContentsMargins(6, 6, 6, 6)
         qr_inner_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.qr_label = QLabel()
@@ -711,7 +711,7 @@ class WhiteboardCamDialog(QDialog):
         if self.daemon:
             qr = self.daemon.get_qr_code()
             if qr:
-                pix = qr.to_qpixmap(border=2, scale=5)
+                pix = qr.to_qpixmap(border=2, scale=4)
                 self.qr_label.setPixmap(pix)
         qr_inner_layout.addWidget(self.qr_label)
         layout.addWidget(qr_frame, alignment=Qt.AlignmentFlag.AlignCenter)
@@ -1276,14 +1276,14 @@ class FloatingHUDWindow(QWidget):
         key_lbl.setStyleSheet("font-size: 11px; font-weight: 600; color: #F8FAFC;")
         key_head.addWidget(key_lbl)
         key_head.addStretch()
-        free_key_link = QPushButton("Get Free Key ↗")
-        free_key_link.setStyleSheet(
+        self.free_key_link = QPushButton(tr("preview_free_guide_link") or "Get Free Key ↗")
+        self.free_key_link.setStyleSheet(
             "QPushButton { background-color: #22252F; border: 1px solid rgba(255, 255, 255, 0.12); "
             "color: #F8FAFC; font-size: 10.5px; font-weight: 600; padding: 2px 8px; border-radius: 5px; } "
             "QPushButton:hover { border-color: #94A3B8; background-color: #2A2D37; }"
         )
-        free_key_link.clicked.connect(lambda: QDesktopServices.openUrl(QUrl("https://aistudio.google.com/app/apikey")))
-        key_head.addWidget(free_key_link)
+        self.free_key_link.clicked.connect(lambda: QDesktopServices.openUrl(QUrl("https://aistudio.google.com/app/apikey")))
+        key_head.addWidget(self.free_key_link)
         s_tab_layout.addLayout(key_head)
 
         key_row = QHBoxLayout()
@@ -1858,6 +1858,8 @@ class FloatingHUDWindow(QWidget):
             self.settings_step2_lbl.setText(f"<b>{tr('guide_step2_title')}</b><br>{tr('guide_step2_desc')}")
         if hasattr(self, "settings_step3_lbl"):
             self.settings_step3_lbl.setText(f"<b>{tr('guide_step3_title')}</b><br>{tr('guide_step3_desc')}")
+        if hasattr(self, "free_key_link"):
+            self.free_key_link.setText(tr("preview_free_guide_link") or "Get Free Key ↗")
         if hasattr(self, "settings_model_combo"):
             curr_data = self.settings_model_combo.currentData()
             self.settings_model_combo.blockSignals(True)
