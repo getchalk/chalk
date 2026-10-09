@@ -160,6 +160,8 @@ curl -L -O https://github.com/getchalk/chalk/releases/latest/download/Chalk-Setu
 .\Chalk-Setup.exe
 ```
 
+> **Windows SmartScreen:** If Microsoft Defender SmartScreen displays an *"unrecognized app"* prompt upon launch, click **More info** → select **Run anyway**.
+
 ---
 
 ### Running from Source
