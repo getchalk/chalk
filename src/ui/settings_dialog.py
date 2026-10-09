@@ -338,9 +338,19 @@ class SettingsDialog(QDialog):
         layout.addWidget(card)
 
         # 2. Key Input: Google AI Studio (Primary)
+        gemini_hdr_row = QHBoxLayout()
         self.gemini_label = QLabel("Google AI Studio API Key (Gemini):")
         self.gemini_label.setStyleSheet("font-weight: 600; color: #E2E8F0; font-size: 12px;")
-        layout.addWidget(self.gemini_label)
+        gemini_hdr_row.addWidget(self.gemini_label)
+        gemini_hdr_row.addStretch()
+
+        self.get_free_key_btn = QPushButton("Get Free Key ↗")
+        self.get_free_key_btn.setObjectName("linkButton")
+        self.get_free_key_btn.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.get_free_key_btn.setStyleSheet("font-size: 11px; padding: 2px 6px; font-weight: 500; color: #E2E8F0;")
+        self.get_free_key_btn.clicked.connect(self._open_ai_studio)
+        gemini_hdr_row.addWidget(self.get_free_key_btn)
+        layout.addLayout(gemini_hdr_row)
 
         gemini_row = QHBoxLayout()
         self.gemini_input = QLineEdit()
@@ -524,6 +534,8 @@ class SettingsDialog(QDialog):
 
         self.tier_notice.setText(tr("settings_tier_notice", lang=lang))
         self.gemini_label.setText(tr("settings_gemini_key_label", lang=lang))
+        if hasattr(self, "get_free_key_btn"):
+            self.get_free_key_btn.setText(tr("preview_free_guide_link", lang=lang))
         self.anthropic_label.setText(tr("settings_anthropic_key_label", lang=lang))
         self.openai_label.setText(tr("settings_openai_key_label", lang=lang))
         self.obsidian_label.setText(tr("settings_vault_label", lang=lang))

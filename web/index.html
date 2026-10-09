@@ -703,10 +703,10 @@
                 <div>
                   <div class="flex items-center justify-between mb-1">
                     <label class="font-semibold text-xs" style="color: var(--chalk-white);" data-i18n="preview_key_label">API Key (BYOK):</label>
-                    <button type="button" onclick="openFreeKeyGuide()" class="text-[11px] font-medium px-2.5 py-1 rounded-md border transition cursor-pointer flex items-center gap-1.5 shadow-sm hover:border-slate-400" style="background-color: var(--surface-elevated); border-color: var(--chalk-border); color: var(--chalk-white);">
+                    <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer" class="text-[11px] font-medium px-2.5 py-1 rounded-md border transition cursor-pointer flex items-center gap-1.5 shadow-sm hover:border-slate-400 text-decoration-none" style="background-color: var(--surface-elevated); border-color: var(--chalk-border); color: var(--chalk-white);">
                       <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
                       <span data-i18n="preview_free_guide_link">Get Free Key ↗</span>
-                    </button>
+                    </a>
                   </div>
                   <div class="flex items-center gap-2">
                     <div class="relative flex-1">
@@ -3040,10 +3040,7 @@
     }
 
     function openFreeKeyGuide() {
-      const target = document.getElementById('try-free');
-      if (target) {
-        target.scrollIntoView({ behavior: 'smooth' });
-      }
+      window.open('https://aistudio.google.com/app/apikey', '_blank', 'noopener,noreferrer');
     }
 
     // Preload saved key from localStorage if available

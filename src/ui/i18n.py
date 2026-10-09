@@ -684,6 +684,13 @@ TRANSLATIONS: Dict[str, Dict[str, str]] = {
         "es": "<b>Transparencia y privacidad:</b><br>Nivel gratuito de Google AI Studio: Google se reserva el derecho de usar mensajes para el entrenamiento. Para sesiones 100% confidenciales, recomendamos una clave de pago (Pay-as-you-go) de Google AI Studio, Anthropic u OpenAI donde los datos nunca se utilizan para el entrenamiento.",
         "zh": "<b>透明度与隐私说明：</b><br>Google AI Studio 免费层：Google 保留使用提示词改进模型的权利。对于 100% 保密的学术研讨，我们建议使用 Google AI Studio、Anthropic 或 OpenAI 的付费即用（Pay-as-you-go）密钥，该层级承诺绝不将数据用于模型训练。",
     },
+    "preview_free_guide_link": {
+        "en": "Get Free Key ↗",
+        "de": "Gratis-Key holen ↗",
+        "fr": "Clé gratuite ↗",
+        "es": "Clave gratis ↗",
+        "zh": "获取免费密钥 ↗",
+    },
     "settings_gemini_key_label": {
         "en": "Google AI Studio API Key (Gemini):",
         "de": "Google AI Studio API-Schlüssel (Gemini):",
