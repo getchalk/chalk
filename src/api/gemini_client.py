@@ -42,10 +42,10 @@ from src.api.synthesis_pipeline import (
 
 logger = logging.getLogger("chalk.api.gemini")
 
-DEFAULT_FLASH_MODEL = "gemini-2.5-flash"
-DEFAULT_PRO_MODEL = "gemini-2.5-pro"
-FALLBACK_FLASH_MODEL = "gemini-2.0-flash"
-FALLBACK_PRO_MODEL = "gemini-2.0-flash"
+DEFAULT_FLASH_MODEL = "gemini-3.8-flash"
+DEFAULT_PRO_MODEL = "gemini-3.8-flash"
+FALLBACK_FLASH_MODEL = "gemini-3.8-flash"
+FALLBACK_PRO_MODEL = "gemini-3.8-flash"
 
 
 def subsample_evenly(items: list, max_count: int) -> list:
@@ -336,8 +336,8 @@ class GeminiLecturePipeline:
             )
         except Exception as e:
             err_str = str(e)
-            if "not found" in err_str.lower() or "deprecated" in err_str.lower() or "404" in err_str:
-                logger.warning("Model %s unavailable, falling back to %s", model_to_use, FALLBACK_FLASH_MODEL)
+            if any(k in err_str.lower() for k in ["not found", "deprecated", "404", "quota", "429", "resource_exhausted", "unavailable"]):
+                logger.warning("Model %s unavailable (%s), falling back to %s", model_to_use, err_str[:80], FALLBACK_FLASH_MODEL)
                 model_to_use = FALLBACK_FLASH_MODEL
                 response = self._call_generate_content(
                     client=client,
@@ -534,8 +534,8 @@ class GeminiLecturePipeline:
                 )
             except Exception as e:
                 err_str = str(e)
-                if "not found" in err_str.lower() or "deprecated" in err_str.lower() or "404" in err_str:
-                    logger.warning("Model %s unavailable, falling back to %s", model_to_use, FALLBACK_FLASH_MODEL)
+                if any(k in err_str.lower() for k in ["not found", "deprecated", "404", "quota", "429", "resource_exhausted", "unavailable"]):
+                    logger.warning("Model %s unavailable (%s), falling back to %s", model_to_use, err_str[:80], FALLBACK_FLASH_MODEL)
                     model_to_use = FALLBACK_FLASH_MODEL
                     response = self._call_generate_content(
                         client=client,
@@ -620,8 +620,8 @@ class GeminiLecturePipeline:
             )
         except Exception as e:
             err_str = str(e)
-            if "not found" in err_str.lower() or "deprecated" in err_str.lower() or "404" in err_str:
-                logger.warning("Model %s unavailable, falling back to %s", model_to_use, FALLBACK_PRO_MODEL)
+            if any(k in err_str.lower() for k in ["not found", "deprecated", "404", "quota", "429", "resource_exhausted", "unavailable"]):
+                logger.warning("Model %s unavailable (%s), falling back to %s", model_to_use, err_str[:80], FALLBACK_PRO_MODEL)
                 model_to_use = FALLBACK_PRO_MODEL
                 response = self._call_generate_content(
                     client=client,

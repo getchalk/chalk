@@ -75,19 +75,19 @@ logger = logging.getLogger("chalk.ui.hud")
 HUD_STYLESHEET_DARK = """
 QWidget#hudRoot {
     background-color: rgba(18, 19, 23, 0.98);
-    border: 1px solid rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.18);
     border-radius: 16px;
     color: #F8FAFC;
     font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif;
 }
 QFrame#cardFrame {
-    background-color: rgba(26, 28, 35, 0.92);
-    border: 1px solid rgba(255, 255, 255, 0.10);
+    background-color: rgba(26, 28, 35, 0.94);
+    border: 1px solid rgba(255, 255, 255, 0.16);
     border-radius: 12px;
 }
 QFrame#dockFrame {
-    background-color: rgba(21, 22, 27, 0.95);
-    border: 1px solid rgba(255, 255, 255, 0.10);
+    background-color: rgba(21, 22, 27, 0.98);
+    border: 1px solid rgba(255, 255, 255, 0.14);
     border-radius: 10px;
 }
 QLabel {
@@ -191,19 +191,19 @@ QPushButton#pillCloseBtn {
 HUD_STYLESHEET_LIGHT = """
 QWidget#hudRoot {
     background-color: rgba(248, 250, 252, 0.98);
-    border: 1px solid rgba(15, 23, 42, 0.15);
+    border: 1px solid #CBD5E1;
     border-radius: 16px;
     color: #0F172A;
     font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif;
 }
 QFrame#cardFrame {
     background-color: #FFFFFF;
-    border: 1px solid rgba(15, 23, 42, 0.12);
+    border: 1px solid #CBD5E1;
     border-radius: 12px;
 }
 QFrame#dockFrame {
     background-color: #F1F5F9;
-    border: 1px solid rgba(15, 23, 42, 0.12);
+    border: 1px solid #CBD5E1;
     border-radius: 10px;
 }
 QLabel {
@@ -405,11 +405,13 @@ def _extract_braced_arg(s: str, idx: int):
     return s[start:], len(s)
 
 
-def latex_to_katex_html(formula: str) -> str:
+def latex_to_katex_html(formula: str, theme: str = "dark") -> str:
     """
     Converts raw LaTeX mathematical expressions into lightweight KaTeX-styled HTML
     compatible with Qt's QTextBrowser engine (roots, fractions, Greek symbols, superscripts).
     """
+    line_color = "#0F172A" if theme == "light" else "#F8FAFC"
+
     # 1. Square roots first with balanced braces (supports nested fractions)
     while True:
         pos = formula.find(r"\sqrt{")
@@ -418,8 +420,8 @@ def latex_to_katex_html(formula: str) -> str:
         inner, next_pos = _extract_braced_arg(formula, pos + len(r"\sqrt"))
         if inner is None:
             break
-        inner_html = latex_to_katex_html(inner)
-        sqrt_html = f'&radic;<span style="border-top:1px solid #F8FAFC; padding-top:1px; margin-left:1px;">{inner_html}</span>'
+        inner_html = latex_to_katex_html(inner, theme=theme)
+        sqrt_html = f'&radic;<span style="border-top:1px solid {line_color}; padding-top:1px; margin-left:1px;">{inner_html}</span>'
         formula = formula[:pos] + sqrt_html + formula[next_pos:]
 
     # 2. Fractions with balanced braces (supports nested numerators/denominators)
@@ -437,11 +439,11 @@ def latex_to_katex_html(formula: str) -> str:
                 den, end_pos = _extract_braced_arg(formula, next_pos)
             else:
                 den, end_pos = "", next_pos
-            num_html = latex_to_katex_html(num)
-            den_html = latex_to_katex_html(den)
+            num_html = latex_to_katex_html(num, theme=theme)
+            den_html = latex_to_katex_html(den, theme=theme)
             tbl = (
                 f'<table style="display:inline-table; vertical-align:middle; text-align:center; border-collapse:collapse; margin:0 3px; font-size:0.92em;">'
-                f'<tr><td style="border-bottom:1px solid #F8FAFC; padding:0 3px; line-height:1.15;">{num_html}</td></tr>'
+                f'<tr><td style="border-bottom:1px solid {line_color}; padding:0 3px; line-height:1.15;">{num_html}</td></tr>'
                 f'<tr><td style="padding:0 3px; line-height:1.15;">{den_html}</td></tr>'
                 f'</table>'
             )
@@ -504,26 +506,37 @@ def latex_to_katex_html(formula: str) -> str:
     return formula
 
 
-def render_markdown_with_katex(md_text: str) -> str:
+def render_markdown_with_katex(md_text: str, theme: str = "dark") -> str:
     """
     Renders Markdown notes containing display ($$...$$) and inline ($...$) LaTeX formulas,
     Obsidian callouts (> [!type]), audio scrubbing links (chalk-audio://), and Q.E.D. marks
-    into beautiful KaTeX-styled HTML formatted for QTextBrowser on a Dark Titanium background.
+    into beautiful KaTeX-styled HTML formatted for QTextBrowser. Supports Dark and Light palettes.
     """
     if not md_text or not md_text.strip():
         return ""
+
+    is_light = (theme == "light")
+    math_card_bg = "#F1F5F9" if is_light else "#1A1C23"
+    math_card_border = "#CBD5E1" if is_light else "rgba(255,255,255,0.14)"
+    math_text_color = "#0F172A" if is_light else "#F8FAFC"
+    heading_color = "#0F172A" if is_light else "#F8FAFC"
+    body_color = "#334155" if is_light else "#CBD5E1"
+    callout_bg = "#F8FAFC" if is_light else "#1A1C23"
+    callout_border = "#CBD5E1" if is_light else "rgba(255,255,255,0.12)"
+    ts_color = "#2563EB" if is_light else "#60A5FA"
+    ts_bg = "rgba(15,23,42,0.06)" if is_light else "rgba(255,255,255,0.08)"
 
     # Protect display formulas $$...$$
     blocks = []
     def repl_display(m):
         raw = m.group(1).strip()
-        rendered = latex_to_katex_html(raw)
+        rendered = latex_to_katex_html(raw, theme=theme)
         idx = len(blocks)
         card = (
-            f'<div style="background:#1A1C23; border:1px solid rgba(255,255,255,0.14); '
+            f'<div style="background:{math_card_bg}; border:1px solid {math_card_border}; '
             f'border-radius:8px; padding:10px 14px; margin:8px 0; text-align:center; '
             f'font-family:\'Cambria Math\',\'KaTeX_Main\',\'Times New Roman\',serif; '
-            f'font-size:15px; color:#F8FAFC;">{rendered}</div>'
+            f'font-size:15px; color:{math_text_color};">{rendered}</div>'
         )
         blocks.append(card)
         return f"__CHALK_MATH_BLOCK_{idx}__"
@@ -534,11 +547,11 @@ def render_markdown_with_katex(md_text: str) -> str:
     inlines = []
     def repl_inline(m):
         raw = m.group(1).strip()
-        rendered = latex_to_katex_html(raw)
+        rendered = latex_to_katex_html(raw, theme=theme)
         idx = len(inlines)
         span = (
             f'<span style="font-family:\'Cambria Math\',\'KaTeX_Math\',\'Times New Roman\',serif; '
-            f'font-style:italic; color:#F8FAFC; padding:0 2px;">{rendered}</span>'
+            f'font-style:italic; color:{math_text_color}; padding:0 2px;">{rendered}</span>'
         )
         inlines.append(span)
         return f"__CHALK_MATH_INLINE_{idx}__"
@@ -551,16 +564,16 @@ def render_markdown_with_katex(md_text: str) -> str:
     # Convert audio timestamp links [HH:MM:SS](chalk-audio://HH:MM:SS)
     text = re.sub(
         r"\[([0-9:]+)\]\(chalk-audio://([0-9:]+)\)",
-        r'<a href="chalk-audio://\2" style="color:#60A5FA; text-decoration:none; '
-        r'font-weight:600; font-family:monospace; background:rgba(255,255,255,0.08); '
-        r'padding:1px 5px; border-radius:4px;">[\1]</a>',
+        rf'<a href="chalk-audio://\2" style="color:{ts_color}; text-decoration:none; '
+        rf'font-weight:600; font-family:monospace; background:{ts_bg}; '
+        rf'padding:1px 5px; border-radius:4px;">[\1]</a>',
         text
     )
 
     # Convert headers
-    text = re.sub(r"^###\s+(.*)$", r'<h3 style="color:#F8FAFC; font-size:14px; margin:8px 0 4px;">\1</h3>', text, flags=re.MULTILINE)
-    text = re.sub(r"^##\s+(.*)$", r'<h2 style="color:#F8FAFC; font-size:16px; margin:12px 0 6px;">\1</h2>', text, flags=re.MULTILINE)
-    text = re.sub(r"^#\s+(.*)$", r'<h1 style="color:#F8FAFC; font-size:18px; margin:14px 0 8px;">\1</h1>', text, flags=re.MULTILINE)
+    text = re.sub(r"^###\s+(.*)$", rf'<h3 style="color:{heading_color}; font-size:14px; margin:8px 0 4px;">\1</h3>', text, flags=re.MULTILINE)
+    text = re.sub(r"^##\s+(.*)$", rf'<h2 style="color:{heading_color}; font-size:16px; margin:12px 0 6px;">\1</h2>', text, flags=re.MULTILINE)
+    text = re.sub(r"^#\s+(.*)$", rf'<h1 style="color:{heading_color}; font-size:18px; margin:14px 0 8px;">\1</h1>', text, flags=re.MULTILINE)
 
     # Bold & Italic
     text = re.sub(r"\*\*(.+?)\*\*", r"<b>\1</b>", text)
@@ -577,14 +590,15 @@ def render_markdown_with_katex(md_text: str) -> str:
     for ctype, (color, label) in callout_colors.items():
         pat = re.compile(rf"^(?:&gt;|>)\s*\[!{ctype}\]\s*(.*?)$", flags=re.MULTILINE | re.IGNORECASE)
         text = pat.sub(
-            rf'<div style="background:#1A1C23; border:1px solid rgba(255,255,255,0.12); '
+            rf'<div style="background:{callout_bg}; border:1px solid {callout_border}; '
             rf'border-left:4px solid {color}; border-radius:6px; padding:8px 12px; margin:8px 0;">'
             rf'<div style="font-weight:700; color:{color}; font-size:11px; margin-bottom:4px; font-family:sans-serif;">{label}: \1</div>',
             text
         )
 
     text = re.sub(r"\n(?:&gt;|>)\s?", "\n<br>", text)
-    text = text.replace("∎", '<span style="float:right; color:#94A3B8; font-size:14px;">&#8718;</span><div style="clear:both;"></div>')
+    qed_color = "#64748B" if is_light else "#94A3B8"
+    text = text.replace("∎", f'<span style="float:right; color:{qed_color}; font-size:14px;">&#8718;</span><div style="clear:both;"></div>')
 
     # Convert newlines to breaks
     text = text.replace("\n\n", "<p style='margin:6px 0;'>").replace("\n", "<br>")
@@ -595,7 +609,7 @@ def render_markdown_with_katex(md_text: str) -> str:
     for i, b in enumerate(blocks):
         text = text.replace(f"__CHALK_MATH_BLOCK_{i}__", b)
 
-    return f'<div style="color:#CBD5E1; font-family:-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif; font-size:13px; line-height:1.5;">{text}</div>'
+    return f'<div style="color:{body_color}; font-family:-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif; font-size:13px; line-height:1.5;">{text}</div>'
 
 
 class CopilotWorker(QThread):
@@ -884,6 +898,23 @@ class FloatingHUDWindow(QWidget):
         y = max(40, (screen.height() - self.height()) // 5)
         self.move(x, y)
 
+    def paintEvent(self, event):
+        painter = QPainter(self)
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing)
+        rect = self.rect().adjusted(1, 1, -1, -1)
+        if self.current_theme == "light":
+            bg_color = QColor(248, 250, 252, 255)
+            border_color = QColor(203, 213, 225, 255)
+        else:
+            bg_color = QColor(18, 19, 23, 255)
+            border_color = QColor(255, 255, 255, 45)
+
+        painter.setBrush(QBrush(bg_color))
+        pen = QPen(border_color)
+        pen.setWidth(1)
+        painter.setPen(pen)
+        painter.drawRoundedRect(rect, 16.0, 16.0)
+
     def _setup_ui(self):
         main_layout = QVBoxLayout(self)
         main_layout.setContentsMargins(14, 12, 14, 12)
@@ -1021,9 +1052,8 @@ class FloatingHUDWindow(QWidget):
 
         sc_layout.addLayout(sc_head)
 
-        self.screen_source_lbl = QLabel("")
+        self.screen_source_lbl = QLabel("Display 1 • Primary Display")
         self.screen_source_lbl.setStyleSheet("font-size: 10px; font-family: monospace; color: #64748B;")
-        self.screen_source_lbl.hide()
         sc_layout.addWidget(self.screen_source_lbl)
 
         # Real Live Screen Preview Label
@@ -1031,10 +1061,10 @@ class FloatingHUDWindow(QWidget):
         self.screen_preview_lbl.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.screen_preview_lbl.setStyleSheet(
             "background-color: rgba(21, 22, 27, 0.85); "
-            "border: 1px solid rgba(255, 255, 255, 0.08); "
+            "border: 1px solid rgba(255, 255, 255, 0.12); "
             "border-radius: 6px; color: #64748B; font-size: 11px; font-family: monospace;"
         )
-        self.screen_preview_lbl.setFixedHeight(120)
+        self.screen_preview_lbl.setFixedHeight(160)
         self.screen_preview_lbl.setScaledContents(False)
         sc_layout.addWidget(self.screen_preview_lbl)
 
@@ -1052,9 +1082,9 @@ class FloatingHUDWindow(QWidget):
         la_layout.setSpacing(6)
 
         la_head = QHBoxLayout()
-        la_title_lbl = QLabel("● LIVE AUDIO & CAPTURE")
-        la_title_lbl.setStyleSheet("font-size: 10px; font-weight: 700; letter-spacing: 1px; color: #94A3B8;")
-        la_head.addWidget(la_title_lbl)
+        self.la_title_lbl = QLabel("● LIVE AUDIO & CAPTURE")
+        self.la_title_lbl.setStyleSheet("font-size: 10px; font-weight: 700; letter-spacing: 1px; color: #94A3B8;")
+        la_head.addWidget(self.la_title_lbl)
         la_head.addStretch()
         la_layout.addLayout(la_head)
 
@@ -1064,7 +1094,7 @@ class FloatingHUDWindow(QWidget):
 
         self.live_speech_lbl = QLabel(tr("hud_listening_speech"))
         self.live_speech_lbl.setStyleSheet(
-            "font-size: 11.5px; font-style: italic; color: #94A3B8; "
+            "font-size: 11.5px; font-style: italic; color: #CBD5E1; "
             "background-color: rgba(21, 22, 27, 0.7); padding: 8px 10px; border-radius: 6px; border: 1px solid rgba(255, 255, 255, 0.06);"
         )
         self.live_speech_lbl.setWordWrap(True)
@@ -1157,13 +1187,13 @@ class FloatingHUDWindow(QWidget):
         dd_layout.setSpacing(5)
 
         dd_head = QHBoxLayout()
-        dd_title_lbl = QLabel("✍ Note or Directive to AI")
-        dd_title_lbl.setStyleSheet("font-size: 11px; font-weight: 600; color: #E2E8F0;")
-        dd_head.addWidget(dd_title_lbl)
+        self.dd_title_lbl = QLabel("✍ Note or Directive to AI")
+        self.dd_title_lbl.setStyleSheet("font-size: 11px; font-weight: 600; color: #E2E8F0;")
+        dd_head.addWidget(self.dd_title_lbl)
         dd_head.addStretch()
-        dd_sub_lbl = QLabel("Synced with audio & summary")
-        dd_sub_lbl.setStyleSheet("font-size: 9.5px; color: #64748B;")
-        dd_head.addWidget(dd_sub_lbl)
+        self.dd_sub_lbl = QLabel("Synced with audio & summary")
+        self.dd_sub_lbl.setStyleSheet("font-size: 9.5px; color: #64748B;")
+        dd_head.addWidget(self.dd_sub_lbl)
         dd_layout.addLayout(dd_head)
 
         chips_row = QHBoxLayout()
@@ -1216,12 +1246,12 @@ class FloatingHUDWindow(QWidget):
 
         c_header_row = QHBoxLayout()
         c_header_row.setContentsMargins(0, 0, 0, 0)
-        c_info_lbl = QLabel(tr("preview_chat_grounded") or "AI grounded in live audio, slides & photos")
-        c_info_lbl.setStyleSheet("font-size: 10.5px; color: #64748B; padding-left: 2px;")
-        c_header_row.addWidget(c_info_lbl)
+        self.chat_info_lbl = QLabel(tr("preview_chat_grounded") or "AI grounded in live audio, slides & photos")
+        self.chat_info_lbl.setStyleSheet("font-size: 10.5px; color: #64748B; padding-left: 2px;")
+        c_header_row.addWidget(self.chat_info_lbl)
         c_header_row.addStretch()
 
-        self.chat_model_badge = QLabel("Gemini 2.5 Flash")
+        self.chat_model_badge = QLabel("Gemini 3.8 Flash")
         self.chat_model_badge.setStyleSheet(
             "font-size: 10px; font-family: monospace; color: #94A3B8; "
             "background-color: #15161B; border: 1px solid rgba(255, 255, 255, 0.1); "
@@ -1298,9 +1328,9 @@ class FloatingHUDWindow(QWidget):
 
         # 1. API Key
         key_head = QHBoxLayout()
-        key_lbl = QLabel(tr("preview_key_label") or "API Key (BYOK):")
-        key_lbl.setStyleSheet("font-size: 11px; font-weight: 600; color: #F8FAFC;")
-        key_head.addWidget(key_lbl)
+        self.key_lbl = QLabel(tr("preview_key_label") or "API Key (BYOK):")
+        self.key_lbl.setStyleSheet("font-size: 11px; font-weight: 600; color: #F8FAFC;")
+        key_head.addWidget(self.key_lbl)
         key_head.addStretch()
         self.free_key_link = QPushButton(tr("preview_free_guide_link") or "Get Free Key ↗")
         self.free_key_link.setStyleSheet(
@@ -1413,16 +1443,16 @@ class FloatingHUDWindow(QWidget):
         disclaimer_box.setObjectName("dockFrame")
         d_layout = QVBoxLayout(disclaimer_box)
         d_layout.setContentsMargins(10, 8, 10, 8)
-        d_head = QLabel("Direct Connection & Local Storage")
-        d_head.setStyleSheet("font-size: 11px; font-weight: 600; color: #F8FAFC;")
-        d_layout.addWidget(d_head)
-        d_body = QLabel(
+        self.d_head = QLabel("Direct Connection & Local Storage")
+        self.d_head.setStyleSheet("font-size: 11px; font-weight: 600; color: #F8FAFC;")
+        d_layout.addWidget(self.d_head)
+        self.d_body = QLabel(
             "Your API key is saved locally in your system keychain. "
             "Synthesis requests connect directly from localhost to the AI provider with zero middleman servers."
         )
-        d_body.setStyleSheet("font-size: 10px; color: #94A3B8;")
-        d_body.setWordWrap(True)
-        d_layout.addWidget(d_body)
+        self.d_body.setStyleSheet("font-size: 10px; color: #94A3B8;")
+        self.d_body.setWordWrap(True)
+        d_layout.addWidget(self.d_body)
         s_tab_layout.addWidget(disclaimer_box)
 
         s_tab_layout.addStretch()
@@ -1531,6 +1561,8 @@ class FloatingHUDWindow(QWidget):
 
         # Initial view population
         self._navigate_slide(0)
+        self._render_initial_screen_preview()
+        self._render_initial_chat_greeting()
         self.refresh_live_notes_view()
         self.retranslate_ui()
 
@@ -1608,15 +1640,16 @@ class FloatingHUDWindow(QWidget):
     def _render_pdf_slide_to_preview(self, slide: dict, total: int, deck_name: str):
         """Renders an elegant vector card representation of the imported PDF slide page into screen_preview_lbl."""
         target_w = self.screen_preview_lbl.width() or 316
-        target_h = self.screen_preview_lbl.height() or 120
+        target_h = self.screen_preview_lbl.height() or 160
         pix = QPixmap(target_w, target_h)
-        pix.fill(QColor("#15161B"))
+        is_light = (self.current_theme == "light")
+        pix.fill(QColor("#F1F5F9" if is_light else "#15161B"))
 
         painter = QPainter(pix)
         painter.setRenderHint(QPainter.RenderHint.Antialiasing)
 
         # Subtle card border
-        pen = QPen(QColor(255, 255, 255, 24))
+        pen = QPen(QColor(203, 213, 225, 255) if is_light else QColor(255, 255, 255, 24))
         pen.setWidth(1)
         painter.setPen(pen)
         painter.drawRoundedRect(1, 1, target_w - 2, target_h - 2, 6, 6)
@@ -1627,7 +1660,7 @@ class FloatingHUDWindow(QWidget):
         f_header.setPointSize(9)
         f_header.setBold(True)
         painter.setFont(f_header)
-        painter.drawText(12, 20, f"{deck_name[:26]}  •  Page {slide['page']}/{total}")
+        painter.drawText(12, 22, f"{deck_name[:26]}  •  Page {slide['page']}/{total}")
 
         # Slide content lines
         p_text = slide.get("text", "")
@@ -1636,34 +1669,34 @@ class FloatingHUDWindow(QWidget):
         body_line = lines[1] if len(lines) > 1 else ""
 
         # Heading
-        painter.setPen(QColor("#F8FAFC"))
+        painter.setPen(QColor("#0F172A" if is_light else "#F8FAFC"))
         f_title = painter.font()
         f_title.setPointSize(11)
         f_title.setBold(True)
         painter.setFont(f_title)
-        painter.drawText(12, 46, first_line[:38])
+        painter.drawText(12, 50, first_line[:38])
 
         # Body excerpt
-        painter.setPen(QColor("#94A3B8"))
+        painter.setPen(QColor("#334155" if is_light else "#94A3B8"))
         f_body = painter.font()
         f_body.setPointSize(9)
         f_body.setBold(False)
         painter.setFont(f_body)
         if body_line:
-            painter.drawText(12, 70, body_line[:48])
+            painter.drawText(12, 74, body_line[:48])
 
         # Bottom badge
-        painter.setPen(QColor("#38BDF8"))
+        painter.setPen(QColor("#0284C7" if is_light else "#38BDF8"))
         f_badge = painter.font()
         f_badge.setPointSize(8)
         painter.setFont(f_badge)
-        painter.drawText(12, target_h - 12, "In-Person Slide Mapping Active")
+        painter.drawText(12, target_h - 14, "In-Person Slide Mapping Active")
 
         painter.end()
         self.screen_preview_lbl.setPixmap(pix)
 
     def grab_live_screen_preview(self):
-        """Captures a real scaled thumbnail of the primary display without lag."""
+        """Captures a real scaled thumbnail of the primary display filling the 16:9 monitor frame."""
         if not self.isVisible():
             return
         if self.imported_pdf_slides:
@@ -1674,13 +1707,16 @@ class FloatingHUDWindow(QWidget):
                 pix = screen.grabWindow(0)
                 if not pix.isNull():
                     target_w = self.screen_preview_lbl.width() or 316
-                    target_h = self.screen_preview_lbl.height() or 120
+                    target_h = self.screen_preview_lbl.height() or 160
                     scaled = pix.scaled(
                         target_w, target_h,
-                        Qt.AspectRatioMode.KeepAspectRatio,
+                        Qt.AspectRatioMode.KeepAspectRatioByExpanding,
                         Qt.TransformationMode.SmoothTransformation,
                     )
-                    self.screen_preview_lbl.setPixmap(scaled)
+                    x_crop = max(0, (scaled.width() - target_w) // 2)
+                    y_crop = max(0, (scaled.height() - target_h) // 2)
+                    cropped = scaled.copy(x_crop, y_crop, target_w, target_h)
+                    self.screen_preview_lbl.setPixmap(cropped)
         except Exception as e:
             logger.debug("Live screen preview capture failed: %s", e)
 
@@ -1700,15 +1736,85 @@ class FloatingHUDWindow(QWidget):
 
             if not pix.isNull():
                 target_w = self.screen_preview_lbl.width() or 316
-                target_h = self.screen_preview_lbl.height() or 120
+                target_h = self.screen_preview_lbl.height() or 160
                 scaled = pix.scaled(
                     target_w, target_h,
-                    Qt.AspectRatioMode.KeepAspectRatio,
+                    Qt.AspectRatioMode.KeepAspectRatioByExpanding,
                     Qt.TransformationMode.SmoothTransformation,
                 )
-                self.screen_preview_lbl.setPixmap(scaled)
+                x_crop = max(0, (scaled.width() - target_w) // 2)
+                y_crop = max(0, (scaled.height() - target_h) // 2)
+                cropped = scaled.copy(x_crop, y_crop, target_w, target_h)
+                self.screen_preview_lbl.setPixmap(cropped)
         except Exception as e:
             logger.debug("Failed to set screen preview pixmap: %s", e)
+
+    def _render_initial_screen_preview(self):
+        """Renders an elegant monitor standby graphic into screen_preview_lbl on start."""
+        target_w = self.screen_preview_lbl.width() or 316
+        target_h = self.screen_preview_lbl.height() or 160
+        pix = QPixmap(target_w, target_h)
+        is_light = (self.current_theme == "light")
+        pix.fill(QColor("#F1F5F9" if is_light else "#15161B"))
+
+        painter = QPainter(pix)
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing)
+
+        border_col = QColor(203, 213, 225, 255) if is_light else QColor(255, 255, 255, 25)
+        painter.setPen(QPen(border_col, 1))
+        painter.drawRoundedRect(1, 1, target_w - 2, target_h - 2, 6, 6)
+
+        painter.setPen(QColor("#64748B"))
+        f_head = painter.font()
+        f_head.setPointSize(9)
+        f_head.setBold(True)
+        painter.setFont(f_head)
+        painter.drawText(12, 22, "Display 1 • Primary Display")
+
+        title_col = QColor("#0F172A" if is_light else "#F8FAFC")
+        painter.setPen(title_col)
+        f_title = painter.font()
+        f_title.setPointSize(11)
+        f_title.setBold(True)
+        painter.setFont(f_title)
+        painter.drawText(12, 54, "Live Screen Capture Active")
+
+        sub_col = QColor("#475569" if is_light else "#94A3B8")
+        painter.setPen(sub_col)
+        f_sub = painter.font()
+        f_sub.setPointSize(9)
+        f_sub.setBold(False)
+        painter.setFont(f_sub)
+        painter.drawText(12, 78, "Continuous high-resolution frame sampling")
+
+        painter.setPen(QColor("#0284C7" if is_light else "#38BDF8"))
+        f_badge = painter.font()
+        f_badge.setPointSize(8)
+        painter.setFont(f_badge)
+        painter.drawText(12, target_h - 14, "● Live Display Sync")
+
+        painter.end()
+        self.screen_preview_lbl.setPixmap(pix)
+
+    def _render_initial_chat_greeting(self):
+        """Displays an initial welcoming assistant card in the AI Chat tab."""
+        is_light = (self.current_theme == "light")
+        card_bg = "#F1F5F9" if is_light else "rgba(255, 255, 255, 0.05)"
+        card_border = "#CBD5E1" if is_light else "rgba(255, 255, 255, 0.12)"
+        title_col = "#0F172A" if is_light else "#F8FAFC"
+        text_col = "#334155" if is_light else "#94A3B8"
+        greeting_html = (
+            f'<div style="background:{card_bg}; border:1px solid {card_border}; '
+            f'border-radius:8px; padding:12px 14px; margin-bottom:8px;">'
+            f'<div style="font-weight:700; color:{title_col}; font-size:12px; margin-bottom:4px;">'
+            f'Chalk AI Assistant'
+            f'</div>'
+            f'<div style="color:{text_col}; font-size:11.5px; line-height:1.45;">'
+            f'Grounded in live lecture audio, screen slides & synced whiteboard photos.<br>'
+            f'Ask questions about formulas, proofs, or derivations, or use the quick chips below.'
+            f'</div></div>'
+        )
+        self.chat_history.setHtml(greeting_html)
 
     def update_live_speech(self, text: str, speaker: str = "", timestamp: str = ""):
         """Updates the live spoken audio quote and speaker badge dynamically."""
@@ -1860,6 +1966,71 @@ class FloatingHUDWindow(QWidget):
             self.settings_vault_input.setText(d)
             set_obsidian_vault_path(d)
 
+    def _update_theme_components(self, theme: str):
+        is_light = (theme == "light")
+        title_color = "#0F172A" if is_light else "#F8FAFC"
+        muted_color = "#475569" if is_light else "#94A3B8"
+        dim_color = "#64748B"
+
+        if hasattr(self, "window_title_label"):
+            self.window_title_label.setStyleSheet(f"font-size: 12px; font-weight: 600; color: {title_color};")
+        if hasattr(self, "status_pill"):
+            if is_light:
+                self.status_pill.setStyleSheet("background-color: #F1F5F9; border: 1px solid #CBD5E1; color: #475569; font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 12px;")
+            else:
+                self.status_pill.setStyleSheet("background-color: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.15); color: #94A3B8; font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 12px;")
+        if hasattr(self, "screen_title_lbl"):
+            self.screen_title_lbl.setStyleSheet(f"font-size: 10px; font-weight: 700; letter-spacing: 1px; color: {muted_color};")
+        if hasattr(self, "screen_badge_lbl"):
+            if is_light:
+                self.screen_badge_lbl.setStyleSheet("font-size: 9.5px; font-weight: 600; color: #475569; padding: 2px 6px; border-radius: 4px; background-color: #E2E8F0;")
+            else:
+                self.screen_badge_lbl.setStyleSheet("font-size: 9.5px; font-weight: 600; color: #94A3B8; padding: 2px 6px; border-radius: 4px; background-color: rgba(255, 255, 255, 0.06);")
+        if hasattr(self, "screen_source_lbl"):
+            self.screen_source_lbl.setStyleSheet(f"font-size: 10px; font-family: monospace; color: {dim_color};")
+        if hasattr(self, "screen_preview_lbl"):
+            if is_light:
+                self.screen_preview_lbl.setStyleSheet("background-color: #F1F5F9; border: 1px solid #CBD5E1; border-radius: 6px; color: #475569; font-size: 11px; font-family: monospace;")
+            else:
+                self.screen_preview_lbl.setStyleSheet("background-color: rgba(21, 22, 27, 0.85); border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 6px; color: #64748B; font-size: 11px; font-family: monospace;")
+        if hasattr(self, "la_title_lbl"):
+            self.la_title_lbl.setStyleSheet(f"font-size: 10px; font-weight: 700; letter-spacing: 1px; color: {muted_color};")
+        if hasattr(self, "speaker_badge_lbl"):
+            self.speaker_badge_lbl.setStyleSheet(f"font-size: 10.5px; font-family: monospace; color: {muted_color};")
+        if hasattr(self, "live_speech_lbl"):
+            if is_light:
+                self.live_speech_lbl.setStyleSheet("font-size: 11.5px; font-style: italic; color: #0F172A; background-color: #F8FAFC; padding: 8px 10px; border-radius: 6px; border: 1px solid #CBD5E1;")
+            else:
+                self.live_speech_lbl.setStyleSheet("font-size: 11.5px; font-style: italic; color: #CBD5E1; background-color: rgba(21, 22, 27, 0.7); padding: 8px 10px; border-radius: 6px; border: 1px solid rgba(255, 255, 255, 0.06);")
+        if hasattr(self, "note_filename_lbl"):
+            self.note_filename_lbl.setStyleSheet(f"font-size: 11px; font-family: monospace; color: {dim_color};")
+        if hasattr(self, "ob_title_lbl"):
+            self.ob_title_lbl.setStyleSheet(f"font-size: 11.5px; font-weight: 700; color: {title_color};")
+        if hasattr(self, "ob_sub_lbl"):
+            self.ob_sub_lbl.setStyleSheet(f"font-size: 10.5px; color: {muted_color};")
+        if hasattr(self, "key_lbl"):
+            self.key_lbl.setStyleSheet(f"font-size: 11px; font-weight: 600; color: {title_color};")
+        if hasattr(self, "free_key_link"):
+            if is_light:
+                self.free_key_link.setStyleSheet("QPushButton { background-color: #E2E8F0; border: 1px solid #CBD5E1; color: #0F172A; font-size: 10.5px; font-weight: 600; padding: 2px 8px; border-radius: 5px; } QPushButton:hover { border-color: #94A3B8; background-color: #CBD5E1; }")
+            else:
+                self.free_key_link.setStyleSheet("QPushButton { background-color: #22252F; border: 1px solid rgba(255, 255, 255, 0.12); color: #F8FAFC; font-size: 10.5px; font-weight: 600; padding: 2px 8px; border-radius: 5px; } QPushButton:hover { border-color: #94A3B8; background-color: #2A2D37; }")
+        if hasattr(self, "d_head"):
+            self.d_head.setStyleSheet(f"font-size: 11px; font-weight: 600; color: {title_color};")
+        if hasattr(self, "d_body"):
+            self.d_body.setStyleSheet(f"font-size: 10px; color: {muted_color}; line-height: 1.4;")
+        if hasattr(self, "dd_title_lbl"):
+            self.dd_title_lbl.setStyleSheet(f"font-size: 11px; font-weight: 600; color: {title_color};")
+        if hasattr(self, "dd_sub_lbl"):
+            self.dd_sub_lbl.setStyleSheet(f"font-size: 9.5px; color: {dim_color};")
+        if hasattr(self, "chat_info_lbl"):
+            self.chat_info_lbl.setStyleSheet(f"font-size: 10.5px; color: {dim_color}; padding-left: 2px;")
+        if hasattr(self, "chat_model_badge"):
+            if is_light:
+                self.chat_model_badge.setStyleSheet("font-size: 10px; font-family: monospace; color: #334155; background-color: #F1F5F9; border: 1px solid #CBD5E1; border-radius: 4px; padding: 2px 6px;")
+            else:
+                self.chat_model_badge.setStyleSheet("font-size: 10px; font-family: monospace; color: #94A3B8; background-color: #15161B; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 4px; padding: 2px 6px;")
+
     def apply_theme(self, theme: str):
         self.current_theme = theme
         if theme == "light":
@@ -1873,8 +2044,13 @@ class FloatingHUDWindow(QWidget):
         for b in [self.theme_dark_btn, self.theme_light_btn]:
             b.style().unpolish(b)
             b.style().polish(b)
+        self._update_theme_components(theme)
+        self.update()
         self.refresh_live_notes_view()
-        self._navigate_slide(0)
+        if not self.imported_pdf_slides:
+            self.grab_live_screen_preview()
+        else:
+            self._navigate_slide(0)
 
     def change_language(self, lang: str):
         set_ui_language(lang)
@@ -2257,7 +2433,7 @@ class FloatingHUDWindow(QWidget):
         self.rewind_worker.start()
 
     def _on_rewind_finished(self, transcript: str):
-        rendered_html = render_markdown_with_katex(transcript)
+        rendered_html = render_markdown_with_katex(transcript, theme=self.current_theme)
         self.chat_history.append(f"<b>[Rewind 90s Transcript]:</b><div style='margin-top:4px;'>{rendered_html}</div><br>")
         self.refresh_live_notes_view()
 
@@ -2267,7 +2443,16 @@ class FloatingHUDWindow(QWidget):
             return
 
         escaped_prompt = html.escape(prompt)
-        self.chat_history.append(f"<b>You:</b> {escaped_prompt}")
+        is_light = (self.current_theme == "light")
+        user_bg = "#E2E8F0" if is_light else "rgba(255, 255, 255, 0.08)"
+        user_text = "#0F172A" if is_light else "#F8FAFC"
+        user_bubble = (
+            f"<div style='background:{user_bg}; border-radius:6px; padding:6px 10px; margin:4px 0; text-align:right;'>"
+            f"<span style='font-weight:600; color:{user_text}; font-size:11px;'>You:</span> "
+            f"<span style='color:{user_text}; font-size:11.5px;'>{escaped_prompt}</span>"
+            f"</div>"
+        )
+        self.chat_history.append(user_bubble)
         self.prompt_input.clear()
         self.send_btn.setEnabled(False)
 
@@ -2282,8 +2467,19 @@ class FloatingHUDWindow(QWidget):
 
     def _on_copilot_finished(self, response: str):
         self.send_btn.setEnabled(True)
-        rendered_html = render_markdown_with_katex(response)
-        self.chat_history.append(f"<b>Chalk:</b><div style='margin-top:4px;'>{rendered_html}</div><br>")
+        rendered_html = render_markdown_with_katex(response, theme=self.current_theme)
+        is_light = (self.current_theme == "light")
+        ai_bg = "#F8FAFC" if is_light else "rgba(26, 28, 35, 0.9)"
+        ai_border = "#CBD5E1" if is_light else "rgba(255, 255, 255, 0.12)"
+        title_col = "#0F172A" if is_light else "#F8FAFC"
+        bubble = (
+            f"<div style='background:{ai_bg}; border:1px solid {ai_border}; "
+            f"border-radius:8px; padding:10px 12px; margin:6px 0;'>"
+            f"<div style='font-weight:700; color:{title_col}; font-size:11.5px; margin-bottom:4px;'>Chalk Copilot:</div>"
+            f"<div style='margin-top:4px;'>{rendered_html}</div>"
+            f"</div>"
+        )
+        self.chat_history.append(bubble)
         self.refresh_live_notes_view()
 
     def refresh_live_notes_view(self):
@@ -2351,11 +2547,11 @@ class FloatingHUDWindow(QWidget):
                         "- **Formulas:** Theorems, proofs, and KaTeX math will render here automatically\n"
                     )
 
-        rendered_html = render_markdown_with_katex(content)
+        rendered_html = render_markdown_with_katex(content, theme=self.current_theme)
         self.notes_browser.setHtml(rendered_html)
 
     def display_live_notes(self, markdown_notes: str):
-        rendered_html = render_markdown_with_katex(markdown_notes)
+        rendered_html = render_markdown_with_katex(markdown_notes, theme=self.current_theme)
         self.notes_browser.setHtml(rendered_html)
 
     # Audio Scrubbing & Floating Mini-Player Playback
