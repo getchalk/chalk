@@ -829,28 +829,6 @@ class FloatingHUDWindow(QWidget):
         self.imported_pdf_name: Optional[str] = None
         self.current_slide_idx = 0
 
-        # Sample / Demo Slide keyframes for pristine initial presentation
-        self.sample_slides = [
-            {
-                "file": "Asset_Pricing_Lecture_04.pdf (p. 12/42)",
-                "topic": "Portfolio Theory & Risk Modeling",
-                "heading": "Capital Asset Pricing Model (CAPM)",
-                "math": "$$E(R_i) = R_f + \\beta_i [E(R_m) - R_f]$$",
-            },
-            {
-                "file": "Asset_Pricing_Lecture_04.pdf (p. 18/42)",
-                "topic": "Performance Attribution & Alpha",
-                "heading": "Security Market Line & Jensen's Alpha",
-                "math": "$$\\alpha_i = R_i - [R_f + \\beta_i (E(R_m) - R_f)]$$",
-            },
-            {
-                "file": "Asset_Pricing_Lecture_04.pdf (p. 25/42)",
-                "topic": "Arbitrage Pricing & Multi-Factor",
-                "heading": "Fama-French Three-Factor Model",
-                "math": "$$E(R_i) - R_f = \\beta_{i1}(R_m - R_f) + \\beta_{i2}SMB + \\beta_{i3}HML$$",
-            },
-        ]
-
         # Whiteboard Camera & Mobile Companion
         self.whiteboard_photos: List[str] = []
         self.companion_bridge = CompanionBridge(self)
@@ -865,7 +843,7 @@ class FloatingHUDWindow(QWidget):
         self.session_start_time = time.time()
         self.drag_position = QPoint()
         self.is_playing_audio = False
-        self._current_daemon_state = "recording"
+        self._current_daemon_state = "standby"
         self._current_daemon_msg = ""
         self.current_theme = "dark"
         self.pinned_directives = []
@@ -947,9 +925,10 @@ class FloatingHUDWindow(QWidget):
 
         # Title
         topic_title = getattr(self.notes_manager, "topic", "") if self.notes_manager else ""
-        if not topic_title:
-            topic_title = "Financial Markets & Risk"
-        self.window_title_label = QLabel(f"Lecture: {topic_title} — Chalk")
+        if topic_title:
+            self.window_title_label = QLabel(f"Lecture: {topic_title} — Chalk")
+        else:
+            self.window_title_label = QLabel("Chalk — Autonomous Lecture Engine")
         self.window_title_label.setStyleSheet("font-size: 12px; font-weight: 600; color: #F8FAFC;")
         header_bar.addWidget(self.window_title_label)
 
@@ -965,10 +944,10 @@ class FloatingHUDWindow(QWidget):
         header_bar.addWidget(self.attachment_label)
 
         # Recording Status Pill
-        self.status_pill = QLabel("● Recording active (00:00)")
+        self.status_pill = QLabel("● Standby")
         self.status_pill.setStyleSheet(
-            "background-color: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.18);"
-            "color: #FFFFFF; font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 12px;"
+            "background-color: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.15);"
+            "color: #94A3B8; font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 12px;"
         )
         header_bar.addWidget(self.status_pill)
 
@@ -995,19 +974,42 @@ class FloatingHUDWindow(QWidget):
         self.screen_title_lbl = QLabel(tr("hud_screen_mirror"))
         self.screen_title_lbl.setStyleSheet("font-size: 10px; font-weight: 700; letter-spacing: 1px; color: #94A3B8;")
         sc_head.addWidget(self.screen_title_lbl)
+
+        # Slide navigation bar (active when a PDF slide deck is imported)
+        self.slide_nav_container = QWidget()
+        s_nav_layout = QHBoxLayout(self.slide_nav_container)
+        s_nav_layout.setContentsMargins(0, 0, 0, 0)
+        s_nav_layout.setSpacing(4)
+
+        self.prev_slide_btn = QPushButton("‹")
+        self.prev_slide_btn.setFixedSize(20, 20)
+        self.prev_slide_btn.setStyleSheet("font-size: 12px; font-weight: bold; padding: 0px;")
+        self.prev_slide_btn.clicked.connect(lambda: self._navigate_slide(-1))
+        s_nav_layout.addWidget(self.prev_slide_btn)
+
+        self.slide_counter_lbl = QLabel("0/0")
+        self.slide_counter_lbl.setStyleSheet("font-size: 10px; font-family: monospace; color: #CBD5E1;")
+        s_nav_layout.addWidget(self.slide_counter_lbl)
+
+        self.next_slide_btn = QPushButton("›")
+        self.next_slide_btn.setFixedSize(20, 20)
+        self.next_slide_btn.setStyleSheet("font-size: 12px; font-weight: bold; padding: 0px;")
+        self.next_slide_btn.clicked.connect(lambda: self._navigate_slide(1))
+        s_nav_layout.addWidget(self.next_slide_btn)
+
+        self.slide_nav_container.hide()
+        sc_head.addWidget(self.slide_nav_container)
+
         sc_head.addStretch()
 
-        self.screen_badge_lbl = QLabel("")
-        self.screen_badge_lbl.hide()
+        self.screen_badge_lbl = QLabel("● LIVE")
+        self.screen_badge_lbl.setStyleSheet(
+            "font-size: 9.5px; font-weight: 600; color: #94A3B8; padding: 2px 6px; "
+            "border-radius: 4px; background-color: rgba(255, 255, 255, 0.06);"
+        )
         sc_head.addWidget(self.screen_badge_lbl)
 
-        # Legacy backward-compat widgets (hidden)
-        self.prev_slide_btn = QPushButton("‹")
-        self.prev_slide_btn.hide()
-        self.next_slide_btn = QPushButton("›")
-        self.next_slide_btn.hide()
-        self.slide_counter_lbl = QLabel("1/1")
-        self.slide_counter_lbl.hide()
+        # Backward-compat widgets
         self.slide_file_lbl = QLabel("")
         self.slide_file_lbl.hide()
         self.slide_topic_lbl = QLabel("")
@@ -1056,7 +1058,7 @@ class FloatingHUDWindow(QWidget):
         la_head.addStretch()
         la_layout.addLayout(la_head)
 
-        self.speaker_badge_lbl = QLabel("Speaker Active    @ 00:00")
+        self.speaker_badge_lbl = QLabel("Monitoring Audio    @ 00:00")
         self.speaker_badge_lbl.setStyleSheet("font-size: 10.5px; font-family: monospace; color: #CBD5E1;")
         la_layout.addWidget(self.speaker_badge_lbl)
 
@@ -1119,7 +1121,10 @@ class FloatingHUDWindow(QWidget):
 
         tab_bar.addStretch()
 
-        self.note_filename_lbl = QLabel("financial_markets_ch3.md")
+        active_filename = "Lecture_Notes.md"
+        if self.notes_manager and hasattr(self.notes_manager, "session_file") and self.notes_manager.session_file:
+            active_filename = os.path.basename(self.notes_manager.session_file)
+        self.note_filename_lbl = QLabel(active_filename)
         self.note_filename_lbl.setStyleSheet("font-size: 11px; font-family: monospace; color: #64748B;")
         tab_bar.addWidget(self.note_filename_lbl)
 
@@ -1166,17 +1171,17 @@ class FloatingHUDWindow(QWidget):
 
         self.chip_exam_btn = QPushButton("+ Exam Hint")
         self.chip_exam_btn.setObjectName("chipBtn")
-        self.chip_exam_btn.clicked.connect(lambda: self._insert_directive_chip("Exam Hint: Key calculation step"))
+        self.chip_exam_btn.clicked.connect(lambda: self._insert_directive_chip("Exam Hint: Highlight critical exam concept"))
         chips_row.addWidget(self.chip_exam_btn)
 
         self.chip_proof_btn = QPushButton("+ Detail Proof")
         self.chip_proof_btn.setObjectName("chipBtn")
-        self.chip_proof_btn.clicked.connect(lambda: self._insert_directive_chip("Detail Proof: Expand covariance derivation step-by-step"))
+        self.chip_proof_btn.clicked.connect(lambda: self._insert_directive_chip("Detail Proof: Expand mathematical proof step-by-step"))
         chips_row.addWidget(self.chip_proof_btn)
 
         self.chip_note_btn = QPushButton("+ Side Note")
         self.chip_note_btn.setObjectName("chipBtn")
-        self.chip_note_btn.clicked.connect(lambda: self._insert_directive_chip("Side Note: Connect to Sharpe Ratio"))
+        self.chip_note_btn.clicked.connect(lambda: self._insert_directive_chip("Side Note: Add intuition and context"))
         chips_row.addWidget(self.chip_note_btn)
         chips_row.addStretch()
         dd_layout.addLayout(chips_row)
@@ -1236,17 +1241,17 @@ class FloatingHUDWindow(QWidget):
 
         self.chat_chip_summary = QPushButton("Summarize Takeaways")
         self.chat_chip_summary.setObjectName("chipBtn")
-        self.chat_chip_summary.clicked.connect(lambda: self._send_quick_chat("Summarize the key takeaways and core formulas from this lecture so far."))
+        self.chat_chip_summary.clicked.connect(lambda: self._send_quick_chat("Summarize the key points and core formulas covered in this lecture so far."))
         chat_chips_row.addWidget(self.chat_chip_summary)
 
-        self.chat_chip_intuition = QPushButton("Explain Intuition")
+        self.chat_chip_intuition = QPushButton("Explain Concept")
         self.chat_chip_intuition.setObjectName("chipBtn")
-        self.chat_chip_intuition.clicked.connect(lambda: self._send_quick_chat("Explain the intuitive economic rationale behind CAPM risk-pricing."))
+        self.chat_chip_intuition.clicked.connect(lambda: self._send_quick_chat("Explain the intuition and context of the concept that was just discussed."))
         chat_chips_row.addWidget(self.chat_chip_intuition)
 
         self.chat_chip_proof = QPushButton("Step-by-Step Proof")
         self.chat_chip_proof.setObjectName("chipBtn")
-        self.chat_chip_proof.clicked.connect(lambda: self._send_quick_chat("Provide the step-by-step mathematical derivation of the CAPM formula."))
+        self.chat_chip_proof.clicked.connect(lambda: self._send_quick_chat("Provide the step-by-step mathematical derivation of the main formula."))
         chat_chips_row.addWidget(self.chat_chip_proof)
         chat_chips_row.addStretch()
         c_tab_layout.addLayout(chat_chips_row)
@@ -1435,7 +1440,7 @@ class FloatingHUDWindow(QWidget):
         footer_bar.setContentsMargins(4, 2, 4, 2)
         footer_bar.setSpacing(8)
 
-        self.footer_duration_lbl = QLabel("Duration: 1h 42m 45s")
+        self.footer_duration_lbl = QLabel("Duration: 00:00:00 (Standby)")
         self.footer_duration_lbl.setStyleSheet("font-size: 11px; font-family: monospace; color: #94A3B8;")
         footer_bar.addWidget(self.footer_duration_lbl)
 
@@ -1574,28 +1579,88 @@ class FloatingHUDWindow(QWidget):
             self.resize(1040, 680)
 
     def _navigate_slide(self, step: int):
-        if self.imported_pdf_slides:
-            total = len(self.imported_pdf_slides)
-            self.current_slide_idx = (self.current_slide_idx + step) % total
-            slide = self.imported_pdf_slides[self.current_slide_idx]
-            self.slide_counter_lbl.setText(f"{self.current_slide_idx + 1}/{total}")
-            deck_name = self.imported_pdf_name or "Presentation.pdf"
-            self.slide_file_lbl.setText(f"{deck_name} (p. {slide['page']}/{total})")
-            p_text = slide.get("text", "")
-            lines = [l for l in p_text.splitlines() if l.strip()]
-            first_line = lines[0] if lines else "Slide content"
-            self.slide_heading_lbl.setText(first_line[:40])
-            self.slide_topic_lbl.setText(f"Page {slide['page']}")
-            self.slide_math_view.setHtml(render_markdown_with_katex(p_text[:300]))
-        else:
-            total = len(self.sample_slides)
-            self.current_slide_idx = (self.current_slide_idx + step) % total
-            slide = self.sample_slides[self.current_slide_idx]
-            self.slide_counter_lbl.setText(f"{self.current_slide_idx + 1}/{total}")
-            self.slide_file_lbl.setText(slide["file"])
-            self.slide_topic_lbl.setText(slide["topic"])
-            self.slide_heading_lbl.setText(slide["heading"])
-            self.slide_math_view.setHtml(render_markdown_with_katex(slide["math"]))
+        if not self.imported_pdf_slides:
+            if hasattr(self, "slide_nav_container"):
+                self.slide_nav_container.hide()
+            self.screen_title_lbl.setText(tr("hud_screen_mirror"))
+            self.screen_badge_lbl.setText("● LIVE")
+            self.grab_live_screen_preview()
+            return
+
+        if hasattr(self, "slide_nav_container"):
+            self.slide_nav_container.show()
+        total = len(self.imported_pdf_slides)
+        self.current_slide_idx = (self.current_slide_idx + step) % total
+        slide = self.imported_pdf_slides[self.current_slide_idx]
+        self.slide_counter_lbl.setText(f"{self.current_slide_idx + 1}/{total}")
+        deck_name = self.imported_pdf_name or "Presentation.pdf"
+        self.slide_file_lbl.setText(f"{deck_name} (p. {slide['page']}/{total})")
+        p_text = slide.get("text", "")
+        lines = [l for l in p_text.splitlines() if l.strip()]
+        first_line = lines[0] if lines else f"Page {slide['page']}"
+        self.slide_heading_lbl.setText(first_line[:40])
+        self.slide_topic_lbl.setText(f"Page {slide['page']}")
+        self.slide_math_view.setHtml(render_markdown_with_katex(p_text[:300]))
+        self.screen_title_lbl.setText("IMPORTED SLIDES")
+        self.screen_badge_lbl.setText(f"Page {slide['page']}/{total}")
+        self._render_pdf_slide_to_preview(slide, total, deck_name)
+
+    def _render_pdf_slide_to_preview(self, slide: dict, total: int, deck_name: str):
+        """Renders an elegant vector card representation of the imported PDF slide page into screen_preview_lbl."""
+        target_w = self.screen_preview_lbl.width() or 316
+        target_h = self.screen_preview_lbl.height() or 120
+        pix = QPixmap(target_w, target_h)
+        pix.fill(QColor("#15161B"))
+
+        painter = QPainter(pix)
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing)
+
+        # Subtle card border
+        pen = QPen(QColor(255, 255, 255, 24))
+        pen.setWidth(1)
+        painter.setPen(pen)
+        painter.drawRoundedRect(1, 1, target_w - 2, target_h - 2, 6, 6)
+
+        # Header: deck name & page
+        painter.setPen(QColor("#64748B"))
+        f_header = painter.font()
+        f_header.setPointSize(9)
+        f_header.setBold(True)
+        painter.setFont(f_header)
+        painter.drawText(12, 20, f"{deck_name[:26]}  •  Page {slide['page']}/{total}")
+
+        # Slide content lines
+        p_text = slide.get("text", "")
+        lines = [l.strip() for l in p_text.splitlines() if l.strip()]
+        first_line = lines[0] if lines else "Slide content"
+        body_line = lines[1] if len(lines) > 1 else ""
+
+        # Heading
+        painter.setPen(QColor("#F8FAFC"))
+        f_title = painter.font()
+        f_title.setPointSize(11)
+        f_title.setBold(True)
+        painter.setFont(f_title)
+        painter.drawText(12, 46, first_line[:38])
+
+        # Body excerpt
+        painter.setPen(QColor("#94A3B8"))
+        f_body = painter.font()
+        f_body.setPointSize(9)
+        f_body.setBold(False)
+        painter.setFont(f_body)
+        if body_line:
+            painter.drawText(12, 70, body_line[:48])
+
+        # Bottom badge
+        painter.setPen(QColor("#38BDF8"))
+        f_badge = painter.font()
+        f_badge.setPointSize(8)
+        painter.setFont(f_badge)
+        painter.drawText(12, target_h - 12, "In-Person Slide Mapping Active")
+
+        painter.end()
+        self.screen_preview_lbl.setPixmap(pix)
 
     def grab_live_screen_preview(self):
         """Captures a real scaled thumbnail of the primary display without lag."""
@@ -1656,6 +1721,12 @@ class FloatingHUDWindow(QWidget):
             spk = speaker or "Speaker Active"
             ts = timestamp or format_timestamp(time.time() - self.session_start_time)
             self.speaker_badge_lbl.setText(f"{spk}    @ {ts}")
+
+    def set_lecture_topic(self, topic: str):
+        """Updates window title and header with current lecture topic."""
+        if topic and hasattr(self, "window_title_label"):
+            clean_topic = topic.strip()
+            self.window_title_label.setText(f"Lecture: {clean_topic} — Chalk")
 
     def _on_pin_user_directive(self):
         text = self.directive_input.text().strip()
@@ -1947,6 +2018,9 @@ class FloatingHUDWindow(QWidget):
                 self.set_daemon_status("paused")
             else:
                 self.set_daemon_status("recording")
+        elif not self.recorder or not self.recorder.is_recording:
+            if self._current_daemon_state not in ("paused", "processing"):
+                self.set_daemon_status("standby")
 
         elapsed_sec = int(time.time() - self.session_start_time)
         hrs = elapsed_sec // 3600
@@ -1957,18 +2031,29 @@ class FloatingHUDWindow(QWidget):
         if self._current_daemon_state == "recording":
             state_text = tr("recording_status") if "recording_status" in tr.__globals__["TRANSLATIONS"].get(cur_lang, {}) else "Recording active"
             self.status_pill.setText(f"● {state_text} ({mins:02d}:{secs:02d})")
-
-        # Live Duration Timer in Footer
-        if cur_lang == "de":
-            dur_str = f"Dauer: {hrs}h {mins:02d}m {secs:02d}s"
-        elif cur_lang == "fr":
-            dur_str = f"Durée : {hrs}h {mins:02d}m {secs:02d}s"
-        elif cur_lang == "es":
-            dur_str = f"Duración: {hrs}h {mins:02d}m {secs:02d}s"
-        elif cur_lang == "zh":
-            dur_str = f"时长：{hrs}小时{mins:02d}分{secs:02d}秒"
+            if cur_lang == "de":
+                dur_str = f"Dauer: {hrs}h {mins:02d}m {secs:02d}s"
+            elif cur_lang == "fr":
+                dur_str = f"Durée : {hrs}h {mins:02d}m {secs:02d}s"
+            elif cur_lang == "es":
+                dur_str = f"Duración: {hrs}h {mins:02d}m {secs:02d}s"
+            elif cur_lang == "zh":
+                dur_str = f"时长：{hrs}小时{mins:02d}分{secs:02d}秒"
+            else:
+                dur_str = f"Duration: {hrs}h {mins:02d}m {secs:02d}s"
+        elif self._current_daemon_state == "paused":
+            dur_str = f"Duration: {hrs}h {mins:02d}m {secs:02d}s (Paused)"
         else:
-            dur_str = f"Duration: {hrs}h {mins:02d}m {secs:02d}s"
+            if cur_lang == "de":
+                dur_str = "Dauer: 00:00:00 (Bereit)"
+            elif cur_lang == "fr":
+                dur_str = "Durée : 00:00:00 (En attente)"
+            elif cur_lang == "es":
+                dur_str = "Duración: 00:00:00 (En espera)"
+            elif cur_lang == "zh":
+                dur_str = "时长：00:00:00 (待命)"
+            else:
+                dur_str = "Duration: 00:00:00 (Standby)"
         self.footer_duration_lbl.setText(dur_str)
 
     def trigger_screen_snip(self):
@@ -2211,6 +2296,14 @@ class FloatingHUDWindow(QWidget):
             except Exception:
                 pass
 
+        if hasattr(self, "note_filename_lbl"):
+            active_filename = "Lecture_Notes.md"
+            if notes_path:
+                active_filename = os.path.basename(notes_path)
+            elif self.notes_manager and hasattr(self.notes_manager, "session_file") and self.notes_manager.session_file:
+                active_filename = os.path.basename(self.notes_manager.session_file)
+            self.note_filename_lbl.setText(active_filename)
+
         if not content.strip():
             scratchpad = self.get_scratchpad_content().strip()
             if scratchpad:
@@ -2219,23 +2312,43 @@ class FloatingHUDWindow(QWidget):
                 cur_lang = get_ui_language()
                 if cur_lang == "de":
                     content = (
-                        "# Kapitalmarktlinie & Systematisches Risiko\n\n"
-                        "Die erwartete Rendite eines Wertpapiers setzt sich aus dem risikofreien Zins und der marktweiten Risikoprämie zusammen. "
-                        "Das unsystematische Einzelrisiko wird durch Portfolio-Diversifikation eliminiert.\n\n"
-                        "$$E(R_i) = R_f + \\beta_i \\left[E(R_m) - R_f\\right]$$\n\n"
-                        "- **Beta-Faktor (\\beta_i):** Sensitivität der Rendite gegenüber Schwankungen des Gesamtmarktes.\n"
-                        "- **Risikofreier Zins (R_f):** Rendite erstklassiger Staatsanleihen als Mindesthürde.\n"
-                        "- **[Kernaussage Dozent @ 01:14:20]:** Nur systematisches Risiko wird vom Markt mit einer Prämie vergütet."
+                        "# Vorlesungsnotizen\n\n"
+                        "Chalk ist bereit und überwacht Audio und Präsentationsfolien.\n\n"
+                        "- **Aufnahme:** `F9` drücken, um die Live-Audioaufnahme zu steuern\n"
+                        "- **Anweisungen:** Direktiven unten eingeben, um die KI-Synthese in Echtzeit zu steuern\n"
+                        "- **Formeln:** Theoreme, Beweise und mathematische KaTeX-Formeln erscheinen hier automatisch\n"
+                    )
+                elif cur_lang == "fr":
+                    content = (
+                        "# Notes de Cours\n\n"
+                        "Chalk est prêt et surveille l'audio et les diapositives de présentation.\n\n"
+                        "- **Enregistrement :** Appuyez sur `F9` pour basculer l'enregistrement audio en direct\n"
+                        "- **Directives :** Saisissez des directives ci-dessous pour guider la synthèse IA en temps réel\n"
+                        "- **Formules :** Les théorèmes, preuves et formules KaTeX s'afficheront ici automatiquement\n"
+                    )
+                elif cur_lang == "es":
+                    content = (
+                        "# Notas de Clase\n\n"
+                        "Chalk está listo y monitoreando el audio y las diapositivas de presentación.\n\n"
+                        "- **Grabación:** Presione `F9` para alternar la grabación de audio en vivo\n"
+                        "- **Directivas:** Ingrese directivas abajo para guiar la síntesis de IA en tiempo real\n"
+                        "- **Fórmulas:** Los teoremas, demostraciones y fórmulas KaTeX aparecerán aquí automáticamente\n"
+                    )
+                elif cur_lang == "zh":
+                    content = (
+                        "# 课堂笔记\n\n"
+                        "Chalk 已就绪，正在监听音频与演示幻灯片。\n\n"
+                        "- **录音：** 按 `F9` 控制实时音频录制\n"
+                        "- **指令：** 在下方输入指令以实时引导 AI 笔记生成\n"
+                        "- **公式：** 定理、推导与 KaTeX 数学公式将自动在此渲染\n"
                     )
                 else:
                     content = (
-                        "# Capital Market Line & Systematic Risk\n\n"
-                        "The expected return of an asset comprises the risk-free rate plus the market risk premium. "
-                        "Unsystematic individual risk is eliminated through portfolio diversification.\n\n"
-                        "$$E(R_i) = R_f + \\beta_i \\left[E(R_m) - R_f\\right]$$\n\n"
-                        "- **Beta factor (\\beta_i):** Sensitivity of asset return to broad market movements.\n"
-                        "- **Risk-free rate (R_f):** Benchmark sovereign bond yield as the hurdle rate.\n"
-                        "- **[Lecturer Core Point @ 01:14:20]:** Only systematic risk is compensated by the market with a risk premium."
+                        "# Lecture Notes\n\n"
+                        "Chalk is ready and monitoring audio and presentation slides.\n\n"
+                        "- **Record:** Press `F9` to toggle live audio recording\n"
+                        "- **Directives:** Enter notes below to guide real-time AI synthesis\n"
+                        "- **Formulas:** Theorems, proofs, and KaTeX math will render here automatically\n"
                     )
 
         rendered_html = render_markdown_with_katex(content)

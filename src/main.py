@@ -458,6 +458,8 @@ class ChalkCoordinator(QObject):
                 speaker=getattr(new_state, "primary_speaker", "Speaker Active"),
                 timestamp=end_t,
             )
+        if hasattr(self.hud, "set_lecture_topic") and getattr(new_state, "topic", ""):
+            self.hud.set_lecture_topic(new_state.topic)
 
         # Restore status
         if self.recorder.is_paused:
