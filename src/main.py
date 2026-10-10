@@ -725,11 +725,11 @@ class ChalkCoordinator(QObject):
             self.tray.retranslate_menu()
 
     def open_settings_dialog(self):
-        dialog = SettingsDialog(parent=self.hud, is_initial_setup=False)
-        dialog.language_changed.connect(self._on_language_changed)
-        if dialog.exec() == SettingsDialog.DialogCode.Accepted:
-            self.pipeline.reload_key()
-            logger.info("API key reloaded in pipeline from settings modal.")
+        if not self.hud.isVisible():
+            self.hud.show()
+        self.hud.raise_()
+        self.hud.activateWindow()
+        self.hud.switch_tab(2)
 
 
     def handle_audio_url(self, url: str):
@@ -758,12 +758,7 @@ def main():
     app = ChalkApplication(sys.argv)
     app.setQuitOnLastWindowClosed(False)  # Keep running in system tray
 
-    # Step 1: Ensure BYOK API Key is configured in OS native vault
-    if not ensure_api_key_configured():
-        logger.warning("No API key configured. Exiting.")
-        sys.exit(0)
-
-    # Step 2: Initialize Chalk Coordinator & Lifecycle
+    # Step 1: Initialize Chalk Coordinator & Lifecycle
     coordinator = ChalkCoordinator(app)
     app.url_opened.connect(coordinator.handle_audio_url)
 
@@ -778,13 +773,26 @@ def main():
     if has_audio_url:
         logger.info("Launched with chalk-audio:// URL. Running in playback-only mode.")
     else:
-        # Start in standby mode: Tray and HUD are active, recording triggers via F9 or click
-        logger.info("Chalk daemon initialized in Standby mode. Press F9 or Tray icon to start recording.")
+        # Start in standby mode: Tray and HUD are active
+        logger.info("Chalk daemon initialized. Displaying HUD.")
         coordinator.tray.start()
         coordinator.tray.set_status("yellow")
         coordinator.hud.set_daemon_status("standby", "Ready (Press F9)")
 
-    # Step 3: Run Qt Event Loop
+        # Always display HUD on launch so user gets the exact desktop experience from the website
+        coordinator.hud.show()
+        coordinator.hud.raise_()
+        coordinator.hud.activateWindow()
+
+        # If no API key is configured yet, guide user to Settings tab in HUD
+        if not (has_api_key("gemini") or has_api_key("anthropic") or has_api_key("openai")):
+            coordinator.hud.switch_tab(2)
+            if hasattr(coordinator.hud, "show_onboarding_notice"):
+                coordinator.hud.show_onboarding_notice()
+        else:
+            coordinator.hud.switch_tab(0)
+
+    # Step 2: Run Qt Event Loop
     sys.exit(app.exec())
 
 

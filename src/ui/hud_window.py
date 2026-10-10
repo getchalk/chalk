@@ -371,14 +371,15 @@ def find_local_obsidian_vault() -> Optional[str]:
                 pass
 
     search_dirs = [
-        os.path.join(home, "Documents"),
         os.path.join(home, "Obsidian"),
+        os.path.join(home, "Documents", "Obsidian"),
         os.path.join(home, "Notes"),
-        home,
     ]
     for base in search_dirs:
         if not os.path.exists(base):
             continue
+        if os.path.exists(os.path.join(base, ".obsidian")):
+            return base
         try:
             for entry in os.scandir(base):
                 if entry.is_dir() and os.path.exists(os.path.join(entry.path, ".obsidian")):
@@ -1270,6 +1271,26 @@ class FloatingHUDWindow(QWidget):
         s_tab_layout.setContentsMargins(6, 6, 6, 6)
         s_tab_layout.setSpacing(10)
 
+        # 0. Onboarding Welcome Banner (visible on first launch when no key is set)
+        self.settings_onboarding_banner = QFrame()
+        self.settings_onboarding_banner.setObjectName("dockFrame")
+        ob_layout = QVBoxLayout(self.settings_onboarding_banner)
+        ob_layout.setContentsMargins(10, 8, 10, 8)
+        ob_layout.setSpacing(3)
+        self.ob_title_lbl = QLabel("Welcome to Chalk")
+        self.ob_title_lbl.setStyleSheet("font-size: 11.5px; font-weight: 700; color: #FFFFFF;")
+        ob_layout.addWidget(self.ob_title_lbl)
+        self.ob_sub_lbl = QLabel(
+            "Enter your free Google AI Studio key below to activate live lecture notes."
+        )
+        self.ob_sub_lbl.setStyleSheet("font-size: 10.5px; color: #94A3B8;")
+        self.ob_sub_lbl.setWordWrap(True)
+        ob_layout.addWidget(self.ob_sub_lbl)
+        s_tab_layout.addWidget(self.settings_onboarding_banner)
+        from src.security.key_manager import has_api_key
+        if has_api_key("gemini") or has_api_key("anthropic") or has_api_key("openai"):
+            self.settings_onboarding_banner.hide()
+
         # 1. API Key
         key_head = QHBoxLayout()
         key_lbl = QLabel(tr("preview_key_label") or "API Key (BYOK):")
@@ -1295,6 +1316,11 @@ class FloatingHUDWindow(QWidget):
         if saved_key:
             self.settings_key_input.setText(saved_key)
         key_row.addWidget(self.settings_key_input)
+
+        self.settings_key_toggle_btn = QPushButton("Show")
+        self.settings_key_toggle_btn.setFixedWidth(56)
+        self.settings_key_toggle_btn.clicked.connect(self._toggle_settings_key_visibility)
+        key_row.addWidget(self.settings_key_toggle_btn)
 
         self.settings_test_key_btn = QPushButton("Test Key")
         self.settings_test_key_btn.clicked.connect(self._test_settings_key)
@@ -1667,18 +1693,33 @@ class FloatingHUDWindow(QWidget):
         self.prompt_input.setText(prompt)
         self._send_copilot_prompt()
 
+    def _toggle_settings_key_visibility(self):
+        if self.settings_key_input.echoMode() == QLineEdit.EchoMode.Password:
+            self.settings_key_input.setEchoMode(QLineEdit.EchoMode.Normal)
+            self.settings_key_toggle_btn.setText("Hide")
+        else:
+            self.settings_key_input.setEchoMode(QLineEdit.EchoMode.Password)
+            self.settings_key_toggle_btn.setText("Show")
+
+    def show_onboarding_notice(self):
+        if hasattr(self, "settings_onboarding_banner"):
+            self.settings_onboarding_banner.show()
+        if hasattr(self, "settings_key_input"):
+            self.settings_key_input.setFocus()
+
     def _test_settings_key(self):
         key = self.settings_key_input.text().strip()
         if not key:
-            self.settings_key_feedback.setText("Please enter an API key.")
+            self.settings_key_feedback.setText(tr("settings_key_missing") or "Please enter an API key.")
             self.settings_key_feedback.setStyleSheet("color: #F87171;")
             return
-        self.settings_key_feedback.setText("Testing key...")
+        self.settings_key_feedback.setText(tr("settings_checking_key") or "Testing key with Google AI Studio...")
         self.settings_key_feedback.setStyleSheet("color: #94A3B8;")
+        QApplication.processEvents()
 
-        valid, msg = validate_api_key(key)
+        valid, msg = validate_api_key(key, "gemini")
         if valid:
-            self.settings_key_feedback.setText("✓ API key is valid and working.")
+            self.settings_key_feedback.setText("✓ " + (tr("settings_status_verified") or "API key verified and operational."))
             self.settings_key_feedback.setStyleSheet("color: #F8FAFC; font-weight: 600;")
         else:
             self.settings_key_feedback.setText(f"✗ Validation failed: {msg[:60]}")
@@ -1687,12 +1728,30 @@ class FloatingHUDWindow(QWidget):
     def _save_settings_key(self):
         key = self.settings_key_input.text().strip()
         if not key:
-            self.settings_key_feedback.setText("Key cannot be empty.")
+            self.settings_key_feedback.setText(tr("settings_key_missing") or "Key cannot be empty.")
             self.settings_key_feedback.setStyleSheet("color: #F87171;")
             return
-        set_api_key(key, "gemini")
-        self.settings_key_feedback.setText("✓ API key saved securely to OS Vault.")
-        self.settings_key_feedback.setStyleSheet("color: #F8FAFC; font-weight: 600;")
+        self.settings_key_feedback.setText("Saving and verifying key...")
+        self.settings_key_feedback.setStyleSheet("color: #94A3B8;")
+        self.settings_save_key_btn.setEnabled(False)
+        QApplication.processEvents()
+
+        valid, msg = validate_api_key(key, "gemini")
+        self.settings_save_key_btn.setEnabled(True)
+        if valid:
+            set_api_key(key, "gemini")
+            if self.pipeline and hasattr(self.pipeline, "reload_key"):
+                self.pipeline.reload_key()
+            self.settings_key_feedback.setText("✓ " + (tr("settings_saved_success") or "API key saved securely to OS Vault."))
+            self.settings_key_feedback.setStyleSheet("color: #F8FAFC; font-weight: 600;")
+            if hasattr(self, "settings_onboarding_banner"):
+                self.settings_onboarding_banner.hide()
+            self.set_daemon_status("standby", "Ready (Press F9)")
+            # Automatically flip to Live Notes after successful validation
+            QTimer.singleShot(800, lambda: self.switch_tab(0))
+        else:
+            self.settings_key_feedback.setText(f"✗ Validation failed: {msg[:60]}")
+            self.settings_key_feedback.setStyleSheet("color: #F87171;")
 
     def _on_settings_model_changed(self, idx: int):
         preset_id = self.settings_model_combo.currentData()

@@ -359,7 +359,7 @@ class SettingsDialog(QDialog):
         gemini_row.addWidget(self.gemini_input)
 
         self.toggle_gemini_eye = QPushButton("Show")
-        self.toggle_gemini_eye.setFixedSize(54, 34)
+        self.toggle_gemini_eye.setFixedSize(65, 34)
         self.toggle_gemini_eye.setObjectName("secondaryButton")
         self.toggle_gemini_eye.clicked.connect(lambda: self._toggle_echo(self.gemini_input, self.toggle_gemini_eye))
         gemini_row.addWidget(self.toggle_gemini_eye)
@@ -377,7 +377,7 @@ class SettingsDialog(QDialog):
         anthropic_row.addWidget(self.anthropic_input)
 
         self.toggle_ant_eye = QPushButton("Show")
-        self.toggle_ant_eye.setFixedSize(54, 34)
+        self.toggle_ant_eye.setFixedSize(65, 34)
         self.toggle_ant_eye.setObjectName("secondaryButton")
         self.toggle_ant_eye.clicked.connect(lambda: self._toggle_echo(self.anthropic_input, self.toggle_ant_eye))
         anthropic_row.addWidget(self.toggle_ant_eye)
@@ -395,7 +395,7 @@ class SettingsDialog(QDialog):
         openai_row.addWidget(self.openai_input)
 
         self.toggle_oai_eye = QPushButton("Show")
-        self.toggle_oai_eye.setFixedSize(54, 34)
+        self.toggle_oai_eye.setFixedSize(65, 34)
         self.toggle_oai_eye.setObjectName("secondaryButton")
         self.toggle_oai_eye.clicked.connect(lambda: self._toggle_echo(self.openai_input, self.toggle_oai_eye))
         openai_row.addWidget(self.toggle_oai_eye)
@@ -492,7 +492,7 @@ class SettingsDialog(QDialog):
             self.exit_btn.clicked.connect(self._quit_application)
             btn_layout.addWidget(self.exit_btn)
 
-        self.save_btn = QPushButton("Save & Validate")
+        self.save_btn = QPushButton("Save && Validate")
         self.save_btn.setObjectName("primaryButton")
         self.save_btn.clicked.connect(self._validate_and_save)
         btn_layout.addWidget(self.save_btn)
@@ -606,7 +606,7 @@ class SettingsDialog(QDialog):
 
     def _browse_obsidian_vault(self):
         current_val = self.obsidian_input.text().strip()
-        start_dir = os.path.expanduser(current_val) if current_val else os.path.expanduser("~")
+        start_dir = os.path.expanduser(current_val) if current_val else os.path.expanduser("~/Documents")
         chosen = QFileDialog.getExistingDirectory(
             self,
             tr("settings_vault_label", lang=self._active_ui_lang),
